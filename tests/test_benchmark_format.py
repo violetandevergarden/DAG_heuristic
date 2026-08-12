@@ -25,18 +25,24 @@ def test_every_committed_benchmark_loads() -> None:
     loaded = [load_benchmark(path) for path in files]
     counts: dict[tuple[str, str, str], int] = {}
     for item in loaded:
-        key = (item.scenario, item.family, item.category)
+        key = (item.schema_version, item.scenario, item.family, item.category)
         counts[key] = counts.get(key, 0) + 1
     assert counts == {
-        ("single_channel", "parallel_chain", "adversarial"): 13,
-        ("single_channel", "parallel_chain", "random"): 10,
-        ("single_channel", "parallel_chain", "real"): 2,
-        ("single_channel", "complex_chain", "adversarial"): 17,
-        ("single_channel", "complex_chain", "random"): 10,
-        ("single_channel", "complex_chain", "real"): 7,
-        ("muti_channel", "complex_chain", "adversarial"): 4,
-        ("muti_channel", "complex_chain", "random"): 10,
-        ("muti_channel", "complex_chain", "real"): 3,
+        ("1.0", "single_channel", "parallel_chain", "adversarial"): 13,
+        ("1.0", "single_channel", "parallel_chain", "random"): 10,
+        ("1.0", "single_channel", "parallel_chain", "real"): 2,
+        ("1.0", "single_channel", "complex_chain", "adversarial"): 16,
+        ("1.0", "single_channel", "complex_chain", "random"): 10,
+        ("1.0", "single_channel", "complex_chain", "real"): 7,
+        ("1.0", "muti_channel", "complex_chain", "adversarial"): 4,
+        ("1.0", "muti_channel", "complex_chain", "random"): 10,
+        ("1.0", "muti_channel", "complex_chain", "real"): 3,
+        ("2.0", "single_channel", "parallel_chain", "adversarial"): 13,
+        ("2.0", "single_channel", "parallel_chain", "random"): 10,
+        ("2.0", "single_channel", "complex_chain", "adversarial"): 17,
+        ("2.0", "single_channel", "complex_chain", "random"): 10,
+        ("2.0", "muti_channel", "complex_chain", "adversarial"): 4,
+        ("2.0", "muti_channel", "complex_chain", "random"): 10,
     }
     assert {item.scenario for item in loaded} == {"single_channel", "muti_channel"}
     assert {item.category for item in loaded} == {"random", "adversarial", "real"}
@@ -80,7 +86,7 @@ def test_reference_results_recompute_with_exact_oracle() -> None:
         problem = ROOT / "benchmark" / reference.relative_to(
             ROOT / "benchmark/reference_results"
         )
-        result = solve(load_benchmark(problem), "exact_optional")
+        result = solve(load_benchmark(problem), payload["oracle"])
         assert result.makespan == payload["optimal_makespan"]
 
 

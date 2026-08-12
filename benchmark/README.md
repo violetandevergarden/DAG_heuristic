@@ -65,15 +65,17 @@ benchmark/
 
 ## 当前数据规模
 
-当前共有 76 个问题：
+当前共有 139 个问题：
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
 | `single_channel/parallel_chain` | 10 | 13 | 2 | 25 |
 | `single_channel/complex_chain` | 10 | 16 | 7 | 33 |
 | `muti_channel` | 10 | 4 | 3 | 17 |
-| `preemptive/single_channel/complex_chain` | 0 | 1 | 0 | 1 |
-| 总计 | 30 | 34 | 12 | 76 |
+| `preemptive/single_channel/parallel_chain` | 10 | 13 | 0 | 23 |
+| `preemptive/single_channel/complex_chain` | 10 | 17 | 0 | 27 |
+| `preemptive/muti_channel` | 10 | 4 | 0 | 14 |
+| 总计 | 60 | 67 | 12 | 139 |
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 
@@ -207,7 +209,7 @@ v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资
 - 在事件处可继续原通信、暂停后切换到另一个 eligible 通信，或主动 WAIT；
 - 暂停立即释放 channel，恢复时沿原固定资源集合继续剩余工作；
 - 当前 `preemption_cost=0`、`minimum_quantum=0`，不模拟迁移、重路由或按比例共享带宽；
-- 当前可执行实现只支持 `single_channel`，多资源可抢占状态机尚未实现。
+- 多资源实现选择固定资源集合互不相交的通信集合并行推进；暂停会同时释放该通信的全部资源。
 
 ```json
 "semantics": {
@@ -221,7 +223,7 @@ v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资
 }
 ```
 
-`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。
+`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。多资源版本同样按事件推进，不允许重路由或只保留部分资源。
 
 ## 使用数据
 

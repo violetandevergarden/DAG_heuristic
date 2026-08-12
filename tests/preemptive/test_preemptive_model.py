@@ -83,7 +83,7 @@ def test_v2_loader_registry_and_longest_tail_form_a_runnable_loop() -> None:
 
     assert benchmark.semantics.is_preemptive
     assert benchmark_from_dict(benchmark_to_dict(benchmark)) == benchmark
-    assert set(algorithms_for(benchmark)) == {"longest_tail"}
+    assert {"longest_tail", "rollout2", "beam8", "exact"} <= set(algorithms_for(benchmark))
     result = solve(benchmark, "longest_tail")
     assert result.makespan == 15
     assert result.preemptions == 1

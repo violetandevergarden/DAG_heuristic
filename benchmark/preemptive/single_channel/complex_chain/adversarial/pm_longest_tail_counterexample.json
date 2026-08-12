@@ -1,0 +1,136 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_longest_tail_counterexample",
+  "metadata": {
+    "description": "Small counterexample where static longest-tail is not optimal.",
+    "generator": "complex_chain",
+    "lifted_from": "longest_tail_counterexample",
+    "parameters": {
+      "chains": "2"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": true,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "c0_flow0",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_flow0"
+      ],
+      "duration": 3,
+      "id": "c0_compute0",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c0_compute0"
+      ],
+      "duration": 1,
+      "id": "c0_flow1",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_flow1"
+      ],
+      "duration": 1,
+      "id": "c0_compute1",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "c1_flow0",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow0"
+      ],
+      "duration": 2,
+      "id": "c1_compute0",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c1_compute0"
+      ],
+      "duration": 2,
+      "id": "c1_flow1",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow1"
+      ],
+      "duration": 1,
+      "id": "c1_compute1",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

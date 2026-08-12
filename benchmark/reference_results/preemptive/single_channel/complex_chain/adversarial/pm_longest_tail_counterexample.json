@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_longest_tail_counterexample",
+  "benchmark_sha256": "5e96c0fe19e1d3c97d41739b8ee1adada9abdc9469b27b1a3bbc27a8a3dea9a0",
+  "optimal_makespan": 8,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

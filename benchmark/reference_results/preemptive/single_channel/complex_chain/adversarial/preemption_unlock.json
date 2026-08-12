@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "preemption_unlock",
+  "benchmark_sha256": "fa2280f4878ca62aa964df85255c0977d06f9506003ec30b3edbc0a56170af36",
+  "optimal_makespan": 15,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

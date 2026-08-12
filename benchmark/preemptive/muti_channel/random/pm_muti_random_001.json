@@ -1,0 +1,205 @@
+{
+  "category": "random",
+  "family": "complex_chain",
+  "id": "pm_muti_random_001",
+  "metadata": {
+    "description": "Random small DAG with branch releases, second flows and a final join.",
+    "generator": "muti_channel",
+    "lifted_from": "muti_random_001",
+    "parameters": {
+      "branches": "2"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": 260821
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:dp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'dp-fabric'"
+      }
+    },
+    {
+      "id": "resource:nic-0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'nic-0'"
+      }
+    },
+    {
+      "id": "resource:nic-1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'nic-1'"
+      }
+    },
+    {
+      "id": "resource:pp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'pp-fabric'"
+      }
+    },
+    {
+      "id": "resource:shared-uplink",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'shared-uplink'"
+      }
+    },
+    {
+      "id": "resource:tp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'tp-fabric'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": true,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r0",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r0"
+      ],
+      "duration": 1,
+      "id": "c0_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "resource:nic-0",
+        "resource:tp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_0"
+      ],
+      "duration": 5,
+      "id": "x0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "backbone"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "r1",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r1"
+      ],
+      "duration": 1,
+      "id": "c1_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "resource:nic-1",
+        "resource:shared-uplink",
+        "resource:tp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_0"
+      ],
+      "duration": 5,
+      "id": "x1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x1_0"
+      ],
+      "duration": 1,
+      "id": "c1_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "resource:dp-fabric",
+        "resource:nic-1"
+      ]
+    },
+    {
+      "dependencies": [
+        "x0_0",
+        "c1_1"
+      ],
+      "duration": 2,
+      "id": "optimizer_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "optimizer_join"
+      ],
+      "duration": 3,
+      "id": "final_comm",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "resource:nic-0",
+        "resource:pp-fabric",
+        "resource:shared-uplink"
+      ]
+    },
+    {
+      "dependencies": [
+        "final_comm"
+      ],
+      "duration": 1,
+      "id": "sink",
+      "kind": "compute",
+      "metadata": {
+        "role": "sink"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

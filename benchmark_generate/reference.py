@@ -22,13 +22,39 @@ def generate_reference_results(
         benchmark = load_benchmark(source)
         if benchmark.category != category:
             continue
-        exact = algorithms_for(benchmark).get("exact_optional")
+        exact_name = "exact" if benchmark.semantics.is_preemptive else "exact_optional"
+        exact = algorithms_for(benchmark).get(exact_name)
         if exact is None or not exact.exact:
             # A benchmark is not ground truth until its execution semantics
             # have a matching exact solver.  In particular, the initial v2
             # preemptive framework deliberately ships without an Oracle.
             continue
-        result = solve(benchmark, "exact_optional")
+        try:
+            if benchmark.semantics.is_preemptive:
+                if benchmark.scenario == "single_channel":
+                    from core.conversion import to_internal_dag
+                    from preemptive.single_channel.solver import exact_oracle
+
+                    result = exact_oracle(
+                        to_internal_dag(benchmark), max_states=100_000, time_limit_s=5.0
+                    )
+                else:
+                    from core.conversion import to_multi_resource_instance
+                    from preemptive.muti_channel.solver import exact_oracle
+
+                    instance = to_multi_resource_instance(benchmark)
+                    result = exact_oracle(
+                        instance.dag,
+                        {key: frozenset(str(value) for value in values) for key, values in instance.resources.items()},
+                        max_states=100_000,
+                        time_limit_s=5.0,
+                    )
+            else:
+                result = solve(benchmark, exact_name)
+        except (RuntimeError, TimeoutError):
+            # A timed-out result is not an optimum certificate.  Keep the
+            # benchmark but deliberately omit its reference sidecar.
+            continue
         makespan = getattr(result, "makespan", None)
         if not isinstance(makespan, int):
             raise TypeError(f"exact result for {benchmark.benchmark_id} has no integer makespan")
@@ -38,10 +64,10 @@ def generate_reference_results(
         target.write_text(
             json.dumps(
                 {
-                    "schema_version": "1.0",
+                    "schema_version": benchmark.schema_version,
                     "benchmark_id": benchmark.benchmark_id,
                     "benchmark_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
-                    "oracle": "exact_optional",
+                    "oracle": exact_name,
                     "optimal_makespan": makespan,
                 },
                 ensure_ascii=False,

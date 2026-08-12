@@ -70,13 +70,35 @@ def _muti_registry() -> dict[str, Algorithm]:
 
 
 def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
+    if benchmark.scenario == "muti_channel":
+        from preemptive.muti_channel import solver as multi_solver
+
+        def convert_multi(item: Benchmark):
+            instance = to_multi_resource_instance(item)
+            resources = {
+                task_id: frozenset(str(resource) for resource in values)
+                for task_id, values in instance.resources.items()
+            }
+            return instance.dag, resources
+
+        return {
+            "longest_tail_pack": Algorithm("longest_tail_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "longest_tail"), "Preemptive compatible packing in residual-tail order.", semantics="preemptive"),
+            "resource_pack": Algorithm("resource_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "resource_tail"), "Residual-tail packing with resource-load tie break.", semantics="preemptive"),
+            "bottleneck_pack": Algorithm("bottleneck_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "bottleneck"), "Bottleneck-load-first compatible packing.", semantics="preemptive"),
+            "rollout_sets2": Algorithm("rollout_sets2", "muti_channel", benchmark.family, lambda b: multi_solver.rollout_sets(*convert_multi(b), top_k=2), "Top-2 maximal compatible-set rollout.", semantics="preemptive"),
+            "exact": Algorithm("exact", "muti_channel", benchmark.family, lambda b: multi_solver.exact_oracle(*convert_multi(b)), "Exact small-state maximal-set Oracle.", exact=True, semantics="preemptive"),
+        }
     if benchmark.scenario != "single_channel":
-        raise ValueError(
-            "preemptive multi-resource execution is not implemented yet"
-        )
+        raise ValueError(f"unsupported preemptive scenario: {benchmark.scenario}")
     from preemptive.single_channel import solver
 
+    convert = to_internal_dag
     return {
+        "fifo": Algorithm("fifo", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "fifo"), "FIFO work-conserving priority.", semantics="preemptive"),
+        "spt": Algorithm("spt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "spt"), "Shortest remaining communication first.", semantics="preemptive"),
+        "lpt": Algorithm("lpt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "lpt"), "Longest remaining communication first.", semantics="preemptive"),
+        "longest_delay": Algorithm("longest_delay", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "longest_delay"), "Longest downstream residual tail.", semantics="preemptive"),
+        "lrpt": Algorithm("lrpt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "lrpt"), "Longest remaining path including current communication.", semantics="preemptive"),
         "longest_tail": Algorithm(
             "longest_tail",
             "single_channel",
@@ -86,6 +108,12 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
             supports_wait=False,
             semantics="preemptive",
         ),
+        "rollout2": Algorithm("rollout2", "single_channel", benchmark.family, lambda b: solver.schedule_rollout(convert(b), top_k=2), "Top-2 one-event rollout with Longest-tail completion.", semantics="preemptive"),
+        "join_rollout2": Algorithm("join_rollout2", "single_channel", benchmark.family, lambda b: solver.schedule_rollout(convert(b), top_k=2, candidate_mode="hybrid"), "Top-2 rollout with tail and last-join-blocker candidates.", semantics="preemptive"),
+        "beam8": Algorithm("beam8", "single_channel", benchmark.family, lambda b: solver.beam_search(convert(b), width=8), "Width-8 event-state beam with Longest-tail incumbent.", semantics="preemptive"),
+        "beam32": Algorithm("beam32", "single_channel", benchmark.family, lambda b: solver.beam_search(convert(b), width=32), "Width-32 event-state beam with Longest-tail incumbent.", semantics="preemptive"),
+        "monte_carlo64": Algorithm("monte_carlo64", "single_channel", benchmark.family, lambda b: solver.monte_carlo(convert(b), samples=64, seed=0), "64 reproducible work-conserving schedule samples.", semantics="preemptive"),
+        "exact": Algorithm("exact", "single_channel", benchmark.family, lambda b: solver.exact_oracle(convert(b)), "Exact memoized event-state Oracle for small DAGs.", exact=True, semantics="preemptive"),
     }
 
 

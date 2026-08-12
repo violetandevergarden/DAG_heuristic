@@ -52,7 +52,7 @@ v1 不可抢占模型的限制：
 - 时间是整数，目标是最小化 makespan；
 - 精确 Oracle 面向小图，不适合作为大图在线调度器。
 
-v2 可抢占模型目前只实现单通道：compute 仍不可抢占；communication 可在 compute 完成等任务事件处暂停，释放 channel，并在之后从剩余进度恢复。当前抢占代价和最小时间片均为零，路由与资源集合固定。多通道接口只作为后续扩展点，尚无可运行算法或 Exact Oracle。
+v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。当前抢占代价和最小时间片均为零。单通道提供 priority、Rollout、Beam、Monte Carlo 和小图 Exact；多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
 
 ## 使用
 
@@ -133,7 +133,7 @@ python -m benchmark_generate reference --output benchmark
 显式写入 LF。reference result 中的 SHA-256 是对 benchmark 原始字节计算的，因此
 不要用会擅自改写换行符的工具保存这些文件；遵守该规则后，不同平台上的哈希应保持一致。
 
-当前固定集合共 76 个问题：75 个既有不可抢占问题，以及 1 个用于回归暂停/恢复语义的可抢占 adversarial 小图。现有精确 reference results 仍只对应不可抢占模型。
+当前固定集合共 139 个问题：75 个既有不可抢占问题和 64 个 v2 可抢占问题。reference results 包含 33 个不可抢占 adversarial 与 21 个在预算内完成 Exact 的可抢占 adversarial；Exact 超时的实例不会生成最优标签。
 
 ## 测试
 
