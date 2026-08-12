@@ -47,6 +47,7 @@ class BuiltWorkload:
     plan: ExecutionPlan
     header: AicbHeader
     job: Job
+    task_info: dict[int, object]
 
 
 def make_job(header: AicbHeader) -> Job:
@@ -60,12 +61,18 @@ def make_job(header: AicbHeader) -> Job:
 
 
 def build_synthetic_input(
-    *, pp: int = 2, tp: int = 1, dp: int = 1, ga: int = 4, layers: int = 2,
+    *,
+    pp: int = 2,
+    tp: int = 1,
+    dp: int = 1,
+    ep: int = 1,
+    ga: int = 4,
+    layers: int = 2,
 ) -> tuple[AicbHeader, list[AicbWorkItem]]:
     """Create a small deterministic input for examples and integration tests."""
     header = AicbHeader(
         tp=tp,
-        ep=1,
+        ep=ep,
         pp=pp,
         vpp=layers,
         ga=ga,
@@ -95,12 +102,21 @@ def build_synthetic_input(
     items = [grad]
     for _microbatch in range(ga):
         for layer in range(layers):
-            items.append(item(
+            layer_item = item(
                 f"layer{layer}",
                 900_000 + layer * 100_000,
                 1_500_000 + layer * 100_000,
                 600_000 + layer * 50_000,
-            ))
+            )
+            # Alternate TP and EP-bearing layers in the controlled mixed
+            # probe.  AICB offers one collective field per phase, so this is
+            # a structural interaction probe rather than a full MoE layer.
+            if ep > 1 and layer % 2:
+                layer_item.forward_comm = "ALLTOALL_EP"
+                layer_item.forward_comm_size = 786_432
+                layer_item.backward_comm = "ALLTOALL_EP"
+                layer_item.backward_comm_size = 786_432
+            items.append(layer_item)
     items.append(item("optimizer1", 0, 0, 0))
     return header, items
 
@@ -165,7 +181,7 @@ def build_workload(
     validation = serializer.validate(workload, plan.compute_order)
     if validation:
         raise ValueError(f"invalid compute order: {validation}")
-    return BuiltWorkload(mode, workload, plan, header, job)
+    return BuiltWorkload(mode, workload, plan, header, job, sidecar)
 
 
 def _effective_dependencies(built: BuiltWorkload) -> dict[int, set[int]]:
@@ -223,6 +239,8 @@ def to_benchmark(
         scenario = "muti_channel"
 
     tasks = []
+    parallelism = built.job.parallelism
+    stage_width = parallelism.dp * parallelism.tp
     for task in built.workload.tasks:
         is_compute = task.is_compute()
         duration = int(task.duration_us or 0) if is_compute else max(
@@ -232,7 +250,30 @@ def to_benchmark(
             "phase": task.phase.value,
             "iteration": task.iteration,
             "layer_id": task.layer_id,
+            "item_id": task.item_id,
+            "chunk_id": task.chunk_id,
+            "num_chunks": task.num_chunks,
         }
+        endpoint = task.node if is_compute else task.src
+        if endpoint is not None:
+            metadata["physical_stage_id"] = endpoint // stage_width
+        strategy_info = built.task_info.get(task.task_id)
+        if strategy_info is not None:
+            # Strategy-specific pipeline builders deliberately keep these
+            # fields in a sidecar instead of changing SimAI's common Task IR.
+            # Preserve primitive values so downstream, language-independent
+            # repetition studies do not have to import SimAI.
+            for name, value in vars(strategy_info).items():
+                if name == "task_id" or value is None:
+                    continue
+                if isinstance(value, (str, int, float, bool)):
+                    metadata[name] = value
+        # Sidecars use the raw SimAI iteration field, where post/optimizer
+        # items are encoded as ``ga``.  They are boundaries, not an extra
+        # micro-batch, so normalize after merging sidecar values.
+        metadata["microbatch_id"] = (
+            task.iteration if 0 <= task.iteration < built.header.ga else -1
+        )
         if is_compute:
             metadata["rank"] = task.node
         else:
@@ -242,6 +283,29 @@ def to_benchmark(
                 "size_bytes": task.size_bytes,
                 "comm_type": task.comm_type.value,
             })
+        if "task_role" not in metadata:
+            if not is_compute:
+                prefix = task.comm_type.value.split("_", 1)[0].upper()
+                metadata["task_role"] = (
+                    "PP_ACT"
+                    if task.comm_type.value == "pp_send" and task.phase.value == "forward"
+                    else "PP_GRAD" if task.comm_type.value == "pp_send"
+                    else prefix
+                )
+            else:
+                metadata["task_role"] = {
+                    "forward": "F",
+                    "backward_input": "B",
+                    "backward_weight": "W",
+                    "optimizer": "OPT",
+                }.get(task.phase.value, "OTHER")
+        metadata["task_role"] = {
+            "compute_forward": "F",
+            "compute_backward_input": "B",
+            "compute_backward_weight": "W",
+            "pp_activation": "PP_ACT",
+            "pp_gradient": "PP_GRAD",
+        }.get(str(metadata["task_role"]), str(metadata["task_role"]))
         tasks.append(BenchmarkTask(
             task_id=str(task.task_id),
             kind="compute" if is_compute else "communication",
@@ -263,6 +327,13 @@ def to_benchmark(
             "pipeline_mode": built.mode,
             "bandwidth_gbps": bandwidth_gbps,
             "topology": str(topology_path) if topology_path else None,
+            "parallelism": {
+                "tp": parallelism.tp,
+                "dp": parallelism.dp,
+                "pp": parallelism.pp,
+                "ep": parallelism.ep,
+            },
+            "gradient_accumulation": built.header.ga,
         },
     )
 

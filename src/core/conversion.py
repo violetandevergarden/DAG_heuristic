@@ -20,7 +20,9 @@ def to_internal_dag(benchmark: Benchmark) -> BenchmarkDAG:
                 kind="comm" if task.kind == "communication" else "compute",
                 duration=task.duration,
                 deps=task.dependencies,
-                role=str(task.metadata.get("role", "")),
+                role=str(
+                    task.metadata.get("task_role", task.metadata.get("role", ""))
+                ),
                 cut=str(task.metadata.get("cut", "")),
             )
             for task in benchmark.tasks

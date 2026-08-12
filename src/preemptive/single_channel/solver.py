@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from functools import lru_cache
 import random
 from time import perf_counter
@@ -203,7 +204,7 @@ def exact_oracle(
     _cost, actions = search(initial_key)
     trace = model.run(actions)
     assert_preemptive_trace(model, trace)
-    return result_from_trace(trace)
+    return replace(result_from_trace(trace), explored_states=states)
 
 
 def monte_carlo(

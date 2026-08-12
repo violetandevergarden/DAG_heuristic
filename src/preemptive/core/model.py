@@ -92,6 +92,7 @@ class PreemptiveScheduleResult:
     trace: ScheduleTrace
     dispatches: int
     preemptions: int
+    explored_states: int = 0
 
 
 class PreemptiveDAGModel:
