@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from benchmark import load_benchmark
-from registry import solve
+from registry import algorithms_for, solve
 
 
 def generate_reference_results(
@@ -21,6 +21,12 @@ def generate_reference_results(
             continue
         benchmark = load_benchmark(source)
         if benchmark.category != category:
+            continue
+        exact = algorithms_for(benchmark).get("exact_optional")
+        if exact is None or not exact.exact:
+            # A benchmark is not ground truth until its execution semantics
+            # have a matching exact solver.  In particular, the initial v2
+            # preemptive framework deliberately ships without an Oracle.
             continue
         result = solve(benchmark, "exact_optional")
         makespan = getattr(result, "makespan", None)

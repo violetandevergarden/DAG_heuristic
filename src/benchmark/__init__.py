@@ -6,7 +6,7 @@ from benchmark.loader import (
     load_benchmark,
     write_benchmark,
 )
-from benchmark.model import Benchmark, Resource, Task
+from benchmark.model import Benchmark, Resource, SchedulingSemantics, Task
 from benchmark.validator import (
     BenchmarkValidationError,
     validate_benchmark,
@@ -14,7 +14,7 @@ from benchmark.validator import (
 )
 
 __all__ = [
-    "Benchmark", "BenchmarkValidationError", "Resource", "Task",
+    "Benchmark", "BenchmarkValidationError", "Resource", "SchedulingSemantics", "Task",
     "benchmark_from_dict", "benchmark_to_dict", "load_benchmark",
     "validate_benchmark", "validation_errors", "write_benchmark",
 ]

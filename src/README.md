@@ -27,6 +27,10 @@ src/
 ├── muti_channel/
 │   ├── interface.py           # 多通道算法输入/输出约定
 │   └── solver.py              # 固定多资源路径上的调度算法
+├── preemptive/
+│   ├── core/model.py          # 通信暂停/恢复事件状态机、Trace 和校验
+│   ├── single_channel/        # 可抢占接口与 Longest-tail baseline
+│   └── muti_channel/          # 后续多资源扩展接口（尚无实现）
 ├── registry.py                # 按场景注册并选择算法
 └── cli.py                     # 面向 benchmark 文件的统一入口
 ```
@@ -66,12 +70,17 @@ src/
 - `rollout_optional2`：允许非最大启动集合和主动等待；
 - 多资源小图 Exact Oracle。
 
+### `preemptive/single_channel`
+
+输入仍为一般 `BenchmarkDAG`，执行则由独立的 `PreemptiveDAGModel` 定义。通信运行到下一个任务事件时保存剩余工作，算法随后可以继续它或切换通信。当前只提供动态 residual Longest-tail 作为最小 baseline；Exact Oracle、Rollout、Beam 和多资源版本留待后续实现。
+
 ## 从 JSON 运行
 
 安装项目后：
 
 ```powershell
 dag-schedule benchmark/single_channel/parallel_chain/adversarial/tight_optional_wait_m20.json --algorithm longest_tail
+dag-schedule benchmark/preemptive/single_channel/complex_chain/adversarial/preemption_unlock.json --algorithm longest_tail
 ```
 
 不安装也可以从仓库根目录运行：
@@ -112,14 +121,21 @@ print(result.makespan)
 
 算法不得从 metadata 读取最优答案。有限 benchmark 上全部最优不能替代理论近似比证明。
 
+### 添加可抢占算法
+
+可抢占算法放在 `preemptive/` 下，并复用 `PreemptiveDAGModel.step` 推进状态，不得自行按 tick 改写另一套依赖语义。稳定决策状态由 `ScheduleState` 表示；合法动作是运行/恢复一个 eligible communication 或 WAIT。算法结果使用 `PreemptiveScheduleResult`，Trace 必须通过 `assert_preemptive_trace`。
+
+当前 `preemptive.single_channel.solver.schedule_longest_tail` 在每个任务事件重新计算 residual critical tail，是一般 DAG 的初始 work-conserving baseline，不具有已证明的最优性或常数近似保证。新增算法后在 `registry.py` 的可抢占注册表中登记，并用 v2 benchmark 与状态机测试验证。
+
 ## 重要语义和限制
 
-- communication 和 compute 都不可抢占，开始后必须运行到完成。
+- v1 中 communication 和 compute 都不可抢占，开始后必须运行到完成。
 - 调度器只在任务完成事件后重新决策，channel 空闲时允许主动等待。
 - ready compute 自动开始；有限 GPU 串行约束必须预先编码为 DAG 边。
 - 多通道算法不重新选路，资源集合已经包含在输入中。
 - 当前不模拟连续带宽比例共享；通信在完整持续时间内独占所需资源。
 - Exact Oracle 只适合小图，用于标注、反例验证和 heuristic 对照。
+- v2 当前只允许单通道 communication 在任务事件处零代价暂停/原资源恢复；compute 仍不可抢占，多资源状态机和可抢占 Exact Oracle 尚未实现。
 - `src/` 禁止导入 `benchmark_generate`、SimAI 或修改 `sys.path`。
 
 ## 测试

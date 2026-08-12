@@ -13,10 +13,36 @@ class BenchmarkValidationError(ValueError):
 
 def validation_errors(benchmark: Benchmark) -> list[str]:
     errors: list[str] = []
-    if benchmark.schema_version != "1.0":
+    if benchmark.schema_version not in {"1.0", "2.0"}:
         errors.append(f"unsupported schema_version: {benchmark.schema_version}")
     if benchmark.objective != "makespan":
         errors.append(f"unsupported objective: {benchmark.objective}")
+    semantics = benchmark.semantics
+    if not isinstance(semantics.optional_idle, bool) or not semantics.optional_idle:
+        errors.append("the current models require optional_idle=true")
+    if benchmark.schema_version == "1.0" and semantics.is_preemptive:
+        errors.append("schema v1 does not support preemption")
+    if semantics.preemption not in {"none", "communication_resume"}:
+        errors.append(f"unsupported preemption mode: {semantics.preemption}")
+    if semantics.decision_epoch not in {"task_completion", "task_event"}:
+        errors.append(f"unsupported decision epoch: {semantics.decision_epoch}")
+    if semantics.compute_model != "unbounded_parallel":
+        errors.append(f"unsupported compute model: {semantics.compute_model}")
+    if semantics.resource_model not in {"exclusive", "exclusive_fixed_set"}:
+        errors.append(f"unsupported resource model: {semantics.resource_model}")
+    if semantics.preemption_cost < 0 or semantics.minimum_quantum < 0:
+        errors.append("preemption cost and minimum quantum must be non-negative")
+    if semantics.is_preemptive:
+        if benchmark.schema_version != "2.0":
+            errors.append("preemptive benchmarks require schema v2")
+        if semantics.decision_epoch != "task_event":
+            errors.append("communication preemption requires decision_epoch=task_event")
+        if semantics.resource_model != "exclusive_fixed_set":
+            errors.append("communication preemption requires fixed resource sets")
+        if semantics.preemption_cost != 0 or semantics.minimum_quantum != 0:
+            errors.append("the current preemptive core supports only zero-cost, zero-quantum preemption")
+    elif benchmark.schema_version == "2.0":
+        errors.append("schema v2 is currently reserved for communication_resume benchmarks")
     task_ids = [task.task_id for task in benchmark.tasks]
     resource_ids = [resource.resource_id for resource in benchmark.resources]
     if len(task_ids) != len(set(task_ids)):

@@ -2,7 +2,7 @@
 
 `benchmark/` 保存可由 Python、C++ 或其它语言直接读取的调度问题。每个 JSON 都是完整、自包含的 DAG；使用数据不需要安装本仓库的算法，也不需要 SimAI。
 
-本 README 同时是数据集说明和 v1 格式规范。机器可读的基础约束见 `schema/dag-benchmark-v1.schema.json`。
+本 README 同时是数据集说明和格式规范。v1 描述不可抢占模型，v2 描述通信可暂停恢复模型；机器可读约束分别见 `schema/dag-benchmark-v1.schema.json` 和 `schema/dag-benchmark-v2.schema.json`。
 
 ## 目录结构
 
@@ -10,7 +10,8 @@
 benchmark/
 ├── index.jsonl
 ├── schema/
-│   └── dag-benchmark-v1.schema.json
+│   ├── dag-benchmark-v1.schema.json
+│   └── dag-benchmark-v2.schema.json
 ├── single_channel/
 │   ├── parallel_chain/
 │   │   ├── random/
@@ -24,6 +25,9 @@ benchmark/
 │   ├── random/
 │   ├── adversarial/
 │   └── real/
+├── preemptive/
+│   └── single_channel/
+│       └── complex_chain/{random,adversarial,real}/
 └── reference_results/
     ├── single_channel/
     │   ├── parallel_chain/adversarial/
@@ -47,6 +51,10 @@ benchmark/
 
 一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；一条通信开始后持续占用全部所需资源直到完成。
 
+### `preemptive/single_channel`
+
+使用 v2 语义的单通道 DAG。目录内部仍按 `parallel_chain` 和 `complex_chain` 区分结构；当前只提交一个用于验证暂停、切换和恢复的 complex-chain 小图。该目录与 v1 数据物理隔离，避免只看路径时误用执行语义。
+
 ## 数据分类
 
 - `random`：未经过结果筛选的固定 seed 随机样例，用于平均表现和健壮性测试。每个场景提交约 10 个，更多样例由使用者生成。
@@ -57,14 +65,15 @@ benchmark/
 
 ## 当前数据规模
 
-当前共有 75 个问题：
+当前共有 76 个问题：
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
 | `single_channel/parallel_chain` | 10 | 13 | 2 | 25 |
 | `single_channel/complex_chain` | 10 | 16 | 7 | 33 |
 | `muti_channel` | 10 | 4 | 3 | 17 |
-| 总计 | 30 | 33 | 12 | 75 |
+| `preemptive/single_channel/complex_chain` | 0 | 1 | 0 | 1 |
+| 总计 | 30 | 34 | 12 | 76 |
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 
@@ -176,6 +185,8 @@ v1 不允许未知顶层字段。增加可选 metadata 不需要提高 major ver
 
 ## 调度语义
 
+### v1：不可抢占
+
 - compute 和 communication 都不可抢占，开始后必须连续执行到完成。
 - `dependencies` 是 finish-to-start 依赖。
 - ready compute 自动开始；有限 GPU 串行关系应已经表示为 DAG 边。
@@ -186,6 +197,31 @@ v1 不允许未知顶层字段。增加可选 metadata 不需要提高 major ver
 - v1 使用整数时间；compute 可以为零，communication 必须大于零。
 
 这里研究的是任务开始顺序，不是可抢占带宽分片，也不是连续带宽比例分配。
+
+### v2：通信暂停与恢复
+
+v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资源集合，但只允许 communication 暂停：
+
+- compute 一旦开始仍连续运行到完成；
+- communication 被调度后运行到自身完成或下一个 compute 完成事件；
+- 在事件处可继续原通信、暂停后切换到另一个 eligible 通信，或主动 WAIT；
+- 暂停立即释放 channel，恢复时沿原固定资源集合继续剩余工作；
+- 当前 `preemption_cost=0`、`minimum_quantum=0`，不模拟迁移、重路由或按比例共享带宽；
+- 当前可执行实现只支持 `single_channel`，多资源可抢占状态机尚未实现。
+
+```json
+"semantics": {
+  "preemption": "communication_resume",
+  "decision_epoch": "task_event",
+  "optional_idle": true,
+  "compute_model": "unbounded_parallel",
+  "resource_model": "exclusive_fixed_set",
+  "preemption_cost": 0,
+  "minimum_quantum": 0
+}
+```
+
+`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。
 
 ## 使用数据
 
@@ -247,7 +283,7 @@ python -m benchmark_generate reference --output benchmark
 手工添加 JSON 时：
 
 1. 选择正确的场景和 category。
-2. 遵循本 README 中的 v1 格式，明确时间单位、依赖和资源。
+2. 按目标语义选择 v1 或 v2，明确时间单位、依赖和资源。
 3. 用 Python Loader 验证文件。
 4. 更新 `index.jsonl`。
 5. adversarial 小图应重算 reference；random 和大型 real 图通常不生成 exact 标签。
@@ -265,7 +301,7 @@ python -m benchmark_generate reference --output benchmark
 
 ## 格式兼容性
 
-- v1 reader 必须拒绝未知 major version，不能静默猜测新格式语义。
+- reader 必须拒绝未知 major version，不能静默猜测新格式语义。
 - JSON 文件统一使用 UTF-8；仓库生成器使用稳定 key 排序和 LF 换行。
 - ID 比较区分大小写。
 - JSON Schema 负责字段类型和枚举等机器可读约束；DAG 无环、依赖存在以及 parallel-chain 结构仍需 Loader 做语义检查。

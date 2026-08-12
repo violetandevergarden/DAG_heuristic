@@ -22,6 +22,7 @@ class Algorithm:
     description: str
     exact: bool = False
     supports_wait: bool = False
+    semantics: str = "nonpreemptive"
 
 
 def _parallel_registry() -> dict[str, Algorithm]:
@@ -68,7 +69,29 @@ def _muti_registry() -> dict[str, Algorithm]:
     }
 
 
+def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
+    if benchmark.scenario != "single_channel":
+        raise ValueError(
+            "preemptive multi-resource execution is not implemented yet"
+        )
+    from preemptive.single_channel import solver
+
+    return {
+        "longest_tail": Algorithm(
+            "longest_tail",
+            "single_channel",
+            benchmark.family,
+            lambda b: solver.schedule_longest_tail(to_internal_dag(b)),
+            "Event-driven residual longest-tail with communication pause/resume.",
+            supports_wait=False,
+            semantics="preemptive",
+        ),
+    }
+
+
 def algorithms_for(benchmark: Benchmark) -> dict[str, Algorithm]:
+    if benchmark.semantics.is_preemptive:
+        return _preemptive_registry(benchmark)
     if benchmark.scenario == "muti_channel":
         return _muti_registry()
     if benchmark.family == "parallel_chain":

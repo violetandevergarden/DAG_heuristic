@@ -31,7 +31,7 @@ def test_every_committed_benchmark_loads() -> None:
         ("single_channel", "parallel_chain", "adversarial"): 13,
         ("single_channel", "parallel_chain", "random"): 10,
         ("single_channel", "parallel_chain", "real"): 2,
-        ("single_channel", "complex_chain", "adversarial"): 16,
+        ("single_channel", "complex_chain", "adversarial"): 17,
         ("single_channel", "complex_chain", "random"): 10,
         ("single_channel", "complex_chain", "real"): 7,
         ("muti_channel", "complex_chain", "adversarial"): 4,

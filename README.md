@@ -1,6 +1,6 @@
 # DAG scheduling benchmark and algorithms
 
-这个仓库研究不可抢占 DAG 通信调度。每个计算或通信节点一旦开始就必须执行完；调度器只决定 ready 通信任务的开始顺序，也可以在资源空闲时主动等待。
+这个仓库研究大模型训练 DAG 的通信调度，同时维护不可抢占主线和通信可暂停恢复的实验模型。两种模型共享语言无关的 DAG benchmark 和依赖语义，但使用不同状态机、算法与结果校验，不能混用结论。
 
 Benchmark 使用普通 JSON，Python 和 C++ 都可以直接读取。算法代码不依赖 SimAI；只有从 AICB workload 导出真实 DAG 时才需要可选的 SimAI checkout。
 
@@ -12,6 +12,7 @@ benchmark/
     parallel_chain/{random,adversarial,real}/
     complex_chain/{random,adversarial,real}/
   muti_channel/{random,adversarial,real}/
+  preemptive/single_channel/... # v2 通信可暂停恢复样例
   reference_results/          # 小型 adversarial 样例的精确最优值
   schema/                     # JSON Schema
 
@@ -23,6 +24,7 @@ src/
     parallel_chain/           # 并行链算法与接口
     complex_chain/            # 含 fork/join 的单通道算法与接口
   muti_channel/               # 固定多资源路径的算法与接口
+  preemptive/                 # 可抢占状态机、接口和初始算法
   registry.py                 # 文件场景到算法的注册表
   cli.py                      # 统一运行入口
 tests/                        # 与上述结构对应的测试
@@ -40,7 +42,7 @@ third_party/                  # 可选 SimAI submodule 位置
 | `single_channel/complex_chain` | 带 fork、join 和多层依赖的 DAG 共享一个 channel |
 | `muti_channel` | 一般 DAG 中的通信占用一个或多个固定 link/NIC 资源 |
 
-共同限制：
+v1 不可抢占模型的限制：
 
 - 任务不可抢占；
 - 依赖是 finish-to-start；
@@ -49,6 +51,8 @@ third_party/                  # 可选 SimAI submodule 位置
 - 不在算法中重新选路，也不模拟按比例共享带宽；
 - 时间是整数，目标是最小化 makespan；
 - 精确 Oracle 面向小图，不适合作为大图在线调度器。
+
+v2 可抢占模型目前只实现单通道：compute 仍不可抢占；communication 可在 compute 完成等任务事件处暂停，释放 channel，并在之后从剩余进度恢复。当前抢占代价和最小时间片均为零，路由与资源集合固定。多通道接口只作为后续扩展点，尚无可运行算法或 Exact Oracle。
 
 ## 使用
 
@@ -75,6 +79,7 @@ SimAI 当前要求 Python 3.13，并在自己的 `pyproject.toml` 中声明
 ```powershell
 dag-schedule benchmark/single_channel/parallel_chain/adversarial/tight_optional_wait_m20.json --algorithm longest_tail
 dag-schedule benchmark/muti_channel/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
+dag-schedule benchmark/preemptive/single_channel/complex_chain/adversarial/preemption_unlock.json --algorithm longest_tail
 ```
 
 不安装命令行入口也可以运行：
@@ -98,7 +103,7 @@ from benchmark import load_benchmark
 case = load_benchmark("benchmark/single_channel/parallel_chain/random/random_chain_0.json")
 ```
 
-完整 JSON 约定见 [benchmark/README.md](benchmark/README.md)，机器可读约束见 `benchmark/schema/dag-benchmark-v1.schema.json`。
+完整 JSON 约定见 [benchmark/README.md](benchmark/README.md)，机器可读约束见 `benchmark/schema/dag-benchmark-v1.schema.json` 和 `dag-benchmark-v2.schema.json`。
 
 ## 增加算法
 
@@ -128,7 +133,7 @@ python -m benchmark_generate reference --output benchmark
 显式写入 LF。reference result 中的 SHA-256 是对 benchmark 原始字节计算的，因此
 不要用会擅自改写换行符的工具保存这些文件；遵守该规则后，不同平台上的哈希应保持一致。
 
-当前固定集合共 75 个问题：每个场景各有 10 个 random，另有 33 个带精确最优值的 adversarial 和 12 个 real 快照。
+当前固定集合共 76 个问题：75 个既有不可抢占问题，以及 1 个用于回归暂停/恢复语义的可抢占 adversarial 小图。现有精确 reference results 仍只对应不可抢占模型。
 
 ## 测试
 
