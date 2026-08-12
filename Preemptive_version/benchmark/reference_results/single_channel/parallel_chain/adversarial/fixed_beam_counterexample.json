@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "fixed_beam_counterexample",
+  "benchmark_sha256": "548ed28943e4d226bd859e7281dcc3e77db07690af3d02f0ede7ffbd38820b5c",
+  "optimal_makespan": 44,
+  "oracle": "",
+  "schema_version": "1.0"
+}

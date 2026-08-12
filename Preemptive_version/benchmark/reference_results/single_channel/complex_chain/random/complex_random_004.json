@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "complex_random_004",
+  "benchmark_sha256": "5eb578229187464b0925d82a3df9d318165a98e66403e21926ca676caaf5c532",
+  "optimal_makespan": 25,
+  "oracle": "",
+  "schema_version": "1.0"
+}

@@ -1,0 +1,334 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "one_f_one_b",
+  "metadata": {
+    "description": "Small 1F1B wave.",
+    "generator": "complex_chain",
+    "parameters": {
+      "microbatches": "3",
+      "stages": "2"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f_0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_0_0"
+      ],
+      "duration": 1,
+      "id": "fpp_0_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "fpp_0_0"
+      ],
+      "duration": 2,
+      "id": "f_0_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_0_1"
+      ],
+      "duration": 3,
+      "id": "b_0_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_0_1"
+      ],
+      "duration": 1,
+      "id": "w_0_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_0_1"
+      ],
+      "duration": 1,
+      "id": "bpp_0_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "bpp_0_1",
+        "f_1_0"
+      ],
+      "duration": 3,
+      "id": "b_0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_0_0"
+      ],
+      "duration": 1,
+      "id": "w_0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_0_0"
+      ],
+      "duration": 2,
+      "id": "f_1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_1_0"
+      ],
+      "duration": 1,
+      "id": "fpp_1_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "fpp_1_0",
+        "b_0_1"
+      ],
+      "duration": 2,
+      "id": "f_1_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_1_1"
+      ],
+      "duration": 3,
+      "id": "b_1_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_1_1"
+      ],
+      "duration": 1,
+      "id": "w_1_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_1_1"
+      ],
+      "duration": 1,
+      "id": "bpp_1_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "bpp_1_1",
+        "b_0_0"
+      ],
+      "duration": 3,
+      "id": "b_1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_1_0"
+      ],
+      "duration": 1,
+      "id": "w_1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f_2_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_2_0"
+      ],
+      "duration": 1,
+      "id": "fpp_2_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "fpp_2_0",
+        "b_1_1"
+      ],
+      "duration": 2,
+      "id": "f_2_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f_2_1"
+      ],
+      "duration": 3,
+      "id": "b_2_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_2_1"
+      ],
+      "duration": 1,
+      "id": "w_2_1",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_2_1"
+      ],
+      "duration": 1,
+      "id": "bpp_2_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "bpp_2_1",
+        "f_2_0"
+      ],
+      "duration": 3,
+      "id": "b_2_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b_2_0"
+      ],
+      "duration": 1,
+      "id": "w_2_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

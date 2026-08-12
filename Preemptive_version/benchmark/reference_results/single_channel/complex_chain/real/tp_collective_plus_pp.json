@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "tp_collective_plus_pp",
+  "benchmark_sha256": "a5e278c3c684c438e5cf84a8cae6508fdf4ac8d3cd01b4096d7e765a7f242f51",
+  "optimal_makespan": 11,
+  "oracle": "",
+  "schema_version": "1.0"
+}

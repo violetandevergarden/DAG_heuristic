@@ -1,0 +1,157 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "pp_forward_wave",
+  "metadata": {
+    "description": "Parameterized PP forward wave.",
+    "generator": "complex_chain",
+    "parameters": {
+      "microbatches": "2",
+      "stages": "3"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "mb0_s0_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "mb0_s0_forward"
+      ],
+      "duration": 1,
+      "id": "mb0_s0_forward_pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "mb0_s0_forward_pp"
+      ],
+      "duration": 2,
+      "id": "mb0_s1_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "mb0_s1_forward"
+      ],
+      "duration": 1,
+      "id": "mb0_s1_forward_pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "mb0_s1_forward_pp"
+      ],
+      "duration": 2,
+      "id": "mb0_s2_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "mb1_s0_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "mb1_s0_forward"
+      ],
+      "duration": 1,
+      "id": "mb1_s0_forward_pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "mb1_s0_forward_pp"
+      ],
+      "duration": 2,
+      "id": "mb1_s1_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "mb1_s1_forward"
+      ],
+      "duration": 1,
+      "id": "mb1_s1_forward_pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "mb1_s1_forward_pp"
+      ],
+      "duration": 2,
+      "id": "mb1_s2_forward",
+      "kind": "compute",
+      "metadata": {
+        "role": "forward"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

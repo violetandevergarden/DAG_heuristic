@@ -1,0 +1,132 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "longest_tail_counterexample",
+  "metadata": {
+    "description": "Small counterexample where static longest-tail is not optimal.",
+    "generator": "complex_chain",
+    "parameters": {
+      "chains": "2"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "c0_flow0",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_flow0"
+      ],
+      "duration": 3,
+      "id": "c0_compute0",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c0_compute0"
+      ],
+      "duration": 1,
+      "id": "c0_flow1",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_flow1"
+      ],
+      "duration": 1,
+      "id": "c0_compute1",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "c1_flow0",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow0"
+      ],
+      "duration": 2,
+      "id": "c1_compute0",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c1_compute0"
+      ],
+      "duration": 2,
+      "id": "c1_flow1",
+      "kind": "communication",
+      "metadata": {
+        "role": "chain_flow"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow1"
+      ],
+      "duration": 1,
+      "id": "c1_compute1",
+      "kind": "compute",
+      "metadata": {
+        "role": "chain_compute"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

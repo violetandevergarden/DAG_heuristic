@@ -1,0 +1,171 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "random_join_30",
+  "metadata": {
+    "description": "Random small DAG with branch releases, second flows and a final join.",
+    "generator": "complex_chain",
+    "parameters": {
+      "branches": "2"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r0",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r0"
+      ],
+      "duration": 1,
+      "id": "c0_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_0"
+      ],
+      "duration": 5,
+      "id": "x0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "backbone"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x0_0"
+      ],
+      "duration": 3,
+      "id": "c0_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r1",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r1"
+      ],
+      "duration": 2,
+      "id": "c1_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_0"
+      ],
+      "duration": 6,
+      "id": "x1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x1_0"
+      ],
+      "duration": 4,
+      "id": "c1_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_1",
+        "c1_1"
+      ],
+      "duration": 3,
+      "id": "optimizer_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "optimizer_join"
+      ],
+      "duration": 2,
+      "id": "final_comm",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "final_comm"
+      ],
+      "duration": 2,
+      "id": "sink",
+      "kind": "compute",
+      "metadata": {
+        "role": "sink"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

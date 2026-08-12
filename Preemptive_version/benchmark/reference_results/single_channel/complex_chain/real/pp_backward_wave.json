@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pp_backward_wave",
+  "benchmark_sha256": "75db22c0eae63482dc71cc64b45e82d70c4007b8c8ea7b18119b43ba59aaa340",
+  "optimal_makespan": 9,
+  "oracle": "",
+  "schema_version": "1.0"
+}

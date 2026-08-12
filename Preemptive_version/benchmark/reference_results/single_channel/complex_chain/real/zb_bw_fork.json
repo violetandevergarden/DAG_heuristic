@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "zb_bw_fork",
+  "benchmark_sha256": "c1ea1625f1ecbee5c5f382738e664512edfb9596d07c8acbe1535a313ec1f264",
+  "optimal_makespan": 13,
+  "oracle": "",
+  "schema_version": "1.0"
+}

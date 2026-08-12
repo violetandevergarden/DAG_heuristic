@@ -1,0 +1,85 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "join_false_critical",
+  "metadata": {
+    "description": "Two apparently critical branches meet a join; only the last arrival gates it.",
+    "generator": "complex_chain",
+    "parameters": {},
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "a_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "join_input"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "a_flow"
+      ],
+      "duration": 5,
+      "id": "a_compute",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "b_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "join_input"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "a_compute",
+        "b_flow"
+      ],
+      "duration": 1,
+      "id": "join",
+      "kind": "compute",
+      "metadata": {
+        "role": "join"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "join"
+      ],
+      "duration": 2,
+      "id": "sink",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

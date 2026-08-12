@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://simai.example/schema/dag-benchmark-v1.schema.json",
+  "title": "DAG scheduling benchmark v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "id", "scenario", "family", "category",
+    "objective", "time_unit", "semantics", "resources", "tasks"
+  ],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "id": {"type": "string", "minLength": 1},
+    "scenario": {"enum": ["single_channel", "muti_channel"]},
+    "family": {"enum": ["parallel_chain", "complex_chain"]},
+    "category": {"enum": ["random", "adversarial", "real"]},
+    "objective": {"const": "makespan"},
+    "time_unit": {"type": "string", "minLength": 1},
+    "semantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["preemptive", "decision_epoch", "optional_idle", "compute_model", "resource_model"],
+      "properties": {
+        "preemptive": {"const": true},
+        "decision_epoch": {"const": "task_completion"},
+        "optional_idle": {"const": true},
+        "compute_model": {"const": "unbounded_parallel"},
+        "resource_model": {"const": "exclusive"}
+      }
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"type": "string", "minLength": 1},
+          "metadata": {"type": "object"}
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "duration", "dependencies", "resources"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["compute", "communication"]},
+          "duration": {"type": "integer", "minimum": 0},
+          "dependencies": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "resources": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "metadata": {"type": "object"}
+        }
+      }
+    },
+    "metadata": {"type": "object"}
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "tp_collective_plus_pp",
+  "metadata": {
+    "description": "TP fan-out/fan-in then PP send.",
+    "generator": "complex_chain",
+    "parameters": {
+      "tp_flows": "3"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp1",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp2",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "tp0",
+        "tp1",
+        "tp2"
+      ],
+      "duration": 1,
+      "id": "tp_complete",
+      "kind": "compute",
+      "metadata": {
+        "role": "collective_join"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "tp_complete"
+      ],
+      "duration": 2,
+      "id": "pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "pp"
+      ],
+      "duration": 3,
+      "id": "next_stage_f",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

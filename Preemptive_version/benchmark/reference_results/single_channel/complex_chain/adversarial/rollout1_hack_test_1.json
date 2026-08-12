@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "rollout1_hack_test_1",
+  "benchmark_sha256": "843a7ce855fb617301b1feeb1001c36edf4b6d22ba4a7747703750db63788e8b",
+  "optimal_makespan": 4273,
+  "oracle": "",
+  "schema_version": "1.0"
+}

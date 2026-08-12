@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "lrpt_double_count",
+  "benchmark_sha256": "9c6e7a95be2883d0fb6de2b7dd78d728336c68cc7660fce6327d49bb98423b63",
+  "optimal_makespan": 10,
+  "oracle": "",
+  "schema_version": "1.0"
+}

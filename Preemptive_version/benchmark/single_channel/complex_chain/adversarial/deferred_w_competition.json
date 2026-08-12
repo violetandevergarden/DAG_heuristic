@@ -1,0 +1,141 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "deferred_w_competition",
+  "metadata": {
+    "description": "Several W/DP side jobs compete with a PP flow that unlocks backbone compute.",
+    "generator": "complex_chain",
+    "parameters": {},
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "pp"
+      ],
+      "duration": 7,
+      "id": "backbone",
+      "kind": "compute",
+      "metadata": {
+        "role": "backbone"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "w0",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w0"
+      ],
+      "duration": 2,
+      "id": "dp0",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "w1",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w1"
+      ],
+      "duration": 3,
+      "id": "dp1",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "w2",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w2"
+      ],
+      "duration": 2,
+      "id": "dp2",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "backbone",
+        "dp0",
+        "dp1",
+        "dp2"
+      ],
+      "duration": 1,
+      "id": "optimizer",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

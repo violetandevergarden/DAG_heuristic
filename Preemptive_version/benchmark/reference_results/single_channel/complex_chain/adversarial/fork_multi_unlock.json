@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "fork_multi_unlock",
+  "benchmark_sha256": "ea5d0d6b949e641d232ec0517bcc5e41af37f56653c21c7751c676d7dca87aa3",
+  "optimal_makespan": 8,
+  "oracle": "",
+  "schema_version": "1.0"
+}

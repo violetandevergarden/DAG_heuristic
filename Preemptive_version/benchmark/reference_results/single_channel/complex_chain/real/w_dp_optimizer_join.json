@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "w_dp_optimizer_join",
+  "benchmark_sha256": "8205c3e6758e59d2e50f94ddd6a665d11a51f1cfdc3a2e2cd9e170f497cdacc2",
+  "optimal_makespan": 9,
+  "oracle": "",
+  "schema_version": "1.0"
+}

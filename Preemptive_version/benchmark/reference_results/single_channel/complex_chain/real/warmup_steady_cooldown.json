@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "warmup_steady_cooldown",
+  "benchmark_sha256": "d8fafdf64dd3dc9b096fefb0398e0469ef0f2bd3d80aadde0467a0353ee00de1",
+  "optimal_makespan": 24,
+  "oracle": "",
+  "schema_version": "1.0"
+}

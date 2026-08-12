@@ -1,0 +1,740 @@
+{
+  "schema_version": "1.0",
+  "id": "test_oracle_limit",
+  "scenario": "single_channel",
+  "family": "complex_chain",
+  "category": "adversarial",
+  "objective": "makespan",
+  "time_unit": "tick",
+  "semantics": {
+    "preemptive": true,
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "compute_model": "unbounded_parallel",
+    "resource_model": "exclusive"
+  },
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "kind": "compute",
+      "duration": 412,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "2",
+      "kind": "communication",
+      "duration": 915,
+      "dependencies": [
+        "1"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "3",
+      "kind": "compute",
+      "duration": 917,
+      "dependencies": [
+        "2"
+      ],
+      "resources": []
+    },
+    {
+      "id": "4",
+      "kind": "compute",
+      "duration": 870,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "5",
+      "kind": "communication",
+      "duration": 25,
+      "dependencies": [
+        "4"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "6",
+      "kind": "compute",
+      "duration": 591,
+      "dependencies": [
+        "5"
+      ],
+      "resources": []
+    },
+    {
+      "id": "7",
+      "kind": "compute",
+      "duration": 196,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "8",
+      "kind": "communication",
+      "duration": 997,
+      "dependencies": [
+        "7"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "9",
+      "kind": "compute",
+      "duration": 907,
+      "dependencies": [
+        "8"
+      ],
+      "resources": []
+    },
+    {
+      "id": "10",
+      "kind": "compute",
+      "duration": 283,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "11",
+      "kind": "communication",
+      "duration": 736,
+      "dependencies": [
+        "10"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "12",
+      "kind": "compute",
+      "duration": 824,
+      "dependencies": [
+        "11"
+      ],
+      "resources": []
+    },
+    {
+      "id": "13",
+      "kind": "compute",
+      "duration": 803,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "14",
+      "kind": "communication",
+      "duration": 659,
+      "dependencies": [
+        "13"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "15",
+      "kind": "compute",
+      "duration": 639,
+      "dependencies": [
+        "14"
+      ],
+      "resources": []
+    },
+    {
+      "id": "16",
+      "kind": "compute",
+      "duration": 987,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "17",
+      "kind": "communication",
+      "duration": 880,
+      "dependencies": [
+        "16"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "18",
+      "kind": "compute",
+      "duration": 645,
+      "dependencies": [
+        "17"
+      ],
+      "resources": []
+    },
+    {
+      "id": "19",
+      "kind": "compute",
+      "duration": 554,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "20",
+      "kind": "communication",
+      "duration": 922,
+      "dependencies": [
+        "19"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "21",
+      "kind": "compute",
+      "duration": 936,
+      "dependencies": [
+        "20"
+      ],
+      "resources": []
+    },
+    {
+      "id": "22",
+      "kind": "compute",
+      "duration": 972,
+      "dependencies": [
+        "9",
+        "21"
+      ],
+      "resources": []
+    },
+    {
+      "id": "23",
+      "kind": "communication",
+      "duration": 699,
+      "dependencies": [
+        "22"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "24",
+      "kind": "compute",
+      "duration": 538,
+      "dependencies": [
+        "23"
+      ],
+      "resources": []
+    },
+    {
+      "id": "25",
+      "kind": "compute",
+      "duration": 543,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "26",
+      "kind": "communication",
+      "duration": 218,
+      "dependencies": [
+        "25"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "27",
+      "kind": "compute",
+      "duration": 861,
+      "dependencies": [
+        "26"
+      ],
+      "resources": []
+    },
+    {
+      "id": "28",
+      "kind": "compute",
+      "duration": 423,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "29",
+      "kind": "communication",
+      "duration": 212,
+      "dependencies": [
+        "28"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "30",
+      "kind": "compute",
+      "duration": 745,
+      "dependencies": [
+        "29"
+      ],
+      "resources": []
+    },
+    {
+      "id": "31",
+      "kind": "compute",
+      "duration": 805,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "32",
+      "kind": "communication",
+      "duration": 536,
+      "dependencies": [
+        "31"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "33",
+      "kind": "compute",
+      "duration": 302,
+      "dependencies": [
+        "32"
+      ],
+      "resources": []
+    },
+    {
+      "id": "34",
+      "kind": "compute",
+      "duration": 844,
+      "dependencies": [
+        "12",
+        "33"
+      ],
+      "resources": []
+    },
+    {
+      "id": "35",
+      "kind": "communication",
+      "duration": 499,
+      "dependencies": [
+        "34"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "36",
+      "kind": "compute",
+      "duration": 775,
+      "dependencies": [
+        "35"
+      ],
+      "resources": []
+    },
+    {
+      "id": "37",
+      "kind": "compute",
+      "duration": 231,
+      "dependencies": [
+        "6"
+      ],
+      "resources": []
+    },
+    {
+      "id": "38",
+      "kind": "communication",
+      "duration": 355,
+      "dependencies": [
+        "37"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "39",
+      "kind": "compute",
+      "duration": 360,
+      "dependencies": [
+        "38"
+      ],
+      "resources": []
+    },
+    {
+      "id": "40",
+      "kind": "compute",
+      "duration": 824,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "41",
+      "kind": "communication",
+      "duration": 678,
+      "dependencies": [
+        "40"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "42",
+      "kind": "compute",
+      "duration": 221,
+      "dependencies": [
+        "41"
+      ],
+      "resources": []
+    },
+    {
+      "id": "43",
+      "kind": "compute",
+      "duration": 572,
+      "dependencies": [
+        "42"
+      ],
+      "resources": []
+    },
+    {
+      "id": "44",
+      "kind": "communication",
+      "duration": 76,
+      "dependencies": [
+        "43"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "45",
+      "kind": "compute",
+      "duration": 922,
+      "dependencies": [
+        "44"
+      ],
+      "resources": []
+    },
+    {
+      "id": "46",
+      "kind": "compute",
+      "duration": 71,
+      "dependencies": [
+        "6",
+        "21",
+        "24"
+      ],
+      "resources": []
+    },
+    {
+      "id": "47",
+      "kind": "communication",
+      "duration": 367,
+      "dependencies": [
+        "46"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "48",
+      "kind": "compute",
+      "duration": 247,
+      "dependencies": [
+        "47"
+      ],
+      "resources": []
+    },
+    {
+      "id": "49",
+      "kind": "compute",
+      "duration": 405,
+      "dependencies": [
+        "24",
+        "39"
+      ],
+      "resources": []
+    },
+    {
+      "id": "50",
+      "kind": "communication",
+      "duration": 294,
+      "dependencies": [
+        "49"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "51",
+      "kind": "compute",
+      "duration": 81,
+      "dependencies": [
+        "50"
+      ],
+      "resources": []
+    },
+    {
+      "id": "52",
+      "kind": "compute",
+      "duration": 532,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "53",
+      "kind": "communication",
+      "duration": 91,
+      "dependencies": [
+        "52"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "54",
+      "kind": "compute",
+      "duration": 130,
+      "dependencies": [
+        "53"
+      ],
+      "resources": []
+    },
+    {
+      "id": "55",
+      "kind": "compute",
+      "duration": 539,
+      "dependencies": [],
+      "resources": []
+    },
+    {
+      "id": "56",
+      "kind": "communication",
+      "duration": 854,
+      "dependencies": [
+        "55"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "57",
+      "kind": "compute",
+      "duration": 549,
+      "dependencies": [
+        "56"
+      ],
+      "resources": []
+    },
+    {
+      "id": "58",
+      "kind": "compute",
+      "duration": 871,
+      "dependencies": [
+        "27"
+      ],
+      "resources": []
+    },
+    {
+      "id": "59",
+      "kind": "communication",
+      "duration": 590,
+      "dependencies": [
+        "58"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "60",
+      "kind": "compute",
+      "duration": 930,
+      "dependencies": [
+        "59"
+      ],
+      "resources": []
+    },
+    {
+      "id": "61",
+      "kind": "compute",
+      "duration": 503,
+      "dependencies": [
+        "18",
+        "21",
+        "42",
+        "51"
+      ],
+      "resources": []
+    },
+    {
+      "id": "62",
+      "kind": "communication",
+      "duration": 294,
+      "dependencies": [
+        "61"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "63",
+      "kind": "compute",
+      "duration": 772,
+      "dependencies": [
+        "62"
+      ],
+      "resources": []
+    },
+    {
+      "id": "64",
+      "kind": "compute",
+      "duration": 334,
+      "dependencies": [
+        "18"
+      ],
+      "resources": []
+    },
+    {
+      "id": "65",
+      "kind": "communication",
+      "duration": 215,
+      "dependencies": [
+        "64"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "66",
+      "kind": "compute",
+      "duration": 933,
+      "dependencies": [
+        "65"
+      ],
+      "resources": []
+    },
+    {
+      "id": "67",
+      "kind": "compute",
+      "duration": 946,
+      "dependencies": [
+        "24"
+      ],
+      "resources": []
+    },
+    {
+      "id": "68",
+      "kind": "communication",
+      "duration": 656,
+      "dependencies": [
+        "67"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "69",
+      "kind": "compute",
+      "duration": 367,
+      "dependencies": [
+        "68"
+      ],
+      "resources": []
+    },
+    {
+      "id": "70",
+      "kind": "compute",
+      "duration": 177,
+      "dependencies": [
+        "15",
+        "57",
+        "60"
+      ],
+      "resources": []
+    },
+    {
+      "id": "71",
+      "kind": "communication",
+      "duration": 626,
+      "dependencies": [
+        "70"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "72",
+      "kind": "compute",
+      "duration": 960,
+      "dependencies": [
+        "71"
+      ],
+      "resources": []
+    },
+    {
+      "id": "73",
+      "kind": "compute",
+      "duration": 826,
+      "dependencies": [
+        "30",
+        "48"
+      ],
+      "resources": []
+    },
+    {
+      "id": "74",
+      "kind": "communication",
+      "duration": 863,
+      "dependencies": [
+        "73"
+      ],
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "id": "75",
+      "kind": "compute",
+      "duration": 536,
+      "dependencies": [
+        "74"
+      ],
+      "resources": []
+    }
+  ],
+  "metadata": {
+    "description": "",
+    "generator": "",
+    "parameters": {},
+    "seed": null
+  }
+}

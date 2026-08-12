@@ -1,0 +1,122 @@
+{
+  "category": "adversarial",
+  "family": "parallel_chain",
+  "id": "scaled_five_four_s4",
+  "metadata": {
+    "generator": "parallel_chain",
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "chain0_release",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "chain0_release"
+      ],
+      "duration": 8,
+      "id": "chain0_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "chain0_flow0"
+      ],
+      "duration": 13,
+      "id": "chain0_compute0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "chain0_compute0"
+      ],
+      "duration": 8,
+      "id": "chain0_flow1",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "chain0_flow1"
+      ],
+      "duration": 0,
+      "id": "chain0_compute1",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "chain1_release",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "chain1_release"
+      ],
+      "duration": 4,
+      "id": "chain1_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "chain1_flow0"
+      ],
+      "duration": 8,
+      "id": "chain1_compute0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "chain1_compute0"
+      ],
+      "duration": 12,
+      "id": "chain1_flow1",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "chain1_flow1"
+      ],
+      "duration": 0,
+      "id": "chain1_compute1",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

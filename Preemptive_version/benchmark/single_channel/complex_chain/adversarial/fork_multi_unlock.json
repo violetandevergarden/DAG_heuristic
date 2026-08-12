@@ -1,0 +1,93 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "fork_multi_unlock",
+  "metadata": {
+    "description": "One small flow releases several compute branches before a final join.",
+    "generator": "complex_chain",
+    "parameters": {},
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "fork_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "fork"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 3,
+      "id": "branch0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 4,
+      "id": "branch1",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 5,
+      "id": "branch2",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 6,
+      "id": "large_side_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "branch0",
+        "branch1",
+        "branch2",
+        "large_side_flow"
+      ],
+      "duration": 1,
+      "id": "join",
+      "kind": "compute",
+      "metadata": {
+        "role": "join"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

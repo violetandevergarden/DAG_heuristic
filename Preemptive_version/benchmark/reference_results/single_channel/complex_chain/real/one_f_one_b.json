@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "one_f_one_b",
+  "benchmark_sha256": "a602ba8e2807a24f96d7c44d768ee71640d0d4b0d8ee830cd1904b483faa3a10",
+  "optimal_makespan": 23,
+  "oracle": "",
+  "schema_version": "1.0"
+}

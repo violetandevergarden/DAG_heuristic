@@ -1,0 +1,222 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "warmup_steady_cooldown",
+  "metadata": {
+    "description": "One rank's F/B/W phases.",
+    "generator": "complex_chain",
+    "parameters": {
+      "microbatches": "4"
+    },
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f0",
+      "kind": "compute",
+      "metadata": {
+        "role": "warmup_f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f0"
+      ],
+      "duration": 2,
+      "id": "f1",
+      "kind": "compute",
+      "metadata": {
+        "role": "warmup_f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f1"
+      ],
+      "duration": 2,
+      "id": "f2",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f2"
+      ],
+      "duration": 3,
+      "id": "b0",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b0"
+      ],
+      "duration": 1,
+      "id": "w0",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w0"
+      ],
+      "duration": 2,
+      "id": "f3",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f3"
+      ],
+      "duration": 3,
+      "id": "b1",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b1"
+      ],
+      "duration": 1,
+      "id": "w1",
+      "kind": "compute",
+      "metadata": {
+        "role": "steady_w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w1"
+      ],
+      "duration": 3,
+      "id": "b2",
+      "kind": "compute",
+      "metadata": {
+        "role": "cooldown_b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b2"
+      ],
+      "duration": 1,
+      "id": "w2",
+      "kind": "compute",
+      "metadata": {
+        "role": "cooldown_w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w2"
+      ],
+      "duration": 3,
+      "id": "b3",
+      "kind": "compute",
+      "metadata": {
+        "role": "cooldown_b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b3"
+      ],
+      "duration": 1,
+      "id": "w3",
+      "kind": "compute",
+      "metadata": {
+        "role": "cooldown_w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "pp_side0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "pp_side1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "pp_side2",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "pp_side3",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    }
+  ],
+  "time_unit": "tick"
+}

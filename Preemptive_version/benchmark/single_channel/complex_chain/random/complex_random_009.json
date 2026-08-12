@@ -1,0 +1,308 @@
+{
+  "category": "random",
+  "family": "complex_chain",
+  "id": "complex_random_009",
+  "metadata": {
+    "description": "Random small DAG with branch releases, second flows and a final join.",
+    "generator": "complex_chain",
+    "parameters": {
+      "branches": "5"
+    },
+    "seed": 260820
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "1.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "optional_idle": true,
+    "preemptive": true,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "r0",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r0"
+      ],
+      "duration": 3,
+      "id": "c0_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_0"
+      ],
+      "duration": 4,
+      "id": "x0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "backbone"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x0_0"
+      ],
+      "duration": 2,
+      "id": "c0_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "r1",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r1"
+      ],
+      "duration": 4,
+      "id": "c1_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_0"
+      ],
+      "duration": 5,
+      "id": "x1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r2",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r2"
+      ],
+      "duration": 4,
+      "id": "c2_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c2_0"
+      ],
+      "duration": 1,
+      "id": "x2_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r3",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r3"
+      ],
+      "duration": 1,
+      "id": "c3_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c3_0"
+      ],
+      "duration": 4,
+      "id": "x3_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x3_0"
+      ],
+      "duration": 1,
+      "id": "c3_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "r4",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r4"
+      ],
+      "duration": 2,
+      "id": "c4_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c4_0"
+      ],
+      "duration": 6,
+      "id": "x4_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x4_0"
+      ],
+      "duration": 4,
+      "id": "c4_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_1",
+        "x1_0"
+      ],
+      "duration": 1,
+      "id": "nested_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "join"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "nested_join",
+        "x2_0",
+        "c3_1",
+        "c4_1"
+      ],
+      "duration": 2,
+      "id": "optimizer_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "optimizer_join"
+      ],
+      "duration": 3,
+      "id": "final_comm",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "final_comm"
+      ],
+      "duration": 2,
+      "id": "sink",
+      "kind": "compute",
+      "metadata": {
+        "role": "sink"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}
