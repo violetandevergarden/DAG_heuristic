@@ -1,6 +1,6 @@
 # DAG scheduling benchmark and algorithms
 
-这个仓库研究大模型训练 DAG 的通信调度，同时维护不可抢占主线和通信可暂停恢复的实验模型。两种模型共享语言无关的 DAG benchmark 和依赖语义，但使用不同状态机、算法与结果校验，不能混用结论。
+这个仓库研究大模型训练 DAG 的通信调度。通信可暂停恢复的 v2 是当前主线；不可抢占 v1 作为 maintenance baseline 保留。两种模型共享语言无关的 DAG benchmark 和依赖语义，但使用不同状态机、算法与结果校验，不能混用结论。
 
 Benchmark 使用普通 JSON，Python 和 C++ 都可以直接读取。算法代码不依赖 SimAI；只有从 AICB workload 导出真实 DAG 时才需要可选的 SimAI checkout。
 
@@ -19,12 +19,13 @@ benchmark/
 benchmark_generate/           # 随机、固定反例和真实 DAG 的生成工具
 src/
   benchmark/                  # JSON loader 和 validator
-  core/                       # 公共状态机、转换和精确 Oracle
+  core/                       # 公共模型、v2 事件执行、Trace 回放
   single_channel/
-    parallel_chain/           # 并行链算法与接口
-    complex_chain/            # 含 fork/join 的单通道算法与接口
-  muti_channel/               # 固定多资源路径的算法与接口
-  preemptive/                 # 可抢占状态机、接口和初始算法
+    parallel_chain/{preemptive,nonpreemptive}/
+    complex_chain/{preemptive,nonpreemptive}/
+  muti_channel/{preemptive,nonpreemptive}/
+  llm_structured/             # repetition 与 multi-job 主线入口
+  preemptive/                 # 一个兼容周期内保留的旧 import shim/runner
   registry.py                 # 文件场景到算法的注册表
   cli.py                      # 统一运行入口
 tests/                        # 与上述结构对应的测试
@@ -52,7 +53,7 @@ v1 不可抢占模型的限制：
 - 时间是整数，目标是最小化 makespan；
 - 精确 Oracle 面向小图，不适合作为大图在线调度器。
 
-v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。当前抢占代价和最小时间片均为零。单通道提供 priority、Rollout、Beam、Monte Carlo 和小图 Exact；多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
+v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。存在 eligible communication 时必须推进通信；多资源动作必须是 inclusion-maximal compatible set，forced idle 由模拟器自动处理。当前抢占代价和最小时间片均为零。单通道提供 priority、Rollout、Beam、Monte Carlo 和小图 Exact；多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
 
 ## 使用
 
@@ -133,7 +134,7 @@ python -m benchmark_generate reference --output benchmark
 显式写入 LF。reference result 中的 SHA-256 是对 benchmark 原始字节计算的，因此
 不要用会擅自改写换行符的工具保存这些文件；遵守该规则后，不同平台上的哈希应保持一致。
 
-当前固定集合共 139 个问题：75 个既有不可抢占问题和 64 个 v2 可抢占问题。reference results 包含 33 个不可抢占 adversarial 与 21 个在预算内完成 Exact 的可抢占 adversarial；Exact 超时的实例不会生成最优标签。
+当前固定集合共 139 个问题：75 个既有不可抢占问题和 64 个 v2 可抢占问题。reference results 包含 33 个不可抢占 adversarial 与 33 个在预算内完成 Exact 的可抢占 adversarial；其余 1 个 v2 adversarial 在固定预算内超时，不生成最优标签。
 
 ## 测试
 
@@ -142,7 +143,7 @@ $env:PYTHONPATH="src;."
 python -m pytest -q
 ```
 
-`tests/integration/` 会在找不到 SimAI 时跳过；Loader、Oracle 和算法测试不需要 SimAI。
+`tests/integration/` 会在找不到 SimAI 或 integration extra 时跳过；Loader、Oracle 和算法测试不需要 SimAI。需要集成依赖时安装 `.[dev,integration]`。
 
 ## SimAI 集成
 

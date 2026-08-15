@@ -21,14 +21,14 @@ from benchmark_generate.simai.export import (
 from benchmark_generate.simai.repetition import scan_repetition
 from core.dag import BenchmarkDAG
 from core.conversion import to_internal_dag
-from preemptive.repetition import (
+from llm_structured.repetition import (
     build_exchangeable_replicas,
     build_pp_dp_repetition,
     exact_oracle_component_symmetry,
     schedule_coupling_aware,
     schedule_role_copy,
 )
-from preemptive.single_channel.solver import (
+from single_channel.complex_chain.preemptive.solver import (
     exact_oracle,
     schedule_longest_tail,
     schedule_rollout,

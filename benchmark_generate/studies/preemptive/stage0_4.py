@@ -1,4 +1,4 @@
-"""Reproducible evaluation runner for the v2 preemptive research line."""
+"""Reproducible stage 0-4 runner for the communication-resume mainline."""
 
 from __future__ import annotations
 
@@ -11,8 +11,8 @@ from time import perf_counter
 
 from benchmark import load_benchmark
 from core.conversion import to_internal_dag, to_multi_resource_instance
-from preemptive.single_channel import solver as single
-from preemptive.muti_channel import solver as multi
+from single_channel.complex_chain.preemptive import solver as single
+from muti_channel.preemptive import solver as multi
 
 
 def run_study(root: Path) -> dict:
@@ -24,7 +24,7 @@ def run_study(root: Path) -> dict:
         if benchmark.scenario == "single_channel":
             dag = to_internal_dag(benchmark)
             try:
-                exact = single.exact_oracle(dag, max_states=150_000, time_limit_s=3.0)
+                exact = single.exact_oracle(dag, max_states=150_000, time_limit_s=5.0)
             except (RuntimeError, TimeoutError) as error:
                 skipped.append({"id": benchmark.benchmark_id, "reason": type(error).__name__})
                 continue
@@ -32,7 +32,6 @@ def run_study(root: Path) -> dict:
                 "fifo": lambda: single.schedule_priority(dag, "fifo"),
                 "spt": lambda: single.schedule_priority(dag, "spt"),
                 "lpt": lambda: single.schedule_priority(dag, "lpt"),
-                "longest_delay": lambda: single.schedule_priority(dag, "longest_delay"),
                 "longest_tail": lambda: single.schedule_longest_tail(dag),
                 "lrpt": lambda: single.schedule_priority(dag, "lrpt"),
                 "rollout2": lambda: single.schedule_rollout(dag, top_k=2),
@@ -66,7 +65,7 @@ def run_study(root: Path) -> dict:
             }
             try:
                 exact = multi.exact_oracle(
-                    instance.dag, resources, max_states=150_000, time_limit_s=3.0
+                    instance.dag, resources, max_states=150_000, time_limit_s=5.0
                 )
             except (RuntimeError, TimeoutError) as error:
                 skipped.append({"id": benchmark.benchmark_id, "reason": type(error).__name__})
@@ -99,6 +98,7 @@ def run_study(root: Path) -> dict:
             "decision_epoch": "task_event",
             "preemption_cost": 0,
             "minimum_quantum": 0,
+            "work_conserving": True,
         },
         "single_channel": {
             "instances": single_rows,

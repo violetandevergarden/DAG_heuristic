@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import importlib.util
 from pathlib import Path
 
 
@@ -17,5 +18,8 @@ candidates.extend(
     )
 )
 
-if not any((candidate / "src/workload_format/schema.py").is_file() for candidate in candidates):
+if (
+    importlib.util.find_spec("jsonschema") is None
+    or not any((candidate / "src/workload_format/schema.py").is_file() for candidate in candidates)
+):
     collect_ignore_glob = ["test_*.py"]

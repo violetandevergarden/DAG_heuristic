@@ -1,6 +1,6 @@
 {
   "benchmark_id": "pm_random_join_30",
-  "benchmark_sha256": "c811cfc7df4de244c58ed6936c293425cb98ea7cb2df9c0afc3f8fd3c73c4026",
+  "benchmark_sha256": "71b0e05982e9ac095b920674c0652af5c7251f591afb394d9706966374a2d58c",
   "optimal_makespan": 22,
   "oracle": "exact",
   "schema_version": "2.0"

@@ -1,6 +1,6 @@
 {
   "benchmark_id": "pm_combined_chain_70",
-  "benchmark_sha256": "35072b71eca2ba084c3a8ec815c6d0516d1513a48bbe0eeb0423431f22b851c2",
+  "benchmark_sha256": "53d04b164f03b46303c060d8e7e0bdf4736f0f0f9aebcac12a617f7c409d1a49",
   "optimal_makespan": 18,
   "oracle": "exact",
   "schema_version": "2.0"

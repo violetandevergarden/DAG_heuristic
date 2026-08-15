@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Callable
 
 from benchmark import Benchmark
@@ -22,11 +22,12 @@ class Algorithm:
     description: str
     exact: bool = False
     supports_wait: bool = False
-    semantics: str = "nonpreemptive"
+    semantics: str = "none"
+    development_status: str = "maintenance"
 
 
 def _parallel_registry() -> dict[str, Algorithm]:
-    from single_channel.parallel_chain import solver
+    from single_channel.parallel_chain.nonpreemptive import solver
 
     convert = to_parallel_chains
     return {
@@ -40,7 +41,7 @@ def _parallel_registry() -> dict[str, Algorithm]:
 
 
 def _complex_registry() -> dict[str, Algorithm]:
-    from single_channel.complex_chain import solver
+    from single_channel.complex_chain.nonpreemptive import solver
     from core.oracle import exact_oracle
 
     convert = to_internal_dag
@@ -56,7 +57,7 @@ def _complex_registry() -> dict[str, Algorithm]:
 
 
 def _muti_registry() -> dict[str, Algorithm]:
-    from muti_channel import solver
+    from muti_channel.nonpreemptive import solver
 
     convert = to_multi_resource_instance
     return {
@@ -71,7 +72,7 @@ def _muti_registry() -> dict[str, Algorithm]:
 
 def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
     if benchmark.scenario == "muti_channel":
-        from preemptive.muti_channel import solver as multi_solver
+        from muti_channel.preemptive import solver as multi_solver
 
         def convert_multi(item: Benchmark):
             instance = to_multi_resource_instance(item)
@@ -81,23 +82,28 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
             }
             return instance.dag, resources
 
-        return {
-            "longest_tail_pack": Algorithm("longest_tail_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "longest_tail"), "Preemptive compatible packing in residual-tail order.", semantics="preemptive"),
-            "resource_pack": Algorithm("resource_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "resource_tail"), "Residual-tail packing with resource-load tie break.", semantics="preemptive"),
-            "bottleneck_pack": Algorithm("bottleneck_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "bottleneck"), "Bottleneck-load-first compatible packing.", semantics="preemptive"),
-            "rollout_sets2": Algorithm("rollout_sets2", "muti_channel", benchmark.family, lambda b: multi_solver.rollout_sets(*convert_multi(b), top_k=2), "Top-2 maximal compatible-set rollout.", semantics="preemptive"),
-            "exact": Algorithm("exact", "muti_channel", benchmark.family, lambda b: multi_solver.exact_oracle(*convert_multi(b)), "Exact small-state maximal-set Oracle.", exact=True, semantics="preemptive"),
-        }
+        return _active_v2({
+            "longest_tail_pack": Algorithm("longest_tail_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "longest_tail"), "Preemptive compatible packing in residual-tail order.", semantics="preemptive", development_status="active"),
+            "resource_pack": Algorithm("resource_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "resource_tail"), "Residual-tail packing with resource-load tie break.", semantics="preemptive", development_status="active"),
+            "bottleneck_pack": Algorithm("bottleneck_pack", "muti_channel", benchmark.family, lambda b: multi_solver.schedule_pack(*convert_multi(b), "bottleneck"), "Bottleneck-load-first compatible packing.", semantics="preemptive", development_status="active"),
+            "rollout_sets2": Algorithm("rollout_sets2", "muti_channel", benchmark.family, lambda b: multi_solver.rollout_sets(*convert_multi(b), top_k=2), "Top-2 maximal compatible-set rollout.", semantics="preemptive", development_status="active"),
+            "exact": Algorithm("exact", "muti_channel", benchmark.family, lambda b: multi_solver.exact_oracle(*convert_multi(b)), "Exact small-state maximal-set Oracle.", exact=True, semantics="preemptive", development_status="active"),
+        })
     if benchmark.scenario != "single_channel":
         raise ValueError(f"unsupported preemptive scenario: {benchmark.scenario}")
-    from preemptive.single_channel import solver
+    if benchmark.family == "parallel_chain":
+        from single_channel.parallel_chain.preemptive import solver
+    elif benchmark.family == "complex_chain":
+        from single_channel.complex_chain.preemptive import solver
+    else:
+        raise ValueError(f"unsupported preemptive family: {benchmark.family}")
 
     convert = to_internal_dag
-    return {
+    return _active_v2({
         "fifo": Algorithm("fifo", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "fifo"), "FIFO work-conserving priority.", semantics="preemptive"),
         "spt": Algorithm("spt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "spt"), "Shortest remaining communication first.", semantics="preemptive"),
         "lpt": Algorithm("lpt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "lpt"), "Longest remaining communication first.", semantics="preemptive"),
-        "longest_delay": Algorithm("longest_delay", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "longest_delay"), "Longest downstream residual tail.", semantics="preemptive"),
+        "longest_delay": Algorithm("longest_delay", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "longest_delay"), "Compatibility alias of longest_tail; do not count as an independent algorithm.", semantics="preemptive", development_status="active"),
         "lrpt": Algorithm("lrpt", "single_channel", benchmark.family, lambda b: solver.schedule_priority(convert(b), "lrpt"), "Longest remaining path including current communication.", semantics="preemptive"),
         "longest_tail": Algorithm(
             "longest_tail",
@@ -107,13 +113,26 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
             "Event-driven residual longest-tail with communication pause/resume.",
             supports_wait=False,
             semantics="preemptive",
+            development_status="active",
         ),
-        "rollout2": Algorithm("rollout2", "single_channel", benchmark.family, lambda b: solver.schedule_rollout(convert(b), top_k=2), "Top-2 one-event rollout with Longest-tail completion.", semantics="preemptive"),
+        "rollout2": Algorithm("rollout2", "single_channel", benchmark.family, lambda b: solver.schedule_rollout(convert(b), top_k=2), "Top-2 one-event rollout with Longest-tail completion.", semantics="preemptive", development_status="active"),
         "join_rollout2": Algorithm("join_rollout2", "single_channel", benchmark.family, lambda b: solver.schedule_rollout(convert(b), top_k=2, candidate_mode="hybrid"), "Top-2 rollout with tail and last-join-blocker candidates.", semantics="preemptive"),
         "beam8": Algorithm("beam8", "single_channel", benchmark.family, lambda b: solver.beam_search(convert(b), width=8), "Width-8 event-state beam with Longest-tail incumbent.", semantics="preemptive"),
         "beam32": Algorithm("beam32", "single_channel", benchmark.family, lambda b: solver.beam_search(convert(b), width=32), "Width-32 event-state beam with Longest-tail incumbent.", semantics="preemptive"),
         "monte_carlo64": Algorithm("monte_carlo64", "single_channel", benchmark.family, lambda b: solver.monte_carlo(convert(b), samples=64, seed=0), "64 reproducible work-conserving schedule samples.", semantics="preemptive"),
-        "exact": Algorithm("exact", "single_channel", benchmark.family, lambda b: solver.exact_oracle(convert(b)), "Exact memoized event-state Oracle for small DAGs.", exact=True, semantics="preemptive"),
+        "exact": Algorithm("exact", "single_channel", benchmark.family, lambda b: solver.exact_oracle(convert(b)), "Exact memoized event-state Oracle for small DAGs.", exact=True, semantics="preemptive", development_status="active"),
+    })
+
+
+def _active_v2(algorithms: dict[str, Algorithm]) -> dict[str, Algorithm]:
+    return {
+        name: replace(
+            algorithm,
+            semantics="communication_resume",
+            supports_wait=False,
+            development_status="active",
+        )
+        for name, algorithm in algorithms.items()
     }
 
 

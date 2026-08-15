@@ -18,8 +18,12 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
     if benchmark.objective != "makespan":
         errors.append(f"unsupported objective: {benchmark.objective}")
     semantics = benchmark.semantics
-    if not isinstance(semantics.optional_idle, bool) or not semantics.optional_idle:
-        errors.append("the current models require optional_idle=true")
+    if not isinstance(semantics.optional_idle, bool):
+        errors.append("optional_idle must be boolean")
+    elif benchmark.schema_version == "1.0" and not semantics.optional_idle:
+        errors.append("historical schema v1 requires optional_idle=true")
+    elif benchmark.schema_version == "2.0" and semantics.optional_idle:
+        errors.append("preemptive schema v2 forbids voluntary idle")
     if benchmark.schema_version == "1.0" and semantics.is_preemptive:
         errors.append("schema v1 does not support preemption")
     if semantics.preemption not in {"none", "communication_resume"}:

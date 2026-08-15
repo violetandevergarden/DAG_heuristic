@@ -3,8 +3,9 @@
 from benchmark import benchmark_from_dict, benchmark_to_dict
 from core.conversion import to_internal_dag
 from core.dag import BenchmarkDAG, BenchTask
-from preemptive.core.model import Action, PreemptiveDAGModel, assert_preemptive_trace
-from preemptive.single_channel.solver import schedule_longest_tail
+from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.trace.preemptive import assert_preemptive_trace
+from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 from registry import algorithms_for, solve
 
 
@@ -33,7 +34,7 @@ def _payload() -> dict:
         "semantics": {
             "preemption": "communication_resume",
             "decision_epoch": "task_event",
-            "optional_idle": True,
+            "optional_idle": False,
             "compute_model": "unbounded_parallel",
             "resource_model": "exclusive_fixed_set",
             "preemption_cost": 0,
@@ -83,7 +84,11 @@ def test_v2_loader_registry_and_longest_tail_form_a_runnable_loop() -> None:
 
     assert benchmark.semantics.is_preemptive
     assert benchmark_from_dict(benchmark_to_dict(benchmark)) == benchmark
-    assert {"longest_tail", "rollout2", "beam8", "exact"} <= set(algorithms_for(benchmark))
+    algorithms = algorithms_for(benchmark)
+    assert {"longest_tail", "rollout2", "beam8", "exact"} <= set(algorithms)
+    assert all(item.semantics == "communication_resume" for item in algorithms.values())
+    assert all(item.development_status == "active" for item in algorithms.values())
+    assert not any(item.supports_wait for item in algorithms.values())
     result = solve(benchmark, "longest_tail")
     assert result.makespan == 15
     assert result.preemptions == 1

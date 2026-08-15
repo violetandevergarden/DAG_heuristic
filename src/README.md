@@ -123,17 +123,17 @@ print(result.makespan)
 
 ### 添加可抢占算法
 
-可抢占算法放在 `preemptive/` 下，并复用 `PreemptiveDAGModel.step` 推进状态，不得自行按 tick 改写另一套依赖语义。稳定决策状态由 `ScheduleState` 表示；合法动作是运行/恢复一个 eligible communication 或 WAIT。算法结果使用 `PreemptiveScheduleResult`，Trace 必须通过 `assert_preemptive_trace`。
+可抢占算法按场景放在 `single_channel/{parallel_chain,complex_chain}/preemptive/` 或 `muti_channel/preemptive/`，并复用 `core.execution.preemptive` 的状态转移，不得自行实现另一套事件推进。稳定决策状态由 `ScheduleState` 表示；存在 eligible communication 时单通道恰好选择一个，多资源选择 inclusion-maximal compatible set。没有 eligible 时的 WAIT 只是模拟器 forced idle，不是算法动作。正式结果必须通过 `core.trace` 或多资源独立回放验证器。
 
-当前 `preemptive.single_channel.solver.schedule_longest_tail` 在每个任务事件重新计算 residual critical tail，是一般 DAG 的初始 work-conserving baseline。单通道 work-conserving 类有 2-近似安全界，但 Longest-tail 尚无更紧的一般上界。新增算法后在 `registry.py` 的可抢占注册表中登记，并用 v2 benchmark 与状态机测试验证。
+当前 `single_channel.complex_chain.preemptive.solver.schedule_longest_tail` 在每个任务事件重新计算 residual critical tail，是一般 DAG 的初始 work-conserving baseline；parallel-chain 通过独立入口验证结构并为后续链特化保留边界。新增算法后在 `registry.py` 登记，并用 v2 benchmark、Trace 和状态机测试验证。
 
 ## 重要语义和限制
 
 - v1 中 communication 和 compute 都不可抢占，开始后必须运行到完成。
-- 调度器只在任务完成事件后重新决策，channel 空闲时允许主动等待。
+- v1 调度器只在任务完成事件后重新决策，channel 空闲时允许主动等待。
 - ready compute 自动开始；有限 GPU 串行约束必须预先编码为 DAG 边。
 - 多通道算法不重新选路，资源集合已经包含在输入中。
-- 当前不模拟连续带宽比例共享；通信在完整持续时间内独占所需资源。
+- 当前不模拟连续带宽比例共享；v1 通信在完整持续时间内独占所需资源，v2 通信的每个服务区间独占完整固定资源集合。
 - Exact Oracle 只适合小图，用于标注、反例验证和 heuristic 对照。
 - v2 允许 communication 在任务事件处零代价暂停/原资源恢复；compute 仍不可抢占。单通道与固定多资源均有小图 Exact Oracle，但不支持异构带宽、非线性共享、最小 chunk、迁移或真实 collective rank 同步。
 - `src/` 禁止导入 `benchmark_generate`、SimAI 或修改 `sys.path`。

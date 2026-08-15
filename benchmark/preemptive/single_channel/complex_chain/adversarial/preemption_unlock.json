@@ -18,7 +18,7 @@
     "compute_model": "unbounded_parallel",
     "decision_epoch": "task_event",
     "minimum_quantum": 0,
-    "optional_idle": true,
+    "optional_idle": false,
     "preemption": "communication_resume",
     "preemption_cost": 0,
     "resource_model": "exclusive_fixed_set"

@@ -12,7 +12,7 @@ from benchmark_generate.export import current_cases
 PREEMPTIVE_SEMANTICS = SchedulingSemantics(
     preemption="communication_resume",
     decision_epoch="task_event",
-    optional_idle=True,
+    optional_idle=False,
     compute_model="unbounded_parallel",
     resource_model="exclusive_fixed_set",
     preemption_cost=0,

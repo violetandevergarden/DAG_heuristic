@@ -1,4 +1,4 @@
-"""Reproducible phase-6 experiments for hierarchical multi-job scheduling."""
+"""Reproducible stage-6 experiments for hierarchical multi-job scheduling."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from statistics import mean
 from time import perf_counter
 
 from benchmark_generate.cases import llm_motif_cases
-from preemptive.multi_job import (
+from llm_structured.multi_job import (
     JobSpec,
     MultiJobInstance,
     build_candidate_compression_case,
@@ -37,6 +37,7 @@ def run_study(*, samples: int = 30, seed: int = 260812) -> dict:
             "communication_preemption": "resume",
             "preemption_cost": 0,
             "minimum_quantum": 0,
+            "work_conserving": True,
             "primary_objective": "makespan",
             "secondary_reported_metrics": ["per_job_jct", "slowdown"],
         },
@@ -356,7 +357,7 @@ def _objective_probe() -> list[dict]:
 
 
 def _multi_resource_probe() -> dict:
-    from preemptive.muti_channel.solver import exact_oracle as multi_exact
+    from muti_channel.preemptive.solver import exact_oracle as multi_exact
 
     instance, resources = build_multi_resource_top1_counterexample()
     exact = multi_exact(instance.dag, resources)
@@ -380,8 +381,8 @@ def _multi_resource_probe() -> dict:
     return {
         "exact_makespan": exact.makespan,
         "description": (
-            "K=1 hides Job A's private-link candidate while Job B uses the "
-            "shared uplink, leaving a compatible resource idle."
+            "Candidate width ranks per-job nominees, but the v2 core completes "
+            "every submitted set to an inclusion-maximal compatible action."
         ),
         "methods": {
             label: {

@@ -49,11 +49,11 @@ benchmark/
 
 ### `muti_channel`
 
-一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；一条通信开始后持续占用全部所需资源直到完成。
+一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；v1 通信开始后持续占用资源直到完成，v2 每个暂停/恢复服务区间都同时获取和释放完整固定资源集合。
 
-### `preemptive/single_channel`
+### `preemptive/`
 
-使用 v2 语义的单通道 DAG。目录内部仍按 `parallel_chain` 和 `complex_chain` 区分结构；当前只提交一个用于验证暂停、切换和恢复的 complex-chain 小图。该目录与 v1 数据物理隔离，避免只看路径时误用执行语义。
+使用当前主线 v2 语义的单通道和固定多资源 DAG。单通道内部仍按 `parallel_chain` 和 `complex_chain` 区分结构；该目录与 v1 数据物理隔离，避免只看路径时误用执行语义。
 
 ## 数据分类
 
@@ -206,16 +206,17 @@ v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资
 
 - compute 一旦开始仍连续运行到完成；
 - communication 被调度后运行到自身完成或下一个 compute 完成事件；
-- 在事件处可继续原通信、暂停后切换到另一个 eligible 通信，或主动 WAIT；
+- 在事件处可继续原通信，或暂停后切换到另一个 eligible 通信；存在 eligible 时禁止主动 WAIT；
 - 暂停立即释放 channel，恢复时沿原固定资源集合继续剩余工作；
 - 当前 `preemption_cost=0`、`minimum_quantum=0`，不模拟迁移、重路由或按比例共享带宽；
-- 多资源实现选择固定资源集合互不相交的通信集合并行推进；暂停会同时释放该通信的全部资源。
+- 多资源实现选择 inclusion-maximal、固定资源集合互不相交的通信集合并行推进；暂停会同时释放该通信的全部资源；
+- 没有 eligible communication 时由模拟器 forced idle 到下一个 compute/job 事件，不产生 scheduler 动作。
 
 ```json
 "semantics": {
   "preemption": "communication_resume",
   "decision_epoch": "task_event",
-  "optional_idle": true,
+  "optional_idle": false,
   "compute_model": "unbounded_parallel",
   "resource_model": "exclusive_fixed_set",
   "preemption_cost": 0,
@@ -223,7 +224,7 @@ v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资
 }
 ```
 
-`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。多资源版本同样按事件推进，不允许重路由或只保留部分资源。
+`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。`optional_idle=false` 表示 scheduler 不可主动等待，并不禁止依赖造成的 forced idle。Python loader 可读取早期错误写成 `true` 的 v2 快照，但会立即规范化为 `false`；重新写出时只产生规范格式。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。多资源版本同样按事件推进，不允许重路由或只保留部分资源。
 
 ## 使用数据
 
@@ -258,7 +259,7 @@ python src/cli.py benchmark/muti_channel/adversarial/nonmaximal_start_np.json --
 
 ## 精确参考结果
 
-`reference_results/` 镜像问题文件相对路径，只保存答案，不重复保存 DAG。当前 33 个 adversarial 小图都有 reference：
+`reference_results/` 镜像问题文件相对路径，只保存答案，不重复保存 DAG。当前有 66 个 reference：33 个 v1 adversarial 与 33 个 v2 adversarial；其余 1 个 v2 adversarial `pm_fixed_beam_counterexample` 在固定预算内超时：
 
 ```json
 {

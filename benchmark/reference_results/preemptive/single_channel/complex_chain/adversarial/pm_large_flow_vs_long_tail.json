@@ -1,6 +1,6 @@
 {
   "benchmark_id": "pm_large_flow_vs_long_tail",
-  "benchmark_sha256": "b18325a989ed7e68134be0d3ca46416f3b9fd126a99982090009830c4aa07095",
+  "benchmark_sha256": "f989c78825c5020114779443347d445b14bce45bdeac7c86e7edcd9ab5dbcd6b",
   "optimal_makespan": 10,
   "oracle": "exact",
   "schema_version": "2.0"

@@ -141,7 +141,10 @@ def _parse_semantics(version: str, payload: dict[str, Any]) -> SchedulingSemanti
             return SchedulingSemantics(
                 preemption=payload["preemption"],
                 decision_epoch=payload["decision_epoch"],
-                optional_idle=payload["optional_idle"],
+                # Early v2 snapshots incorrectly wrote optional_idle=true.
+                # The versioned loader accepts those files only as a migration
+                # input and normalizes them to the sole production contract.
+                optional_idle=False,
                 compute_model=payload["compute_model"],
                 resource_model=payload["resource_model"],
                 preemption_cost=int(payload["preemption_cost"]),

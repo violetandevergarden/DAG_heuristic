@@ -26,6 +26,10 @@ class SchedulingSemantics:
     def is_preemptive(self) -> bool:
         return self.preemption != "none"
 
+    @property
+    def work_conserving(self) -> bool:
+        return not self.optional_idle
+
 
 @dataclass(frozen=True)
 class Resource:

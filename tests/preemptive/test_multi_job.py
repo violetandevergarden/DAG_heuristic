@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from core.dag import BenchmarkDAG, BenchTask
-from preemptive.multi_job import (
+from llm_structured.multi_job import (
     JobSpec,
     build_multi_resource_top1_counterexample,
     build_top1_counterexample,
@@ -14,7 +14,7 @@ from preemptive.multi_job import (
     solo_optimal_jct,
     teacher_candidate_recall,
 )
-from preemptive.single_channel.solver import exact_oracle
+from single_channel.complex_chain.preemptive.solver import exact_oracle
 
 
 def _one_flow_job(name: str, duration: int, tail: int) -> BenchmarkDAG:
@@ -81,7 +81,7 @@ def test_top1_candidate_truncation_has_a_strict_exact_gap() -> None:
     }
 
 
-def test_multi_resource_top1_can_hide_a_compatible_flow() -> None:
+def test_multi_resource_candidate_width_cannot_leave_compatible_flow_idle() -> None:
     instance, resources = build_multi_resource_top1_counterexample()
     top1 = schedule_multi_resource_hierarchical(
         instance,
@@ -94,8 +94,9 @@ def test_multi_resource_top1_can_hide_a_compatible_flow() -> None:
         candidate_width=2,
     )
 
-    assert top1.makespan == 25
+    assert top1.makespan == 18
     assert top2.makespan == 18
+    assert top1.trace is not None
     assert top2.actions[0].communications == ("A::private", "B::shared")
 
 

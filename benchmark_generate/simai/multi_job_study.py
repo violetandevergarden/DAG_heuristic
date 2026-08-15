@@ -14,7 +14,7 @@ from benchmark_generate.simai.export import (
     to_benchmark,
 )
 from core.conversion import to_internal_dag
-from preemptive.multi_job import (
+from llm_structured.multi_job import (
     JobSpec,
     compose_jobs,
     schedule_hierarchical,

@@ -1,11 +1,11 @@
 from core.dag import BenchmarkDAG, BenchTask
-from preemptive.muti_channel.solver import (
+from muti_channel.preemptive.solver import (
     PreemptiveMultiResourceModel,
     exact_oracle as multi_exact,
     rollout_sets,
     schedule_pack,
 )
-from preemptive.single_channel.solver import (
+from single_channel.complex_chain.preemptive.solver import (
     beam_search,
     exact_oracle,
     monte_carlo,
