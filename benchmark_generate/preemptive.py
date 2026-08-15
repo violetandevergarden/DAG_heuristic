@@ -7,7 +7,7 @@ from pathlib import Path
 
 from benchmark import SchedulingSemantics, write_benchmark
 from benchmark_generate.export import current_cases
-
+from benchmark_generate.layout import benchmark_relative_path
 
 PREEMPTIVE_SEMANTICS = SchedulingSemantics(
     preemption="communication_resume",
@@ -25,13 +25,16 @@ def export_preemptive_suite(
     *,
     samples: int = 10,
     seed: int = 260819,
+    categories: set[str] | None = None,
 ) -> list[Path]:
-    """Write fixed random/adversarial DAGs under ``benchmark/preemptive``."""
+    """Write preemptive variants under each scenario family's semantic branch."""
 
     written: list[Path] = []
     for item in current_cases(samples=samples, seed=seed):
         benchmark = item.benchmark
         if benchmark.category not in {"random", "adversarial"}:
+            continue
+        if categories is not None and benchmark.category not in categories:
             continue
         lifted = replace(
             benchmark,
@@ -44,10 +47,7 @@ def export_preemptive_suite(
                 "preemptive_generator_seed": seed,
             },
         )
-        if benchmark.scenario == "single_channel":
-            relative = Path("preemptive") / "single_channel" / benchmark.family / benchmark.category / f"{lifted.benchmark_id}.json"
-        else:
-            relative = Path("preemptive") / "muti_channel" / benchmark.category / f"{lifted.benchmark_id}.json"
+        relative = benchmark_relative_path(lifted)
         target = root / relative
         write_benchmark(lifted, target)
         written.append(target)

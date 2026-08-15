@@ -2,17 +2,22 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import hashlib
 import json
-from pathlib import Path
 import random
+from dataclasses import dataclass
+from pathlib import Path
 
 from benchmark import Benchmark, write_benchmark
 from benchmark_generate.convert import (
     dag_to_benchmark,
     multi_resource_to_benchmark,
     parallel_chains_to_benchmark,
+)
+from benchmark_generate.layout import (
+    LAYOUT_VERSION,
+    benchmark_relative_path,
+    semantics_name,
 )
 
 
@@ -23,24 +28,24 @@ class ExportedCase:
 
 
 def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
-    from single_channel.parallel_chain.solver import ParallelChain
     from benchmark_generate.cases import (
         classic_parallel_counterexamples,
         combined_chain_probes,
+        complex_adversarial_cases,
         fixed_beam_counterexample,
         historical_random_join_counterexamples,
         historical_wait_hard_chains,
         last_blocker_overboost_counterexample,
-        multi_resource_motifs,
-        random_multi_resource_instance,
-        random_parallel_chains,
-        random_join_dag,
-        scaled_five_four_family,
-        tight_optional_wait_family,
-        complex_adversarial_cases,
         llm_motif_cases,
         manual_route_cases,
+        multi_resource_motifs,
+        random_join_dag,
+        random_multi_resource_instance,
+        random_parallel_chains,
+        scaled_five_four_family,
+        tight_optional_wait_family,
     )
+    from single_channel.parallel_chain.nonpreemptive.solver import ParallelChain
 
     exported: list[ExportedCase] = []
     parallel_rng = random.Random(seed)
@@ -121,28 +126,22 @@ def export_suite(
     seed: int = 260819,
     categories: set[str] | None = None,
 ) -> list[dict]:
-    rows = []
     for item in current_cases(samples=samples, seed=seed):
         if categories is not None and item.benchmark.category not in categories:
             continue
         target = root / item.relative_path
         write_benchmark(item.benchmark, target)
-        digest = hashlib.sha256(target.read_bytes()).hexdigest()
-        rows.append({
-            "id": item.benchmark.benchmark_id,
-            "path": item.relative_path.as_posix(),
-            "scenario": item.benchmark.scenario,
-            "family": item.benchmark.family,
-            "category": item.benchmark.category,
-            "sha256": digest,
-        })
-    generated_paths = {row["path"] for row in rows}
+    return build_index(root)
+
+
+def build_index(root: Path) -> list[dict]:
+    """Rebuild the shared index without generating either semantic variant."""
+
+    rows = []
     for target in sorted(root.rglob("*.json")):
         if "schema" in target.parts or "reference_results" in target.parts:
             continue
         relative = target.relative_to(root).as_posix()
-        if relative in generated_paths:
-            continue
         from benchmark import load_benchmark
 
         benchmark = load_benchmark(target)
@@ -152,6 +151,8 @@ def export_suite(
             "scenario": benchmark.scenario,
             "family": benchmark.family,
             "category": benchmark.category,
+            "semantics": semantics_name(benchmark),
+            "layout_version": LAYOUT_VERSION,
             "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
         })
     rows.sort(key=lambda row: (row["scenario"], row["family"], row["category"], row["id"]))
@@ -164,11 +165,13 @@ def export_suite(
 
 
 def _case(benchmark: Benchmark, scenario: str, family: str, category: str) -> ExportedCase:
-    if scenario == "muti_channel":
-        path = Path(scenario) / category / f"{benchmark.benchmark_id}.json"
-    else:
-        path = Path(scenario) / family / category / f"{benchmark.benchmark_id}.json"
-    return ExportedCase(benchmark, path)
+    if (benchmark.scenario, benchmark.family, benchmark.category) != (
+        scenario,
+        family,
+        category,
+    ):
+        raise ValueError("case metadata does not match its requested path")
+    return ExportedCase(benchmark, benchmark_relative_path(benchmark))
 
 
 def _with_id(benchmark: Benchmark, benchmark_id: str) -> Benchmark:

@@ -9,7 +9,7 @@ transition system:
 
 Both can solve the true optional-idle problem or its work-conserving
 restriction.  They return whole-flow/WAIT actions and reconstruct a continuous
-timeline through :mod:`core.model`.
+timeline through :mod:`core.execution.nonpreemptive`.
 """
 
 from __future__ import annotations
@@ -20,14 +20,14 @@ from time import perf_counter
 from typing import Literal, Sequence
 
 from core.dag import BenchmarkDAG, lower_bounds, topological_order
-from core.model import (
+from core.execution.nonpreemptive import (
     Action,
     NonPreemptiveDAGModel,
     RuntimeTask,
     ScheduleState,
     ScheduleTrace,
-    assert_nonpreemptive_trace,
 )
+from core.trace.nonpreemptive import assert_nonpreemptive_trace
 
 
 OracleMode = Literal["optional_idle", "work_conserving"]

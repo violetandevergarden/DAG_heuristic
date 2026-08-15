@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from benchmark_generate.export import export_suite
-from benchmark_generate.reference import generate_reference_results
+from benchmark_generate.export import build_index, export_suite
 from benchmark_generate.preemptive import export_preemptive_suite
+from benchmark_generate.reference import generate_reference_results
 
 
 def main() -> None:
@@ -16,6 +16,11 @@ def main() -> None:
     parser.add_argument("--output", type=Path, default=Path("benchmark"))
     parser.add_argument("--samples", type=int, default=10)
     parser.add_argument("--seed", type=int, default=260819)
+    parser.add_argument(
+        "--semantics",
+        choices=("all", "preemptive", "nonpreemptive"),
+        default="all",
+    )
     args = parser.parse_args()
     if args.samples < 0:
         parser.error("--samples must be non-negative")
@@ -27,17 +32,25 @@ def main() -> None:
         written = export_preemptive_suite(
             args.output, samples=args.samples, seed=args.seed
         )
-        # Rebuild the shared index while preserving the established v1 suite.
-        export_suite(args.output, samples=args.samples, seed=args.seed)
-        print(f"generated {len(written)} preemptive benchmark files under {args.output / 'preemptive'}")
+        build_index(args.output)
+        print(f"generated {len(written)} preemptive benchmark files under {args.output}")
         return
     categories = {"random"} if args.command == "random" else None
-    rows = export_suite(
-        args.output,
-        samples=args.samples,
-        seed=args.seed,
-        categories=categories,
-    )
+    if args.semantics in {"all", "nonpreemptive"}:
+        export_suite(
+            args.output,
+            samples=args.samples,
+            seed=args.seed,
+            categories=categories,
+        )
+    if args.semantics in {"all", "preemptive"}:
+        export_preemptive_suite(
+            args.output,
+            samples=args.samples,
+            seed=args.seed,
+            categories=categories,
+        )
+    rows = build_index(args.output)
     if args.command == "random":
         # The complete index is retained so references remain self-describing;
         # callers can select category=random without invoking algorithm code.

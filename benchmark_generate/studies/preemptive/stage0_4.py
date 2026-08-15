@@ -3,24 +3,28 @@
 from __future__ import annotations
 
 import argparse
-from collections import defaultdict
 import json
+from collections import defaultdict
 from pathlib import Path
 from statistics import mean
 from time import perf_counter
 
 from benchmark import load_benchmark
 from core.conversion import to_internal_dag, to_multi_resource_instance
-from single_channel.complex_chain.preemptive import solver as single
 from muti_channel.preemptive import solver as multi
+from single_channel.complex_chain.preemptive import solver as single
 
 
 def run_study(root: Path) -> dict:
     single_rows = []
     multi_rows = []
     skipped = []
-    for path in sorted((root / "preemptive").rglob("*.json")):
+    for path in sorted(root.rglob("*.json")):
+        if "schema" in path.parts or "reference_results" in path.parts:
+            continue
         benchmark = load_benchmark(path)
+        if not benchmark.semantics.is_preemptive:
+            continue
         if benchmark.scenario == "single_channel":
             dag = to_internal_dag(benchmark)
             try:
@@ -29,16 +33,16 @@ def run_study(root: Path) -> dict:
                 skipped.append({"id": benchmark.benchmark_id, "reason": type(error).__name__})
                 continue
             methods = {
-                "fifo": lambda: single.schedule_priority(dag, "fifo"),
-                "spt": lambda: single.schedule_priority(dag, "spt"),
-                "lpt": lambda: single.schedule_priority(dag, "lpt"),
-                "longest_tail": lambda: single.schedule_longest_tail(dag),
-                "lrpt": lambda: single.schedule_priority(dag, "lrpt"),
-                "rollout2": lambda: single.schedule_rollout(dag, top_k=2),
-                "join_rollout2": lambda: single.schedule_rollout(dag, top_k=2, candidate_mode="hybrid"),
-                "beam8": lambda: single.beam_search(dag, width=8),
-                "beam32": lambda: single.beam_search(dag, width=32),
-                "monte_carlo64": lambda: single.monte_carlo(dag, samples=64, seed=260812),
+                "fifo": lambda dag=dag: single.schedule_priority(dag, "fifo"),
+                "spt": lambda dag=dag: single.schedule_priority(dag, "spt"),
+                "lpt": lambda dag=dag: single.schedule_priority(dag, "lpt"),
+                "longest_tail": lambda dag=dag: single.schedule_longest_tail(dag),
+                "lrpt": lambda dag=dag: single.schedule_priority(dag, "lrpt"),
+                "rollout2": lambda dag=dag: single.schedule_rollout(dag, top_k=2),
+                "join_rollout2": lambda dag=dag: single.schedule_rollout(dag, top_k=2, candidate_mode="hybrid"),
+                "beam8": lambda dag=dag: single.beam_search(dag, width=8),
+                "beam32": lambda dag=dag: single.beam_search(dag, width=32),
+                "monte_carlo64": lambda dag=dag: single.monte_carlo(dag, samples=64, seed=260812),
             }
             results = {}
             for name, solve in methods.items():
@@ -71,10 +75,10 @@ def run_study(root: Path) -> dict:
                 skipped.append({"id": benchmark.benchmark_id, "reason": type(error).__name__})
                 continue
             methods = {
-                "longest_tail_pack": lambda: multi.schedule_pack(instance.dag, resources, "longest_tail"),
-                "resource_pack": lambda: multi.schedule_pack(instance.dag, resources, "resource_tail"),
-                "bottleneck_pack": lambda: multi.schedule_pack(instance.dag, resources, "bottleneck"),
-                "rollout_sets2": lambda: multi.rollout_sets(instance.dag, resources, top_k=2),
+                "longest_tail_pack": lambda instance=instance, resources=resources: multi.schedule_pack(instance.dag, resources, "longest_tail"),
+                "resource_pack": lambda instance=instance, resources=resources: multi.schedule_pack(instance.dag, resources, "resource_tail"),
+                "bottleneck_pack": lambda instance=instance, resources=resources: multi.schedule_pack(instance.dag, resources, "bottleneck"),
+                "rollout_sets2": lambda instance=instance, resources=resources: multi.rollout_sets(instance.dag, resources, top_k=2),
             }
             results = {}
             for name, solve in methods.items():

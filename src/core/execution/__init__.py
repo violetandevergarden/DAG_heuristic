@@ -19,6 +19,7 @@ from core.execution.preemptive import (
     Transition,
     result_from_trace,
 )
+from core.execution import nonpreemptive
 
 __all__ = [
     "Action",
@@ -36,4 +37,5 @@ __all__ = [
     "TimelineEvent",
     "Transition",
     "result_from_trace",
+    "nonpreemptive",
 ]

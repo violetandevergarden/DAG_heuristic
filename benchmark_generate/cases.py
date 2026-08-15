@@ -6,7 +6,7 @@ from collections import defaultdict
 from dataclasses import replace
 import random
 
-from single_channel.parallel_chain.solver import (
+from single_channel.parallel_chain.nonpreemptive.solver import (
     ParallelChain,
     to_benchmark_dag,
 )

@@ -9,10 +9,9 @@ Benchmark 使用普通 JSON，Python 和 C++ 都可以直接读取。算法代�
 ```text
 benchmark/
   single_channel/
-    parallel_chain/{random,adversarial,real}/
-    complex_chain/{random,adversarial,real}/
-  muti_channel/{random,adversarial,real}/
-  preemptive/single_channel/... # v2 通信可暂停恢复样例
+    parallel_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+    complex_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+  muti_channel/{preemptive,nonpreemptive}/{random,adversarial,real}/
   reference_results/          # 小型 adversarial 样例的精确最优值
   schema/                     # JSON Schema
 
@@ -25,7 +24,6 @@ src/
     complex_chain/{preemptive,nonpreemptive}/
   muti_channel/{preemptive,nonpreemptive}/
   llm_structured/             # repetition 与 multi-job 主线入口
-  preemptive/                 # 一个兼容周期内保留的旧 import shim/runner
   registry.py                 # 文件场景到算法的注册表
   cli.py                      # 统一运行入口
 tests/                        # 与上述结构对应的测试
@@ -78,16 +76,16 @@ SimAI 当前要求 Python 3.13，并在自己的 `pyproject.toml` 中声明
 运行算法：
 
 ```powershell
-dag-schedule benchmark/single_channel/parallel_chain/adversarial/tight_optional_wait_m20.json --algorithm longest_tail
-dag-schedule benchmark/muti_channel/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
-dag-schedule benchmark/preemptive/single_channel/complex_chain/adversarial/preemption_unlock.json --algorithm longest_tail
+dag-schedule benchmark/single_channel/parallel_chain/nonpreemptive/adversarial/tight_optional_wait_m20.json --algorithm longest_tail
+dag-schedule benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
+dag-schedule benchmark/single_channel/complex_chain/preemptive/adversarial/preemption_unlock.json --algorithm longest_tail
 ```
 
 不安装命令行入口也可以运行：
 
 ```powershell
 $env:PYTHONPATH="src;."
-python src/cli.py benchmark/single_channel/complex_chain/adversarial/random_join_30.json --algorithm rollout_wait2
+python src/cli.py benchmark/single_channel/complex_chain/nonpreemptive/adversarial/random_join_30.json --algorithm rollout_wait2
 ```
 
 列出某个问题支持的算法：
@@ -101,7 +99,7 @@ Python 加载 benchmark：
 ```python
 from benchmark import load_benchmark
 
-case = load_benchmark("benchmark/single_channel/parallel_chain/random/random_chain_0.json")
+case = load_benchmark("benchmark/single_channel/parallel_chain/nonpreemptive/random/random_chain_0.json")
 ```
 
 完整 JSON 约定见 [benchmark/README.md](benchmark/README.md)，机器可读约束见 `benchmark/schema/dag-benchmark-v1.schema.json` 和 `dag-benchmark-v2.schema.json`。

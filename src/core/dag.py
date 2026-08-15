@@ -1,6 +1,6 @@
 """Small-DAG data types, fixtures, lower bounds, and JSON conversion.
 
-Current non-preemptive scheduling uses :mod:`core.model` and
+Current non-preemptive scheduling uses :mod:`core.execution.nonpreemptive` and
 :mod:`core.oracle`.  Historical benchmark helpers remain here
 only because fixture generators reuse them; they are not the public oracle.
 """

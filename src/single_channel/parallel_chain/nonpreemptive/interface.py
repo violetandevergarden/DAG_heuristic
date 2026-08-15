@@ -1,3 +1,15 @@
-"""Compatibility exports for the historical non-preemptive interface."""
+"""Public interface for parallel-chain scheduling algorithms."""
 
-from single_channel.parallel_chain.interface import *  # noqa: F403
+from __future__ import annotations
+
+from typing import Protocol
+
+from single_channel.parallel_chain.nonpreemptive.solver import ParallelChain
+
+
+class Result(Protocol):
+    makespan: int
+
+
+class Algorithm(Protocol):
+    def __call__(self, chains: tuple[ParallelChain, ...]) -> Result: ...

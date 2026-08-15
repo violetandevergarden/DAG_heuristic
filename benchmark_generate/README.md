@@ -8,6 +8,8 @@
 benchmark_generate/
 ├── __main__.py                 # `python -m benchmark_generate` 入口
 ├── export.py                   # 组织并写出当前固定数据集
+├── layout.py                   # 两种语义共享的规范路径构造
+├── preemptive.py               # 从公共样例构造 v2 可抢占变体
 ├── cases.py                    # 随机、反例、LLM motif 和小拓扑 route 样例
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
@@ -26,6 +28,10 @@ benchmark_generate/
 $env:PYTHONPATH="src;."
 python -m benchmark_generate all --samples 10 --seed 260819 --output benchmark
 ```
+
+`all` 同时生成 preemptive 与 nonpreemptive 两套数据。可用
+`--semantics preemptive` 或 `--semantics nonpreemptive` 只生成一种语义；
+两种 exporter 都通过 `layout.py` 构造 `family/semantics/category` 路径。
 
 该命令会生成：
 

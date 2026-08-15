@@ -40,7 +40,7 @@ def to_internal_dag(benchmark: Benchmark) -> BenchmarkDAG:
 def to_parallel_chains(benchmark: Benchmark):
     """Recognize parallel-chain components and build the compact solver input."""
 
-    from single_channel.parallel_chain.solver import ParallelChain
+    from single_channel.parallel_chain.nonpreemptive.solver import ParallelChain
 
     if benchmark.family != "parallel_chain":
         raise ValueError(f"expected parallel_chain, got {benchmark.family}")

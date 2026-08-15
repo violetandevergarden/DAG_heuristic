@@ -13,21 +13,9 @@ benchmark/
 │   ├── dag-benchmark-v1.schema.json
 │   └── dag-benchmark-v2.schema.json
 ├── single_channel/
-│   ├── parallel_chain/
-│   │   ├── random/
-│   │   ├── adversarial/
-│   │   └── real/
-│   └── complex_chain/
-│       ├── random/
-│       ├── adversarial/
-│       └── real/
-├── muti_channel/
-│   ├── random/
-│   ├── adversarial/
-│   └── real/
-├── preemptive/
-│   └── single_channel/
-│       └── complex_chain/{random,adversarial,real}/
+│   ├── parallel_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+│   └── complex_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+├── muti_channel/{preemptive,nonpreemptive}/{random,adversarial,real}/
 └── reference_results/
     ├── single_channel/
     │   ├── parallel_chain/adversarial/
@@ -51,9 +39,11 @@ benchmark/
 
 一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；v1 通信开始后持续占用资源直到完成，v2 每个暂停/恢复服务区间都同时获取和释放完整固定资源集合。
 
-### `preemptive/`
+### `preemptive` / `nonpreemptive` 语义分支
 
-使用当前主线 v2 语义的单通道和固定多资源 DAG。单通道内部仍按 `parallel_chain` 和 `complex_chain` 区分结构；该目录与 v1 数据物理隔离，避免只看路径时误用执行语义。
+规范布局在每个 family 下并列放置 `preemptive` 与 `nonpreemptive`。前者是 active v2，后者是 maintenance v1；路径分支与 JSON semantics 必须一致。
+
+每个 family 下都有显式的 `preemptive` 与 `nonpreemptive` 分支。前者是当前 active v2 通信暂停/恢复语义，后者是 maintenance v1 不可抢占语义；路径与 JSON semantics 必须一致。
 
 ## 数据分类
 
@@ -69,12 +59,12 @@ benchmark/
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
-| `single_channel/parallel_chain` | 10 | 13 | 2 | 25 |
-| `single_channel/complex_chain` | 10 | 16 | 7 | 33 |
-| `muti_channel` | 10 | 4 | 3 | 17 |
-| `preemptive/single_channel/parallel_chain` | 10 | 13 | 0 | 23 |
-| `preemptive/single_channel/complex_chain` | 10 | 17 | 0 | 27 |
-| `preemptive/muti_channel` | 10 | 4 | 0 | 14 |
+| `single_channel/parallel_chain/nonpreemptive` | 10 | 13 | 2 | 25 |
+| `single_channel/complex_chain/nonpreemptive` | 10 | 16 | 7 | 33 |
+| `muti_channel/nonpreemptive` | 10 | 4 | 3 | 17 |
+| `single_channel/parallel_chain/preemptive` | 10 | 13 | 0 | 23 |
+| `single_channel/complex_chain/preemptive` | 10 | 17 | 0 | 27 |
+| `muti_channel/preemptive` | 10 | 4 | 0 | 14 |
 | 总计 | 60 | 67 | 12 | 139 |
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
@@ -238,7 +228,7 @@ $env:PYTHONPATH="src;."
 from benchmark import load_benchmark
 
 case = load_benchmark(
-    "benchmark/single_channel/complex_chain/adversarial/random_join_30.json"
+    "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/random_join_30.json"
 )
 print(case.benchmark_id, len(case.tasks))
 ```
@@ -248,12 +238,14 @@ C++ 或其它语言可以直接按照本 README 和 JSON Schema 实现 Loader，
 运行仓库算法：
 
 ```powershell
-python src/cli.py benchmark/muti_channel/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
+python src/cli.py benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
 ```
 
 ## `index.jsonl`
 
-索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category` 和问题文件 SHA-256。
+布局 v2 索引显式包含 `semantics` 和 `layout_version`；逐文件旧路径、新路径及迁移前哈希见 `path_migration_v1_to_v2.jsonl`。
+
+索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category`、`semantics`、`layout_version` 和问题文件 SHA-256。布局 v1 到 v2 的逐文件旧路径、新路径与迁移前哈希记录在 `path_migration_v1_to_v2.jsonl`。
 
 使用者可以读取索引遍历数据集，不必自己扫描目录。问题文件变化后必须更新索引，避免缓存或实验结果继续引用旧内容。
 
