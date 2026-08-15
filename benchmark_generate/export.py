@@ -5,10 +5,11 @@ from __future__ import annotations
 import hashlib
 import json
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
+from typing import Literal
 
-from benchmark import Benchmark, write_benchmark
+from benchmark import Benchmark, SchedulingSemantics, load_benchmark, write_benchmark
 from benchmark_generate.convert import (
     dag_to_benchmark,
     multi_resource_to_benchmark,
@@ -25,6 +26,19 @@ from benchmark_generate.layout import (
 class ExportedCase:
     benchmark: Benchmark
     relative_path: Path
+
+
+SemanticVariant = Literal["preemptive", "nonpreemptive"]
+
+PREEMPTIVE_SEMANTICS = SchedulingSemantics(
+    preemption="communication_resume",
+    decision_epoch="task_event",
+    optional_idle=False,
+    compute_model="unbounded_parallel",
+    resource_model="exclusive_fixed_set",
+    preemption_cost=0,
+    minimum_quantum=0,
+)
 
 
 def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
@@ -119,19 +133,32 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
     return exported
 
 
-def export_suite(
+def export_semantic_suite(
     root: Path,
     *,
+    semantics: SemanticVariant,
     samples: int = 10,
     seed: int = 260819,
     categories: set[str] | None = None,
-) -> list[dict]:
+) -> list[Path]:
+    """Write one explicitly selected semantic variant through the shared layout."""
+
+    if semantics not in {"preemptive", "nonpreemptive"}:
+        raise ValueError(f"unsupported semantics: {semantics}")
+    written: list[Path] = []
     for item in current_cases(samples=samples, seed=seed):
         if categories is not None and item.benchmark.category not in categories:
             continue
-        target = root / item.relative_path
-        write_benchmark(item.benchmark, target)
-    return build_index(root)
+        if semantics == "preemptive":
+            if item.benchmark.category not in {"random", "adversarial"}:
+                continue
+            benchmark = _as_preemptive(item.benchmark, seed=seed)
+        else:
+            benchmark = item.benchmark
+        target = root / benchmark_relative_path(benchmark)
+        write_benchmark(benchmark, target)
+        written.append(target)
+    return written
 
 
 def build_index(root: Path) -> list[dict]:
@@ -142,8 +169,6 @@ def build_index(root: Path) -> list[dict]:
         if "schema" in target.parts or "reference_results" in target.parts:
             continue
         relative = target.relative_to(root).as_posix()
-        from benchmark import load_benchmark
-
         benchmark = load_benchmark(target)
         rows.append({
             "id": benchmark.benchmark_id,
@@ -175,6 +200,18 @@ def _case(benchmark: Benchmark, scenario: str, family: str, category: str) -> Ex
 
 
 def _with_id(benchmark: Benchmark, benchmark_id: str) -> Benchmark:
-    from dataclasses import replace
-
     return replace(benchmark, benchmark_id=benchmark_id)
+
+
+def _as_preemptive(benchmark: Benchmark, *, seed: int) -> Benchmark:
+    return replace(
+        benchmark,
+        benchmark_id=f"pm_{benchmark.benchmark_id}",
+        schema_version="2.0",
+        semantics=PREEMPTIVE_SEMANTICS,
+        metadata={
+            **benchmark.metadata,
+            "lifted_from": benchmark.benchmark_id,
+            "preemptive_generator_seed": seed,
+        },
+    )

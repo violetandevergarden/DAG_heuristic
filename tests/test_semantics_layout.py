@@ -27,9 +27,16 @@ def test_removed_compatibility_paths_do_not_reappear() -> None:
         "src/single_channel/complex_chain/interface.py",
         "src/muti_channel/solver.py",
         "src/muti_channel/interface.py",
+        "benchmark_generate/preemptive.py",
+        "benchmark_generate/studies",
+        "benchmark_generate/simai/multi_job_study.py",
+        "benchmark_generate/simai/repetition_study.py",
+        "benchmark_generate/simai/repetition.py",
     )
     assert not [relative for relative in removed if (ROOT / relative).exists()]
     assert not list((ROOT / "tests/preemptive").glob("*.py"))
+    assert (ROOT / "experiments/preemptive/stage0_4.py").is_file()
+    assert (ROOT / "experiments/simai/repetition_study.py").is_file()
 
 
 def test_every_problem_path_explicitly_matches_json_semantics() -> None:

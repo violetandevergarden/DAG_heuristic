@@ -5,8 +5,8 @@ from benchmark_generate.simai.export import (
     build_workload,
     to_benchmark,
 )
-from benchmark_generate.simai.repetition import scan_repetition
-from benchmark_generate.simai.repetition_study import _raw_b_to_w_edges
+from experiments.simai.repetition import scan_repetition
+from experiments.simai.repetition_study import _raw_b_to_w_edges
 
 
 def test_scanner_separates_repetition_from_exchangeability() -> None:

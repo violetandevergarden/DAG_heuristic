@@ -7,9 +7,8 @@
 ```text
 benchmark_generate/
 ├── __main__.py                 # `python -m benchmark_generate` 入口
-├── export.py                   # 组织并写出当前固定数据集
+├── export.py                   # 统一导出两种 semantics 并生成索引
 ├── layout.py                   # 两种语义共享的规范路径构造
-├── preemptive.py               # 从公共样例构造 v2 可抢占变体
 ├── cases.py                    # 随机、反例、LLM motif 和小拓扑 route 样例
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
@@ -31,7 +30,15 @@ python -m benchmark_generate all --samples 10 --seed 260819 --output benchmark
 
 `all` 同时生成 preemptive 与 nonpreemptive 两套数据。可用
 `--semantics preemptive` 或 `--semantics nonpreemptive` 只生成一种语义；
-两种 exporter 都通过 `layout.py` 构造 `family/semantics/category` 路径。
+两种语义都通过 `export.py::export_semantic_suite` 导出，并通过 `layout.py`
+构造 `family/semantics/category` 路径，不再设置 preemptive 专用 exporter。
+
+只生成一种语义时仍使用统一命令，例如：
+
+```powershell
+python -m benchmark_generate all --semantics preemptive --output benchmark
+python -m benchmark_generate all --semantics nonpreemptive --output benchmark
+```
 
 该命令会生成：
 
@@ -84,7 +91,8 @@ Exact Oracle 对大图可能产生指数级开销。当前固定集合生成 33 
 6. 在 `tests/test_generators.py` 添加固定 seed 可复现测试。
 7. 若属于算法反例，记录攻击对象和来源；若属于 random，仓库通常只保留约 10 个代表样例。
 
-`export_suite` 会更新它负责生成的文件和索引，也会把输出目录中其它合法 JSON 纳入索引；它不会自动判断旧文件是否应该删除。改变固定集合后必须检查是否存在过期文件。
+`export_semantic_suite` 只写入调用者显式选择的 semantics；随后由 `build_index`
+把输出目录中的合法问题纳入索引。生成器不会自动判断旧文件是否应该删除，改变固定集合后必须检查是否存在过期文件。
 
 ## 从 SimAI 生成真实 DAG
 

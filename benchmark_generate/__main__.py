@@ -5,14 +5,13 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from benchmark_generate.export import build_index, export_suite
-from benchmark_generate.preemptive import export_preemptive_suite
+from benchmark_generate.export import build_index, export_semantic_suite
 from benchmark_generate.reference import generate_reference_results
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("all", "random", "preemptive", "reference"))
+    parser.add_argument("command", choices=("all", "random", "reference"))
     parser.add_argument("--output", type=Path, default=Path("benchmark"))
     parser.add_argument("--samples", type=int, default=10)
     parser.add_argument("--seed", type=int, default=260819)
@@ -28,24 +27,19 @@ def main() -> None:
         written = generate_reference_results(args.output)
         print(f"generated {len(written)} exact reference files under {args.output / 'reference_results'}")
         return
-    if args.command == "preemptive":
-        written = export_preemptive_suite(
-            args.output, samples=args.samples, seed=args.seed
-        )
-        build_index(args.output)
-        print(f"generated {len(written)} preemptive benchmark files under {args.output}")
-        return
     categories = {"random"} if args.command == "random" else None
     if args.semantics in {"all", "nonpreemptive"}:
-        export_suite(
+        export_semantic_suite(
             args.output,
+            semantics="nonpreemptive",
             samples=args.samples,
             seed=args.seed,
             categories=categories,
         )
     if args.semantics in {"all", "preemptive"}:
-        export_preemptive_suite(
+        export_semantic_suite(
             args.output,
+            semantics="preemptive",
             samples=args.samples,
             seed=args.seed,
             categories=categories,

@@ -16,6 +16,7 @@ benchmark/
   schema/                     # JSON Schema
 
 benchmark_generate/           # 随机、固定反例和真实 DAG 的生成工具
+experiments/                  # 离线实验 runner；不被调度算法导入
 src/
   benchmark/                  # JSON loader 和 validator
   core/                       # 公共模型、v2 事件执行、Trace 回放
