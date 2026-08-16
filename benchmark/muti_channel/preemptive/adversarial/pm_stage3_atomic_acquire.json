@@ -1,0 +1,110 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage3_atomic_acquire",
+  "metadata": {
+    "description": "A two-resource flow competes with two mutually compatible single-resource flows.",
+    "generator": "stage3_structural_adversarial_cases",
+    "parameters": {
+      "attack_target": "atomic_acquire_and_set_complementarity",
+      "mechanism": "one_wide_versus_two_compatible_flows",
+      "semantic_scope": "fixed_resource_preemptive"
+    },
+    "semantic_scope": "fixed_resource_preemptive"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:r0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "wide",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r0",
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "left",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "right",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "wide"
+      ],
+      "duration": 5,
+      "id": "wide_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "left"
+      ],
+      "duration": 4,
+      "id": "left_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "right"
+      ],
+      "duration": 4,
+      "id": "right_tail",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

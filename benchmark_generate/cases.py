@@ -468,6 +468,148 @@ def multi_resource_motifs() -> list[MultiResourceInstance]:
     return result
 
 
+def stage3_structural_adversarial_cases() -> list[MultiResourceInstance]:
+    """Interpretable fixed-resource Stage 3 attacks and semantic probes."""
+
+    result: list[MultiResourceInstance] = []
+
+    builder = _Builder(
+        "stage3_atomic_acquire",
+        "adversarial",
+        "A two-resource flow competes with two mutually compatible single-resource flows.",
+    )
+    wide = builder.add("wide", "comm", 3, role="attack_decision")
+    left = builder.add("left", "comm", 2, role="attack_decision")
+    right = builder.add("right", "comm", 2, role="attack_decision")
+    builder.add("wide_tail", "compute", 5, (wide,))
+    builder.add("left_tail", "compute", 4, (left,))
+    builder.add("right_tail", "compute", 4, (right,))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(
+                attack_target="atomic_acquire_and_set_complementarity",
+                mechanism="one_wide_versus_two_compatible_flows",
+                semantic_scope="fixed_resource_preemptive",
+            ),
+            {
+                wide: frozenset({"r0", "r1"}),
+                left: frozenset({"r0"}),
+                right: frozenset({"r1"}),
+            },
+        )
+    )
+
+    builder = _Builder(
+        "stage3_maximal_not_maximum",
+        "adversarial",
+        "Both a singleton and a two-flow set are inclusion-maximal legal actions.",
+    )
+    blocker = builder.add("blocker", "comm", 2, role="attack_decision")
+    a = builder.add("a", "comm", 3, role="attack_decision")
+    b = builder.add("b", "comm", 3, role="attack_decision")
+    builder.add("blocker_tail", "compute", 7, (blocker,))
+    builder.add("a_tail", "compute", 3, (a,))
+    builder.add("b_tail", "compute", 3, (b,))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(
+                attack_target="maximal_not_maximum_cardinality",
+                mechanism="legal_maximal_sets_have_different_sizes",
+                semantic_scope="fixed_resource_preemptive",
+            ),
+            {
+                blocker: frozenset({"r0", "r1"}),
+                a: frozenset({"r0"}),
+                b: frozenset({"r1"}),
+            },
+        )
+    )
+
+    builder = _Builder(
+        "stage3_join_hotspots",
+        "adversarial",
+        "Two join inputs use different hotspots while an independent wide flow blocks both.",
+    )
+    left = builder.add("left", "comm", 2, role="join_input")
+    right = builder.add("right", "comm", 2, role="join_input")
+    wide = builder.add("wide", "comm", 3, role="attack_decision")
+    barrier = builder.add("barrier", "compute", 6, (left, right), role="barrier")
+    wide_tail = builder.add("wide_tail", "compute", 5, (wide,))
+    builder.add("sink", "compute", 1, (barrier, wide_tail))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(
+                attack_target="join_branches_on_complementary_hotspots",
+                mechanism="resource_complementarity_competes_with_single_tail",
+                semantic_scope="fixed_resource_preemptive",
+            ),
+            {
+                left: frozenset({"r0"}),
+                right: frozenset({"r1"}),
+                wide: frozenset({"r0", "r1"}),
+            },
+        )
+    )
+
+    builder = _Builder(
+        "stage3_shared_downstream",
+        "adversarial",
+        "Two compatible branches share a downstream barrier that must be counted once per set.",
+    )
+    left = builder.add("left", "comm", 2, role="attack_decision")
+    right = builder.add("right", "comm", 2, role="attack_decision")
+    left_compute = builder.add("left_compute", "compute", 2, (left,))
+    right_compute = builder.add("right_compute", "compute", 2, (right,))
+    shared = builder.add(
+        "shared_barrier", "compute", 5, (left_compute, right_compute), role="barrier"
+    )
+    final = builder.add("final", "comm", 2, (shared,))
+    builder.add("sink", "compute", 2, (final,))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(
+                attack_target="shared_downstream_set_double_count",
+                mechanism="compatible_roots_share_one_reachable_barrier",
+                semantic_scope="fixed_resource_preemptive",
+            ),
+            {
+                left: frozenset({"r0"}),
+                right: frozenset({"r1"}),
+                final: frozenset({"r0", "r1"}),
+            },
+        )
+    )
+
+    builder = _Builder(
+        "stage3_depth2_investment",
+        "adversarial",
+        "A first compatible set changes which resource pair matters at the next decision.",
+    )
+    release = builder.add("release", "compute", 1)
+    a = builder.add("a", "comm", 3, role="attack_decision")
+    b = builder.add("b", "comm", 2, role="attack_decision")
+    c = builder.add("c", "comm", 2, (release,), role="attack_decision")
+    a_compute = builder.add("a_compute", "compute", 3, (a,))
+    b_compute = builder.add("b_compute", "compute", 4, (b,))
+    c_compute = builder.add("c_compute", "compute", 5, (c,))
+    builder.add("barrier", "compute", 2, (a_compute, b_compute, c_compute), role="barrier")
+    result.append(
+        MultiResourceInstance(
+            builder.finish(
+                attack_target="finite_depth_compatible_set_rollout",
+                mechanism="future_release_changes_set_complementarity",
+                semantic_scope="fixed_resource_preemptive",
+            ),
+            {
+                a: frozenset({"r0", "r1"}),
+                b: frozenset({"r0"}),
+                c: frozenset({"r1"}),
+            },
+        )
+    )
+    return result
+
+
 def manual_route_cases() -> list[MultiResourceInstance]:
     """Small fixed-route snapshots derived from three transparent topologies."""
     routes = {
@@ -524,6 +666,56 @@ def random_multi_resource_instance(rng: random.Random, index: int) -> MultiResou
         if rng.random() < 0.35:
             values.add("shared-uplink")
         resources[task.task_id] = frozenset(values)
+    return MultiResourceInstance(dag, resources)
+
+
+def random_stage3_multi_resource_instance(
+    rng: random.Random,
+    index: int,
+    *,
+    layers: int = 8,
+    min_width: int = 3,
+    max_width: int = 5,
+    resource_count: int = 5,
+    multi_resource_probability: float = 0.45,
+    hotspot_probability: float = 0.25,
+) -> MultiResourceInstance:
+    """Parameterized general DAG with mixed fixed-resource footprints."""
+
+    if resource_count < 2:
+        raise ValueError("Stage 3 random instances require at least two resources")
+    if not 0 <= multi_resource_probability <= 1 or not 0 <= hotspot_probability <= 1:
+        raise ValueError("resource probabilities must be in [0, 1]")
+    dag = random_layered_general_dag(
+        rng,
+        index,
+        layers=layers,
+        min_width=min_width,
+        max_width=max_width,
+        edge_probability=0.4,
+        skip_edge_probability=0.12,
+        barrier_every=3,
+    )
+    pool = tuple(f"r{item}" for item in range(resource_count))
+    resources: dict[str, frozenset[str]] = {}
+    for task in dag.tasks:
+        if task.kind != "comm":
+            continue
+        values = {rng.choice(pool)}
+        if rng.random() < multi_resource_probability:
+            values.add(rng.choice(pool))
+        if rng.random() < hotspot_probability:
+            values.add("hotspot")
+        resources[task.task_id] = frozenset(values)
+    parameters = dict(dag.parameters)
+    parameters.update(
+        {
+            "resource_count": str(resource_count),
+            "multi_resource_probability": str(multi_resource_probability),
+            "hotspot_probability": str(hotspot_probability),
+        }
+    )
+    dag = replace(dag, parameters=tuple(sorted(parameters.items())))
     return MultiResourceInstance(dag, resources)
 
 

@@ -1,0 +1,20 @@
+{
+  "benchmark_id": "pm_stage3_maximal_not_maximum",
+  "benchmark_sha256": "09e273593b0c5bfa4cb0a03f5a07ed013779474ef56cd6713ccd44f3568afa44",
+  "optimal_makespan": 9,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_compatible_sets_generated": 3,
+  "oracle_explored_states": 3,
+  "oracle_generated_transitions": 3,
+  "oracle_lower_bound": 9,
+  "oracle_peak_memory_bytes": null,
+  "oracle_peak_states": 3,
+  "oracle_runtime_ms": 0.7010999834164977,
+  "oracle_status": "optimal",
+  "oracle_termination_reason": "complete_enumeration",
+  "schema_version": "2.0"
+}

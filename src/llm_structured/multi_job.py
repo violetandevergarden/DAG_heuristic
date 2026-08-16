@@ -670,45 +670,45 @@ def schedule_multi_resource_hierarchical(
     state = model.initial_state()
     actions: list[MultiAction] = []
     while not model.finished(state):
+        state, _forced_idle = model.normalize_decision_state(state)
+        if model.finished(state):
+            break
         eligible = model.eligible(state)
-        if not eligible:
-            action = MultiAction()
-        else:
-            tail = _multi_residual_tail(model, state)
-            nominees = []
-            for _job_id, task_ids in sorted(_eligible_by_job(instance, eligible).items()):
-                ranked = sorted(
-                    task_ids,
-                    key=lambda task_id: (
-                        -_multi_tail_score(model, state, tail, task_id),
-                        task_id,
-                    ),
-                )
-                nominees.extend(
-                    ranked if candidate_width is None else ranked[:candidate_width]
-                )
-            selected: list[str] = []
-            for task_id in sorted(
-                nominees,
-                key=lambda item: (
-                    -_multi_tail_score(model, state, tail, item),
-                    item,
+        tail = _multi_residual_tail(model, state)
+        nominees = []
+        for _job_id, task_ids in sorted(_eligible_by_job(instance, eligible).items()):
+            ranked = sorted(
+                task_ids,
+                key=lambda task_id: (
+                    -_multi_tail_score(model, state, tail, task_id),
+                    task_id,
                 ),
-            ):
-                if model.compatible(tuple((*selected, task_id))):
-                    selected.append(task_id)
-            # Candidate compression may rank the pack, but the v2 execution
-            # contract does not permit it to leave a compatible resource idle.
-            for task_id in sorted(
-                (task_id for task_id in eligible if task_id not in selected),
-                key=lambda item: (
-                    -_multi_tail_score(model, state, tail, item),
-                    item,
-                ),
-            ):
-                if model.compatible(tuple((*selected, task_id))):
-                    selected.append(task_id)
-            action = MultiAction(tuple(sorted(selected)))
+            )
+            nominees.extend(
+                ranked if candidate_width is None else ranked[:candidate_width]
+            )
+        selected: list[str] = []
+        for task_id in sorted(
+            nominees,
+            key=lambda item: (
+                -_multi_tail_score(model, state, tail, item),
+                item,
+            ),
+        ):
+            if model.compatible((*selected, task_id)):
+                selected.append(task_id)
+        # Candidate compression may rank the pack, but the v2 execution
+        # contract does not permit it to leave a compatible resource idle.
+        for task_id in sorted(
+            (task_id for task_id in eligible if task_id not in selected),
+            key=lambda item: (
+                -_multi_tail_score(model, state, tail, item),
+                item,
+            ),
+        ):
+            if model.compatible((*selected, task_id)):
+                selected.append(task_id)
+        action = MultiAction(tuple(sorted(selected)))
         actions.append(action)
         state = model.step(state, action)
     trace = model.run(actions)
@@ -904,6 +904,7 @@ def _count_multi_preemptions(
     previous: set[str] = set()
     state = model.initial_state()
     for action in actions:
+        state, _forced_idle = model.normalize_decision_state(state)
         current = set(action.communications)
         after = model.step(state, action)
         count += sum(

@@ -1,0 +1,20 @@
+{
+  "benchmark_id": "pm_stage3_depth2_investment",
+  "benchmark_sha256": "cec652da0878d1b478ef432d3c6d8ffdf036ba60db019fece91b94dd58572fb2",
+  "optimal_makespan": 10,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_compatible_sets_generated": 11,
+  "oracle_explored_states": 8,
+  "oracle_generated_transitions": 11,
+  "oracle_lower_bound": 10,
+  "oracle_peak_memory_bytes": null,
+  "oracle_peak_states": 8,
+  "oracle_runtime_ms": 2.3379999911412597,
+  "oracle_status": "optimal",
+  "oracle_termination_reason": "complete_enumeration",
+  "schema_version": "2.0"
+}

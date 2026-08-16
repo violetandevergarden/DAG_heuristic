@@ -5,6 +5,17 @@ from __future__ import annotations
 from core.dag import BenchmarkDAG
 from muti_channel.preemptive import solver
 
+ALGORITHM_NAMES = (
+    "longest_tail_pack",
+    "resource_pack",
+    "bottleneck_pack",
+    "resource_downstream_pack",
+    "union_downstream_set",
+    "rollout_sets2d2",
+    "exact",
+    "exact_uncompressed",
+)
+
 
 def solve(
     dag: BenchmarkDAG,
@@ -13,8 +24,21 @@ def solve(
 ):
     algorithms = {
         "longest_tail_pack": solver.schedule_pack,
-        "rollout_sets2": solver.rollout_sets,
+        "resource_pack": lambda item, values: solver.schedule_pack(
+            item, values, "resource_tail"
+        ),
+        "bottleneck_pack": lambda item, values: solver.schedule_pack(
+            item, values, "bottleneck"
+        ),
+        "resource_downstream_pack": lambda item, values: solver.schedule_pack(
+            item, values, "resource_downstream"
+        ),
+        "union_downstream_set": solver.schedule_set_policy,
+        "rollout_sets2d2": lambda item, values: solver.rollout_sets(
+            item, values, top_k=2, depth=2
+        ),
         "exact": solver.exact_oracle,
+        "exact_uncompressed": solver.exact_oracle_uncompressed,
     }
     try:
         implementation = algorithms[algorithm]

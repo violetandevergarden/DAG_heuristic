@@ -67,15 +67,10 @@ def generate_reference_results(
         makespan = getattr(result, "makespan", None)
         if not isinstance(makespan, int):
             raise TypeError(f"exact result for {benchmark.benchmark_id} has no integer makespan")
-        if (
-            benchmark.semantics.is_preemptive
-            and benchmark.scenario == "single_channel"
-            and benchmark.family == "complex_chain"
-            and getattr(result, "status", None) != "optimal"
-        ):
-            # Stage 2 reference results require a machine-readable completed
-            # enumeration certificate.  A feasible budget fallback is not an
-            # optimum even when its incumbent happens to match an old sidecar.
+        if benchmark.semantics.is_preemptive and getattr(result, "status", None) != "optimal":
+            # Stage 2/3 reference results require a machine-readable completed
+            # enumeration certificate. A feasible budget fallback is not an
+            # optimum even if its incumbent matches a historical sidecar.
             continue
         relative = source.relative_to(benchmark_root)
         target = benchmark_root / "reference_results" / relative
@@ -90,6 +85,20 @@ def generate_reference_results(
                     "oracle_status": getattr(result, "status", "legacy_optimal"),
                     "oracle_runtime_ms": getattr(result, "runtime_ms", None),
                     "oracle_explored_states": getattr(result, "explored_states", None),
+                    "oracle_generated_transitions": getattr(
+                        result, "generated_transitions", None
+                    ),
+                    "oracle_lower_bound": getattr(result, "lower_bound", None),
+                    "oracle_compatible_sets_generated": getattr(
+                        result, "compatible_sets_generated", None
+                    ),
+                    "oracle_peak_states": getattr(result, "peak_states", None),
+                    "oracle_peak_memory_bytes": getattr(
+                        result, "peak_memory_bytes", None
+                    ),
+                    "oracle_termination_reason": getattr(
+                        result, "termination_reason", None
+                    ),
                     "oracle_budget": {"max_states": 100_000, "time_limit_s": 5.0},
                     "optimal_makespan": makespan,
                 },

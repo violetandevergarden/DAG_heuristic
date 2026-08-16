@@ -2,19 +2,27 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
 import random
+from dataclasses import replace
 
 import pytest
 
-from core.dag import BenchmarkDAG, BenchTask
 from benchmark import benchmark_from_dict, benchmark_to_dict
+from core.dag import BenchmarkDAG, BenchTask
 from core.execution.preemptive import Action, ExecutionInterval, PreemptiveDAGModel
 from core.trace.preemptive import assert_preemptive_trace
 from muti_channel.preemptive.solver import (
     MultiAction,
     PreemptiveMultiResourceModel,
+)
+from muti_channel.preemptive.solver import (
     exact_oracle as multi_exact,
+)
+from muti_channel.preemptive.solver import (
+    exact_oracle_uncompressed as multi_audit_exact,
+)
+from muti_channel.preemptive.solver import (
+    remaining_lower_bound as multi_remaining_lower_bound,
 )
 from muti_channel.preemptive.trace import assert_multi_resource_trace
 from single_channel.complex_chain.preemptive.solver import exact_oracle
@@ -125,7 +133,7 @@ def test_multi_resource_rejects_nonmaximal_wait_duplicate_and_zero_duration() ->
     assert model.legal_actions(state) == (MultiAction(("a", "b")),)
     with pytest.raises(ValueError, match="not inclusion-maximal"):
         model.step(state, MultiAction(("a",)))
-    with pytest.raises(ValueError, match="voluntary WAIT"):
+    with pytest.raises(ValueError, match="simulator-owned"):
         model.step(state, MultiAction())
     with pytest.raises(ValueError, match="duplicate"):
         model.step(state, MultiAction(("a", "a")))
@@ -252,14 +260,19 @@ def test_parallel_chain_entry_rejects_general_dag_and_task_order_is_irrelevant()
 def test_multi_event_exact_matches_independent_tiny_tick_oracle() -> None:
     rng = random.Random(260816)
     resource_pool = ("r0", "r1", "r2")
-    for index in range(12):
+    for index in range(30):
         dag = _random_tiny_dag(rng, index)
         resources = {
             task.task_id: frozenset(
-                resource_pool[position]
-                for position in range(rng.randint(1, 2))
+                rng.sample(resource_pool, rng.randint(1, min(2, len(resource_pool))))
             )
             for task in dag.tasks
             if task.kind == "comm"
         }
-        assert multi_exact(dag, resources).makespan == tiny_tick_optimum(dag, resources)
+        tick = tiny_tick_optimum(dag, resources)
+        normalized = multi_exact(dag, resources)
+        audit = multi_audit_exact(dag, resources)
+        model = PreemptiveMultiResourceModel(dag, resources)
+        assert normalized.status == audit.status == "optimal"
+        assert normalized.makespan == audit.makespan == tick
+        assert multi_remaining_lower_bound(model, model.initial_state()) <= tick

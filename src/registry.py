@@ -201,6 +201,7 @@ def _muti_registry() -> dict[str, Algorithm]:
 
 def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
     if benchmark.scenario == "muti_channel":
+        from muti_channel.preemptive import interface as multi_interface
         from muti_channel.preemptive import solver as multi_solver
 
         def convert_multi(item: Benchmark):
@@ -217,36 +218,66 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "longest_tail_pack",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.schedule_pack(*convert_multi(b), "longest_tail"),
-                    "Preemptive compatible packing in residual-tail order.",
+                    lambda b: multi_interface.solve(*convert_multi(b), "longest_tail_pack"),
+                    "Stable deployment baseline: greedy maximal packing in residual-tail order.",
                 ),
                 "resource_pack": Algorithm(
                     "resource_pack",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.schedule_pack(*convert_multi(b), "resource_tail"),
-                    "Residual-tail packing with resource-load tie break.",
+                    lambda b: multi_interface.solve(*convert_multi(b), "resource_pack"),
+                    "Research ablation: residual-tail packing with resource-load tie break.",
                 ),
                 "bottleneck_pack": Algorithm(
                     "bottleneck_pack",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.schedule_pack(*convert_multi(b), "bottleneck"),
-                    "Bottleneck-load-first compatible packing.",
+                    lambda b: multi_interface.solve(*convert_multi(b), "bottleneck_pack"),
+                    "Research baseline: bottleneck-load-first packing; not a deployment candidate.",
                 ),
-                "rollout_sets2": Algorithm(
-                    "rollout_sets2",
+                "resource_downstream_pack": Algorithm(
+                    "resource_downstream_pack",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.rollout_sets(*convert_multi(b), top_k=2),
-                    "Top-2 maximal compatible-set rollout.",
+                    lambda b: multi_interface.solve(
+                        *convert_multi(b), "resource_downstream_pack"
+                    ),
+                    "Resource-vector downstream-demand candidate; mean and worst must both be audited.",
+                ),
+                "union_downstream_set": Algorithm(
+                    "union_downstream_set",
+                    "muti_channel",
+                    benchmark.family,
+                    lambda b: multi_interface.solve(
+                        *convert_multi(b), "union_downstream_set"
+                    ),
+                    "Whole-set candidate using the union of reachable downstream nodes.",
+                ),
+                "rollout_sets2d2": Algorithm(
+                    "rollout_sets2d2",
+                    "muti_channel",
+                    benchmark.family,
+                    lambda b: multi_interface.solve(*convert_multi(b), "rollout_sets2d2"),
+                    "Budgeted top-2 depth-2 compatible-set Rollout with deterministic LT fallback.",
                 ),
                 "exact": Algorithm(
                     "exact",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.exact_oracle(*convert_multi(b)),
-                    "Exact small-state maximal-set Oracle.",
+                    lambda b: multi_solver.exact_oracle(
+                        *convert_multi(b), max_states=300_000, time_limit_s=5.0
+                    ),
+                    "Budgeted normalized Exact; only status=optimal is a certificate.",
+                    exact=True,
+                ),
+                "exact_uncompressed": Algorithm(
+                    "exact_uncompressed",
+                    "muti_channel",
+                    benchmark.family,
+                    lambda b: multi_solver.exact_oracle_uncompressed(
+                        *convert_multi(b), max_states=100_000, time_limit_s=5.0
+                    ),
+                    "Audit Exact retaining absolute event-state fields.",
                     exact=True,
                 ),
             }

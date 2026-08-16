@@ -3,5 +3,18 @@
   "benchmark_sha256": "b62e66b274c01ff76cbc1ccb72b82500ea1bc5aec2e410b00605be078464d86d",
   "optimal_makespan": 11,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_compatible_sets_generated": 6,
+  "oracle_explored_states": 6,
+  "oracle_generated_transitions": 6,
+  "oracle_lower_bound": 8,
+  "oracle_peak_memory_bytes": null,
+  "oracle_peak_states": 6,
+  "oracle_runtime_ms": 1.6084000235423446,
+  "oracle_status": "optimal",
+  "oracle_termination_reason": "complete_enumeration",
   "schema_version": "2.0"
 }

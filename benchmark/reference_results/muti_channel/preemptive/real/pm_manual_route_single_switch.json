@@ -1,0 +1,20 @@
+{
+  "benchmark_id": "pm_manual_route_single_switch",
+  "benchmark_sha256": "9fc1a73e4e544a4673a814470cb71411f008d0d0bb4561dfd9df04d1a845835a",
+  "optimal_makespan": 9,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_compatible_sets_generated": 4,
+  "oracle_explored_states": 5,
+  "oracle_generated_transitions": 4,
+  "oracle_lower_bound": 9,
+  "oracle_peak_memory_bytes": null,
+  "oracle_peak_states": 5,
+  "oracle_runtime_ms": 1.4408999704755843,
+  "oracle_status": "optimal",
+  "oracle_termination_reason": "complete_enumeration",
+  "schema_version": "2.0"
+}

@@ -60,6 +60,7 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
         rollout_depth_counterexample,
         scaled_five_four_family,
         stage2_structural_adversarial_cases,
+        stage3_structural_adversarial_cases,
         tight_optional_wait_family,
     )
     from single_channel.parallel_chain.model import ParallelChain
@@ -195,7 +196,10 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
                 )
             exported.append(_case(benchmark, "single_channel", "complex_chain", category))
     muti_cases = {
-        "adversarial": multi_resource_motifs(),
+        "adversarial": [
+            *multi_resource_motifs(),
+            *stage3_structural_adversarial_cases(),
+        ],
         "random": [random_multi_resource_instance(muti_rng, index) for index in range(samples)],
         "real": manual_route_cases(),
     }
@@ -238,28 +242,39 @@ def export_semantic_suite(
             continue
         if semantics == "preemptive":
             if item.benchmark.category == "real" and item.benchmark.family != "parallel_chain":
-                audited = {
+                audited_stage2 = {
                     "zb_bw_fork",
                     "w_dp_optimizer_join",
                     "tp_collective_plus_pp",
                 }
-                if item.benchmark.benchmark_id not in audited:
+                audited_stage3 = {
+                    "manual_route_single_switch_np",
+                    "manual_route_two_rack_np",
+                    "manual_route_four_rack_core_np",
+                }
+                if item.benchmark.benchmark_id not in audited_stage2 | audited_stage3:
                     continue
+                is_stage3_route = item.benchmark.benchmark_id in audited_stage3
                 item = replace(
                     item,
                     benchmark=replace(
                         item.benchmark,
                         metadata={
                             **item.benchmark.metadata,
-                            "stage2_group": "structured",
+                            "stage3_group" if is_stage3_route else "stage2_group": "structured",
                             "preemption_granularity": (
                                 "each communication node is one resumable logical transfer"
                             ),
-                            "projection_equivalence": (
-                                "structure-preserving synthetic motif; not a measured runtime trace"
-                            ),
-                            "single_channel_projection": (
-                                "all logical transfers share one unit-capacity channel"
+                            "projection_equivalence": "structure-preserving synthetic topology snapshot; not a measured runtime trace" if is_stage3_route else "structure-preserving synthetic motif; not a measured runtime trace",
+                            **(
+                                {
+                                    "topology_source": "transparent fixed manual topology fixture",
+                                    "route_freezing": "TopologyLoader-compatible BFS path to directed-link and endpoint NIC resource sets",
+                                }
+                                if is_stage3_route
+                                else {
+                                    "single_channel_projection": "all logical transfers share one unit-capacity channel"
+                                }
                             ),
                             "canonical_form": "raw_general_dag",
                         },
