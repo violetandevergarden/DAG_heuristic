@@ -13,14 +13,14 @@ from registry import algorithms_for, solve
 def generate_reference_results(
     benchmark_root: Path,
     *,
-    category: str = "adversarial",
+    category: str | None = "adversarial",
 ) -> list[Path]:
     written = []
     for source in sorted(benchmark_root.rglob("*.json")):
         if "schema" in source.parts or "reference_results" in source.parts:
             continue
         benchmark = load_benchmark(source)
-        if benchmark.category != category:
+        if category is not None and benchmark.category != category:
             continue
         exact_name = "exact" if benchmark.semantics.is_preemptive else "exact_optional"
         exact = algorithms_for(benchmark).get(exact_name)
@@ -33,6 +33,7 @@ def generate_reference_results(
             if benchmark.semantics.is_preemptive:
                 if benchmark.scenario == "single_channel":
                     from core.conversion import to_internal_dag
+
                     if benchmark.family == "parallel_chain":
                         from single_channel.parallel_chain.preemptive.solver import exact_oracle
                     else:
@@ -48,7 +49,10 @@ def generate_reference_results(
                     instance = to_multi_resource_instance(benchmark)
                     result = exact_oracle(
                         instance.dag,
-                        {key: frozenset(str(value) for value in values) for key, values in instance.resources.items()},
+                        {
+                            key: frozenset(str(value) for value in values)
+                            for key, values in instance.resources.items()
+                        },
                         max_states=100_000,
                         time_limit_s=5.0,
                     )

@@ -6,7 +6,8 @@
     "generator": "parallel_chain",
     "lifted_from": "random_chain_4",
     "preemptive_generator_seed": 260819,
-    "seed": 260819
+    "seed": 260819,
+    "stage1_group": "random"
   },
   "objective": "makespan",
   "resources": [

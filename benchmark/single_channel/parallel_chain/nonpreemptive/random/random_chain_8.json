@@ -4,7 +4,8 @@
   "id": "random_chain_8",
   "metadata": {
     "generator": "parallel_chain",
-    "seed": 260819
+    "seed": 260819,
+    "stage1_group": "random"
   },
   "objective": "makespan",
   "resources": [

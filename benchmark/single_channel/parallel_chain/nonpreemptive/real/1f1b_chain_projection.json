@@ -4,7 +4,10 @@
   "id": "1f1b_chain_projection",
   "metadata": {
     "generator": "parallel_chain",
-    "seed": null
+    "projection_equivalence": "independent-chain scheduling hypothesis only; fork/join and cross-chain dependencies are not represented",
+    "provenance": "synthetic projection parameterized from an LLM pipeline pattern",
+    "seed": null,
+    "stage1_group": "real_projection"
   },
   "objective": "makespan",
   "resources": [

@@ -1,11 +1,11 @@
 {
   "category": "adversarial",
   "family": "complex_chain",
-  "id": "pm_active_reservation_np",
+  "id": "pm_nonmaximal_start",
   "metadata": {
-    "description": "An active flow keeps its route reserved.",
+    "description": "Non-maximal start protects a future critical flow.",
     "generator": "muti_channel",
-    "lifted_from": "active_reservation_np",
+    "lifted_from": "nonmaximal_start_np",
     "parameters": {},
     "preemptive_generator_seed": 260819,
     "seed": null
@@ -13,17 +13,17 @@
   "objective": "makespan",
   "resources": [
     {
-      "id": "resource:other",
+      "id": "resource:r0",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'other'"
+        "source_repr": "'r0'"
       }
     },
     {
-      "id": "resource:shared",
+      "id": "resource:r1",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'shared'"
+        "source_repr": "'r1'"
       }
     }
   ],
@@ -41,32 +41,48 @@
   "tasks": [
     {
       "dependencies": [],
+      "duration": 1,
+      "id": "release_c",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
       "duration": 4,
       "id": "a",
       "kind": "communication",
       "resources": [
-        "resource:shared"
+        "resource:r0"
       ]
     },
     {
       "dependencies": [],
-      "duration": 1,
+      "duration": 5,
       "id": "b",
       "kind": "communication",
       "resources": [
-        "resource:other"
+        "resource:r1"
       ]
     },
     {
       "dependencies": [
-        "b"
+        "release_c"
       ],
       "duration": 1,
       "id": "c",
       "kind": "communication",
       "resources": [
-        "resource:shared"
+        "resource:r1"
       ]
+    },
+    {
+      "dependencies": [
+        "c"
+      ],
+      "duration": 6,
+      "id": "c_tail",
+      "kind": "compute",
+      "resources": []
     }
   ],
   "time_unit": "tick"

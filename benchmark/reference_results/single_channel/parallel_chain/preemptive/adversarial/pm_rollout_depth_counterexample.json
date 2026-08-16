@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_rollout_depth_counterexample",
+  "benchmark_sha256": "5bb2f80d01ead167775bef48d1e71141e9954fb52c8ee6a4eff3b05b67827938",
+  "optimal_makespan": 47,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

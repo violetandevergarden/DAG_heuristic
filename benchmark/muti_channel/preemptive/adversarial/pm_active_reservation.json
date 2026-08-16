@@ -1,11 +1,11 @@
 {
   "category": "adversarial",
   "family": "complex_chain",
-  "id": "pm_disjoint_routes_np",
+  "id": "pm_active_reservation",
   "metadata": {
-    "description": "disjoint overlap",
+    "description": "An active flow keeps its route reserved.",
     "generator": "muti_channel",
-    "lifted_from": "disjoint_routes_np",
+    "lifted_from": "active_reservation_np",
     "parameters": {},
     "preemptive_generator_seed": 260819,
     "seed": null
@@ -13,17 +13,17 @@
   "objective": "makespan",
   "resources": [
     {
-      "id": "resource:r0",
+      "id": "resource:other",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'r0'"
+        "source_repr": "'other'"
       }
     },
     {
-      "id": "resource:r1",
+      "id": "resource:shared",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'r1'"
+        "source_repr": "'shared'"
       }
     }
   ],
@@ -42,38 +42,31 @@
     {
       "dependencies": [],
       "duration": 4,
-      "id": "left",
+      "id": "a",
       "kind": "communication",
       "resources": [
-        "resource:r0"
+        "resource:shared"
       ]
     },
     {
       "dependencies": [],
-      "duration": 4,
-      "id": "right",
+      "duration": 1,
+      "id": "b",
       "kind": "communication",
       "resources": [
-        "resource:r1"
+        "resource:other"
       ]
     },
     {
       "dependencies": [
-        "left"
+        "b"
       ],
-      "duration": 3,
-      "id": "left_tail",
-      "kind": "compute",
-      "resources": []
-    },
-    {
-      "dependencies": [
-        "right"
-      ],
-      "duration": 3,
-      "id": "right_tail",
-      "kind": "compute",
-      "resources": []
+      "duration": 1,
+      "id": "c",
+      "kind": "communication",
+      "resources": [
+        "resource:shared"
+      ]
     }
   ],
   "time_unit": "tick"

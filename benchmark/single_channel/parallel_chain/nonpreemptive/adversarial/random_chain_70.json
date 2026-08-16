@@ -3,8 +3,13 @@
   "family": "parallel_chain",
   "id": "random_chain_70",
   "metadata": {
+    "attack_target": "legacy_regression",
+    "current_semantic_role": "legacy regression; not a current WAIT counterexample",
     "generator": "parallel_chain",
-    "seed": null
+    "historical_origin": "v1/nonpreemptive lift",
+    "mechanism": "communication size competes with delayed downstream compute release",
+    "seed": null,
+    "stage1_group": "adversarial"
   },
   "objective": "makespan",
   "resources": [

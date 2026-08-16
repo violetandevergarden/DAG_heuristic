@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_zero_bubble_chain_projection",
+  "benchmark_sha256": "1a1f5ea96a558c6877c1e144a5dfa532128e30a27a777a4ade20003b23c75d76",
+  "optimal_makespan": 12,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

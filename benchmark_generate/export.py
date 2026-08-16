@@ -56,10 +56,11 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
         random_join_dag,
         random_multi_resource_instance,
         random_parallel_chains,
+        rollout_depth_counterexample,
         scaled_five_four_family,
         tight_optional_wait_family,
     )
-    from single_channel.parallel_chain.nonpreemptive.solver import ParallelChain
+    from single_channel.parallel_chain.model import ParallelChain
 
     exported: list[ExportedCase] = []
     parallel_rng = random.Random(seed)
@@ -70,6 +71,7 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
             ("tight_optional_wait_m20", tight_optional_wait_family(20)),
             ("scaled_five_four_s4", scaled_five_four_family(4)),
             ("fixed_beam_counterexample", fixed_beam_counterexample()),
+            ("rollout_depth_counterexample", rollout_depth_counterexample()),
             *classic_parallel_counterexamples(),
             *historical_wait_hard_chains(),
         ],
@@ -78,23 +80,55 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
             for index in range(samples)
         ],
         "real": [
-            ("1f1b_chain_projection", (
-                ParallelChain((2, 2, 1), (3, 2, 1), 0),
-                ParallelChain((1, 2, 2), (2, 3, 1), 1),
-                ParallelChain((2, 1, 2), (2, 2, 2), 2),
-            )),
-            ("zero_bubble_chain_projection", (
-                ParallelChain((2, 1, 1), (3, 1, 2), 0),
-                ParallelChain((1, 1, 2), (2, 2, 1), 1),
-                ParallelChain((1, 2), (1, 3), 2),
-            )),
+            (
+                "structured_symmetric",
+                (
+                    ParallelChain((2, 2), (2, 2), 0),
+                    ParallelChain((2, 2), (2, 2), 0),
+                    ParallelChain((2, 2), (2, 2), 0),
+                ),
+            ),
+            (
+                "structured_channel_bound",
+                (
+                    ParallelChain((6, 5), (1, 1), 0),
+                    ParallelChain((5, 6), (1, 1), 1),
+                    ParallelChain((7,), (1,), 0),
+                ),
+            ),
+            (
+                "structured_compute_bound",
+                (
+                    ParallelChain((1, 1), (8, 7), 0),
+                    ParallelChain((1, 1), (7, 8), 1),
+                    ParallelChain((1,), (10,), 2),
+                ),
+            ),
+            (
+                "1f1b_chain_projection",
+                (
+                    ParallelChain((2, 2, 1), (3, 2, 1), 0),
+                    ParallelChain((1, 2, 2), (2, 3, 1), 1),
+                    ParallelChain((2, 1, 2), (2, 2, 2), 2),
+                ),
+            ),
+            (
+                "zero_bubble_chain_projection",
+                (
+                    ParallelChain((2, 1, 1), (3, 1, 2), 0),
+                    ParallelChain((1, 1, 2), (2, 2, 1), 1),
+                    ParallelChain((1, 2), (1, 3), 2),
+                ),
+            ),
         ],
     }
     for category, cases in parallel_cases.items():
         for name, instance in cases:
             benchmark = parallel_chains_to_benchmark(
-                name, category, instance,
-                metadata={"generator": "parallel_chain", "seed": seed if category == "random" else None},
+                name,
+                category,
+                instance,
+                metadata=_parallel_case_metadata(name, category, seed),
             )
             exported.append(_case(benchmark, "single_channel", "parallel_chain", category))
     complex_cases = {
@@ -110,8 +144,12 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
     for category, cases in complex_cases.items():
         for index, dag in enumerate(cases):
             benchmark = dag_to_benchmark(
-                dag, category,
-                metadata={"generator": "complex_chain", "seed": seed + 1 if category == "random" else None},
+                dag,
+                category,
+                metadata={
+                    "generator": "complex_chain",
+                    "seed": seed + 1 if category == "random" else None,
+                },
             )
             if category == "random":
                 benchmark = _with_id(benchmark, f"complex_random_{index:03d}")
@@ -124,8 +162,12 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
     for category, cases in muti_cases.items():
         for index, instance in enumerate(cases):
             benchmark = multi_resource_to_benchmark(
-                instance, category,
-                metadata={"generator": "muti_channel", "seed": seed + 2 if category == "random" else None},
+                instance,
+                category,
+                metadata={
+                    "generator": "muti_channel",
+                    "seed": seed + 2 if category == "random" else None,
+                },
             )
             if category == "random":
                 benchmark = _with_id(benchmark, f"muti_random_{index:03d}")
@@ -149,8 +191,13 @@ def export_semantic_suite(
     for item in current_cases(samples=samples, seed=seed):
         if categories is not None and item.benchmark.category not in categories:
             continue
+        if (
+            semantics == "nonpreemptive"
+            and item.benchmark.metadata.get("semantic_scope") == "preemptive_only"
+        ):
+            continue
         if semantics == "preemptive":
-            if item.benchmark.category not in {"random", "adversarial"}:
+            if item.benchmark.category == "real" and item.benchmark.family != "parallel_chain":
                 continue
             benchmark = _as_preemptive(item.benchmark, seed=seed)
         else:
@@ -170,16 +217,18 @@ def build_index(root: Path) -> list[dict]:
             continue
         relative = target.relative_to(root).as_posix()
         benchmark = load_benchmark(target)
-        rows.append({
-            "id": benchmark.benchmark_id,
-            "path": relative,
-            "scenario": benchmark.scenario,
-            "family": benchmark.family,
-            "category": benchmark.category,
-            "semantics": semantics_name(benchmark),
-            "layout_version": LAYOUT_VERSION,
-            "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
-        })
+        rows.append(
+            {
+                "id": benchmark.benchmark_id,
+                "path": relative,
+                "scenario": benchmark.scenario,
+                "family": benchmark.family,
+                "category": benchmark.category,
+                "semantics": semantics_name(benchmark),
+                "layout_version": LAYOUT_VERSION,
+                "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+            }
+        )
     rows.sort(key=lambda row: (row["scenario"], row["family"], row["category"], row["id"]))
     (root / "index.jsonl").write_text(
         "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
@@ -204,14 +253,90 @@ def _with_id(benchmark: Benchmark, benchmark_id: str) -> Benchmark:
 
 
 def _as_preemptive(benchmark: Benchmark, *, seed: int) -> Benchmark:
+    metadata = {
+        **benchmark.metadata,
+        "preemptive_generator_seed": seed,
+    }
+    if benchmark.metadata.get("semantic_scope") == "preemptive_only":
+        metadata["designed_for"] = "communication_resume"
+    else:
+        metadata["lifted_from"] = benchmark.benchmark_id
     return replace(
         benchmark,
-        benchmark_id=f"pm_{benchmark.benchmark_id}",
+        benchmark_id=f"pm_{benchmark.benchmark_id.removesuffix('_np')}",
         schema_version="2.0",
         semantics=PREEMPTIVE_SEMANTICS,
-        metadata={
-            **benchmark.metadata,
-            "lifted_from": benchmark.benchmark_id,
-            "preemptive_generator_seed": seed,
-        },
+        metadata=metadata,
     )
+
+
+def _parallel_case_metadata(name: str, category: str, seed: int) -> dict:
+    metadata = {
+        "generator": "parallel_chain",
+        "seed": seed if category == "random" else None,
+        "stage1_group": category,
+    }
+    if name == "rollout_depth_counterexample":
+        metadata.update(
+            {
+                "semantic_scope": "preemptive_only",
+                "discovery_seed": 26081601,
+                "discovery_index": 100,
+            }
+        )
+    if name.startswith("structured_"):
+        metadata.update(
+            {
+                "stage1_group": "structured",
+                "provenance": "parameterized synthetic independent chains",
+                "projection_equivalence": "native Stage 1 instance; no dependencies removed",
+            }
+        )
+        if name == "rollout_depth_counterexample":
+            metadata.update(
+                {
+                    "historical_origin": "fixed-seed Stage 1 rollout search",
+                    "mechanism": "depth two sees a release consequence hidden from depth one",
+                }
+            )
+    elif name.endswith("_chain_projection"):
+        metadata.update(
+            {
+                "stage1_group": "real_projection",
+                "provenance": "synthetic projection parameterized from an LLM pipeline pattern",
+                "projection_equivalence": (
+                    "independent-chain scheduling hypothesis only; fork/join and cross-chain "
+                    "dependencies are not represented"
+                ),
+            }
+        )
+    if category == "adversarial":
+        targets = {
+            "longest_tail_counterexample": "longest_tail",
+            "lrpt_double_count": "lrpt",
+            "fixed_beam_counterexample": "fixed_width_beam",
+            "rollout_depth_counterexample": "finite_depth_rollout",
+            "large_flow_vs_long_tail": "lpt_and_local_size",
+            "scaled_five_four_s4": "longest_tail",
+            "tight_optional_wait_m20": "historical_nonpreemptive_wait_baseline",
+        }
+        target = targets.get(name, "legacy_regression")
+        metadata.update(
+            {
+                "attack_target": target,
+                "historical_origin": "v1/nonpreemptive lift",
+                "current_semantic_role": (
+                    "active adversarial regression"
+                    if target
+                    not in {
+                        "legacy_regression",
+                        "historical_nonpreemptive_wait_baseline",
+                    }
+                    else "legacy regression; not a current WAIT counterexample"
+                ),
+                "mechanism": (
+                    "communication size competes with delayed downstream compute release"
+                ),
+            }
+        )
+    return metadata

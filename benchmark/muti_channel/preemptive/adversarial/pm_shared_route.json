@@ -1,11 +1,11 @@
 {
   "category": "adversarial",
   "family": "complex_chain",
-  "id": "pm_nonmaximal_start_np",
+  "id": "pm_shared_route",
   "metadata": {
-    "description": "Non-maximal start protects a future critical flow.",
+    "description": "shared bottleneck",
     "generator": "muti_channel",
-    "lifted_from": "nonmaximal_start_np",
+    "lifted_from": "shared_route_np",
     "parameters": {},
     "preemptive_generator_seed": 260819,
     "seed": null
@@ -13,17 +13,10 @@
   "objective": "makespan",
   "resources": [
     {
-      "id": "resource:r0",
+      "id": "resource:shared",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'r0'"
-      }
-    },
-    {
-      "id": "resource:r1",
-      "kind": "exclusive",
-      "metadata": {
-        "source_repr": "'r1'"
+        "source_repr": "'shared'"
       }
     }
   ],
@@ -41,46 +34,37 @@
   "tasks": [
     {
       "dependencies": [],
-      "duration": 1,
-      "id": "release_c",
-      "kind": "compute",
-      "resources": []
+      "duration": 4,
+      "id": "left",
+      "kind": "communication",
+      "resources": [
+        "resource:shared"
+      ]
     },
     {
       "dependencies": [],
       "duration": 4,
-      "id": "a",
+      "id": "right",
       "kind": "communication",
       "resources": [
-        "resource:r0"
-      ]
-    },
-    {
-      "dependencies": [],
-      "duration": 5,
-      "id": "b",
-      "kind": "communication",
-      "resources": [
-        "resource:r1"
+        "resource:shared"
       ]
     },
     {
       "dependencies": [
-        "release_c"
+        "left"
       ],
-      "duration": 1,
-      "id": "c",
-      "kind": "communication",
-      "resources": [
-        "resource:r1"
-      ]
+      "duration": 3,
+      "id": "left_tail",
+      "kind": "compute",
+      "resources": []
     },
     {
       "dependencies": [
-        "c"
+        "right"
       ],
-      "duration": 6,
-      "id": "c_tail",
+      "duration": 3,
+      "id": "right_tail",
       "kind": "compute",
       "resources": []
     }

@@ -44,7 +44,9 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
         if semantics.resource_model != "exclusive_fixed_set":
             errors.append("communication preemption requires fixed resource sets")
         if semantics.preemption_cost != 0 or semantics.minimum_quantum != 0:
-            errors.append("the current preemptive core supports only zero-cost, zero-quantum preemption")
+            errors.append(
+                "the current preemptive core supports only zero-cost, zero-quantum preemption"
+            )
     elif benchmark.schema_version == "2.0":
         errors.append("schema v2 is currently reserved for communication_resume benchmarks")
     task_ids = [task.task_id for task in benchmark.tasks]
@@ -124,7 +126,15 @@ def _parallel_chain_errors(benchmark: Benchmark) -> list[str]:
         for dependency in task.dependencies:
             outdegree[dependency] += 1
     errors = []
-    for task_id in indegree:
-        if indegree[task_id] > 1 or outdegree[task_id] > 1:
+    for task_id, degree in indegree.items():
+        if degree > 1 or outdegree[task_id] > 1:
             errors.append(f"{task_id}: parallel_chain nodes must have degree at most one")
+    tasks = benchmark.task_map()
+    for task in benchmark.tasks:
+        for parent in task.dependencies:
+            if tasks[parent].kind == task.kind:
+                errors.append(
+                    f"{parent} -> {task.task_id}: parallel_chain tasks must strictly "
+                    "alternate compute and communication"
+                )
     return errors

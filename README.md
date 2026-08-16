@@ -16,7 +16,7 @@ benchmark/
   schema/                     # JSON Schema
 
 benchmark_generate/           # 随机、固定反例和真实 DAG 的生成工具
-experiments/                  # 离线实验 runner；不被调度算法导入
+experiments/                  # 离线实验 runner；过渡性复现入口，核验完成后可删减
 src/
   benchmark/                  # JSON loader 和 validator
   core/                       # 公共模型、v2 事件执行、Trace 回放
@@ -52,7 +52,7 @@ v1 不可抢占模型的限制：
 - 时间是整数，目标是最小化 makespan；
 - 精确 Oracle 面向小图，不适合作为大图在线调度器。
 
-v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。存在 eligible communication 时必须推进通信；多资源动作必须是 inclusion-maximal compatible set，forced idle 由模拟器自动处理。当前抢占代价和最小时间片均为零。单通道提供 priority、Rollout、Beam、Monte Carlo 和小图 Exact；多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
+v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。存在 eligible communication 时必须推进通信；多资源动作必须是 inclusion-maximal compatible set，forced idle 由模拟器自动处理。当前抢占代价和最小时间片均为零。Stage 1 单通道 parallel-chain 提供定义冻结的 priority、Rollout、Beam 和 compact Exact；Monte Carlo 只保留为未注册的历史对照。多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
 
 ## 使用
 
@@ -133,7 +133,10 @@ python -m benchmark_generate reference --output benchmark
 显式写入 LF。reference result 中的 SHA-256 是对 benchmark 原始字节计算的，因此
 不要用会擅自改写换行符的工具保存这些文件；遵守该规则后，不同平台上的哈希应保持一致。
 
-当前固定集合共 139 个问题：75 个既有不可抢占问题和 64 个 v2 可抢占问题。reference results 包含 33 个不可抢占 adversarial 与 33 个在预算内完成 Exact 的可抢占 adversarial；其余 1 个 v2 adversarial 在固定预算内超时，不生成最优标签。
+当前固定集合共 144 个问题：75 个既有不可抢占问题和 69 个 v2 可抢占问题。
+reference results 共 80 个，其中 33 个为不可抢占、47 个为可抢占；Stage 1
+额外覆盖了可解 random 与 structured/real-projection。Exact 超时的样例不生成
+最优标签。
 
 ## 测试
 

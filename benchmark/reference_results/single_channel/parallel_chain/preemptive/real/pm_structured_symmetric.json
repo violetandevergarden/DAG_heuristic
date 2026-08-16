@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_structured_symmetric",
+  "benchmark_sha256": "dc30f8c41f21fdb7170a433256ae67ea11560ee95e5610a24b6d8b4e5a439eea",
+  "optimal_makespan": 14,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

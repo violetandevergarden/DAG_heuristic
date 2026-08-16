@@ -3,8 +3,13 @@
   "family": "parallel_chain",
   "id": "fixed_beam_counterexample",
   "metadata": {
+    "attack_target": "fixed_width_beam",
+    "current_semantic_role": "active adversarial regression",
     "generator": "parallel_chain",
-    "seed": null
+    "historical_origin": "v1/nonpreemptive lift",
+    "mechanism": "communication size competes with delayed downstream compute release",
+    "seed": null,
+    "stage1_group": "adversarial"
   },
   "objective": "makespan",
   "resources": [

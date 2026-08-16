@@ -1,11 +1,11 @@
 {
   "category": "adversarial",
   "family": "complex_chain",
-  "id": "pm_shared_route_np",
+  "id": "pm_disjoint_routes",
   "metadata": {
-    "description": "shared bottleneck",
+    "description": "disjoint overlap",
     "generator": "muti_channel",
-    "lifted_from": "shared_route_np",
+    "lifted_from": "disjoint_routes_np",
     "parameters": {},
     "preemptive_generator_seed": 260819,
     "seed": null
@@ -13,10 +13,17 @@
   "objective": "makespan",
   "resources": [
     {
-      "id": "resource:shared",
+      "id": "resource:r0",
       "kind": "exclusive",
       "metadata": {
-        "source_repr": "'shared'"
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
       }
     }
   ],
@@ -38,7 +45,7 @@
       "id": "left",
       "kind": "communication",
       "resources": [
-        "resource:shared"
+        "resource:r0"
       ]
     },
     {
@@ -47,7 +54,7 @@
       "id": "right",
       "kind": "communication",
       "resources": [
-        "resource:shared"
+        "resource:r1"
       ]
     },
     {

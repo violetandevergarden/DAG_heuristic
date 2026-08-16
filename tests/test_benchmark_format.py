@@ -8,7 +8,6 @@ import pytest
 from benchmark import BenchmarkValidationError, benchmark_from_dict, load_benchmark
 from registry import solve
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -37,8 +36,9 @@ def test_every_committed_benchmark_loads() -> None:
         ("1.0", "muti_channel", "complex_chain", "adversarial"): 4,
         ("1.0", "muti_channel", "complex_chain", "random"): 10,
         ("1.0", "muti_channel", "complex_chain", "real"): 3,
-        ("2.0", "single_channel", "parallel_chain", "adversarial"): 13,
+        ("2.0", "single_channel", "parallel_chain", "adversarial"): 14,
         ("2.0", "single_channel", "parallel_chain", "random"): 10,
+        ("2.0", "single_channel", "parallel_chain", "real"): 5,
         ("2.0", "single_channel", "complex_chain", "adversarial"): 17,
         ("2.0", "single_channel", "complex_chain", "random"): 10,
         ("2.0", "muti_channel", "complex_chain", "adversarial"): 4,
@@ -59,7 +59,10 @@ def test_benchmark_files_use_lf_line_endings() -> None:
 def test_index_matches_files_and_hashes() -> None:
     import hashlib
 
-    rows = [json.loads(line) for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8").splitlines()]
+    rows = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
     assert len(rows) == len(benchmark_files())
     for row in rows:
         path = ROOT / "benchmark" / row["path"]
@@ -83,9 +86,7 @@ def test_reference_results_match_problem_hashes() -> None:
 def test_reference_results_recompute_with_exact_oracle() -> None:
     for reference in sorted((ROOT / "benchmark/reference_results").rglob("*.json")):
         payload = json.loads(reference.read_text(encoding="utf-8"))
-        problem = ROOT / "benchmark" / reference.relative_to(
-            ROOT / "benchmark/reference_results"
-        )
+        problem = ROOT / "benchmark" / reference.relative_to(ROOT / "benchmark/reference_results")
         result = solve(load_benchmark(problem), payload["oracle"])
         assert result.makespan == payload["optimal_makespan"]
 

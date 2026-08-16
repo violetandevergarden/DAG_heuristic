@@ -41,16 +41,26 @@ def test_removed_compatibility_paths_do_not_reappear() -> None:
 
 def test_every_problem_path_explicitly_matches_json_semantics() -> None:
     files = _problem_files()
-    assert len(files) == 139
+    assert len(files) == 145
     for path in files:
         benchmark = load_benchmark(path)
         branch = "preemptive" if benchmark.semantics.is_preemptive else "nonpreemptive"
         assert branch in path.relative_to(ROOT / "benchmark").parts
 
 
+def test_preemptive_multi_channel_names_do_not_keep_nonpreemptive_suffix() -> None:
+    root = ROOT / "benchmark/muti_channel/preemptive/adversarial"
+    files = sorted(root.glob("*.json"))
+    assert len(files) == 4
+    for path in files:
+        benchmark = load_benchmark(path)
+        assert not path.stem.endswith("_np")
+        assert not benchmark.benchmark_id.endswith("_np")
+
+
 def test_index_and_path_manifest_are_complete_and_auditable() -> None:
     rows = [json.loads(line) for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8-sig").splitlines()]
-    assert len(rows) == 139
+    assert len(rows) == 145
     assert {row["layout_version"] for row in rows} == {"2"}
     assert {row["semantics"] for row in rows} == {"preemptive", "nonpreemptive"}
 

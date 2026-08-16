@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_structured_compute_bound",
+  "benchmark_sha256": "1b482d0b1c63f429c3be1acda59ac8f4789aa85bb33a4cafdc307bc2aaa85b97",
+  "optimal_makespan": 18,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

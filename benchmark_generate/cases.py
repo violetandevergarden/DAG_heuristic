@@ -2,16 +2,14 @@
 
 from __future__ import annotations
 
+import random
 from collections import defaultdict
 from dataclasses import replace
-import random
+from itertools import pairwise
 
-from single_channel.parallel_chain.nonpreemptive.solver import (
-    ParallelChain,
-    to_benchmark_dag,
-)
-from core.dag import BenchTask, BenchmarkDAG, _Builder, topological_order
+from core.dag import BenchmarkDAG, BenchTask, _Builder, topological_order
 from core.resource import MultiResourceInstance
+from single_channel.parallel_chain.model import ParallelChain, to_benchmark_dag
 
 
 def random_parallel_chains(
@@ -29,8 +27,7 @@ def random_parallel_chains(
             tuple(rng.randint(0, max_delay) for _ in range(operations)),
         )
         for operations in (
-            rng.randint(1, max_operations)
-            for _ in range(rng.randint(min_chains, max_chains))
+            rng.randint(1, max_operations) for _ in range(rng.randint(min_chains, max_chains))
         )
     )
 
@@ -57,6 +54,22 @@ def fixed_beam_counterexample() -> tuple[ParallelChain, ...]:
         ParallelChain((3,), (3,)),
         ParallelChain((2, 1), (2, 9)),
         ParallelChain((2, 1, 8), (1, 7, 8)),
+    )
+
+
+def rollout_depth_counterexample() -> tuple[ParallelChain, ...]:
+    """Fixed case where depth two beats both rollout2 and wider rollout4.
+
+    Discovered as index 100 of a fixed-seed search (seed 26081601,
+    max_chains=6, max_operations=4, max_comm=8, max_delay=12).  Compact Exact
+    gives makespan 47; rollout2, rollout4, and rollout2-depth2 give 49, 48,
+    and 47 respectively.
+    """
+
+    return (
+        ParallelChain((7, 4, 6), (7, 11, 2)),
+        ParallelChain((1, 4, 3, 7), (0, 4, 10, 1)),
+        ParallelChain((2, 4, 5, 2), (10, 5, 9, 6)),
     )
 
 
@@ -102,7 +115,8 @@ def historical_wait_hard_chains() -> list[tuple[str, tuple[ParallelChain, ...]]]
 
 def random_join_dag(rng: random.Random, index: int) -> BenchmarkDAG:
     builder = _Builder(
-        f"random_join_{index}", "random_general",
+        f"random_join_{index}",
+        "random_general",
         "Random small DAG with branch releases, second flows and a final join.",
     )
     endpoints: list[str] = []
@@ -110,27 +124,46 @@ def random_join_dag(rng: random.Random, index: int) -> BenchmarkDAG:
     for branch in range(branches):
         release = builder.add(f"r{branch}", "compute", rng.randint(0, 3), role="release")
         first = builder.add(
-            f"c{branch}_0", "comm", rng.randint(1, 4), (release,),
+            f"c{branch}_0",
+            "comm",
+            rng.randint(1, 4),
+            (release,),
             role=rng.choice(("pp", "tp", "dp")),
         )
         compute = builder.add(
-            f"x{branch}_0", "compute", rng.randint(1, 6), (first,),
+            f"x{branch}_0",
+            "compute",
+            rng.randint(1, 6),
+            (first,),
             role="backbone" if branch == 0 else "side",
         )
         if rng.random() < 0.7:
-            endpoints.append(builder.add(
-                f"c{branch}_1", "comm", rng.randint(1, 4), (compute,),
-                role=rng.choice(("pp", "dp")),
-            ))
+            endpoints.append(
+                builder.add(
+                    f"c{branch}_1",
+                    "comm",
+                    rng.randint(1, 4),
+                    (compute,),
+                    role=rng.choice(("pp", "dp")),
+                )
+            )
         else:
             endpoints.append(compute)
     if branches >= 3 and rng.random() < 0.6:
         nested = builder.add(
-            "nested_join", "compute", rng.randint(1, 3), tuple(endpoints[:2]), role="join",
+            "nested_join",
+            "compute",
+            rng.randint(1, 3),
+            tuple(endpoints[:2]),
+            role="join",
         )
         endpoints = [nested, *endpoints[2:]]
     join = builder.add(
-        "optimizer_join", "compute", rng.randint(1, 3), tuple(endpoints), role="optimizer",
+        "optimizer_join",
+        "compute",
+        rng.randint(1, 3),
+        tuple(endpoints),
+        role="optimizer",
     )
     if rng.random() < 0.7:
         final = builder.add("final_comm", "comm", rng.randint(1, 3), (join,), role="pp")
@@ -140,7 +173,8 @@ def random_join_dag(rng: random.Random, index: int) -> BenchmarkDAG:
 
 def last_blocker_overboost_counterexample() -> BenchmarkDAG:
     builder = _Builder(
-        "last_blocker_overboost", "adversarial",
+        "last_blocker_overboost",
+        "adversarial",
         "Directly adding join last-blocker urgency over-prioritizes a long flow.",
     )
     r0 = builder.add("r0", "compute", 3)
@@ -192,28 +226,50 @@ def multi_resource_motifs() -> list[MultiResourceInstance]:
     right = builder.add("right", "comm", 4)
     builder.add("left_tail", "compute", 3, (left,))
     builder.add("right_tail", "compute", 3, (right,))
-    result.append(MultiResourceInstance(builder.finish(), {"left": frozenset({"r0"}), "right": frozenset({"r1"})}))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(), {"left": frozenset({"r0"}), "right": frozenset({"r1"})}
+        )
+    )
 
     builder = _Builder("shared_route_np", "r4_motif", "shared bottleneck")
     left = builder.add("left", "comm", 4)
     right = builder.add("right", "comm", 4)
     builder.add("left_tail", "compute", 3, (left,))
     builder.add("right_tail", "compute", 3, (right,))
-    result.append(MultiResourceInstance(builder.finish(), {"left": frozenset({"shared"}), "right": frozenset({"shared"})}))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(), {"left": frozenset({"shared"}), "right": frozenset({"shared"})}
+        )
+    )
 
-    builder = _Builder("nonmaximal_start_np", "r4_motif", "Non-maximal start protects a future critical flow.")
+    builder = _Builder(
+        "nonmaximal_start_np", "r4_motif", "Non-maximal start protects a future critical flow."
+    )
     release = builder.add("release_c", "compute", 1)
     builder.add("a", "comm", 4)
     builder.add("b", "comm", 5)
     c = builder.add("c", "comm", 1, (release,))
     builder.add("c_tail", "compute", 6, (c,))
-    result.append(MultiResourceInstance(builder.finish(), {"a": frozenset({"r0"}), "b": frozenset({"r1"}), "c": frozenset({"r1"})}))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(),
+            {"a": frozenset({"r0"}), "b": frozenset({"r1"}), "c": frozenset({"r1"})},
+        )
+    )
 
-    builder = _Builder("active_reservation_np", "r4_motif", "An active flow keeps its route reserved.")
+    builder = _Builder(
+        "active_reservation_np", "r4_motif", "An active flow keeps its route reserved."
+    )
     builder.add("a", "comm", 4)
     b = builder.add("b", "comm", 1)
     builder.add("c", "comm", 1, (b,))
-    result.append(MultiResourceInstance(builder.finish(), {"a": frozenset({"shared"}), "b": frozenset({"other"}), "c": frozenset({"shared"})}))
+    result.append(
+        MultiResourceInstance(
+            builder.finish(),
+            {"a": frozenset({"shared"}), "b": frozenset({"other"}), "c": frozenset({"shared"})},
+        )
+    )
     return result
 
 
@@ -221,10 +277,16 @@ def manual_route_cases() -> list[MultiResourceInstance]:
     """Small fixed-route snapshots derived from three transparent topologies."""
     routes = {
         "manual_route_single_switch_np": (
-            (0, 8, 1), (2, 8, 3), (4, 8, 5), (6, 8, 7),
+            (0, 8, 1),
+            (2, 8, 3),
+            (4, 8, 5),
+            (6, 8, 7),
         ),
         "manual_route_two_rack_np": (
-            (0, 8, 9, 4), (1, 8, 9, 5), (2, 8, 3), (6, 9, 7),
+            (0, 8, 9, 4),
+            (1, 8, 9, 5),
+            (2, 8, 3),
+            (6, 9, 7),
         ),
         "manual_route_four_rack_core_np": (
             (0, 8, 12, 10, 4),
@@ -248,7 +310,7 @@ def manual_route_cases() -> list[MultiResourceInstance]:
             flow = builder.add(f"f{index}", "comm", flow_duration)
             builder.add(f"tail{index}", "compute", tail_duration, (flow,))
             resource_set = {
-                *(zip(path, path[1:])),
+                *pairwise(path),
                 ("nic_tx", path[0]),
                 ("nic_rx", path[-1]),
             }
@@ -280,12 +342,18 @@ def _chain_dag(
         previous: str | None = None
         for operation, (comm, compute) in enumerate(zip(comms, computes, strict=True)):
             flow = builder.add(
-                f"c{chain_index}_flow{operation}", "comm", comm,
-                () if previous is None else (previous,), role="chain_flow",
+                f"c{chain_index}_flow{operation}",
+                "comm",
+                comm,
+                () if previous is None else (previous,),
+                role="chain_flow",
             )
             previous = builder.add(
-                f"c{chain_index}_compute{operation}", "compute", compute,
-                (flow,), role="chain_compute",
+                f"c{chain_index}_compute{operation}",
+                "compute",
+                compute,
+                (flow,),
+                role="chain_compute",
             )
     return builder.finish(chains=len(chains))
 
@@ -311,7 +379,8 @@ def complex_adversarial_cases() -> list[BenchmarkDAG]:
     ]
 
     builder = _Builder(
-        "join_false_critical", "adversarial",
+        "join_false_critical",
+        "adversarial",
         "Two apparently critical branches meet a join; only the last arrival gates it.",
     )
     a = builder.add("a_flow", "comm", 2, role="join_input")
@@ -322,7 +391,8 @@ def complex_adversarial_cases() -> list[BenchmarkDAG]:
     result.append(builder.finish())
 
     builder = _Builder(
-        "fork_multi_unlock", "adversarial",
+        "fork_multi_unlock",
+        "adversarial",
         "One small flow releases several compute branches before a final join.",
     )
     root = builder.add("fork_flow", "comm", 1, role="fork")
@@ -332,7 +402,8 @@ def complex_adversarial_cases() -> list[BenchmarkDAG]:
     result.append(builder.finish())
 
     builder = _Builder(
-        "deferred_w_competition", "adversarial",
+        "deferred_w_competition",
+        "adversarial",
         "Several W/DP side jobs compete with a PP flow that unlocks backbone compute.",
     )
     pp = builder.add("pp", "comm", 1, role="pp")
@@ -345,7 +416,8 @@ def complex_adversarial_cases() -> list[BenchmarkDAG]:
     result.append(builder.finish())
 
     builder = _Builder(
-        "optimizer_dp_burst", "adversarial",
+        "optimizer_dp_burst",
+        "adversarial",
         "A concentrated set of DP flows forms the optimizer barrier.",
     )
     dps = []
@@ -359,20 +431,28 @@ def complex_adversarial_cases() -> list[BenchmarkDAG]:
 
 def _pp_wave(direction: str, stages: int = 3, microbatches: int = 2) -> BenchmarkDAG:
     builder = _Builder(
-        f"pp_{direction}_wave", "llm_motif", f"Parameterized PP {direction} wave.",
+        f"pp_{direction}_wave",
+        "llm_motif",
+        f"Parameterized PP {direction} wave.",
     )
     stage_order = range(stages) if direction == "forward" else range(stages - 1, -1, -1)
     for microbatch in range(microbatches):
         previous = None
         for position, stage in enumerate(stage_order):
             compute = builder.add(
-                f"mb{microbatch}_s{stage}_{direction}", "compute", 2,
-                () if previous is None else (previous,), role=direction,
+                f"mb{microbatch}_s{stage}_{direction}",
+                "compute",
+                2,
+                () if previous is None else (previous,),
+                role=direction,
             )
             if position + 1 < stages:
                 previous = builder.add(
-                    f"mb{microbatch}_s{stage}_{direction}_pp", "comm", 1,
-                    (compute,), role="pp",
+                    f"mb{microbatch}_s{stage}_{direction}_pp",
+                    "comm",
+                    1,
+                    (compute,),
+                    role="pp",
                 )
             else:
                 previous = compute
@@ -387,20 +467,34 @@ def _one_f_one_b(stages: int = 2, microbatches: int = 3) -> BenchmarkDAG:
         for stage in range(stages):
             deps = ()
             if stage:
-                deps = (builder.add(
-                    f"fpp_{mb}_{stage-1}", "comm", 1,
-                    (forward[mb, stage - 1],), role="pp",
-                ),)
+                deps = (
+                    builder.add(
+                        f"fpp_{mb}_{stage - 1}",
+                        "comm",
+                        1,
+                        (forward[mb, stage - 1],),
+                        role="pp",
+                    ),
+                )
             forward[mb, stage] = builder.add(f"f_{mb}_{stage}", "compute", 2, deps, role="f")
         for stage in reversed(range(stages)):
             deps = (forward[mb, stage],)
             if stage + 1 < stages:
-                deps = (builder.add(
-                    f"bpp_{mb}_{stage+1}", "comm", 1,
-                    (backward[mb, stage + 1],), role="pp",
-                ),)
+                deps = (
+                    builder.add(
+                        f"bpp_{mb}_{stage + 1}",
+                        "comm",
+                        1,
+                        (backward[mb, stage + 1],),
+                        role="pp",
+                    ),
+                )
             backward[mb, stage] = builder.add(
-                f"b_{mb}_{stage}", "compute", 3, deps, role="b",
+                f"b_{mb}_{stage}",
+                "compute",
+                3,
+                deps,
+                role="b",
             )
             builder.add(f"w_{mb}_{stage}", "compute", 1, (backward[mb, stage],), role="w")
     topo = topological_order(builder.finish())
@@ -409,18 +503,20 @@ def _one_f_one_b(stages: int = 2, microbatches: int = 3) -> BenchmarkDAG:
     for stage in range(stages):
         sequence = [forward[mb, stage] for mb in range(min(stages - stage, microbatches))]
         sequence += [
-            item for mb in range(microbatches)
-            for item in (forward[mb, stage], backward[mb, stage])
+            item for mb in range(microbatches) for item in (forward[mb, stage], backward[mb, stage])
         ]
         unique = list(dict.fromkeys(sequence))
-        for left, right in zip(unique, unique[1:]):
+        for left, right in pairwise(unique):
             if rank[left] < rank[right]:
                 extra[right].append(left)
     builder.tasks = [
         BenchTask(
-            task.task_id, task.kind, task.duration,
+            task.task_id,
+            task.kind,
+            task.duration,
             tuple(dict.fromkeys((*task.deps, *extra[task.task_id]))),
-            task.role, task.cut,
+            task.role,
+            task.cut,
         )
         for task in builder.tasks
     ]
@@ -434,8 +530,11 @@ def _zb_fork(microbatches: int = 3) -> BenchmarkDAG:
     for mb in reversed(range(microbatches)):
         fwd = builder.add(f"f{mb}", "compute", 2, role="f")
         grad = builder.add(
-            f"grad{mb}", "comm", 1,
-            () if previous_b is None else (previous_b,), role="pp_grad",
+            f"grad{mb}",
+            "comm",
+            1,
+            () if previous_b is None else (previous_b,),
+            role="pp_grad",
         )
         bwd = builder.add(f"b{mb}", "compute", 3, (fwd, grad), role="b")
         weights.append(builder.add(f"w{mb}", "compute", 2, (fwd, grad), role="w"))
@@ -470,26 +569,36 @@ def _warmup_steady_cooldown(microbatches: int = 4) -> BenchmarkDAG:
     for mb in range(2):
         sequence.append(builder.add(f"f{mb}", "compute", 2, role="warmup_f"))
     for mb in range(2, microbatches):
-        sequence.extend((
-            builder.add(f"f{mb}", "compute", 2, role="steady_f"),
-            builder.add(f"b{mb-2}", "compute", 3, role="steady_b"),
-            builder.add(f"w{mb-2}", "compute", 1, role="steady_w"),
-        ))
+        sequence.extend(
+            (
+                builder.add(f"f{mb}", "compute", 2, role="steady_f"),
+                builder.add(f"b{mb - 2}", "compute", 3, role="steady_b"),
+                builder.add(f"w{mb - 2}", "compute", 1, role="steady_w"),
+            )
+        )
     for mb in range(max(0, microbatches - 2), microbatches):
-        sequence.extend((
-            builder.add(f"b{mb}", "compute", 3, role="cooldown_b"),
-            builder.add(f"w{mb}", "compute", 1, role="cooldown_w"),
-        ))
+        sequence.extend(
+            (
+                builder.add(f"b{mb}", "compute", 3, role="cooldown_b"),
+                builder.add(f"w{mb}", "compute", 1, role="cooldown_w"),
+            )
+        )
     previous = None
     rewritten = []
     by_id = {task.task_id: task for task in builder.tasks}
     for task_id in sequence:
         task = by_id[task_id]
         deps = task.deps if previous is None else (*task.deps, previous)
-        rewritten.append(BenchTask(
-            task.task_id, task.kind, task.duration,
-            tuple(dict.fromkeys(deps)), task.role, task.cut,
-        ))
+        rewritten.append(
+            BenchTask(
+                task.task_id,
+                task.kind,
+                task.duration,
+                tuple(dict.fromkeys(deps)),
+                task.role,
+                task.cut,
+            )
+        )
         previous = task_id
     builder.tasks = rewritten
     for mb in range(microbatches):

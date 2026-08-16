@@ -1,7 +1,0 @@
-{
-  "benchmark_id": "pm_disjoint_routes_np",
-  "benchmark_sha256": "dee94d70ea0b7b042db81981ff03b5dd736a95794c945b535e49f6afb2dc3e33",
-  "optimal_makespan": 7,
-  "oracle": "exact",
-  "schema_version": "2.0"
-}

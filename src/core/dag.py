@@ -1,25 +1,10 @@
-"""Small-DAG data types, fixtures, lower bounds, and JSON conversion.
-
-Current non-preemptive scheduling uses :mod:`core.execution.nonpreemptive` and
-:mod:`core.oracle`.  Historical benchmark helpers remain here
-only because fixture generators reuse them; they are not the public oracle.
-"""
+"""Shared small-DAG data types, construction helpers, and lower bounds."""
 
 from __future__ import annotations
 
-import argparse
-from collections import Counter, defaultdict
-from dataclasses import asdict, dataclass, field
-from functools import lru_cache
-import json
-from pathlib import Path
-import random
-from statistics import mean
-import sys
-from typing import Iterable
-
-
-ROOT = Path(__file__).resolve().parents[1]
+from collections import Counter
+from collections.abc import Iterable
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -66,14 +51,6 @@ class BenchmarkDAG:
         except ValueError as error:
             errors.append(str(error))
         return errors
-
-
-@dataclass
-class OracleResult:
-    makespan: int
-    decisions: list[str | None]
-    explored_states: int
-    lower_bounds: dict[str, int]
 
 
 @dataclass
@@ -130,80 +107,6 @@ def topological_order(dag: BenchmarkDAG) -> list[str]:
     if len(order) != len(tasks):
         raise ValueError("benchmark graph contains a cycle")
     return order
-
-
-def _indexed(dag: BenchmarkDAG):
-    order = topological_order(dag)
-    tasks = dag.task_map()
-    index = {task_id: position for position, task_id in enumerate(order)}
-    deps = tuple(tuple(index[item] for item in tasks[task_id].deps) for task_id in order)
-    return order, tuple(tasks[task_id] for task_id in order), deps
-
-
-# State value: -1=pending, 0=complete, >0=remaining and active/started.
-State = tuple[int, ...]
-
-
-def _compute_closure(tasks: tuple[BenchTask, ...], deps, state: State) -> State:
-    values = list(state)
-    changed = True
-    while changed:
-        changed = False
-        for index, task in enumerate(tasks):
-            if task.kind != "compute" or values[index] != -1:
-                continue
-            if all(values[parent] == 0 for parent in deps[index]):
-                values[index] = task.duration
-                changed = True
-    return tuple(values)
-
-
-def _ready_comms(tasks: tuple[BenchTask, ...], deps, state: State) -> list[int]:
-    return [
-        index
-        for index, task in enumerate(tasks)
-        if task.kind == "comm"
-        and state[index] != 0
-        and (state[index] > 0 or all(state[parent] == 0 for parent in deps[index]))
-    ]
-
-
-def _tick(
-    tasks: tuple[BenchTask, ...],
-    deps,
-    state: State,
-    selected: int | None,
-) -> State:
-    values = list(state)
-    for index, task in enumerate(tasks):
-        if task.kind == "compute" and values[index] > 0:
-            values[index] -= 1
-    if selected is not None:
-        remaining = values[selected]
-        if remaining == -1:
-            remaining = tasks[selected].duration
-        values[selected] = remaining - 1
-    return tuple(values)
-
-
-def _is_finished(state: State) -> bool:
-    return all(value == 0 for value in state)
-
-
-def _tail_lengths(dag: BenchmarkDAG) -> dict[str, int]:
-    order = topological_order(dag)
-    tasks = dag.task_map()
-    children: dict[str, list[str]] = {task_id: [] for task_id in order}
-    for task in tasks.values():
-        for dependency in task.deps:
-            children[dependency].append(task.task_id)
-    tail: dict[str, int] = {}
-    for task_id in reversed(order):
-        tail[task_id] = max(
-            (tasks[child].duration + tail[child] for child in children[task_id]),
-            default=0,
-        )
-    return tail
 
 
 def lower_bounds(dag: BenchmarkDAG) -> dict[str, int]:
@@ -284,8 +187,7 @@ def lower_bounds(dag: BenchmarkDAG) -> dict[str, int]:
     window_bound = base
     while window_bound <= serial_horizon and not demand_feasible(window_bound):
         window_bound += 1
-    if window_bound > serial_horizon:
-        window_bound = serial_horizon
+    window_bound = min(window_bound, serial_horizon)
     result = {
         "P": p_bound,
         "Q": q_bound,

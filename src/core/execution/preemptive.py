@@ -9,8 +9,10 @@ idle is represented by WAIT only when no communication is eligible.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, Sequence
+from itertools import pairwise
+from typing import Literal
 
 from core.dag import BenchmarkDAG, topological_order
 from core.execution.common import (
@@ -19,7 +21,6 @@ from core.execution.common import (
     SchedulerTaskView,
     SchedulerView,
 )
-
 
 TaskStatus = Literal["pending", "running", "suspended", "completed"]
 ActionKind = Literal["run", "wait"]
@@ -100,6 +101,11 @@ class PreemptiveScheduleResult:
     dispatches: int
     preemptions: int
     explored_states: int = 0
+    deduplicated_states: int = 0
+    pruned_states: int = 0
+    lower_bound: int = 0
+    runtime_ms: float = 0.0
+    status: Literal["feasible", "optimal"] = "feasible"
 
 
 class PreemptiveDAGModel:
@@ -117,9 +123,7 @@ class PreemptiveDAGModel:
         self.task_ids = tuple(order)
         self.tasks = tuple(task_map[task_id] for task_id in order)
         self.index = {task_id: index for index, task_id in enumerate(order)}
-        self.deps = tuple(
-            tuple(self.index[parent] for parent in task.deps) for task in self.tasks
-        )
+        self.deps = tuple(tuple(self.index[parent] for parent in task.deps) for task in self.tasks)
 
     def initial_state(self) -> ScheduleState:
         state = ScheduleState(0, tuple(RuntimeTask() for _ in self.tasks))
@@ -239,9 +243,7 @@ class PreemptiveDAGModel:
         runtime = state.tasks[index]
         remaining = runtime.remaining or self.tasks[index].duration
         running_computes = self._running_compute_indices(state)
-        next_compute = min(
-            (state.tasks[item].remaining for item in running_computes), default=None
-        )
+        next_compute = min((state.tasks[item].remaining for item in running_computes), default=None)
         delta = remaining if next_compute is None else min(remaining, next_compute)
         start = state.time
         end = start + delta
@@ -250,7 +252,9 @@ class PreemptiveDAGModel:
         first_start = runtime.started_at if runtime.started_at is not None else start
         values[index] = RuntimeTask("running", remaining, first_start, None)
         working = ScheduleState(start, tuple(values), task_id)
-        event_kind = "communication_started" if runtime.started_at is None else "communication_resumed"
+        event_kind = (
+            "communication_started" if runtime.started_at is None else "communication_resumed"
+        )
         events = [TimelineEvent(start, event_kind, task_id)]
         working, compute_events, compute_intervals = self._advance_computes(working, delta)
         events.extend(compute_events)
@@ -332,13 +336,16 @@ class PreemptiveDAGModel:
                 if task.duration == 0:
                     values[index] = RuntimeTask("completed", 0, state.time, state.time)
                     events.append(TimelineEvent(state.time, "compute_completed", task.task_id))
-                    intervals.append(ExecutionInterval(task.task_id, "compute", state.time, state.time))
+                    intervals.append(
+                        ExecutionInterval(task.task_id, "compute", state.time, state.time)
+                    )
                 else:
                     values[index] = RuntimeTask("running", task.duration, state.time, None)
                 changed = True
         return (
             ScheduleState(state.time, tuple(values), state.last_communication),
-            self._sort_events(events), intervals,
+            self._sort_events(events),
+            intervals,
         )
 
     def _deps_completed(self, runtimes: Sequence[RuntimeTask], index: int) -> bool:
@@ -373,7 +380,6 @@ def result_from_trace(trace: ScheduleTrace) -> PreemptiveScheduleResult:
     for spans in by_task.values():
         spans.sort(key=lambda item: (item.start, item.end))
         preemptions += sum(
-            current.start > previous.end
-            for previous, current in zip(spans, spans[1:])
+            current.start > previous.end for previous, current in pairwise(spans)
         )
     return PreemptiveScheduleResult(trace.makespan, trace, len(communications), preemptions)

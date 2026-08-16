@@ -61,16 +61,24 @@ python -m benchmark_generate random --samples 30 --seed 1234 --output my_benchma
 
 ```powershell
 python -m benchmark_generate reference --output benchmark
+python -m benchmark_generate reference --category random --output benchmark
+python -m benchmark_generate reference --category real --output benchmark
 ```
 
-该命令遍历 `category=adversarial` 的问题：v1 调用 `exact_optional`，v2 调用 work-conserving `exact`，在 `benchmark/reference_results/` 写出：
+默认命令遍历 `category=adversarial` 的问题；`--category` 可以显式选择
+`random`、`real` 或 `all`。v1 调用 `exact_optional`，v2 调用
+work-conserving `exact`，在 `benchmark/reference_results/` 写出：
 
 - `benchmark_id`；
 - 原问题文件 SHA-256；
 - Oracle 名称；
 - `optimal_makespan`。
 
-Exact Oracle 对大图可能产生指数级开销。当前固定集合生成 33 个 v1 和 33 个 v2 sidecar；`pm_fixed_beam_counterexample` 在固定预算内超时，因此没有 sidecar。只有规模可控、可以在测试中重复求解的小图才应生成 reference；不要给大型真实 DAG 或超时结果标记“精确最优”。
+Exact Oracle 对大图可能产生指数级开销。只有规模可控、可以在测试中重复
+求解的小图才应生成 reference；不要给大型真实 DAG 或超时结果标记“精确最优”。
+Stage 1 当前还为 9 个可解 random 和 5 个 structured/real-projection 样例保存
+sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算内超时，
+因此没有 sidecar。
 
 ## 固定 seed 与历史反例
 
