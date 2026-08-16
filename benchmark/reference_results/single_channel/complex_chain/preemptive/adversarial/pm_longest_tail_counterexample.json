@@ -1,7 +1,14 @@
 {
   "benchmark_id": "pm_longest_tail_counterexample",
-  "benchmark_sha256": "1083d1cd5c4ffbed6100070625394c776467ac4510c8481a56e385ce34e214f7",
+  "benchmark_sha256": "096b5235e5f58b62f7e02a9ceb2ca5ae480f23d13df27750a15aef9dac836c7c",
   "optimal_makespan": 8,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 14,
+  "oracle_runtime_ms": 4.293899983167648,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

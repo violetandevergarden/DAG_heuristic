@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_stage2_rollout_depth",
+  "benchmark_sha256": "3ce1f5b17b92f389836d21f169801b3500bef25c5207646bd997952c5fce7595",
+  "optimal_makespan": 21,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 29,
+  "oracle_runtime_ms": 13.914100010879338,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

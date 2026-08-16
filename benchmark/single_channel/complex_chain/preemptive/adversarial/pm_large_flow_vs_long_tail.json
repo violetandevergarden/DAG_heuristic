@@ -3,6 +3,7 @@
   "family": "complex_chain",
   "id": "pm_large_flow_vs_long_tail",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "A short flow unlocks a long compute tail while a large flow competes.",
     "generator": "complex_chain",
     "lifted_from": "large_flow_vs_long_tail",
@@ -10,7 +11,9 @@
       "chains": "2"
     },
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

@@ -3,6 +3,7 @@
   "family": "complex_chain",
   "id": "pm_lrpt_double_count",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Large current flow can be counted twice by LRPT-style scores.",
     "generator": "complex_chain",
     "lifted_from": "lrpt_double_count",
@@ -10,7 +11,9 @@
       "chains": "3"
     },
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_deferred_w_competition",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Several W/DP side jobs compete with a PP flow that unlocks backbone compute.",
     "generator": "complex_chain",
     "lifted_from": "deferred_w_competition",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

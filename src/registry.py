@@ -333,14 +333,16 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "single_channel",
                     benchmark.family,
                     lambda b: solver.beam_search(convert(b), width=8),
-                    "Width-8 compact event-state beam with Longest-tail incumbent.",
+                    "Experimental upper bound/comparison only; not a deployment candidate, no robustness claim, counterexamples not exhausted.",
+                    development_status="experimental",
                 ),
                 "beam32": Algorithm(
                     "beam32",
                     "single_channel",
                     benchmark.family,
                     lambda b: solver.beam_search(convert(b), width=32),
-                    "Width-32 compact event-state beam with Longest-tail incumbent.",
+                    "Experimental upper bound/comparison only; not a deployment candidate, no robustness claim, counterexamples not exhausted.",
+                    development_status="experimental",
                 ),
                 "exact": Algorithm(
                     "exact",
@@ -386,7 +388,21 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "single_channel",
                 benchmark.family,
                 lambda b: solver.schedule_priority(convert(b), "longest_delay"),
-                "Compatibility alias of longest_tail; do not count as an independent algorithm.",
+                "Longest immediately released compute delay, then residual tail.",
+            ),
+            "release_gain": Algorithm(
+                "release_gain",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.schedule_priority(convert(b), "release_gain"),
+                "Research baseline: total immediately released ready work; observed weaker than Longest-tail.",
+            ),
+            "downstream_demand": Algorithm(
+                "downstream_demand",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.schedule_priority(convert(b), "downstream_demand"),
+                "Deployment candidate: observed mean improves over Longest-tail, while observed worst case degrades.",
             ),
             "lrpt": Algorithm(
                 "lrpt",
@@ -402,12 +418,33 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 lambda b: solver.schedule_longest_tail(to_internal_dag(b)),
                 "Event-driven residual longest-tail with communication pause/resume.",
             ),
+            "join_aware": Algorithm(
+                "join_aware",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.schedule_priority(convert(b), "join_aware"),
+                "Direct last-blocker gain, then residual longest-tail.",
+            ),
             "rollout2": Algorithm(
                 "rollout2",
                 "single_channel",
                 benchmark.family,
                 lambda b: solver.schedule_rollout(convert(b), top_k=2),
-                "Top-2 one-event rollout with Longest-tail completion.",
+                "Top-2 depth-1 Longest-tail rollout with baseline safeguard.",
+            ),
+            "rollout2_depth2": Algorithm(
+                "rollout2_depth2",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.schedule_rollout(convert(b), top_k=2, depth=2),
+                "Top-2 depth-2 Longest-tail rollout.",
+            ),
+            "rollout4_depth2": Algorithm(
+                "rollout4_depth2",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.schedule_rollout(convert(b), top_k=4, depth=2),
+                "Top-4 depth-2 Longest-tail rollout.",
             ),
             "join_rollout2": Algorithm(
                 "join_rollout2",
@@ -421,28 +458,31 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "single_channel",
                 benchmark.family,
                 lambda b: solver.beam_search(convert(b), width=8),
-                "Width-8 event-state beam with Longest-tail incumbent.",
+                "Experimental upper bound/comparison only; not a deployment candidate, no robustness claim, counterexamples not exhausted.",
+                development_status="experimental",
             ),
             "beam32": Algorithm(
                 "beam32",
                 "single_channel",
                 benchmark.family,
                 lambda b: solver.beam_search(convert(b), width=32),
-                "Width-32 event-state beam with Longest-tail incumbent.",
-            ),
-            "monte_carlo64": Algorithm(
-                "monte_carlo64",
-                "single_channel",
-                benchmark.family,
-                lambda b: solver.monte_carlo(convert(b), samples=64, seed=0),
-                "64 reproducible work-conserving schedule samples.",
+                "Experimental upper bound/comparison only; not a deployment candidate, no robustness claim, counterexamples not exhausted.",
+                development_status="experimental",
             ),
             "exact": Algorithm(
                 "exact",
                 "single_channel",
                 benchmark.family,
                 lambda b: solver.exact_oracle(convert(b)),
-                "Exact memoized event-state Oracle for small DAGs.",
+                "Normalized branch-and-bound Exact for small general DAGs.",
+                exact=True,
+            ),
+            "exact_uncompressed": Algorithm(
+                "exact_uncompressed",
+                "single_channel",
+                benchmark.family,
+                lambda b: solver.exact_oracle_uncompressed(convert(b)),
+                "Audit Exact retaining absolute event-state fields.",
                 exact=True,
             ),
         }
@@ -455,7 +495,11 @@ def _active_v2(algorithms: dict[str, Algorithm]) -> dict[str, Algorithm]:
             algorithm,
             semantics="communication_resume",
             supports_wait=False,
-            development_status="active",
+            development_status=(
+                "active"
+                if algorithm.development_status == "maintenance"
+                else algorithm.development_status
+            ),
         )
         for name, algorithm in algorithms.items()
     }

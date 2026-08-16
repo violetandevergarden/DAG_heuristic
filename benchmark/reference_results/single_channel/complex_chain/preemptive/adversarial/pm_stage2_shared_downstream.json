@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_stage2_shared_downstream",
+  "benchmark_sha256": "f7fed174b6685a5b7ea4a25131ba5d3e2e39ef00c83ad9b495732ade16d65d52",
+  "optimal_makespan": 15,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 10,
+  "oracle_runtime_ms": 4.641000006813556,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

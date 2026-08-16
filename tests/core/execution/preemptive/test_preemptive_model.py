@@ -5,8 +5,8 @@ from core.conversion import to_internal_dag
 from core.dag import BenchmarkDAG, BenchTask
 from core.execution.preemptive import Action, PreemptiveDAGModel
 from core.trace.preemptive import assert_preemptive_trace
-from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 from registry import algorithms_for, solve
+from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
 
 def _release_dag() -> BenchmarkDAG:
@@ -87,7 +87,12 @@ def test_v2_loader_registry_and_longest_tail_form_a_runnable_loop() -> None:
     algorithms = algorithms_for(benchmark)
     assert {"longest_tail", "rollout2", "beam8", "exact"} <= set(algorithms)
     assert all(item.semantics == "communication_resume" for item in algorithms.values())
-    assert all(item.development_status == "active" for item in algorithms.values())
+    assert algorithms["beam8"].development_status == "experimental"
+    assert all(
+        item.development_status == "active"
+        for name, item in algorithms.items()
+        if name not in {"beam8", "beam32"}
+    )
     assert not any(item.supports_wait for item in algorithms.values())
     result = solve(benchmark, "longest_tail")
     assert result.makespan == 15

@@ -14,9 +14,11 @@ def generate_reference_results(
     benchmark_root: Path,
     *,
     category: str | None = "adversarial",
+    relative_prefix: Path | None = None,
 ) -> list[Path]:
     written = []
-    for source in sorted(benchmark_root.rglob("*.json")):
+    search_root = benchmark_root / relative_prefix if relative_prefix else benchmark_root
+    for source in sorted(search_root.rglob("*.json")):
         if "schema" in source.parts or "reference_results" in source.parts:
             continue
         benchmark = load_benchmark(source)
@@ -65,6 +67,16 @@ def generate_reference_results(
         makespan = getattr(result, "makespan", None)
         if not isinstance(makespan, int):
             raise TypeError(f"exact result for {benchmark.benchmark_id} has no integer makespan")
+        if (
+            benchmark.semantics.is_preemptive
+            and benchmark.scenario == "single_channel"
+            and benchmark.family == "complex_chain"
+            and getattr(result, "status", None) != "optimal"
+        ):
+            # Stage 2 reference results require a machine-readable completed
+            # enumeration certificate.  A feasible budget fallback is not an
+            # optimum even when its incumbent happens to match an old sidecar.
+            continue
         relative = source.relative_to(benchmark_root)
         target = benchmark_root / "reference_results" / relative
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -75,6 +87,10 @@ def generate_reference_results(
                     "benchmark_id": benchmark.benchmark_id,
                     "benchmark_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
                     "oracle": exact_name,
+                    "oracle_status": getattr(result, "status", "legacy_optimal"),
+                    "oracle_runtime_ms": getattr(result, "runtime_ms", None),
+                    "oracle_explored_states": getattr(result, "explored_states", None),
+                    "oracle_budget": {"max_states": 100_000, "time_limit_s": 5.0},
                     "optimal_makespan": makespan,
                 },
                 ensure_ascii=False,

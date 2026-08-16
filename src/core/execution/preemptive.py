@@ -101,11 +101,19 @@ class PreemptiveScheduleResult:
     dispatches: int
     preemptions: int
     explored_states: int = 0
+    generated_transitions: int = 0
     deduplicated_states: int = 0
     pruned_states: int = 0
+    incumbent_prunes: int = 0
+    lower_bound_prunes: int = 0
+    peak_states: int = 0
     lower_bound: int = 0
     runtime_ms: float = 0.0
     status: Literal["feasible", "optimal"] = "feasible"
+    termination_reason: str | None = None
+    expanded_nodes: int = 0
+    evaluated_candidates: int = 0
+    fallback_count: int = 0
 
 
 class PreemptiveDAGModel:

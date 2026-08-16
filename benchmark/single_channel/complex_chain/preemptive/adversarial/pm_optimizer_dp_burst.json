@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_optimizer_dp_burst",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "A concentrated set of DP flows forms the optimizer barrier.",
     "generator": "complex_chain",
     "lifted_from": "optimizer_dp_burst",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

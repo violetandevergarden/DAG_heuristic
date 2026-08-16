@@ -1,0 +1,102 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage2_join_starvation",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "A direct last blocker competes with a locally longer independent tail.",
+    "designed_for": "communication_resume",
+    "generator": "complex_chain",
+    "parameters": {
+      "attack_target": "join_last_blocker"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": "preemptive_only",
+    "stage2_group": "structural_adversarial"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "done",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "join_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "done",
+        "join_flow"
+      ],
+      "duration": 6,
+      "id": "barrier",
+      "kind": "compute",
+      "metadata": {
+        "role": "barrier"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "side_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "side_flow"
+      ],
+      "duration": 7,
+      "id": "side_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "barrier",
+        "side_tail"
+      ],
+      "duration": 1,
+      "id": "sink",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

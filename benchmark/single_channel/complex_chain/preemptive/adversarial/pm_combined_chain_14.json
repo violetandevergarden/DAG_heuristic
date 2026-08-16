@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_combined_chain_14",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Compact-chain replay DAG.",
     "generator": "complex_chain",
     "lifted_from": "combined_chain_14",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

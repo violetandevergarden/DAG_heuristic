@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_complex_random_000",
+  "benchmark_sha256": "6bd4a5f02a8d09efeb15536bf43edb80da78021e8a507eb69cc761bb9437f4f0",
+  "optimal_makespan": 19,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 37,
+  "oracle_runtime_ms": 19.474599976092577,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

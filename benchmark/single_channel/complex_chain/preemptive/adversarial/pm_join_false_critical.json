@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_join_false_critical",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Two apparently critical branches meet a join; only the last arrival gates it.",
     "generator": "complex_chain",
     "lifted_from": "join_false_critical",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

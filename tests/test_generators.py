@@ -54,7 +54,9 @@ def test_both_semantics_use_the_same_export_path(tmp_path: Path) -> None:
     )
     rows = build_index(tmp_path)
 
-    assert len(rows) == 12
+    # Stage 2 adds one preemptive-only layered general-DAG sample per seed;
+    # nonpreemptive generation remains the historical six-file layout.
+    assert len(rows) == 14
     assert {row["semantics"] for row in rows} == {"preemptive", "nonpreemptive"}
     for row in rows:
         assert row["semantics"] in Path(row["path"]).parts

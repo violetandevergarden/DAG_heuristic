@@ -1,7 +1,14 @@
 {
   "benchmark_id": "pm_large_flow_vs_long_tail",
-  "benchmark_sha256": "f989c78825c5020114779443347d445b14bce45bdeac7c86e7edcd9ab5dbcd6b",
+  "benchmark_sha256": "97a3c2edd78601addd650b25aedd2ed1f098e2aa81d02364fc79cacc7721b86d",
   "optimal_makespan": 10,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 4,
+  "oracle_runtime_ms": 1.0342999594286084,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

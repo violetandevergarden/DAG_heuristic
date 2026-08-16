@@ -1,7 +1,14 @@
 {
   "benchmark_id": "pm_optimizer_dp_burst",
-  "benchmark_sha256": "46cdcf09032fad8cef881e3b92960e32cf4851dda671e34b45c582d4ff7f5af9",
+  "benchmark_sha256": "d1ab1f0e2d3cdae70f341e7cd6afe93428697d4af1e95508870c61669412247d",
   "optimal_makespan": 11,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 31,
+  "oracle_runtime_ms": 10.74470003368333,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

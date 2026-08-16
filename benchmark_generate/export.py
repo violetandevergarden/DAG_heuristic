@@ -54,10 +54,12 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
         manual_route_cases,
         multi_resource_motifs,
         random_join_dag,
+        random_layered_general_dag,
         random_multi_resource_instance,
         random_parallel_chains,
         rollout_depth_counterexample,
         scaled_five_four_family,
+        stage2_structural_adversarial_cases,
         tight_optional_wait_family,
     )
     from single_channel.parallel_chain.model import ParallelChain
@@ -137,22 +139,60 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
             last_blocker_overboost_counterexample(),
             *historical_random_join_counterexamples(),
             *combined_chain_probes(),
+            *stage2_structural_adversarial_cases(),
         ],
-        "random": [random_join_dag(complex_rng, index) for index in range(samples)],
+        "random": [
+            *[random_join_dag(complex_rng, index) for index in range(samples)],
+            *[
+                random_layered_general_dag(
+                    complex_rng,
+                    index,
+                    layers=4 + index % 3,
+                    min_width=2,
+                    max_width=3 + index % 2,
+                    edge_probability=0.30 + 0.10 * (index % 4),
+                    skip_edge_probability=0.10 * (index % 3),
+                )
+                for index in range(samples)
+            ],
+        ],
         "real": llm_motif_cases(),
     }
     for category, cases in complex_cases.items():
         for index, dag in enumerate(cases):
+            is_stage2_native = dag.name.startswith("stage2_") or dag.name.startswith(
+                "layered_general_"
+            )
             benchmark = dag_to_benchmark(
                 dag,
                 category,
                 metadata={
-                    "generator": "complex_chain",
+                    "generator": (
+                        "stage2_layered_general"
+                        if dag.name.startswith("layered_general_")
+                        else "complex_chain"
+                    ),
                     "seed": seed + 1 if category == "random" else None,
+                    "semantic_scope": "preemptive_only" if is_stage2_native else None,
+                    "stage2_group": (
+                        "structural_adversarial"
+                        if dag.name.startswith("stage2_")
+                        else "general_random"
+                        if dag.name.startswith("layered_general_")
+                        else "legacy"
+                    ),
+                    "canonical_form": "raw_general_dag",
                 },
             )
             if category == "random":
-                benchmark = _with_id(benchmark, f"complex_random_{index:03d}")
+                benchmark = _with_id(
+                    benchmark,
+                    (
+                        f"stage2_layered_{index - samples:03d}"
+                        if dag.name.startswith("layered_general_")
+                        else f"complex_random_{index:03d}"
+                    ),
+                )
             exported.append(_case(benchmark, "single_channel", "complex_chain", category))
     muti_cases = {
         "adversarial": multi_resource_motifs(),
@@ -198,7 +238,33 @@ def export_semantic_suite(
             continue
         if semantics == "preemptive":
             if item.benchmark.category == "real" and item.benchmark.family != "parallel_chain":
-                continue
+                audited = {
+                    "zb_bw_fork",
+                    "w_dp_optimizer_join",
+                    "tp_collective_plus_pp",
+                }
+                if item.benchmark.benchmark_id not in audited:
+                    continue
+                item = replace(
+                    item,
+                    benchmark=replace(
+                        item.benchmark,
+                        metadata={
+                            **item.benchmark.metadata,
+                            "stage2_group": "structured",
+                            "preemption_granularity": (
+                                "each communication node is one resumable logical transfer"
+                            ),
+                            "projection_equivalence": (
+                                "structure-preserving synthetic motif; not a measured runtime trace"
+                            ),
+                            "single_channel_projection": (
+                                "all logical transfers share one unit-capacity channel"
+                            ),
+                            "canonical_form": "raw_general_dag",
+                        },
+                    ),
+                )
             benchmark = _as_preemptive(item.benchmark, seed=seed)
         else:
             benchmark = item.benchmark
@@ -235,7 +301,29 @@ def build_index(root: Path) -> list[dict]:
         encoding="utf-8",
         newline="\n",
     )
+    _refresh_path_manifest_hashes(root)
     return rows
+
+
+def _refresh_path_manifest_hashes(root: Path) -> None:
+    """Keep historical move targets auditable after an in-place v2 correction."""
+
+    manifest = root / "path_migration_v1_to_v2.jsonl"
+    if not manifest.exists():
+        return
+    rows = [json.loads(line) for line in manifest.read_text(encoding="utf-8-sig").splitlines()]
+    for row in rows:
+        target = root / row["new_path"]
+        if target.is_file():
+            row["sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
+    manifest.write_text(
+        "".join(
+            json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
+            for row in rows
+        ),
+        encoding="utf-8",
+        newline="\n",
+    )
 
 
 def _case(benchmark: Benchmark, scenario: str, family: str, category: str) -> ExportedCase:

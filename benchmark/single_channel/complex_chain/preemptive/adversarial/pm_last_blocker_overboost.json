@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_last_blocker_overboost",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Directly adding join last-blocker urgency over-prioritizes a long flow.",
     "generator": "complex_chain",
     "lifted_from": "last_blocker_overboost",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

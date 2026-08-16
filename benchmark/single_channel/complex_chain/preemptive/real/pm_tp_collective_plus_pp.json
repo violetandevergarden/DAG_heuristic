@@ -1,0 +1,134 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "pm_tp_collective_plus_pp",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "TP fan-out/fan-in then PP send.",
+    "generator": "complex_chain",
+    "lifted_from": "tp_collective_plus_pp",
+    "parameters": {
+      "tp_flows": "3"
+    },
+    "preemption_granularity": "each communication node is one resumable logical transfer",
+    "preemptive_generator_seed": 260819,
+    "projection_equivalence": "structure-preserving synthetic motif; not a measured runtime trace",
+    "seed": null,
+    "semantic_scope": null,
+    "single_channel_projection": "all logical transfers share one unit-capacity channel",
+    "stage2_group": "structured"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp1",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f"
+      ],
+      "duration": 1,
+      "id": "tp2",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "tp0",
+        "tp1",
+        "tp2"
+      ],
+      "duration": 1,
+      "id": "tp_complete",
+      "kind": "compute",
+      "metadata": {
+        "role": "collective_join"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "tp_complete"
+      ],
+      "duration": 2,
+      "id": "pp",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "pp"
+      ],
+      "duration": 3,
+      "id": "next_stage_f",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

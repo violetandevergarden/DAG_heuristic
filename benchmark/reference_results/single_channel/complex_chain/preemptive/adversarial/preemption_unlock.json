@@ -3,5 +3,12 @@
   "benchmark_sha256": "373ad52ddddf11715c2a7540708d93d9d7bda7a22475438342a32d1997280c6d",
   "optimal_makespan": 15,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 5,
+  "oracle_runtime_ms": 1.2339999666437507,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

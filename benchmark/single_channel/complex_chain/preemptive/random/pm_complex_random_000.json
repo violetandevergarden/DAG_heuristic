@@ -3,6 +3,7 @@
   "family": "complex_chain",
   "id": "pm_complex_random_000",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "Random small DAG with branch releases, second flows and a final join.",
     "generator": "complex_chain",
     "lifted_from": "complex_random_000",
@@ -10,7 +11,9 @@
       "branches": "3"
     },
     "preemptive_generator_seed": 260819,
-    "seed": 260820
+    "seed": 260820,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

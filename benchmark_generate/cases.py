@@ -171,6 +171,201 @@ def random_join_dag(rng: random.Random, index: int) -> BenchmarkDAG:
     return builder.finish(branches=branches)
 
 
+def random_layered_general_dag(
+    rng: random.Random,
+    index: int,
+    *,
+    layers: int = 5,
+    min_width: int = 2,
+    max_width: int = 4,
+    edge_probability: float = 0.45,
+    skip_edge_probability: float = 0.15,
+    max_compute: int = 6,
+    max_comm: int = 4,
+    barrier_every: int | None = None,
+    alternating_layers: bool = False,
+) -> BenchmarkDAG:
+    """Generate a raw layered DAG with independently controlled structure.
+
+    Unlike ``random_join_dag``, this generator is not restricted to branches
+    feeding one final join.  Consecutive layers may contain fork, join, shared
+    downstream nodes, same-kind edges, and skip dependencies.
+    """
+
+    if layers < 2 or min_width < 1 or max_width < min_width:
+        raise ValueError("invalid layered DAG dimensions")
+    if not 0 <= edge_probability <= 1 or not 0 <= skip_edge_probability <= 1:
+        raise ValueError("edge probabilities must be in [0, 1]")
+    if barrier_every is not None and barrier_every < 1:
+        raise ValueError("barrier_every must be positive or None")
+    builder = _Builder(
+        f"layered_general_{index}",
+        "random",
+        "Parameterized raw layered DAG with fork, join and shared downstream structure.",
+    )
+    layer_ids: list[list[str]] = []
+    for layer in range(layers):
+        width = rng.randint(min_width, max_width)
+        current: list[str] = []
+        for position in range(width):
+            kind = (
+                "compute" if layer % 2 == 0 else "comm"
+            ) if alternating_layers else (
+                "comm" if (layer + position + rng.randrange(2)) % 2 else "compute"
+            )
+            duration = rng.randint(1, max_comm if kind == "comm" else max_compute)
+            deps: set[str] = set()
+            if layer:
+                previous = layer_ids[-1]
+                deps.add(rng.choice(previous))
+                deps.update(item for item in previous if rng.random() < edge_probability)
+                if barrier_every is not None and layer % barrier_every == 0:
+                    deps.update(previous)
+            if layer >= 2:
+                deps.update(
+                    item for item in layer_ids[-2] if rng.random() < skip_edge_probability
+                )
+            current.append(
+                builder.add(
+                    f"l{layer}_n{position}",
+                    kind,
+                    duration,
+                    tuple(sorted(deps)),
+                    role="layered_comm" if kind == "comm" else "layered_compute",
+                )
+            )
+        layer_ids.append(current)
+    if not any(task.kind == "comm" for task in builder.tasks):
+        first = builder.tasks[0]
+        builder.tasks[0] = replace(first, kind="comm", duration=max(1, first.duration))
+    dag = builder.finish(
+        layers=layers,
+        min_width=min_width,
+        max_width=max_width,
+        edge_probability=edge_probability,
+        skip_edge_probability=skip_edge_probability,
+        barrier_every=barrier_every,
+        alternating_layers=alternating_layers,
+    )
+    return dag
+
+
+def stage2_structural_adversarial_cases() -> list[BenchmarkDAG]:
+    """Small interpretable Stage 2 attacks with explicit mechanisms."""
+
+    result: list[BenchmarkDAG] = []
+
+    builder = _Builder(
+        "stage2_release_breadth",
+        "adversarial",
+        "A short fork communication releases two computes while a longer-tail path competes.",
+    )
+    release = builder.add("release", "comm", 1, role="attack_decision")
+    left = builder.add("left", "compute", 5, (release,), role="fork_branch")
+    right = builder.add("right", "compute", 5, (release,), role="fork_branch")
+    blocker = builder.add("blocker", "comm", 2, role="attack_decision")
+    blocker_tail = builder.add("blocker_tail", "compute", 6, (blocker,))
+    builder.add("barrier", "compute", 1, (left, right, blocker_tail), role="barrier")
+    result.append(builder.finish(attack_target="immediate_release_vs_tail"))
+
+    builder = _Builder(
+        "stage2_join_starvation",
+        "adversarial",
+        "A direct last blocker competes with a locally longer independent tail.",
+    )
+    done = builder.add("done", "compute", 0)
+    join_flow = builder.add("join_flow", "comm", 2, role="attack_decision")
+    barrier = builder.add("barrier", "compute", 6, (done, join_flow), role="barrier")
+    side = builder.add("side_flow", "comm", 1, role="attack_decision")
+    side_tail = builder.add("side_tail", "compute", 7, (side,))
+    builder.add("sink", "compute", 1, (barrier, side_tail))
+    result.append(builder.finish(attack_target="join_last_blocker"))
+
+    builder = _Builder(
+        "stage2_shared_downstream",
+        "adversarial",
+        "Two branches share a downstream barrier, exposing duplicate downstream scoring.",
+    )
+    fork = builder.add("fork", "comm", 1, role="fork")
+    left = builder.add("left", "compute", 2, (fork,))
+    right = builder.add("right", "compute", 3, (fork,))
+    left_flow = builder.add("left_flow", "comm", 2, (left,), role="attack_decision")
+    right_flow = builder.add("right_flow", "comm", 1, (right,), role="attack_decision")
+    shared = builder.add("shared", "compute", 5, (left_flow, right_flow), role="barrier")
+    final = builder.add("final", "comm", 2, (shared,))
+    builder.add("sink", "compute", 2, (final,))
+    result.append(builder.finish(attack_target="shared_downstream"))
+
+    builder = _Builder(
+        "stage2_nested_barrier",
+        "adversarial",
+        "Two nested joins require investment across more than one communication decision.",
+    )
+    root = builder.add("root", "comm", 1)
+    a = builder.add("a", "compute", 2, (root,))
+    b = builder.add("b", "compute", 1, (root,))
+    af = builder.add("a_flow", "comm", 2, (a,))
+    bf = builder.add("b_flow", "comm", 2, (b,))
+    inner = builder.add("inner_barrier", "compute", 3, (af, bf), role="barrier")
+    c = builder.add("c_flow", "comm", 3)
+    outer = builder.add("outer_barrier", "compute", 2, (inner, c), role="barrier")
+    final = builder.add("final_flow", "comm", 1, (outer,))
+    builder.add("sink", "compute", 2, (final,))
+    result.append(builder.finish(attack_target="finite_depth_rollout"))
+
+    # Fixed seed 26081622, generated index 129.  Depth one and wider-k
+    # depth one both make 22, while depth two and Exact make 21.
+    result.append(
+        BenchmarkDAG(
+            "stage2_rollout_depth",
+            "adversarial",
+            (
+                BenchTask("l0_n0", "comm", 4, role="layered_comm"),
+                BenchTask("l0_n1", "compute", 3, role="layered_compute"),
+                BenchTask("l0_n2", "comm", 5, role="layered_comm"),
+                BenchTask(
+                    "l1_n0",
+                    "compute",
+                    7,
+                    ("l0_n1", "l0_n2"),
+                    role="layered_compute",
+                ),
+                BenchTask(
+                    "l1_n1",
+                    "compute",
+                    6,
+                    ("l0_n0", "l0_n1", "l0_n2"),
+                    role="layered_compute",
+                ),
+                BenchTask(
+                    "l1_n2", "compute", 3, ("l0_n2",), role="layered_compute"
+                ),
+                BenchTask("l2_n0", "comm", 5, ("l1_n0",), role="layered_comm"),
+                BenchTask(
+                    "l2_n1",
+                    "comm",
+                    2,
+                    ("l1_n0", "l1_n1", "l1_n2"),
+                    role="layered_comm",
+                ),
+                BenchTask(
+                    "l2_n2", "compute", 6, ("l1_n1",), role="layered_compute"
+                ),
+            ),
+            "Depth-one rollout misses a two-decision investment across nested joins.",
+            (
+                ("attack_target", "finite_depth_rollout"),
+                ("discovery_seed", "26081622"),
+                ("discovery_index", "129"),
+                ("exact_makespan", "21"),
+                ("rollout_k2_d1", "22"),
+                ("rollout_k2_d2", "21"),
+            ),
+        )
+    )
+    return result
+
+
 def last_blocker_overboost_counterexample() -> BenchmarkDAG:
     builder = _Builder(
         "last_blocker_overboost",

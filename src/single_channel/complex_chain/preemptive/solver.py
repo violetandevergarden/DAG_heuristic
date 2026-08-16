@@ -1,10 +1,15 @@
-"""Initial baselines for single-channel communication-preemptive DAGs."""
+"""Stage 2 algorithms for single-channel communication-preemptive DAGs.
+
+Every policy and search routine delegates event progression to
+``PreemptiveDAGModel.step``.  This module only ranks legal communications or
+searches the resulting public event states.
+"""
 
 from __future__ import annotations
 
-from dataclasses import replace
-from functools import lru_cache
 import random
+from collections.abc import Callable
+from dataclasses import dataclass, replace
 from time import perf_counter
 
 from core.dag import BenchmarkDAG, topological_order
@@ -17,12 +22,50 @@ from core.execution.preemptive import (
 )
 from core.trace.preemptive import assert_preemptive_trace
 
-
 PriorityName = str
+StateKey = tuple[object, ...]
+
+
+@dataclass
+class _SearchStats:
+    explored: int = 0
+    generated: int = 0
+    duplicates: int = 0
+    incumbent_prunes: int = 0
+    lower_bound_prunes: int = 0
+    peak_states: int = 0
+    expanded_nodes: int = 0
+    evaluated_candidates: int = 0
+    fallback_count: int = 0
+
+
+class _BudgetExceeded(RuntimeError):
+    def __init__(self, reason: str):
+        super().__init__(reason)
+        self.reason = reason
+
+
+def validate_complex_chain(dag: BenchmarkDAG) -> None:
+    """Validate the Stage 2 internal family contract.
+
+    Stage 2 deliberately accepts raw general DAGs, including same-kind edges
+    and multiple weak components.  Components are concurrent parts of one
+    makespan instance, not separate jobs.  No canonicalization or silent
+    chainification is performed.
+    """
+
+    errors = dag.validate()
+    if not dag.tasks:
+        errors.append("complex_chain requires at least one task")
+    for task in dag.tasks:
+        if task.kind == "comm" and task.duration <= 0:
+            errors.append(f"{task.task_id}: communication work must be positive")
+    if errors:
+        raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
 
 
 def schedule_longest_tail(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
-    """Recompute downstream residual tails at every task event."""
+    """Schedule the largest exclusive residual downstream tail first."""
 
     return schedule_priority(dag, "longest_tail")
 
@@ -31,120 +74,273 @@ def schedule_priority(
     dag: BenchmarkDAG,
     priority: PriorityName = "longest_tail",
 ) -> PreemptiveScheduleResult:
-    """Run a deterministic work-conserving priority policy."""
+    """Run a deterministic work-conserving Stage 2 priority policy.
 
+    FIFO is history-aware: the first event time at which a communication is
+    eligible is retained across later pauses.  All other policies are
+    memoryless functions of the current residual state.  Ties use task ID.
+    """
+
+    validate_complex_chain(dag)
     model = PreemptiveDAGModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
-    fifo_order = {task_id: index for index, task_id in enumerate(model.task_ids)}
+    first_eligible: dict[str, int] = {}
     while not model.is_finished(state):
         eligible = model.eligible_communications(state)
+        for task_id in eligible:
+            first_eligible.setdefault(task_id, state.time)
         if not eligible:
             action = Action.wait()
         else:
             tail = residual_tail(model, state)
-            def key(task_id: str) -> tuple[int, str]:
-                runtime = model.task_runtime(state, task_id)
-                remaining = runtime.remaining or model.dag.task_map()[task_id].duration
-                if priority == "fifo":
-                    score = -fifo_order[task_id]
-                elif priority == "spt":
-                    score = -remaining
-                elif priority == "lpt":
-                    score = remaining
-                elif priority == "longest_delay":
-                    score = tail[task_id] - remaining
-                elif priority == "lrpt":
-                    score = tail[task_id]
-                elif priority == "longest_tail":
-                    score = tail[task_id] - remaining
-                else:
-                    raise ValueError(f"unknown preemptive priority: {priority}")
-                return (-score, task_id)
-            action = Action.run(min(eligible, key=key))
+            if priority == "fifo":
+                selected = min(eligible, key=lambda item: (first_eligible[item], item))
+            else:
+                selected = min(
+                    eligible,
+                    key=lambda item: _priority_key(model, state, item, priority, tail),
+                )
+            action = Action.run(selected)
         actions.append(action)
         state = model.step(state, action).after
-    trace = model.run(actions)
-    assert_preemptive_trace(model, trace)
-    return result_from_trace(trace)
+    return _result(model, actions)
 
 
 def schedule_rollout(
     dag: BenchmarkDAG,
     *,
-    top_k: int = 2,
-    candidate_mode: str = "tail",
+    top_k: int | None = 2,
+    depth: int = 1,
+    candidate_mode: str = "longest_tail",
+    completion_priority: str = "longest_tail",
+    max_expansions: int | None = None,
+    time_limit_s: float | None = None,
+    use_memo: bool = True,
 ) -> PreemptiveScheduleResult:
-    """One-event rollout using dynamic longest-tail as completion policy."""
+    """Receding-horizon event rollout with an explicit decision depth.
 
+    ``depth`` counts communication decisions only; forced-idle transitions do
+    not consume depth.  The completion-policy action is always retained in a
+    finite shortlist, so an unexhausted search has a baseline incumbent.
+    Deterministic expansion and wall-clock budgets fall back to the completion
+    policy and are reported in the result.
+    """
+
+    validate_complex_chain(dag)
+    if depth < 1:
+        raise ValueError("rollout depth must be at least one")
+    if top_k is not None and top_k < 1:
+        raise ValueError("rollout top_k must be positive or None")
     model = PreemptiveDAGModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
+    stats = _SearchStats()
+    started = perf_counter()
+    termination_reason: str | None = None
+    memo: dict[tuple[int, StateKey], int] = {}
+
+    def check_budget() -> None:
+        if max_expansions is not None and stats.expanded_nodes >= max_expansions:
+            raise _BudgetExceeded("node_expansion_limit")
+        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
+            raise _BudgetExceeded("time_limit")
+
+    def evaluate(current: ScheduleState, remaining_depth: int) -> int:
+        """Return residual completion cost, not an absolute finish time.
+
+        The normalized key intentionally omits absolute time.  Caching a
+        residual cost therefore preserves the future-equivalence proof,
+        whereas caching an absolute makespan would not.
+        """
+
+        forced_state, _forced = _advance_forced_idle(model, current)
+        forced_elapsed = forced_state.time - current.time
+        if model.is_finished(forced_state):
+            return forced_elapsed
+        memo_key = (remaining_depth, normalized_state_key(forced_state))
+        if use_memo:
+            cached = memo.get(memo_key)
+            if cached is not None:
+                stats.duplicates += 1
+                return forced_elapsed + cached
+        if remaining_depth == 0:
+            suffix = _complete_actions(model, forced_state, completion_priority)
+            residual = _apply_actions(model, forced_state, suffix).time - forced_state.time
+            if use_memo:
+                memo[memo_key] = residual
+            return forced_elapsed + residual
+        check_budget()
+        stats.expanded_nodes += 1
+        eligible = model.eligible_communications(forced_state)
+        tail = residual_tail(model, forced_state)
+        ranked = _rank_candidates(
+            model,
+            forced_state,
+            eligible,
+            tail,
+            top_k,
+            candidate_mode,
+            completion_priority,
+        )
+        best = float("inf")
+        for task_id in ranked:
+            check_budget()
+            stats.evaluated_candidates += 1
+            after = model.step(forced_state, Action.run(task_id)).after
+            elapsed = after.time - forced_state.time
+            best = min(best, elapsed + evaluate(after, remaining_depth - 1))
+        residual = int(best)
+        if use_memo:
+            memo[memo_key] = residual
+        return forced_elapsed + residual
+
     while not model.is_finished(state):
         eligible = model.eligible_communications(state)
         if not eligible:
             action = Action.wait()
+        elif termination_reason is not None:
+            action = Action.run(_baseline_choice(model, state, completion_priority))
         else:
             tail = residual_tail(model, state)
-            ranked = _rank_candidates(model, state, eligible, tail, top_k, candidate_mode)
-            candidates = []
-            for task_id in ranked:
-                first = Action.run(task_id)
-                after = model.step(state, first).after
-                suffix = _complete_actions(model, after, "longest_tail")
-                finish = _apply_actions(model, after, suffix).time
-                candidates.append((finish, task_id, first))
-            action = min(candidates)[2]
+            ranked = _rank_candidates(
+                model,
+                state,
+                eligible,
+                tail,
+                top_k,
+                candidate_mode,
+                completion_priority,
+            )
+            candidates: list[tuple[int, str]] = []
+            try:
+                for task_id in ranked:
+                    check_budget()
+                    stats.evaluated_candidates += 1
+                    after = model.step(state, Action.run(task_id)).after
+                    candidates.append(
+                        (after.time - state.time + evaluate(after, depth - 1), task_id)
+                    )
+            except _BudgetExceeded as error:
+                termination_reason = error.reason
+                stats.fallback_count += 1
+            selected = (
+                min(candidates)[1]
+                if candidates
+                else _baseline_choice(model, state, completion_priority)
+            )
+            action = Action.run(selected)
         actions.append(action)
         state = model.step(state, action).after
-    trace = model.run(actions)
-    assert_preemptive_trace(model, trace)
-    return result_from_trace(trace)
+    result = _result(model, actions)
+    return replace(
+        result,
+        runtime_ms=(perf_counter() - started) * 1000,
+        deduplicated_states=stats.duplicates,
+        peak_states=len(memo),
+        termination_reason=termination_reason,
+        expanded_nodes=stats.expanded_nodes,
+        evaluated_candidates=stats.evaluated_candidates,
+        fallback_count=stats.fallback_count,
+    )
 
 
 def beam_search(
     dag: BenchmarkDAG,
     *,
     width: int = 8,
+    horizon: int | None = None,
+    max_expansions: int | None = None,
+    time_limit_s: float | None = None,
 ) -> PreemptiveScheduleResult:
-    """Bounded event-state beam with a Longest-tail incumbent."""
+    """Decision-depth beam using the proven normalized Exact key.
 
+    Equal normalized states are future-equivalent under the Stage 2 contract;
+    the earlier representative therefore time-dominates the later one.  The
+    Longest-tail completion schedule is retained as an incumbent, including
+    when a horizon or budget truncates search.
+    """
+
+    validate_complex_chain(dag)
+    if width < 1:
+        raise ValueError("beam width must be positive")
+    if horizon is not None and horizon < 1:
+        raise ValueError("beam horizon must be positive or None")
     model = PreemptiveDAGModel(dag)
     initial = model.initial_state()
+    incumbent_actions = _complete_actions(model, initial, "longest_tail")
+    incumbent_finish = _apply_actions(model, initial, incumbent_actions).time
     frontier: list[tuple[ScheduleState, tuple[Action, ...]]] = [(initial, ())]
-    incumbent = schedule_longest_tail(dag)
-    best_actions: tuple[Action, ...] | None = None
-    while frontier:
-        children: dict[tuple, tuple[ScheduleState, tuple[Action, ...]]] = {}
-        for state, prefix in frontier:
-            if model.is_finished(state):
-                best_actions = prefix
+    stats = _SearchStats()
+    started = perf_counter()
+    decision_depth = 0
+    termination_reason: str | None = None
+
+    def budget_exhausted() -> str | None:
+        if max_expansions is not None and stats.expanded_nodes >= max_expansions:
+            return "node_expansion_limit"
+        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
+            return "time_limit"
+        return None
+
+    while frontier and (horizon is None or decision_depth < horizon):
+        children: dict[StateKey, tuple[ScheduleState, tuple[Action, ...]]] = {}
+        for raw_state, raw_prefix in frontier:
+            reason = budget_exhausted()
+            if reason is not None:
+                termination_reason = reason
                 break
-            actions = list(model.legal_actions(state))
-            if model.eligible_communications(state):
-                actions = [action for action in actions if action.kind == "run"]
-            for action in actions:
+            state, forced = _advance_forced_idle(model, raw_state)
+            prefix = (*raw_prefix, *forced)
+            if model.is_finished(state):
+                if state.time < incumbent_finish:
+                    incumbent_finish, incumbent_actions = state.time, prefix
+                continue
+            stats.expanded_nodes += 1
+            for task_id in model.eligible_communications(state):
+                stats.evaluated_candidates += 1
+                action = Action.run(task_id)
                 after = model.step(state, action).after
-                key = tuple((runtime.status, runtime.remaining) for runtime in after.tasks)
+                after, forced_after = _advance_forced_idle(model, after)
+                candidate_prefix = (*prefix, action, *forced_after)
+                suffix = _complete_actions(model, after, "longest_tail")
+                predicted = _apply_actions(model, after, suffix).time
+                if predicted < incumbent_finish:
+                    incumbent_finish = predicted
+                    incumbent_actions = (*candidate_prefix, *suffix)
+                key = normalized_state_key(after)
                 old = children.get(key)
-                candidate = (after, (*prefix, action))
+                candidate = (after, candidate_prefix)
                 if old is None or after.time < old[0].time:
+                    if old is not None:
+                        stats.duplicates += 1
                     children[key] = candidate
-        if best_actions is not None:
+                else:
+                    stats.duplicates += 1
+        if termination_reason is not None:
+            stats.fallback_count += 1
             break
-        scored = []
+        scored: list[tuple[int, int, tuple[Action, ...], ScheduleState]] = []
         for state, prefix in children.values():
             suffix = _complete_actions(model, state, "longest_tail")
             predicted = _apply_actions(model, state, suffix).time
-            scored.append((predicted, state.time, len(prefix), prefix, state))
-        scored.sort(key=lambda item: item[:3])
-        frontier = [(item[4], item[3]) for item in scored[:width]]
-    if best_actions is None:
-        return incumbent
-    trace = model.run(best_actions)
-    assert_preemptive_trace(model, trace)
-    candidate = result_from_trace(trace)
-    return min((incumbent, candidate), key=lambda result: (result.makespan, result.dispatches))
+            scored.append((predicted, state.time, prefix, state))
+        scored.sort(key=lambda item: (item[0], item[1], _action_key(item[2])))
+        frontier = [(item[3], item[2]) for item in scored[:width]]
+        stats.peak_states = max(stats.peak_states, len(frontier))
+        decision_depth += 1
+
+    result = _result(model, incumbent_actions)
+    return replace(
+        result,
+        runtime_ms=(perf_counter() - started) * 1000,
+        deduplicated_states=stats.duplicates,
+        peak_states=stats.peak_states,
+        termination_reason=termination_reason,
+        expanded_nodes=stats.expanded_nodes,
+        evaluated_candidates=stats.evaluated_candidates,
+        fallback_count=stats.fallback_count,
+    )
 
 
 def exact_oracle(
@@ -152,59 +348,155 @@ def exact_oracle(
     *,
     max_states: int = 500_000,
     time_limit_s: float | None = None,
+    normalized: bool = True,
+    bound_mode: str = "combined",
+    use_memo: bool = True,
+    use_incumbent: bool = True,
 ) -> PreemptiveScheduleResult:
-    """Exact memoized event-state search for small single-channel DAGs."""
+    """Branch-and-bound Exact over public event transitions.
 
+    Completed enumeration returns ``status='optimal'``.  A state or time
+    budget returns the Longest-tail incumbent as ``status='feasible'`` with a
+    structured ``termination_reason``; callers must not treat it as ground
+    truth.  ``normalized=False`` selects the full audit key.
+    """
+
+    validate_complex_chain(dag)
+    if bound_mode not in {"none", "communication", "path", "combined"}:
+        raise ValueError(
+            "bound_mode must be one of: none, communication, path, combined"
+        )
+    if max_states < 1:
+        raise ValueError("max_states must be positive")
     model = PreemptiveDAGModel(dag)
     initial = model.initial_state()
     started = perf_counter()
-    states = 0
-    representative: dict[tuple, ScheduleState] = {}
+    stats = _SearchStats()
+    memo: dict[StateKey, tuple[int, tuple[Action, ...]]] = {}
+    key_fn: Callable[[ScheduleState], StateKey] = (
+        normalized_state_key if normalized else audit_state_key
+    )
+    # The reported certificate remains the strongest proven bound even when
+    # an ablation disables it for pruning.
+    root_lower_bound = remaining_lower_bound(model, initial, mode="combined")
+    incumbent_actions = _complete_actions(model, initial, "longest_tail")
 
-    def key(state: ScheduleState) -> tuple:
-        return tuple((runtime.status, runtime.remaining) for runtime in state.tasks)
+    def check_budget() -> None:
+        if stats.explored >= max_states:
+            raise _BudgetExceeded("state_limit")
+        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
+            raise _BudgetExceeded("time_limit")
 
-    @lru_cache(maxsize=None)
-    def search(state_key: tuple) -> tuple[int, tuple[Action, ...]]:
-        nonlocal states
-        states += 1
-        if states > max_states:
-            raise RuntimeError(f"preemptive exact oracle exceeded {max_states} states")
-        if time_limit_s is not None and perf_counter() - started > time_limit_s:
-            raise TimeoutError("preemptive exact oracle exceeded time limit")
-        state = representative[state_key]
+    def search(state: ScheduleState) -> tuple[int, tuple[Action, ...]]:
+        state_key = key_fn(state)
+        if use_memo:
+            cached = memo.get(state_key)
+            if cached is not None:
+                stats.duplicates += 1
+                return cached
+        check_budget()
+        stats.explored += 1
+        stats.peak_states = max(stats.peak_states, len(memo) + 1)
         if model.is_finished(state):
-            return 0, ()
+            result = (0, ())
+            if use_memo:
+                memo[state_key] = result
+            return result
+
+        completion = _complete_actions(model, state, "longest_tail")
+        incumbent_cost = (
+            _apply_actions(model, state, completion).time - state.time
+            if use_incumbent
+            else float("inf")
+        )
         best: tuple[int, tuple[str, str], tuple[Action, ...]] | None = None
-        actions = list(model.legal_actions(state))
-        # With linear zero-cost service, voluntary idle is dominated while a
-        # communication is eligible; retaining WAIT only for forced idle also
-        # avoids exploring equivalent delayed schedules.
-        if model.eligible_communications(state):
-            actions = [action for action in actions if action.kind == "run"]
-        for action in actions:
+        for action in model.legal_actions(state):
             transition = model.step(state, action)
-            child_key = key(transition.after)
-            representative.setdefault(child_key, transition.after)
-            remainder, suffix = search(child_key)
+            stats.generated += 1
             elapsed = transition.after.time - state.time
-            candidate = (
-                elapsed + remainder,
+            child_bound = remaining_lower_bound(
+                model, transition.after, mode=bound_mode
+            )
+            # Equality is still explored so Exact preserves the stable
+            # lexicographically smallest optimal action trace used by existing
+            # downstream teachers.  Only a strict bound proves the branch
+            # cannot improve that deterministic optimum tuple.
+            if bound_mode != "none" and elapsed + child_bound > incumbent_cost:
+                stats.incumbent_prunes += 1
+                stats.lower_bound_prunes += 1
+                continue
+            child_cost, suffix = search(transition.after)
+            candidate = elapsed + child_cost
+            candidate_entry = (
+                candidate,
                 (action.kind, action.task_id or ""),
                 (action, *suffix),
             )
-            if best is None or candidate[:2] < best[:2]:
-                best = candidate
+            if best is None or candidate_entry[:2] < best[:2]:
+                best = candidate_entry
+            incumbent_cost = min(incumbent_cost, candidate)
         if best is None:
-            raise RuntimeError("unfinished state has no legal action")
-        return best[0], best[2]
+            raise RuntimeError("unfinished state has no exact successor")
+        result = (best[0], best[2])
+        if use_memo:
+            memo[state_key] = result
+        return result
 
-    initial_key = key(initial)
-    representative[initial_key] = initial
-    _cost, actions = search(initial_key)
-    trace = model.run(actions)
-    assert_preemptive_trace(model, trace)
-    return replace(result_from_trace(trace), explored_states=states)
+    try:
+        _cost, actions = search(initial)
+    except _BudgetExceeded as error:
+        result = _result(model, incumbent_actions)
+        return replace(
+            result,
+            explored_states=stats.explored,
+            generated_transitions=stats.generated,
+            deduplicated_states=stats.duplicates,
+            pruned_states=stats.lower_bound_prunes,
+            incumbent_prunes=stats.incumbent_prunes,
+            lower_bound_prunes=stats.lower_bound_prunes,
+            peak_states=stats.peak_states,
+            lower_bound=root_lower_bound,
+            runtime_ms=(perf_counter() - started) * 1000,
+            status="feasible",
+            termination_reason=error.reason,
+        )
+
+    result = _result(model, actions)
+    return replace(
+        result,
+        explored_states=stats.explored,
+        generated_transitions=stats.generated,
+        deduplicated_states=stats.duplicates,
+        pruned_states=stats.lower_bound_prunes,
+        incumbent_prunes=stats.incumbent_prunes,
+        lower_bound_prunes=stats.lower_bound_prunes,
+        peak_states=stats.peak_states,
+        lower_bound=root_lower_bound,
+        runtime_ms=(perf_counter() - started) * 1000,
+        status="optimal",
+    )
+
+
+def exact_oracle_uncompressed(
+    dag: BenchmarkDAG,
+    *,
+    max_states: int = 500_000,
+    time_limit_s: float | None = None,
+    bound_mode: str = "combined",
+    use_memo: bool = True,
+    use_incumbent: bool = True,
+) -> PreemptiveScheduleResult:
+    """Audit Exact retaining absolute time and every runtime field in its key."""
+
+    return exact_oracle(
+        dag,
+        max_states=max_states,
+        time_limit_s=time_limit_s,
+        normalized=False,
+        bound_mode=bound_mode,
+        use_memo=use_memo,
+        use_incumbent=use_incumbent,
+    )
 
 
 def monte_carlo(
@@ -213,8 +505,9 @@ def monte_carlo(
     samples: int = 64,
     seed: int = 0,
 ) -> PreemptiveScheduleResult:
-    """Sample reproducible work-conserving schedules and keep the best."""
+    """Historical reproducible sampler, retained outside the active registry."""
 
+    validate_complex_chain(dag)
     model = PreemptiveDAGModel(dag)
     rng = random.Random(seed)
     candidates: list[PreemptiveScheduleResult] = [schedule_longest_tail(dag)]
@@ -232,10 +525,290 @@ def monte_carlo(
                 action = Action.run(rng.choice(pool))
             actions.append(action)
             state = model.step(state, action).after
-        trace = model.run(actions)
-        assert_preemptive_trace(model, trace)
-        candidates.append(result_from_trace(trace))
+        candidates.append(_result(model, actions))
     return min(candidates, key=lambda result: (result.makespan, result.dispatches))
+
+
+def audit_state_key(state: ScheduleState) -> StateKey:
+    """Full event-state key used by the audit Exact."""
+
+    return (state.time, state.tasks, state.last_communication)
+
+
+def normalized_state_key(state: ScheduleState) -> StateKey:
+    """Future-equivalent Stage 2 key under zero-cost, no-external-time semantics."""
+
+    return tuple((runtime.status, runtime.remaining) for runtime in state.tasks)
+
+
+def remaining_lower_bound(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    *,
+    mode: str = "combined",
+) -> int:
+    """Return a selectable safe residual lower bound for Exact ablation."""
+
+    if mode not in {"none", "communication", "path", "combined"}:
+        raise ValueError(f"unknown lower-bound mode: {mode}")
+
+    tasks = model.dag.task_map()
+    communication_work = sum(
+        _own_remaining(model, state, task_id)
+        for task_id in model.task_ids
+        if tasks[task_id].kind == "comm"
+    )
+    longest_path = max(residual_tail(model, state).values(), default=0)
+    if mode == "none":
+        return 0
+    if mode == "communication":
+        return communication_work
+    if mode == "path":
+        return longest_path
+    return max(communication_work, longest_path)
+
+
+def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, int]:
+    """Longest residual path including each unfinished task's own work."""
+
+    order = topological_order(model.dag)
+    children = _children(model)
+    tail: dict[str, int] = {}
+    for task_id in reversed(order):
+        tail[task_id] = _own_remaining(model, state, task_id) + max(
+            (tail[child] for child in children[task_id]), default=0
+        )
+    return tail
+
+
+def immediate_release_gain(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+) -> int:
+    """Sum work immediately released if ``task_id`` were completed now.
+
+    The hypothetical closure includes zero-duration compute nodes, matching
+    the simulator's automatic compute closure.  Multiple newly ready positive
+    tasks are aggregated by sum; this is a local release score, not a path
+    length or an end-to-end benefit claim.
+    """
+
+    tasks = model.dag.task_map()
+    completed = {
+        item
+        for item in model.task_ids
+        if model.task_runtime(state, item).status == "completed"
+    }
+    completed.add(task_id)
+    already_ready = set(model.eligible_communications(state)) | set(model.active_computes(state))
+    changed = True
+    while changed:
+        changed = False
+        for item in model.task_ids:
+            task = tasks[item]
+            runtime = model.task_runtime(state, item)
+            if item in completed or runtime.status != "pending":
+                continue
+            if task.kind == "compute" and task.duration == 0 and set(task.deps) <= completed:
+                completed.add(item)
+                changed = True
+    released = []
+    for item in model.task_ids:
+        if item in completed or item in already_ready:
+            continue
+        task = tasks[item]
+        runtime = model.task_runtime(state, item)
+        if runtime.status == "pending" and set(task.deps) <= completed:
+            released.append(task.duration)
+    return sum(released)
+
+
+def immediate_compute_delay(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+) -> int:
+    """Longest compute delay made ready immediately by candidate completion.
+
+    Zero-duration compute closure is traversed, but communication work and the
+    breadth/sum of newly ready tasks are deliberately excluded.  The latter is
+    the separate ``immediate_release_gain`` feature.
+    """
+
+    tasks = model.dag.task_map()
+    completed = {
+        item
+        for item in model.task_ids
+        if model.task_runtime(state, item).status == "completed"
+    }
+    completed.add(task_id)
+    already_active = set(model.active_computes(state))
+    changed = True
+    while changed:
+        changed = False
+        for item in model.task_ids:
+            task = tasks[item]
+            runtime = model.task_runtime(state, item)
+            if item in completed or runtime.status != "pending":
+                continue
+            if task.kind == "compute" and task.duration == 0 and set(task.deps) <= completed:
+                completed.add(item)
+                changed = True
+    return max(
+        (
+            task.duration
+            for item, task in tasks.items()
+            if item not in completed
+            and item not in already_active
+            and task.kind == "compute"
+            and model.task_runtime(state, item).status == "pending"
+            and set(task.deps) <= completed
+        ),
+        default=0,
+    )
+
+
+def direct_last_blocker_gain(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+    tail: dict[str, int] | None = None,
+) -> int:
+    """Residual tails of direct joins for which the candidate is last blocker."""
+
+    tails = tail if tail is not None else residual_tail(model, state)
+    tasks = model.dag.task_map()
+    gain = 0
+    for child in _children(model)[task_id]:
+        if len(tasks[child].deps) < 2:
+            continue
+        others = (item for item in tasks[child].deps if item != task_id)
+        if all(model.task_runtime(state, item).status == "completed" for item in others):
+            gain += tails[child]
+    return gain
+
+
+def unique_downstream_work(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+) -> int:
+    """Residual work in the candidate's reachable sub-DAG, counted once.
+
+    This is the explicit shared-downstream de-duplication feature: a node
+    reached through several fork/join paths contributes once, not once per
+    path.
+    """
+
+    descendants = _descendants(model, task_id)
+    return sum(_own_remaining(model, state, item) for item in descendants)
+
+
+def downstream_communication_demand(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+) -> int:
+    """Unique residual channel demand downstream of a candidate."""
+
+    tasks = model.dag.task_map()
+    return sum(
+        _own_remaining(model, state, item)
+        for item in _descendants(model, task_id)
+        if tasks[item].kind == "comm"
+    )
+
+
+def barrier_urgency(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+    tail: dict[str, int] | None = None,
+) -> int:
+    """Residual urgency of distinct reachable joins/barriers.
+
+    Each reachable multi-predecessor node contributes its residual tail once.
+    A direct last-blocker gets the same contribution, while a more distant
+    branch is discounted by its residual distance to the barrier.  This is a
+    deterministic structural feature, not a proven lower bound.
+    """
+
+    tails = tail if tail is not None else residual_tail(model, state)
+    tasks = model.dag.task_map()
+    children = _children(model)
+    distance: dict[str, int] = {task_id: 0}
+    for current in topological_order(model.dag):
+        if current not in distance:
+            continue
+        for child in children[current]:
+            candidate = distance[current] + (
+                0 if current == task_id else _own_remaining(model, state, current)
+            )
+            distance[child] = max(distance.get(child, 0), candidate)
+    return sum(
+        max(0, tails[item] - distance[item])
+        for item in distance
+        if item != task_id and len(tasks[item].deps) > 1
+    )
+
+
+def _priority_key(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    task_id: str,
+    priority: str,
+    tail: dict[str, int],
+) -> tuple[object, ...]:
+    remaining = _own_remaining(model, state, task_id)
+    exclusive_tail = tail[task_id] - remaining
+    if priority == "spt":
+        return (remaining, 0, task_id)
+    if priority == "lpt":
+        return (-remaining, 0, task_id)
+    if priority == "longest_delay":
+        return (-immediate_compute_delay(model, state, task_id), -exclusive_tail, task_id)
+    if priority == "release_gain":
+        return (-immediate_release_gain(model, state, task_id), -exclusive_tail, task_id)
+    if priority == "longest_tail":
+        return (-exclusive_tail, 0, task_id)
+    if priority == "lrpt":
+        return (-tail[task_id], 0, task_id)
+    if priority == "join_aware":
+        return (
+            -direct_last_blocker_gain(model, state, task_id, tail),
+            -exclusive_tail,
+            task_id,
+        )
+    if priority == "barrier_aware":
+        return (-barrier_urgency(model, state, task_id, tail), -exclusive_tail, task_id)
+    if priority == "shared_downstream":
+        return (-unique_downstream_work(model, state, task_id), -exclusive_tail, task_id)
+    if priority == "downstream_demand":
+        return (
+            -downstream_communication_demand(model, state, task_id),
+            -exclusive_tail,
+            task_id,
+        )
+    if priority == "structure_aware":
+        return (
+            -barrier_urgency(model, state, task_id, tail),
+            -downstream_communication_demand(model, state, task_id),
+            -unique_downstream_work(model, state, task_id),
+            -exclusive_tail,
+            task_id,
+        )
+    raise ValueError(f"unknown preemptive priority: {priority}")
+
+
+def _baseline_choice(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    priority: str,
+) -> str:
+    eligible = model.eligible_communications(state)
+    tail = residual_tail(model, state)
+    return min(eligible, key=lambda item: _priority_key(model, state, item, priority, tail))
 
 
 def _complete_actions(
@@ -246,18 +819,84 @@ def _complete_actions(
     actions: list[Action] = []
     while not model.is_finished(state):
         eligible = model.eligible_communications(state)
-        if not eligible:
-            action = Action.wait()
-        else:
-            tail = residual_tail(model, state)
-            task_map = model.dag.task_map()
-            if priority == "longest_tail":
-                action = Action.run(min(eligible, key=lambda item: (-(tail[item] - (model.task_runtime(state, item).remaining or task_map[item].duration)), item)))
-            else:
-                raise ValueError(priority)
+        action = (
+            Action.run(_baseline_choice(model, state, priority))
+            if eligible
+            else Action.wait()
+        )
         actions.append(action)
         state = model.step(state, action).after
     return tuple(actions)
+
+
+def _rank_candidates(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    eligible: tuple[str, ...],
+    tail: dict[str, int],
+    top_k: int | None,
+    mode: str,
+    completion_priority: str,
+) -> list[str]:
+    if mode == "tail":
+        mode = "longest_tail"
+    if mode not in {"longest_tail", "lrpt", "join", "structure", "hybrid"}:
+        raise ValueError(f"unknown candidate mode: {mode}")
+    baseline = min(
+        eligible,
+        key=lambda item: _priority_key(
+            model, state, item, completion_priority, tail
+        ),
+    )
+    longest = sorted(
+        eligible,
+        key=lambda item: _priority_key(model, state, item, "longest_tail", tail),
+    )
+    lrpt = sorted(
+        eligible,
+        key=lambda item: _priority_key(model, state, item, "lrpt", tail),
+    )
+    join = sorted(
+        eligible,
+        key=lambda item: _priority_key(model, state, item, "join_aware", tail),
+    )
+    structure = sorted(
+        eligible,
+        key=lambda item: _priority_key(model, state, item, "structure_aware", tail),
+    )
+    ordered = {
+        "longest_tail": longest,
+        "lrpt": lrpt,
+        "join": join,
+        "structure": structure,
+        "hybrid": _interleave(longest, join, structure, lrpt),
+    }[mode]
+    selected = [baseline, *(item for item in ordered if item != baseline)]
+    return selected if top_k is None else selected[:top_k]
+
+
+def _interleave(*rankings: list[str]) -> list[str]:
+    result: list[str] = []
+    for index in range(max((len(items) for items in rankings), default=0)):
+        for items in rankings:
+            if index < len(items) and items[index] not in result:
+                result.append(items[index])
+    return result
+
+
+def _advance_forced_idle(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+) -> tuple[ScheduleState, tuple[Action, ...]]:
+    actions: list[Action] = []
+    while (
+        not model.is_finished(state)
+        and not model.eligible_communications(state)
+    ):
+        action = Action.wait()
+        actions.append(action)
+        state = model.step(state, action).after
+    return state, tuple(actions)
 
 
 def _apply_actions(
@@ -270,69 +909,48 @@ def _apply_actions(
     return state
 
 
-def _rank_candidates(
+def _own_remaining(
     model: PreemptiveDAGModel,
     state: ScheduleState,
-    eligible: tuple[str, ...],
-    tail: dict[str, int],
-    top_k: int,
-    mode: str,
-) -> list[str]:
-    tail_ranked = sorted(eligible, key=lambda item: (-tail[item], item))
-    if mode == "tail":
-        return tail_ranked[:top_k]
-    if mode not in {"join", "hybrid"}:
-        raise ValueError(f"unknown candidate mode: {mode}")
-    tasks = model.dag.task_map()
-    children: dict[str, list[str]] = {task_id: [] for task_id in model.task_ids}
-    for task in tasks.values():
+    task_id: str,
+) -> int:
+    runtime = model.task_runtime(state, task_id)
+    if runtime.status == "completed":
+        return 0
+    if runtime.status in {"running", "suspended"}:
+        return runtime.remaining
+    return model.dag.task_map()[task_id].duration
+
+
+def _children(model: PreemptiveDAGModel) -> dict[str, list[str]]:
+    children = {task_id: [] for task_id in model.task_ids}
+    for task in model.dag.tasks:
         for dependency in task.deps:
             children[dependency].append(task.task_id)
-
-    def join_score(task_id: str) -> tuple[int, int, str]:
-        bonus = 0
-        for child in children[task_id]:
-            if len(tasks[child].deps) < 2:
-                continue
-            others = [dep for dep in tasks[child].deps if dep != task_id]
-            if all(model.task_runtime(state, dep).status == "completed" for dep in others):
-                bonus += tasks[child].duration + max(0, tail[child] - tasks[child].duration)
-        return (-bonus, -tail[task_id], task_id)
-
-    join_ranked = sorted(eligible, key=join_score)
-    if mode == "join":
-        return join_ranked[:top_k]
-    selected: list[str] = []
-    for ranked in (tail_ranked, join_ranked):
-        for task_id in ranked:
-            if task_id not in selected:
-                selected.append(task_id)
-                break
-    for task_id in tail_ranked:
-        if task_id not in selected:
-            selected.append(task_id)
-        if len(selected) == top_k:
-            break
-    return selected[:top_k]
+    return children
 
 
-def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, int]:
-    """Longest unfinished path length including each task's remaining work."""
+def _descendants(model: PreemptiveDAGModel, task_id: str) -> set[str]:
+    children = _children(model)
+    result: set[str] = set()
+    pending = list(children[task_id])
+    while pending:
+        item = pending.pop()
+        if item in result:
+            continue
+        result.add(item)
+        pending.extend(children[item])
+    return result
 
-    order = topological_order(model.dag)
-    tasks = model.dag.task_map()
-    children: dict[str, list[str]] = {task_id: [] for task_id in order}
-    for task in tasks.values():
-        for dependency in task.deps:
-            children[dependency].append(task.task_id)
-    tail: dict[str, int] = {}
-    for task_id in reversed(order):
-        runtime = model.task_runtime(state, task_id)
-        if runtime.status == "completed":
-            own = 0
-        elif runtime.status in {"running", "suspended"}:
-            own = runtime.remaining
-        else:
-            own = tasks[task_id].duration
-        tail[task_id] = own + max((tail[child] for child in children[task_id]), default=0)
-    return tail
+
+def _result(
+    model: PreemptiveDAGModel,
+    actions: tuple[Action, ...] | list[Action],
+) -> PreemptiveScheduleResult:
+    trace = model.run(actions)
+    assert_preemptive_trace(model, trace)
+    return result_from_trace(trace)
+
+
+def _action_key(actions: tuple[Action, ...]) -> tuple[tuple[str, str], ...]:
+    return tuple((action.kind, action.task_id or "") for action in actions)

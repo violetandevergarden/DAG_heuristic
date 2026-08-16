@@ -3,12 +3,15 @@
   "family": "complex_chain",
   "id": "pm_fork_multi_unlock",
   "metadata": {
+    "canonical_form": "raw_general_dag",
     "description": "One small flow releases several compute branches before a final join.",
     "generator": "complex_chain",
     "lifted_from": "fork_multi_unlock",
     "parameters": {},
     "preemptive_generator_seed": 260819,
-    "seed": null
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
   },
   "objective": "makespan",
   "resources": [

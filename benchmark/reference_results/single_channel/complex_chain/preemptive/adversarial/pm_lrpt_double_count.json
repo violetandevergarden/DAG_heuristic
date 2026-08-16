@@ -1,7 +1,14 @@
 {
   "benchmark_id": "pm_lrpt_double_count",
-  "benchmark_sha256": "d93c65023c23d338f8a0a921feabe6a13f0af5fbad9f255c03875c7af01a9e15",
+  "benchmark_sha256": "54638da31774fd076e330e9165320abd6decabcbd36f44fa2fd21aca976c1574",
   "optimal_makespan": 10,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 8,
+  "oracle_runtime_ms": 3.7299999967217445,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

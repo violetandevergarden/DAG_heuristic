@@ -39,8 +39,9 @@ def test_every_committed_benchmark_loads() -> None:
         ("2.0", "single_channel", "parallel_chain", "adversarial"): 14,
         ("2.0", "single_channel", "parallel_chain", "random"): 10,
         ("2.0", "single_channel", "parallel_chain", "real"): 5,
-        ("2.0", "single_channel", "complex_chain", "adversarial"): 17,
-        ("2.0", "single_channel", "complex_chain", "random"): 10,
+        ("2.0", "single_channel", "complex_chain", "adversarial"): 22,
+        ("2.0", "single_channel", "complex_chain", "random"): 20,
+        ("2.0", "single_channel", "complex_chain", "real"): 3,
         ("2.0", "muti_channel", "complex_chain", "adversarial"): 4,
         ("2.0", "muti_channel", "complex_chain", "random"): 10,
     }
@@ -89,6 +90,16 @@ def test_reference_results_recompute_with_exact_oracle() -> None:
         problem = ROOT / "benchmark" / reference.relative_to(ROOT / "benchmark/reference_results")
         result = solve(load_benchmark(problem), payload["oracle"])
         assert result.makespan == payload["optimal_makespan"]
+
+
+def test_stage2_references_record_completed_optimal_status() -> None:
+    root = ROOT / "benchmark/reference_results/single_channel/complex_chain/preemptive"
+    references = sorted(root.rglob("*.json"))
+    assert references
+    for reference in references:
+        payload = json.loads(reference.read_text(encoding="utf-8"))
+        assert payload["oracle_status"] == "optimal"
+        assert payload["oracle_budget"] == {"max_states": 100_000, "time_limit_s": 5.0}
 
 
 def test_historical_counterexample_values_are_preserved() -> None:

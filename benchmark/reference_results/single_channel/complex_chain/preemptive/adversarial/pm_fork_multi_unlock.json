@@ -1,7 +1,14 @@
 {
   "benchmark_id": "pm_fork_multi_unlock",
-  "benchmark_sha256": "2a650f8962ed2f2a862236cbdc5f2964723d6f14de67ca29370dc645269ab9f2",
+  "benchmark_sha256": "a3b82d5456f398a91f534367fd04dcb6874fc940c590dddcaaba4378e1d62768",
   "optimal_makespan": 8,
   "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 7,
+  "oracle_runtime_ms": 2.98839999595657,
+  "oracle_status": "optimal",
   "schema_version": "2.0"
 }

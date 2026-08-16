@@ -26,6 +26,11 @@ def main() -> None:
         choices=("all", "preemptive", "nonpreemptive"),
         default="all",
     )
+    parser.add_argument(
+        "--prefix",
+        type=Path,
+        help="reference command path prefix relative to --output",
+    )
     args = parser.parse_args()
     if args.samples < 0:
         parser.error("--samples must be non-negative")
@@ -33,6 +38,7 @@ def main() -> None:
         written = generate_reference_results(
             args.output,
             category=None if args.category == "all" else args.category,
+            relative_prefix=args.prefix,
         )
         print(
             f"generated {len(written)} exact reference files under {args.output / 'reference_results'}"

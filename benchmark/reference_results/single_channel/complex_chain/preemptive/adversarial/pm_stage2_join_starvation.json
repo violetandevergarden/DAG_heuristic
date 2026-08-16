@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_stage2_join_starvation",
+  "benchmark_sha256": "a41b472c8b7c76da837ae8e37b679bbf489522e669ac46428b45cd90715a6f51",
+  "optimal_makespan": 10,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 6,
+  "oracle_runtime_ms": 1.6274999943561852,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

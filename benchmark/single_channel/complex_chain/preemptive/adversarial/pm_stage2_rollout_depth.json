@@ -1,0 +1,159 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage2_rollout_depth",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "Depth-one rollout misses a two-decision investment across nested joins.",
+    "designed_for": "communication_resume",
+    "generator": "complex_chain",
+    "parameters": {
+      "attack_target": "finite_depth_rollout",
+      "discovery_index": "129",
+      "discovery_seed": "26081622",
+      "exact_makespan": "21",
+      "rollout_k2_d1": "22",
+      "rollout_k2_d2": "21"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": "preemptive_only",
+    "stage2_group": "structural_adversarial"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "l0_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "l0_n1",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 5,
+      "id": "l0_n2",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l0_n1",
+        "l0_n2"
+      ],
+      "duration": 7,
+      "id": "l1_n0",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l0_n0",
+        "l0_n1",
+        "l0_n2"
+      ],
+      "duration": 6,
+      "id": "l1_n1",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l0_n2"
+      ],
+      "duration": 3,
+      "id": "l1_n2",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l1_n0"
+      ],
+      "duration": 5,
+      "id": "l2_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l1_n0",
+        "l1_n1",
+        "l1_n2"
+      ],
+      "duration": 2,
+      "id": "l2_n1",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l1_n1"
+      ],
+      "duration": 6,
+      "id": "l2_n2",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}
