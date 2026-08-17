@@ -120,6 +120,11 @@ class PreemptiveScheduleResult:
     planner_triggered: int = 0
     planner_improvements: int = 0
     completion_calls: int = 0
+    choice_gate_ms: float = 0.0
+    cheap_feature_ms: float = 0.0
+    expensive_feature_ms: float = 0.0
+    candidate_generation_ms: float = 0.0
+    completion_ms: float = 0.0
 
 
 class PreemptiveDAGModel:

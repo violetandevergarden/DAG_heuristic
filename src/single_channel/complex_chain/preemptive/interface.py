@@ -44,6 +44,10 @@ def solve(
         ),
         "barrier_safeguarded": solver.schedule_barrier_safeguarded,
         "barrier_selective_rollout": solver.schedule_selective_barrier_rollout,
+        "selective_rollout": lambda item: __import__(
+            "single_channel.complex_chain.preemptive.selective_rollout",
+            fromlist=["schedule_selective_rollout"],
+        ).schedule_selective_rollout(item),
         "rollout2": solver.schedule_rollout,
         "beam8": lambda item: solver.beam_search(item, width=8),
         "exact": solver.exact_oracle,
@@ -54,6 +58,9 @@ def solve(
     except KeyError as error:
         raise ValueError(f"unknown preemptive complex-chain algorithm: {algorithm}") from error
     if options:
+        if algorithm == "selective_rollout":
+            from single_channel.complex_chain.preemptive.selective_rollout import schedule_selective_rollout
+            return schedule_selective_rollout(dag, **options)  # type: ignore[arg-type]
         if algorithm == "rollout2":
             return solver.schedule_rollout(dag, **options)  # type: ignore[arg-type]
         if algorithm == "beam8":
