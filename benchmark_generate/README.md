@@ -6,15 +6,18 @@
 
 ```text
 benchmark_generate/
-├── __main__.py                 # `python -m benchmark_generate` 入口
+├── __main__.py                 # `python -m benchmark_generate` 入口（all/random/reference/llm）
 ├── export.py                   # 统一导出两种 semantics 并生成索引
 ├── layout.py                   # 两种语义共享的规范路径构造
 ├── cases.py                    # 随机、反例、LLM motif 和小拓扑 route 样例
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
+├── llm_structure.py            # 真实 AICB 语料 + 真实拓扑 -> benchmark/llm_structure
+├── stage4.py                   # Stage 4a generate/probe/publish 事务工作流
 └── simai/
     ├── bootstrap.py            # 查找可选 SimAI checkout
-    └── export.py               # AICB/pipeline workload 转标准 benchmark
+    ├── export.py               # AICB/pipeline workload 转标准 benchmark
+    └── projection.py           # 导出后资源重标记与示例 workload 1:1 投影
 ```
 
 顶层生成代码不依赖 SimAI。只有 `simai/` 可以导入外部模拟器。
@@ -101,6 +104,18 @@ sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算
 
 `export_semantic_suite` 只写入调用者显式选择的 semantics；随后由 `build_index`
 把输出目录中的合法问题纳入索引。生成器不会自动判断旧文件是否应该删除，改变固定集合后必须检查是否存在过期文件。
+
+## Stage 4a 事务工作流
+
+真实 LLM 语料不再使用“先删除正式目录、再生成和回放”的单一命令。请使用：
+
+```powershell
+python -m benchmark_generate.stage4 --mode generate --output benchmark
+python -m benchmark_generate.stage4 --mode probe --output benchmark --fast
+python -m benchmark_generate.stage4 --mode publish --output benchmark
+```
+
+`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe` 为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 probe 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。probe 报告保存在仓库根目录 `stage4_probe/`，不属于 benchmark 输入。
 
 ## 从 SimAI 生成真实 DAG
 

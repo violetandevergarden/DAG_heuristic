@@ -103,6 +103,7 @@ class PreemptiveScheduleResult:
     explored_states: int = 0
     generated_transitions: int = 0
     deduplicated_states: int = 0
+    memo_hits: int = 0
     pruned_states: int = 0
     incumbent_prunes: int = 0
     lower_bound_prunes: int = 0

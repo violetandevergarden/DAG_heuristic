@@ -7,10 +7,10 @@ non-preemptive registry or benchmark semantics.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import replace
-from functools import lru_cache
+from functools import cache
 from time import perf_counter
-from typing import Sequence
 
 from core.dag import BenchmarkDAG, BenchTask
 from core.execution.preemptive import (
@@ -179,44 +179,54 @@ def build_exchangeable_replicas(replicas: int) -> tuple[BenchmarkDAG, tuple[tupl
     )
 
 
-def exact_oracle_component_symmetry(
+def exact_oracle_paired(
     dag: BenchmarkDAG,
     components: Sequence[Sequence[str]],
     *,
+    quotient: bool,
+    resources: dict[str, frozenset] | None = None,
     max_states: int = 500_000,
     time_limit_s: float | None = None,
 ) -> PreemptiveScheduleResult:
-    """Exact event search modulo permutations of proven-identical components.
+    """Exact event search with two memo keys that differ ONLY in the symmetry key.
 
-    Validation requires identical labels/durations and identical dependency
-    positions with no edge crossing between components.  Under that condition,
-    component permutation is a DAG automorphism, so sorting component runtime
-    vectors is an exact quotient, not a heuristic hash collision.
+    ``quotient=False`` keys each state by instance identity (task index ->
+    runtime status/remaining); ``quotient=True`` additionally sorts the
+    runtime vectors of the certified identical components.  Transitions,
+    action enumeration order, budget checks and the extraction loop are
+    byte-identical between the two modes, so the difference in explored /
+    generated states isolates the symmetry quotient's contribution instead of
+    comparing two different exact implementations.
     """
 
     model = PreemptiveDAGModel(dag)
-    aligned = _validate_exchangeable_components(model, components)
+    aligned = _validate_exchangeable_components(model, components, resources)
     covered = {index for component in aligned for index in component}
     fixed = tuple(index for index in range(len(model.tasks)) if index not in covered)
     representatives: dict[tuple, ScheduleState] = {}
     started = perf_counter()
     explored = 0
+    generated_transitions = 0
 
     def runtime_key(state: ScheduleState, index: int) -> tuple[str, int]:
         runtime = state.tasks[index]
         return runtime.status, runtime.remaining
 
     def key(state: ScheduleState) -> tuple:
-        component_states = tuple(sorted(
-            tuple(runtime_key(state, index) for index in component)
-            for component in aligned
-        ))
-        fixed_state = tuple((index, runtime_key(state, index)) for index in fixed)
-        return component_states, fixed_state
+        if quotient:
+            component_states = tuple(sorted(
+                tuple(runtime_key(state, index) for index in component)
+                for component in aligned
+            ))
+            fixed_state = tuple((index, runtime_key(state, index)) for index in fixed)
+            return component_states, fixed_state
+        return tuple(
+            (index, runtime_key(state, index)) for index in range(len(model.tasks))
+        )
 
-    @lru_cache(maxsize=None)
+    @cache
     def value(state_key: tuple) -> int:
-        nonlocal explored
+        nonlocal explored, generated_transitions
         explored += 1
         if explored > max_states:
             raise RuntimeError("symmetry oracle exceeded state limit")
@@ -231,6 +241,7 @@ def exact_oracle_component_symmetry(
         best: int | None = None
         for action in actions:
             after = model.step(state, action).after
+            generated_transitions += 1
             child = key(after)
             representatives.setdefault(child, after)
             candidate = after.time - state.time + value(child)
@@ -264,13 +275,84 @@ def exact_oracle_component_symmetry(
         actions.append(action)
     trace = model.run(actions)
     assert_preemptive_trace(model, trace)
-    return replace(result_from_trace(trace), explored_states=explored)
+    return replace(
+        result_from_trace(trace),
+        explored_states=explored,
+        generated_transitions=generated_transitions,
+        deduplicated_states=value.cache_info().hits,
+        memo_hits=value.cache_info().hits,
+        status="optimal",
+        termination_reason="complete_enumeration",
+    )
+
+
+def exact_oracle_component_symmetry(
+    dag: BenchmarkDAG,
+    components: Sequence[Sequence[str]],
+    *,
+    max_states: int = 500_000,
+    time_limit_s: float | None = None,
+) -> PreemptiveScheduleResult:
+    """Symmetry-quotient exact (kept for backward compatibility).
+
+    New experiments should prefer :func:`exact_oracle_paired` so the generic
+    and quotient runs share one implementation; the pair isolates the key's
+    contribution.
+    """
+
+    return exact_oracle_paired(
+        dag,
+        components,
+        quotient=True,
+        max_states=max_states,
+        time_limit_s=time_limit_s,
+    )
+
+
+def adversarial_packing_trap() -> BenchmarkDAG:
+    """Wide communication A owns both resources; B and C own one each.
+
+    A longest-remaining-flow-first seed (A, 8) serializes B and C and yields
+    18, while packing {B, C} in parallel yields 13.  The trap targets seed
+    selection that ignores conflict structure, not the maximal-completion
+    semantics itself.
+    """
+
+    return BenchmarkDAG(
+        "packing_trap",
+        "adversarial",
+        (
+            BenchTask("a", "comm", 8, (), role="WIDE",
+                      labels=(("parallelism_dimension", "wide"),)),
+            BenchTask("a1", "compute", 1, ("a",), role="TAIL"),
+            BenchTask("b", "comm", 4, (), role="NARROW",
+                      labels=(("parallelism_dimension", "b"),)),
+            BenchTask("b1", "compute", 6, ("b",), role="TAIL"),
+            BenchTask("c", "comm", 4, (), role="NARROW",
+                      labels=(("parallelism_dimension", "c"),)),
+            BenchTask("c1", "compute", 6, ("c",), role="TAIL"),
+        ),
+        "Packing trap: flow-size-first seed gives 18; parallel {b, c} seed gives 13.",
+        (("structure", "packing_trap"),),
+    )
 
 
 def _validate_exchangeable_components(
     model: PreemptiveDAGModel,
     components: Sequence[Sequence[str]],
+    resources: dict[str, frozenset] | None = None,
 ) -> tuple[tuple[int, ...], ...]:
+    """Certify that component permutation preserves every scheduling-relevant fact.
+
+    The certificate covers: disjoint equal-width components; identical
+    (kind, duration, role, labels) per position; identical intra-component
+    dependency shape with no cross-component edges; and, when ``resources``
+    is given (fixed multi-resource lift), identical resource sets per
+    position.  Under these conditions component permutation is an automorphism
+    of the labelled DAG plus resource mapping, so sorting component runtime
+    vectors is an exact quotient rather than a heuristic hash.
+    """
+
     if not components:
         raise ValueError("at least one symmetry component is required")
     normalized = tuple(
@@ -292,12 +374,18 @@ def _validate_exchangeable_components(
         for position, index in enumerate(component):
             task = model.tasks[index]
             expected = model.tasks[reference[position]]
-            if (task.kind, task.duration, task.role) != (
+            if (task.kind, task.duration, task.role, task.labels) != (
                 expected.kind,
                 expected.duration,
                 expected.role,
+                expected.labels,
             ):
                 raise ValueError("component task labels are not identical")
+            if resources is not None:
+                own = resources.get(task.task_id, frozenset())
+                expected_set = resources.get(expected.task_id, frozenset())
+                if own != expected_set:
+                    raise ValueError("component resource sets are not identical")
             relative_deps = []
             for parent in model.deps[index]:
                 location = owner.get(parent)

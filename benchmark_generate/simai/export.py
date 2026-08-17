@@ -1,14 +1,22 @@
-"""Convert a SimAI pipeline workload into a standalone DAG benchmark."""
+"""Convert a SimAI pipeline workload into a standalone preemptive DAG benchmark.
+
+The exported benchmark is a schema-v2 fixed-resource preemptive instance:
+communication pause/resume with remaining-work conservation, task-event
+decision epochs, no voluntary idle, and exclusive fixed resource sets.  Callers
+must choose the public ``category`` explicitly; there is no silent default
+that decides between historical and current semantics.
+"""
 
 from __future__ import annotations
 
 import argparse
-from dataclasses import dataclass
+import hashlib
+import json
 import math
+import subprocess
+from dataclasses import dataclass
+from itertools import pairwise
 from pathlib import Path
-
-from benchmark import Benchmark, Resource, Task as BenchmarkTask, write_benchmark
-from benchmark_generate.simai.bootstrap import SIMAI_ROOT  # noqa: F401
 
 from src.static_analysis.passes.pipeline_task_serializers import (
     BidirectionalPipelineSerializer,
@@ -19,7 +27,7 @@ from src.static_analysis.passes.pipeline_task_serializers import (
 from src.static_analysis.passes.routing import BfsStrategy
 from src.static_analysis.passes.task_serializer import ExecutionPlan, OneFOneBSerializer
 from src.static_analysis.passes.topology_loader import TopologyLoader
-from src.workload_format.schema import Job, ParallelismConfig, P2PWorkload
+from src.workload_format.schema import Job, P2PWorkload, ParallelismConfig
 from src.workload_generator.aicb_parser import AicbHeader, AicbParser, AicbWorkItem
 from src.workload_generator.builders.bidirectional_pipeline_builder import (
     BidirectionalPipelineWorkloadBuilder,
@@ -36,8 +44,63 @@ from src.workload_generator.builders.zero_bubble_pipeline_builder import (
 from src.workload_generator.rank_grouper import MegatronRankGrouper
 from src.workload_generator.workload_builder import WorkloadBuilder
 
+from benchmark import (
+    Benchmark,
+    Resource,
+    SchedulingSemantics,
+    write_benchmark,
+)
+from benchmark import (
+    Task as BenchmarkTask,
+)
+from benchmark_generate.simai.bootstrap import SIMAI_ROOT  # noqa: F401
 
 MODES = ("1f1b", "interleaved_1f1b", "zero_bubble", "bidirectional", "dualpipe")
+
+PUBLIC_CATEGORIES = ("random", "adversarial", "real")
+
+SEMANTIC_CONTRACT_VERSION = "llm-v1"
+CONVERTER_VERSION = "1.2.0"
+
+
+def preemptive_semantics() -> SchedulingSemantics:
+    """The sole production contract for Stage 4 exports (schema v2)."""
+
+    return SchedulingSemantics(
+        preemption="communication_resume",
+        decision_epoch="task_event",
+        optional_idle=False,
+        compute_model="unbounded_parallel",
+        resource_model="exclusive_fixed_set",
+        preemption_cost=0,
+        minimum_quantum=0,
+    )
+
+
+def content_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def git_commit(path: Path) -> str | None:
+    """Return the current git commit of ``path`` when the checkout is cleanly available."""
+
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return completed.stdout.strip() or None
+
+
+def canonical_parameter_hash(parameters: dict) -> str:
+    return hashlib.sha256(
+        json.dumps(parameters, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -190,7 +253,7 @@ def _effective_dependencies(built: BuiltWorkload) -> dict[int, set[int]]:
         for task in built.workload.tasks
     }
     for order in built.plan.compute_order.values():
-        for source, target in zip(order, order[1:]):
+        for source, target in pairwise(order):
             dependencies[target].add(source)
     return dependencies
 
@@ -202,10 +265,32 @@ def to_benchmark(
     bandwidth_gbps: float = 200.0,
     topology_path: Path | None = None,
     include_nic_resources: bool = True,
+    category: str | None = None,
+    projection_relation: str = "synthetic_motif",
+    transform_log: tuple[str, ...] = (),
+    provenance: dict | None = None,
+    suite: str | None = None,
+    workload_origin: str | None = None,
+    topology_origin: str | None = None,
+    source_world_size: int | None = None,
+    source_dp: int | None = None,
+    effective_world_size: int | None = None,
+    dp_rewrite: bool = False,
 ) -> Benchmark:
-    """Project a SimAI workload into the repository's non-preemptive model."""
+    """Project a SimAI workload into a schema-v2 preemptive fixed-resource benchmark.
+
+    ``category`` (one of :data:`PUBLIC_CATEGORIES`) is mandatory: the
+    historical exporter silently produced non-preemptive ``category="real"``
+    output, and that default must never decide semantics or data provenance
+    again.  Synthetic bootstrap input must therefore never be labelled
+    ``real``.
+    """
     if bandwidth_gbps <= 0:
         raise ValueError("bandwidth_gbps must be positive")
+    if category not in PUBLIC_CATEGORIES:
+        raise ValueError(
+            f"category must be one of {PUBLIC_CATEGORIES}; got {category!r}"
+        )
     bytes_per_us = bandwidth_gbps * 125.0
     dependencies = _effective_dependencies(built)
     route_resources: dict[int, tuple[str, ...]] = {}
@@ -225,7 +310,7 @@ def to_benchmark(
                 continue
             path = routes.get_path(task)
             names = []
-            for source, target in zip(path, path[1:]):
+            for source, target in pairwise(path):
                 name = f"link:{source}->{target}"
                 names.append(name)
                 resources[name] = Resource(name, "directed_link")
@@ -256,7 +341,9 @@ def to_benchmark(
         }
         endpoint = task.node if is_compute else task.src
         if endpoint is not None:
-            metadata["physical_stage_id"] = endpoint // stage_width
+            stage = endpoint // stage_width
+            metadata["physical_stage_id"] = stage
+            metadata["pipeline_stage"] = stage
         strategy_info = built.task_info.get(task.task_id)
         if strategy_info is not None:
             # Strategy-specific pipeline builders deliberately keep these
@@ -276,12 +363,16 @@ def to_benchmark(
         )
         if is_compute:
             metadata["rank"] = task.node
+            metadata["layer_or_block_id"] = task.layer_id
         else:
             metadata.update({
                 "src": task.src,
                 "dst": task.dst,
                 "size_bytes": task.size_bytes,
                 "comm_type": task.comm_type.value,
+                "collective_type": task.comm_type.value,
+                "parallelism_dimension": task.comm_type.value.split("_", 1)[0],
+                "layer_or_block_id": task.layer_id,
             })
         if "task_role" not in metadata:
             if not is_compute:
@@ -314,13 +405,42 @@ def to_benchmark(
             resources=() if is_compute else route_resources[task.task_id],
             metadata=metadata,
         ))
+    provenance_record = dict(provenance or {})
+    provenance_record.setdefault(
+        "converter",
+        {"name": "benchmark_generate.simai.export", "version": CONVERTER_VERSION},
+    )
+    provenance_record.setdefault(
+        "parameters",
+        {
+            "bandwidth_gbps": bandwidth_gbps,
+            "pipeline_mode": built.mode,
+            "include_nic_resources": include_nic_resources,
+        },
+    )
+    provenance_record["semantic_contract_version"] = SEMANTIC_CONTRACT_VERSION
+    if suite is not None:
+        provenance_record["suite"] = suite
+    if workload_origin is not None:
+        provenance_record["workload_origin"] = workload_origin
+    if topology_origin is not None:
+        provenance_record["topology_origin"] = topology_origin
+    if source_world_size is not None:
+        provenance_record["source_world_size"] = source_world_size
+    if source_dp is not None:
+        provenance_record["source_dp"] = source_dp
+    if effective_world_size is not None:
+        provenance_record["effective_world_size"] = effective_world_size
+    provenance_record["dp_rewrite"] = bool(dp_rewrite)
     return Benchmark(
         benchmark_id=benchmark_id,
         scenario=scenario,
         family="complex_chain",
-        category="real",
+        category=category,
         tasks=tuple(tasks),
         resources=tuple(resources[name] for name in sorted(resources)),
+        semantics=preemptive_semantics(),
+        schema_version="2.0",
         time_unit="us",
         metadata={
             "source": "simai-flow-scheduler",
@@ -334,8 +454,68 @@ def to_benchmark(
                 "ep": parallelism.ep,
             },
             "gradient_accumulation": built.header.ga,
+            "semantic_contract_version": SEMANTIC_CONTRACT_VERSION,
+            "projection_relation": projection_relation,
+            "projection_relations": [projection_relation],
+            "suite": suite,
+            "workload_origin": workload_origin,
+            "topology_origin": topology_origin,
+            "source_world_size": source_world_size,
+            "source_dp": source_dp,
+            "effective_world_size": effective_world_size,
+            "dp_rewrite": bool(dp_rewrite),
+            "transform_log": list(transform_log),
+            "provenance": provenance_record,
         },
     )
+
+
+def _build_transform_log(
+    built: BuiltWorkload,
+    *,
+    topology_path: Path | None,
+    bandwidth_gbps: float,
+    include_nic_resources: bool,
+) -> tuple[str, ...]:
+    log = [
+        "workload compute/flow tasks mapped 1:1 to DAG compute/communication tasks",
+        (
+            f"communication duration = ceil(size_bytes / (bandwidth_gbps*125 us/byte)) "
+            f"with bandwidth_gbps={bandwidth_gbps}"
+        ),
+        f"compute serializer order edges added by {type_name(built)}",
+    ]
+    if topology_path is not None:
+        log.append(
+            "routes frozen to directed link resources"
+            + (" plus per-endpoint nic_tx/nic_rx" if include_nic_resources else "")
+        )
+    else:
+        log.append("all communications share the unified bottleneck resource channel:0")
+    return tuple(log)
+
+
+def type_name(built: BuiltWorkload) -> str:
+    return f"pipeline serializer ({built.mode})"
+
+
+def raw_b_to_w_edges(built: BuiltWorkload) -> int:
+    """Count data-DAG B -> W edges before compute-order serialization."""
+
+    task_by_id = {task.task_id: task for task in built.workload.tasks}
+    count = 0
+    for task_id, info in built.task_info.items():
+        if getattr(info, "task_role", None) != "W":
+            continue
+        task = task_by_id[task_id]
+        if any(
+            getattr(built.task_info.get(parent), "task_role", None) == "B"
+            and getattr(built.task_info.get(parent), "b_task_id", None)
+            == getattr(info, "b_task_id", None)
+            for parent in task.deps
+        ):
+            count += 1
+    return count
 
 
 def main() -> None:
@@ -347,21 +527,99 @@ def main() -> None:
     parser.add_argument("--topology", type=Path, help="When set, emit fixed route resources")
     parser.add_argument("--bandwidth-gbps", type=float, default=200.0)
     parser.add_argument("--vpp", type=int, default=2)
+    parser.add_argument(
+        "--category",
+        choices=PUBLIC_CATEGORIES,
+        default=None,
+        help="Public coarse category; defaults to real for AICB input, random otherwise",
+    )
+    parser.add_argument(
+        "--projection-relation",
+        default=None,
+        help=(
+            "Projection relation: synthetic_motif, relaxation_unified_channel, "
+            "route_frozen_projection, or another documented contract"
+        ),
+    )
+    parser.add_argument("--manifest", type=Path, help="Optional collection manifest JSONL to append")
     args = parser.parse_args()
+
+    source_kind = "aicb" if args.aicb else "synthetic_bootstrap"
+    category = args.category or ("real" if args.aicb else "random")
+    projection_relation = args.projection_relation or (
+        "synthetic_motif"
+        if not args.aicb
+        else ("route_frozen_projection" if args.topology else "relaxation_unified_channel")
+    )
+
+    source_provenance: dict = {"kind": source_kind}
+    if args.aicb:
+        source_provenance.update(
+            {"name": args.aicb.name, "content_hash": content_sha256(args.aicb)}
+        )
+    else:
+        source_provenance["name"] = "synthetic_bootstrap"
+    topology_provenance: dict | None = None
+    if args.topology:
+        topology_provenance = {
+            "name": args.topology.name,
+            "content_hash": content_sha256(args.topology),
+        }
 
     if args.aicb:
         header, items = AicbParser().parse(args.aicb)
     else:
         header, items = build_synthetic_input()
     built = build_workload(args.mode, header, items, vpp=args.vpp)
+    transform_log = _build_transform_log(
+        built,
+        topology_path=args.topology,
+        bandwidth_gbps=args.bandwidth_gbps,
+        include_nic_resources=True,
+    )
+    provenance = {
+        "source": source_provenance,
+        "tool_version_or_commit": git_commit(Path(__file__).resolve().parents[2]),
+        "parameters": {
+            "mode": args.mode,
+            "vpp": args.vpp,
+            "bandwidth_gbps": args.bandwidth_gbps,
+        },
+    }
+    if topology_provenance is not None:
+        provenance["topology"] = topology_provenance
     benchmark = to_benchmark(
         built,
         args.benchmark_id,
         bandwidth_gbps=args.bandwidth_gbps,
         topology_path=args.topology,
+        category=category,
+        projection_relation=projection_relation,
+        transform_log=transform_log,
+        provenance=provenance,
     )
     write_benchmark(benchmark, args.output)
     print(f"wrote {benchmark.benchmark_id} with {len(benchmark.tasks)} tasks to {args.output}")
+
+    if args.manifest is not None:
+        args.manifest.parent.mkdir(parents=True, exist_ok=True)
+        entry = {
+            "path": str(args.output.resolve()),
+            "benchmark_id": benchmark.benchmark_id,
+            "category": category,
+            "scenario": benchmark.scenario,
+            "semantic_contract_version": SEMANTIC_CONTRACT_VERSION,
+            "projection_relation": projection_relation,
+            "converter_version": CONVERTER_VERSION,
+            "benchmark_content_hash": content_sha256(args.output),
+            "source": source_provenance,
+            "topology": topology_provenance,
+        }
+        with args.manifest.open("a", encoding="utf-8", newline="\n") as handle:
+            handle.write(
+                json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n"
+            )
+        print(f"appended manifest entry to {args.manifest}")
 
 
 if __name__ == "__main__":

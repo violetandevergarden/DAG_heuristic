@@ -9,7 +9,32 @@ from core.dag import BenchmarkDAG, BenchTask
 
 
 def to_internal_dag(benchmark: Benchmark) -> BenchmarkDAG:
-    """Convert a neutral benchmark without changing its scheduling semantics."""
+    """Convert a neutral benchmark without changing its scheduling semantics.
+
+    Stage 4 structural labels (phase, micro-batch, pipeline stage,
+    parallelism dimension, collective type, layer/block and repetition group)
+    are carried into the read-only ``BenchTask.labels`` field of the formal
+    algorithm input.  Algorithms must read these labels from the formal input;
+    they may not read answer-hinting ``metadata``.
+    """
+
+    label_keys = (
+        "phase",
+        "microbatch_id",
+        "pipeline_stage",
+        "parallelism_dimension",
+        "collective_type",
+        "layer_or_block_id",
+        "repetition_group",
+        "task_role",
+    )
+
+    def extract_labels(metadata: dict) -> tuple[tuple[str, str], ...]:
+        labels = []
+        for key in label_keys:
+            if key in metadata and metadata[key] is not None:
+                labels.append((key, str(metadata[key])))
+        return tuple(labels)
 
     return BenchmarkDAG(
         name=benchmark.benchmark_id,
@@ -24,6 +49,7 @@ def to_internal_dag(benchmark: Benchmark) -> BenchmarkDAG:
                     task.metadata.get("task_role", task.metadata.get("role", ""))
                 ),
                 cut=str(task.metadata.get("cut", "")),
+                labels=extract_labels(task.metadata),
             )
             for task in benchmark.tasks
         ),

@@ -1,0 +1,3796 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "simai_example_multi_job_1to1",
+  "metadata": {
+    "projection_relation": "relaxation_isolated_dimensions",
+    "provenance": {
+      "converter": {
+        "name": "benchmark_generate.simai.projection",
+        "version": "1.0.0"
+      },
+      "semantic_contract_version": "llm-v1",
+      "source": {
+        "content_hash": "ebe5fd3bbb591313294e272ea10ff89319cc529638f0a72d056f5b3b38f19c2e",
+        "kind": "simai_example_workload",
+        "name": "multi_job_workload.json"
+      },
+      "tool_version_or_commit": "7839817d879a783039a530470221047f27bbdf45"
+    },
+    "semantic_contract_version": "llm-v1",
+    "source": "simai-flow-scheduler example workload",
+    "transform_log": [
+      "1:1 workload projection; jobs merged into one DAG with prefixed task ids and per-task job_id labels",
+      "each communication assigned one fabric per parallelism dimension"
+    ]
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "fabric:tp",
+      "kind": "fabric"
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "j0:0",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "j0:1",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "j0:2",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "j0:3",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:0"
+      ],
+      "duration": 2685,
+      "id": "j0:4",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:1"
+      ],
+      "duration": 2685,
+      "id": "j0:5",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:2"
+      ],
+      "duration": 2685,
+      "id": "j0:6",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:3"
+      ],
+      "duration": 2685,
+      "id": "j0:7",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:33"
+      ],
+      "duration": 2000,
+      "id": "j0:8",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:32"
+      ],
+      "duration": 2000,
+      "id": "j0:9",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:35"
+      ],
+      "duration": 2000,
+      "id": "j0:10",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:34"
+      ],
+      "duration": 2000,
+      "id": "j0:11",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:8"
+      ],
+      "duration": 2685,
+      "id": "j0:12",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:9"
+      ],
+      "duration": 2685,
+      "id": "j0:13",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:10"
+      ],
+      "duration": 2685,
+      "id": "j0:14",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:11"
+      ],
+      "duration": 2685,
+      "id": "j0:15",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:13"
+      ],
+      "duration": 500,
+      "id": "j0:16",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:12"
+      ],
+      "duration": 500,
+      "id": "j0:17",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:15"
+      ],
+      "duration": 500,
+      "id": "j0:18",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:14"
+      ],
+      "duration": 500,
+      "id": "j0:19",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:5"
+      ],
+      "duration": 1500,
+      "id": "j0:20",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:4"
+      ],
+      "duration": 1500,
+      "id": "j0:21",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:7"
+      ],
+      "duration": 1500,
+      "id": "j0:22",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:6"
+      ],
+      "duration": 1500,
+      "id": "j0:23",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:20"
+      ],
+      "duration": 2685,
+      "id": "j0:24",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:21"
+      ],
+      "duration": 2685,
+      "id": "j0:25",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:22"
+      ],
+      "duration": 2685,
+      "id": "j0:26",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:23"
+      ],
+      "duration": 2685,
+      "id": "j0:27",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:25"
+      ],
+      "duration": 2500,
+      "id": "j0:28",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:24"
+      ],
+      "duration": 2500,
+      "id": "j0:29",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:27"
+      ],
+      "duration": 2500,
+      "id": "j0:30",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:26"
+      ],
+      "duration": 2500,
+      "id": "j0:31",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:28"
+      ],
+      "duration": 2685,
+      "id": "j0:32",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:29"
+      ],
+      "duration": 2685,
+      "id": "j0:33",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:30"
+      ],
+      "duration": 2685,
+      "id": "j0:34",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:31"
+      ],
+      "duration": 2685,
+      "id": "j0:35",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j0:33"
+      ],
+      "duration": 600,
+      "id": "j0:36",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:32"
+      ],
+      "duration": 600,
+      "id": "j0:37",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:35"
+      ],
+      "duration": 600,
+      "id": "j0:38",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j0:34"
+      ],
+      "duration": 600,
+      "id": "j0:39",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 800,
+      "id": "j1:40",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 800,
+      "id": "j1:41",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 800,
+      "id": "j1:42",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 800,
+      "id": "j1:43",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:44",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:45",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:46",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:47",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:47",
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:48",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:44",
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:49",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:45",
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:50",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:46",
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:51",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:51",
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:52",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:48",
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:53",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:49",
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:54",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:50",
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:55",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:55",
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:56",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:52",
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:57",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:53",
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:58",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:54",
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:59",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:59",
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:60",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:56",
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:61",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:57",
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:62",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:58",
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:63",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:63",
+        "j1:40"
+      ],
+      "duration": 672,
+      "id": "j1:64",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:60",
+        "j1:41"
+      ],
+      "duration": 672,
+      "id": "j1:65",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:61",
+        "j1:42"
+      ],
+      "duration": 672,
+      "id": "j1:66",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:62",
+        "j1:43"
+      ],
+      "duration": 672,
+      "id": "j1:67",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:135",
+        "j1:139",
+        "j1:143",
+        "j1:147",
+        "j1:151",
+        "j1:155"
+      ],
+      "duration": 1200,
+      "id": "j1:68",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:132",
+        "j1:136",
+        "j1:140",
+        "j1:144",
+        "j1:148",
+        "j1:152"
+      ],
+      "duration": 1200,
+      "id": "j1:69",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:133",
+        "j1:137",
+        "j1:141",
+        "j1:145",
+        "j1:149",
+        "j1:153"
+      ],
+      "duration": 1200,
+      "id": "j1:70",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:134",
+        "j1:138",
+        "j1:142",
+        "j1:146",
+        "j1:150",
+        "j1:154"
+      ],
+      "duration": 1200,
+      "id": "j1:71",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:72",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:73",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:74",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:75",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:75",
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:76",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:72",
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:77",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:73",
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:78",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:74",
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:79",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:79",
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:80",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:76",
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:81",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:77",
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:82",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:78",
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:83",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:83",
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:84",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:80",
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:85",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:81",
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:86",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:82",
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:87",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:87",
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:88",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:84",
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:89",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:85",
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:90",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:86",
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:91",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:91",
+        "j1:68"
+      ],
+      "duration": 672,
+      "id": "j1:92",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:88",
+        "j1:69"
+      ],
+      "duration": 672,
+      "id": "j1:93",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:89",
+        "j1:70"
+      ],
+      "duration": 672,
+      "id": "j1:94",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:90",
+        "j1:71"
+      ],
+      "duration": 672,
+      "id": "j1:95",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:75",
+        "j1:79",
+        "j1:83",
+        "j1:87",
+        "j1:91",
+        "j1:95"
+      ],
+      "duration": 400,
+      "id": "j1:96",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:72",
+        "j1:76",
+        "j1:80",
+        "j1:84",
+        "j1:88",
+        "j1:92"
+      ],
+      "duration": 400,
+      "id": "j1:97",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:73",
+        "j1:77",
+        "j1:81",
+        "j1:85",
+        "j1:89",
+        "j1:93"
+      ],
+      "duration": 400,
+      "id": "j1:98",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:74",
+        "j1:78",
+        "j1:82",
+        "j1:86",
+        "j1:90",
+        "j1:94"
+      ],
+      "duration": 400,
+      "id": "j1:99",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:47",
+        "j1:51",
+        "j1:55",
+        "j1:59",
+        "j1:63",
+        "j1:67"
+      ],
+      "duration": 900,
+      "id": "j1:100",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:44",
+        "j1:48",
+        "j1:52",
+        "j1:56",
+        "j1:60",
+        "j1:64"
+      ],
+      "duration": 900,
+      "id": "j1:101",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:45",
+        "j1:49",
+        "j1:53",
+        "j1:57",
+        "j1:61",
+        "j1:65"
+      ],
+      "duration": 900,
+      "id": "j1:102",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:46",
+        "j1:50",
+        "j1:54",
+        "j1:58",
+        "j1:62",
+        "j1:66"
+      ],
+      "duration": 900,
+      "id": "j1:103",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:104",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:105",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:106",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:107",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:107",
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:108",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:104",
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:109",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:105",
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:110",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:106",
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:111",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:111",
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:112",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:108",
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:113",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:109",
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:114",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:110",
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:115",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:115",
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:116",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:112",
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:117",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:113",
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:118",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:114",
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:119",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:119",
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:120",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:116",
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:121",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:117",
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:122",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:118",
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:123",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:123",
+        "j1:100"
+      ],
+      "duration": 672,
+      "id": "j1:124",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:120",
+        "j1:101"
+      ],
+      "duration": 672,
+      "id": "j1:125",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:121",
+        "j1:102"
+      ],
+      "duration": 672,
+      "id": "j1:126",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:122",
+        "j1:103"
+      ],
+      "duration": 672,
+      "id": "j1:127",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:107",
+        "j1:111",
+        "j1:115",
+        "j1:119",
+        "j1:123",
+        "j1:127"
+      ],
+      "duration": 1300,
+      "id": "j1:128",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:104",
+        "j1:108",
+        "j1:112",
+        "j1:116",
+        "j1:120",
+        "j1:124"
+      ],
+      "duration": 1300,
+      "id": "j1:129",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:105",
+        "j1:109",
+        "j1:113",
+        "j1:117",
+        "j1:121",
+        "j1:125"
+      ],
+      "duration": 1300,
+      "id": "j1:130",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:106",
+        "j1:110",
+        "j1:114",
+        "j1:118",
+        "j1:122",
+        "j1:126"
+      ],
+      "duration": 1300,
+      "id": "j1:131",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:132",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:133",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:134",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:135",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:135",
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:136",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:132",
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:137",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:133",
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:138",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:134",
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:139",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:139",
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:140",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:136",
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:141",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:137",
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:142",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:138",
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:143",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:143",
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:144",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:140",
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:145",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:141",
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:146",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:142",
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:147",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:147",
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:148",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:144",
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:149",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:145",
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:150",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:146",
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:151",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:151",
+        "j1:128"
+      ],
+      "duration": 672,
+      "id": "j1:152",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:148",
+        "j1:129"
+      ],
+      "duration": 672,
+      "id": "j1:153",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:149",
+        "j1:130"
+      ],
+      "duration": 672,
+      "id": "j1:154",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:150",
+        "j1:131"
+      ],
+      "duration": 672,
+      "id": "j1:155",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "fabric:tp"
+      ]
+    },
+    {
+      "dependencies": [
+        "j1:135",
+        "j1:139",
+        "j1:143",
+        "j1:147",
+        "j1:151",
+        "j1:155"
+      ],
+      "duration": 450,
+      "id": "j1:156",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 4,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:132",
+        "j1:136",
+        "j1:140",
+        "j1:144",
+        "j1:148",
+        "j1:152"
+      ],
+      "duration": 450,
+      "id": "j1:157",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 5,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:133",
+        "j1:137",
+        "j1:141",
+        "j1:145",
+        "j1:149",
+        "j1:153"
+      ],
+      "duration": 450,
+      "id": "j1:158",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 6,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "j1:134",
+        "j1:138",
+        "j1:142",
+        "j1:146",
+        "j1:150",
+        "j1:154"
+      ],
+      "duration": 450,
+      "id": "j1:159",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 1,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 1,
+        "pipeline_stage": 1,
+        "rank": 7,
+        "task_role": "W"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "us"
+}

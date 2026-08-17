@@ -11,7 +11,7 @@ from benchmark_generate.reference import generate_reference_results
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("all", "random", "reference"))
+    parser.add_argument("command", choices=("all", "random", "reference", "llm"))
     parser.add_argument("--output", type=Path, default=Path("benchmark"))
     parser.add_argument("--samples", type=int, default=10)
     parser.add_argument("--seed", type=int, default=260819)
@@ -31,9 +31,21 @@ def main() -> None:
         type=Path,
         help="reference command path prefix relative to --output",
     )
+    parser.add_argument(
+        "--skip-reference",
+        action="store_true",
+        help="llm command: skip exact reference generation",
+    )
     args = parser.parse_args()
     if args.samples < 0:
         parser.error("--samples must be non-negative")
+    if args.command == "llm":
+        import sys
+
+        from benchmark_generate.llm_structure import main as llm_main
+
+        llm_main(sys.argv[2:])
+        return
     if args.command == "reference":
         written = generate_reference_results(
             args.output,

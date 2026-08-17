@@ -41,10 +41,10 @@ def test_every_committed_benchmark_loads() -> None:
         ("2.0", "single_channel", "parallel_chain", "real"): 5,
         ("2.0", "single_channel", "complex_chain", "adversarial"): 22,
         ("2.0", "single_channel", "complex_chain", "random"): 20,
-        ("2.0", "single_channel", "complex_chain", "real"): 3,
+        ("2.0", "single_channel", "complex_chain", "real"): 35,
         ("2.0", "muti_channel", "complex_chain", "adversarial"): 9,
         ("2.0", "muti_channel", "complex_chain", "random"): 10,
-        ("2.0", "muti_channel", "complex_chain", "real"): 3,
+        ("2.0", "muti_channel", "complex_chain", "real"): 15,
     }
     assert {item.scenario for item in loaded} == {"single_channel", "muti_channel"}
     assert {item.category for item in loaded} == {"random", "adversarial", "real"}

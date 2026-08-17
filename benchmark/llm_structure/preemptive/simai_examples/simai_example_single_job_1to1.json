@@ -1,0 +1,913 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "simai_example_single_job_1to1",
+  "metadata": {
+    "projection_relation": "relaxation_unified_channel",
+    "provenance": {
+      "converter": {
+        "name": "benchmark_generate.simai.projection",
+        "version": "1.0.0"
+      },
+      "semantic_contract_version": "llm-v1",
+      "source": {
+        "content_hash": "430c4486d849960702bb38b62395cdace09b864b452db785931a23a3733bb054",
+        "kind": "simai_example_workload",
+        "name": "single_job_workload.json"
+      },
+      "tool_version_or_commit": "7839817d879a783039a530470221047f27bbdf45"
+    },
+    "semantic_contract_version": "llm-v1",
+    "source": "simai-flow-scheduler example workload",
+    "transform_log": [
+      "1:1 workload projection; no compute serializer edges added",
+      "flows converted to communication with duration = ceil(size_bytes / (bandwidth_gbps * 125)) us",
+      "all flows share the unified bottleneck resource channel:0"
+    ]
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "0",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "1",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "2",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1000,
+      "id": "3",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "0"
+      ],
+      "duration": 2685,
+      "id": "4",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "1"
+      ],
+      "duration": 2685,
+      "id": "5",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "2"
+      ],
+      "duration": 2685,
+      "id": "6",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "3"
+      ],
+      "duration": 2685,
+      "id": "7",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "33"
+      ],
+      "duration": 2000,
+      "id": "8",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "32"
+      ],
+      "duration": 2000,
+      "id": "9",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "35"
+      ],
+      "duration": 2000,
+      "id": "10",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "34"
+      ],
+      "duration": 2000,
+      "id": "11",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "8"
+      ],
+      "duration": 2685,
+      "id": "12",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "9"
+      ],
+      "duration": 2685,
+      "id": "13",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "10"
+      ],
+      "duration": 2685,
+      "id": "14",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "11"
+      ],
+      "duration": 2685,
+      "id": "15",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "13"
+      ],
+      "duration": 500,
+      "id": "16",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "12"
+      ],
+      "duration": 500,
+      "id": "17",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "15"
+      ],
+      "duration": 500,
+      "id": "18",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "14"
+      ],
+      "duration": 500,
+      "id": "19",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": -1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "5"
+      ],
+      "duration": 1500,
+      "id": "20",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "4"
+      ],
+      "duration": 1500,
+      "id": "21",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "7"
+      ],
+      "duration": 1500,
+      "id": "22",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "6"
+      ],
+      "duration": 1500,
+      "id": "23",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "20"
+      ],
+      "duration": 2685,
+      "id": "24",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "21"
+      ],
+      "duration": 2685,
+      "id": "25",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "22"
+      ],
+      "duration": 2685,
+      "id": "26",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "23"
+      ],
+      "duration": 2685,
+      "id": "27",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_reducescatter_ring",
+        "comm_type": "tp_reducescatter_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "25"
+      ],
+      "duration": 2500,
+      "id": "28",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "24"
+      ],
+      "duration": 2500,
+      "id": "29",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "27"
+      ],
+      "duration": 2500,
+      "id": "30",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "26"
+      ],
+      "duration": 2500,
+      "id": "31",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_input",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "B"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "28"
+      ],
+      "duration": 2685,
+      "id": "32",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "29"
+      ],
+      "duration": 2685,
+      "id": "33",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "30"
+      ],
+      "duration": 2685,
+      "id": "34",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "31"
+      ],
+      "duration": 2685,
+      "id": "35",
+      "kind": "communication",
+      "metadata": {
+        "collective_type": "tp_allgather_ring",
+        "comm_type": "tp_allgather_ring",
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "parallelism_dimension": "tp",
+        "phase": "backward_input",
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "33"
+      ],
+      "duration": 600,
+      "id": "36",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "32"
+      ],
+      "duration": 600,
+      "id": "37",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "35"
+      ],
+      "duration": 600,
+      "id": "38",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 2,
+        "task_role": "W"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "34"
+      ],
+      "duration": 600,
+      "id": "39",
+      "kind": "compute",
+      "metadata": {
+        "item_id": -1,
+        "iteration": 0,
+        "job_id": 0,
+        "layer_id": 1,
+        "microbatch_id": 0,
+        "phase": "backward_weight",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 3,
+        "task_role": "W"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "us"
+}

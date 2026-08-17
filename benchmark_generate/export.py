@@ -293,7 +293,11 @@ def build_index(root: Path) -> list[dict]:
     """Rebuild the shared index without generating either semantic variant."""
 
     rows = []
-    for target in sorted(root.rglob("*.json")):
+    # The repository also stores experiment/result JSON under ``docs/`` and
+    # staging/probe artifacts outside the benchmark tree.  Only files below
+    # ``benchmark/`` are problem inputs and may enter the public index.
+    search_root = root / "benchmark" if (root / "benchmark").is_dir() else root
+    for target in sorted(search_root.rglob("*.json")):
         if "schema" in target.parts or "reference_results" in target.parts:
             continue
         relative = target.relative_to(root).as_posix()

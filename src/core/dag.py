@@ -15,12 +15,19 @@ class BenchTask:
     deps: tuple[str, ...] = ()
     role: str = ""
     cut: str = ""
+    labels: tuple[tuple[str, str], ...] = ()
 
     def __post_init__(self) -> None:
         if self.kind not in {"compute", "comm"}:
             raise ValueError(f"unknown task kind: {self.kind}")
         if self.duration < 0:
             raise ValueError("task duration must be non-negative")
+        for key, _value in self.labels:
+            if not key:
+                raise ValueError("task label keys must be non-empty")
+
+    def label_map(self) -> dict[str, str]:
+        return dict(self.labels)
 
 
 @dataclass(frozen=True)

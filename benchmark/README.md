@@ -55,17 +55,19 @@ benchmark/
 
 ## 当前数据规模
 
-当前共有 139 个问题：
+数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/test_benchmark_format.py` 与 `tests/test_semantics_layout.py` 断言锁定。当前共 215 个问题（v1 nonpreemptive 75 个，v2 preemptive 140 个，其中 `benchmark/llm_structure/` 真实 LLM 语料 44 个）：
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
 | `single_channel/parallel_chain/nonpreemptive` | 10 | 13 | 2 | 25 |
 | `single_channel/complex_chain/nonpreemptive` | 10 | 16 | 7 | 33 |
 | `muti_channel/nonpreemptive` | 10 | 4 | 3 | 17 |
-| `single_channel/parallel_chain/preemptive` | 10 | 13 | 0 | 23 |
-| `single_channel/complex_chain/preemptive` | 10 | 17 | 0 | 27 |
-| `muti_channel/preemptive` | 10 | 4 | 0 | 14 |
-| 总计 | 60 | 67 | 12 | 139 |
+| `single_channel/parallel_chain/preemptive` | 10 | 14 | 5 | 29 |
+| `single_channel/complex_chain/preemptive` | 20 | 22 | 35 | 77 |
+| `muti_channel/preemptive` | 10 | 9 | 15 | 34 |
+| 总计 | 70 | 78 | 67 | 215 |
+
+其中 `benchmark/llm_structure/preemptive/` 的分布（细分见 `metadata.provenance.source.kind` 与目录，说明见 `benchmark/llm_structure/README.md`）：统一瓶颈 unified 28、路由冻结 routed 11、多 iteration multi_iteration 3、SimAI 示例投影 simai_examples 2。
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 

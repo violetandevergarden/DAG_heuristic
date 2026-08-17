@@ -3,7 +3,7 @@ from __future__ import annotations
 from llm_structured.repetition import (
     build_exchangeable_replicas,
     build_pp_dp_repetition,
-    exact_oracle_component_symmetry,
+    exact_oracle_paired,
     schedule_coupling_aware,
     schedule_role_copy,
 )
@@ -24,10 +24,18 @@ def test_independent_local_optimum_does_not_safely_copy() -> None:
     assert aware.makespan == exact.makespan
 
 
-def test_component_symmetry_is_exact_and_reduces_states() -> None:
+def test_component_symmetry_is_a_paired_controlled_quotient() -> None:
+    # The review found the historical comparison of two different exact
+    # implementations uncontrolled.  The paired solver differs ONLY in the
+    # memo key: identity versus certified component permutation quotient.
     dag, components = build_exchangeable_replicas(5)
-    generic = exact_oracle(dag, max_states=100_000)
-    compressed = exact_oracle_component_symmetry(dag, components, max_states=100_000)
+    identity = exact_oracle_paired(dag, components, quotient=False, max_states=100_000)
+    quotient = exact_oracle_paired(dag, components, quotient=True, max_states=100_000)
 
-    assert compressed.makespan == generic.makespan
-    assert compressed.explored_states < generic.explored_states / 10
+    assert identity.makespan == quotient.makespan
+    assert quotient.explored_states < identity.explored_states
+    assert quotient.generated_transitions < identity.generated_transitions
+
+    # The identity mode must agree with the independent generic oracle.
+    generic = exact_oracle(dag, max_states=100_000)
+    assert identity.makespan == generic.makespan
