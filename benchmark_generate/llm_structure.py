@@ -30,8 +30,11 @@ import hashlib
 import json
 from dataclasses import replace
 from pathlib import Path
+import re
+from collections.abc import Callable
 
 from benchmark import Benchmark, write_benchmark
+from benchmark_generate.llm.catalog import canonical_routed_specs, scan_aicb_catalog
 from benchmark_generate.simai.bootstrap import SIMAI_ROOT
 from benchmark_generate.simai.export import (
     AicbParser,
@@ -55,6 +58,15 @@ TOPOLOGIES = {
     "cassini_24g": ("Cassini_24g_l1-6_l2-4_l3-3_400Gbps_A100", "experimental", 400.0),
     "cassini_64g": ("Cassini_64g_l1-16_l2-14_l3-12_400Gbps_A100", "experimental", 400.0),
     "hermod_32g": ("Hermod_32g_4server_2nic_4sn3700_100Gbps_A100", "experimental", 100.0),
+}
+
+TOPOLOGY_CAPACITIES = {
+    "alibaba_hpn_16g": 16,
+    "spectrum_x_16g": 16,
+    "dcn_dual_tor_64g": 64,
+    "cassini_24g": 24,
+    "cassini_64g": 64,
+    "hermod_32g": 32,
 }
 
 
@@ -106,23 +118,8 @@ def routed_cases() -> list[dict]:
     (sub-graph routing); that is recorded per file.
     """
 
-    return [
-        # production: 16 GPU workloads on 16 GPU topologies
-        {"ws": 16, "tp": 8, "pp": 2, "ep": 1, "gbs": 8, "mbs": 2, "topology": "alibaba_hpn_16g"},
-        {"ws": 16, "tp": 8, "pp": 2, "ep": 1, "gbs": 8, "mbs": 2, "topology": "spectrum_x_16g"},
-        {"ws": 16, "tp": 4, "pp": 4, "ep": 1, "gbs": 8, "mbs": 2, "topology": "alibaba_hpn_16g"},
-        # production: DP-rewritten workloads on the 64 GPU DCN topology
-        {"ws": 8, "tp": 4, "pp": 2, "ep": 1, "gbs": 2, "mbs": 1, "dp": 4, "topology": "dcn_dual_tor_64g"},
-        {"ws": 16, "tp": 4, "pp": 4, "ep": 1, "gbs": 2, "mbs": 1, "dp": 4, "topology": "dcn_dual_tor_64g"},
-        {"ws": 32, "tp": 8, "pp": 4, "ep": 1, "gbs": 2, "mbs": 1, "dp": 2, "topology": "dcn_dual_tor_64g"},
-        # production: 32 GPU workload on the 64 GPU DCN sub-graph
-        {"ws": 32, "tp": 8, "pp": 4, "ep": 1, "gbs": 8, "mbs": 2, "topology": "dcn_dual_tor_64g"},
-        # experimental: conflict-concentrating topologies
-        {"ws": 16, "tp": 8, "pp": 2, "ep": 1, "gbs": 8, "mbs": 2, "topology": "cassini_24g"},
-        {"ws": 32, "tp": 8, "pp": 4, "ep": 1, "gbs": 8, "mbs": 2, "topology": "cassini_64g"},
-        {"ws": 32, "tp": 8, "pp": 4, "ep": 1, "gbs": 8, "mbs": 2, "topology": "hermod_32g"},
-        {"ws": 8, "tp": 4, "pp": 2, "ep": 1, "gbs": 2, "mbs": 1, "dp": 4, "topology": "hermod_32g"},
-    ]
+    sources, _quarantine = scan_aicb_catalog(AICB_ROOT)
+    return canonical_routed_specs(sources, TOPOLOGY_CAPACITIES)
 
 
 def multi_iteration_cases() -> list[dict]:
@@ -141,7 +138,7 @@ def export_case(
     ws = spec["ws"]
     tp, pp, ep = spec["tp"], spec["pp"], spec["ep"]
     gbs, mbs = spec["gbs"], spec["mbs"]
-    path = AICB_ROOT / aicb_filename(ws, tp, pp, ep, gbs, mbs)
+    path = AICB_ROOT / spec.get("source_name", aicb_filename(ws, tp, pp, ep, gbs, mbs))
     if not path.exists():
         raise FileNotFoundError(f"AICB case missing: {path.name}")
     header, items = AicbParser().parse(path)
@@ -510,33 +507,44 @@ def _id(spec: dict) -> str:
     gbs, mbs = spec["gbs"], spec["mbs"]
     dp = spec.get("dp", ws // (tp * pp))
     source_dp = ws // (tp * pp)
+    model_id = re.sub(r"[^a-z0-9]+", "", str(spec.get("model", "mixtral8x7b")).lower())
     if "dp" in spec and dp != source_dp:
         base = (
-            f"mixtral8x7b_sourcews{ws}_effectivews{tp * pp * dp}"
+            f"{model_id}_sourcews{ws}_effectivews{tp * pp * dp}"
             f"_tp{tp}_pp{pp}_ep{ep}_dp{dp}_gbs{gbs}_mbs{mbs}"
         )
     else:
-        base = f"mixtral8x7b_ws{ws}_tp{tp}_pp{pp}_ep{ep}_dp{dp}_gbs{gbs}_mbs{mbs}"
+        base = f"{model_id}_ws{ws}_tp{tp}_pp{pp}_ep{ep}_dp{dp}_gbs{gbs}_mbs{mbs}"
     if spec.get("topology"):
         base += f"_route_{spec['topology']}"
     return base
 
 
-def build_corpus() -> tuple[list[Benchmark], dict[str, Path], list[dict]]:
+def build_corpus(
+    *,
+    catalog_routed_only: bool = False,
+    on_case: Callable[[Benchmark, Path], None] | None = None,
+    on_error: Callable[[dict], None] | None = None,
+) -> tuple[list[Benchmark], dict[str, Path], list[dict]]:
     cases: list[Benchmark] = []
     target: dict[str, Path] = {}
     skipped: list[dict] = []
-    for spec in unified_cases():
-        _try_add(cases, target, skipped, spec)
-    for spec in dp_override_cases():
-        _try_add(cases, target, skipped, spec)
+    if not catalog_routed_only:
+        for spec in unified_cases():
+            _try_add(cases, target, skipped, spec, on_case, on_error)
+        for spec in dp_override_cases():
+            _try_add(cases, target, skipped, spec, on_case, on_error)
     for spec in routed_cases():
-        _try_add(cases, target, skipped, spec)
-    for spec in multi_iteration_cases():
-        _try_add(cases, target, skipped, spec)
-    for benchmark in example_cases().values():
-        cases.append(benchmark)
-        target[benchmark.benchmark_id] = Path("simai_examples") / f"{benchmark.benchmark_id}.json"
+        _try_add(cases, target, skipped, spec, on_case, on_error)
+    if not catalog_routed_only:
+        for spec in multi_iteration_cases():
+            _try_add(cases, target, skipped, spec, on_case, on_error)
+        for benchmark in example_cases().values():
+            cases.append(benchmark)
+            relative = Path("simai_examples") / f"{benchmark.benchmark_id}.json"
+            target[benchmark.benchmark_id] = relative
+            if on_case is not None:
+                on_case(benchmark, relative)
     return cases, target, skipped
 
 
@@ -545,25 +553,34 @@ def _try_add(
     target: dict[str, Path],
     skipped: list[dict],
     spec: dict,
+    on_case: Callable[[Benchmark, Path], None] | None = None,
+    on_error: Callable[[dict], None] | None = None,
 ) -> None:
     benchmark_id = _id(spec)
+    print(f"  generate {benchmark_id}", flush=True)
     try:
         benchmark = export_case(spec, benchmark_id=benchmark_id)
     except Exception as error:  # noqa: BLE001 - corpus generation must skip, not die
-        skipped.append({
+        entry = {
             "benchmark_id": benchmark_id,
             "spec": spec,
             "error": f"{type(error).__name__}: {error}",
-        })
+        }
+        skipped.append(entry)
+        if on_error is not None:
+            on_error(entry)
         return
     actual_id = benchmark.benchmark_id
     cases.append(benchmark)
     if spec.get("topology"):
-        target[actual_id] = Path("routed") / spec["topology"] / f"{actual_id}.json"
+        relative = Path("routed") / spec["topology"] / f"{actual_id}.json"
     elif spec.get("iterations", 1) > 1:
-        target[actual_id] = Path("multi_iteration") / f"{actual_id}.json"
+        relative = Path("multi_iteration") / f"{actual_id}.json"
     else:
-        target[actual_id] = Path("unified") / f"{actual_id}.json"
+        relative = Path("unified") / f"{actual_id}.json"
+    target[actual_id] = relative
+    if on_case is not None:
+        on_case(benchmark, relative)
 
 
 def write_corpus(
@@ -640,7 +657,7 @@ def main(argv: list[str] | None = None) -> None:
     """Compatibility shim for the old entry point.
 
     It now delegates to the transactional workflow and therefore never removes
-    the active corpus.  Use ``python -m benchmark_generate.stage4`` directly
+    the active corpus. Use ``python -m benchmark_generate.llm.corpus`` directly
     when selecting probe/publish options.
     """
 
@@ -655,7 +672,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--replace-active", action="store_true")
     parser.add_argument("--skip-reference", action="store_true", help="kept for CLI compatibility; references are a separate step")
     args = parser.parse_args(argv)
-    from benchmark_generate.stage4 import generate, probe, publish
+    from benchmark_generate.llm.corpus import generate, probe, publish
     if args.mode == "generate":
         print(generate(args.output, run_id=args.run_id))
     elif args.mode == "probe":

@@ -18,6 +18,11 @@ from dataclasses import dataclass
 from itertools import pairwise
 from pathlib import Path
 
+# The SimAI checkout exposes a package named ``src`` from its repository
+# root.  Bootstrap must run before importing that package; importing it later
+# lets this repository's own source directory win namespace resolution.
+from benchmark_generate.simai.bootstrap import SIMAI_ROOT
+
 from src.static_analysis.passes.pipeline_task_serializers import (
     BidirectionalPipelineSerializer,
     DualPipeSerializer,
@@ -53,8 +58,6 @@ from benchmark import (
 from benchmark import (
     Task as BenchmarkTask,
 )
-from benchmark_generate.simai.bootstrap import SIMAI_ROOT  # noqa: F401
-
 MODES = ("1f1b", "interleaved_1f1b", "zero_bubble", "bidirectional", "dualpipe")
 
 PUBLIC_CATEGORIES = ("random", "adversarial", "real")

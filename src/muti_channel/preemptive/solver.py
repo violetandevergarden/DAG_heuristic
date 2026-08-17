@@ -7,7 +7,7 @@ compatible sets and searches over the simulator's legal actions.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from statistics import mean
 from time import perf_counter
 from typing import Literal
@@ -19,6 +19,12 @@ from core.execution.multi_resource import (
     MultiResourceTrace,
     MultiRuntimeTask,
     PreemptiveMultiResourceModel,
+)
+from llm_structured.barrier import (
+    action_features,
+    build_context,
+    has_barrier_signal,
+    priority_key,
 )
 
 # Compatibility names retained for callers while ownership moves to core.
@@ -56,6 +62,9 @@ class MultiResult:
     fallback_count: int = 0
     completed_search: bool = True
     fallback_reason: str | None = None
+    planner_decisions: int = 0
+    planner_triggered: int = 0
+    planner_improvements: int = 0
 
 
 @dataclass
@@ -165,6 +174,109 @@ def schedule_set_policy(
         compatible_sets_generated=generated,
         max_branch=max_branch,
         set_enumeration_ms=set_enumeration_ms,
+    )
+
+
+def schedule_barrier_set_safeguarded(
+    dag: BenchmarkDAG,
+    resources: dict[str, frozenset[str]],
+) -> MultiResult:
+    """Compare a barrier whole-set candidate against LT packing.
+
+    The two complete schedules use the same public multi-resource model.  The
+    barrier candidate is returned only when it strictly improves makespan;
+    ties intentionally retain the longest-tail packing trace so this policy
+    remains a protected research candidate rather than a replacement claim.
+    """
+
+    baseline = schedule_pack(dag, resources, "longest_tail")
+    candidate = schedule_set_policy(dag, resources, "barrier_union")
+    if candidate.makespan < baseline.makespan:
+        return candidate
+    return replace(
+        baseline,
+        fallback_count=1,
+        fallback_reason="barrier_set_not_strictly_better_than_longest_tail",
+    )
+
+
+def schedule_selective_barrier_rollout(
+    dag: BenchmarkDAG,
+    resources: dict[str, frozenset[str]],
+    *,
+    max_triggers: int = 8,
+    time_limit_s: float | None = 2.0,
+) -> MultiResult:
+    """Use whole-set barrier features as a protected LT rollout candidate."""
+
+    if max_triggers < 0:
+        raise ValueError("max_triggers must be non-negative")
+    if time_limit_s is not None and time_limit_s < 0:
+        raise ValueError("time_limit_s must be non-negative or None")
+    started = perf_counter()
+    model = PreemptiveMultiResourceModel(dag, resources)
+    state = model.initial_state()
+    actions: list[MultiAction] = []
+    decisions = triggered = improvements = completion_calls = fallback_count = 0
+    fallback_reason: str | None = None
+    generated = 0
+    set_enumeration_ms = 0.0
+
+    while not model.finished(state):
+        state, _idle = model.normalize_decision_state(state)
+        if model.finished(state):
+            break
+        decisions += 1
+        baseline = greedy_fill_from_task_scores(
+            model, state, score_tasks(model, state, "longest_tail")
+        )
+        # The deployable candidate uses task priority plus deterministic
+        # greedy-fill.  Full maximal-set enumeration remains a separate small-
+        # graph ablation and is not scalable to large real LLM workloads.
+        candidate = greedy_fill_from_task_scores(
+            model, state, score_tasks(model, state, "barrier_only")
+        )
+        generated += 2
+        context = build_context(model, state, roots=model.eligible(state))
+        has_signal = any(
+            has_barrier_signal(context, task_id)
+            for task_id in candidate.communications
+        )
+        budget_ok = triggered < max_triggers and (
+            time_limit_s is None or perf_counter() - started < time_limit_s
+        )
+        selected = baseline
+        if candidate != baseline and has_signal and budget_ok:
+            triggered += 1
+            baseline_end, _ = _complete_pack(model, model.step(state, baseline))
+            candidate_end, _ = _complete_pack(model, model.step(state, candidate))
+            completion_calls += 2
+            if candidate_end.time < baseline_end.time:
+                selected = candidate
+                improvements += 1
+        elif candidate != baseline and has_signal and not budget_ok:
+            fallback_count += 1
+            fallback_reason = (
+                "selective_trigger_limit"
+                if triggered >= max_triggers
+                else "selective_time_limit"
+            )
+        actions.append(selected)
+        state = model.step(state, selected)
+    return _result(
+        model,
+        actions,
+        runtime_ms=(perf_counter() - started) * 1000,
+        compatible_sets_generated=generated,
+        set_enumeration_ms=set_enumeration_ms,
+        evaluated_candidates=completion_calls,
+        completion_calls=completion_calls,
+        fallback_count=fallback_count,
+        completed_search=fallback_count == 0,
+        fallback_reason=fallback_reason,
+        planner_decisions=decisions,
+        planner_triggered=triggered,
+        planner_improvements=improvements,
     )
 
 
@@ -510,6 +622,12 @@ def score_tasks(
     eligible = model.eligible(state)
     tails = _residual_tail(model, state)
     load = _resource_load(model, state)
+    barrier_context = (
+        build_context(model, state, roots=eligible)
+        if mode
+        in {"barrier_only", "tail_unlock", "tail_barrier", "tail_unlock_barrier"}
+        else None
+    )
 
     def key(task_id: str) -> tuple:
         bottleneck = max((load[item] for item in model.resources[task_id]), default=0)
@@ -524,6 +642,14 @@ def score_tasks(
             hotspot = max(demand.values(), default=0)
             total = sum(demand.values())
             return (-hotspot, -total, -tails[task_id], task_id)
+        if mode in {
+            "barrier_only",
+            "tail_unlock",
+            "tail_barrier",
+            "tail_unlock_barrier",
+        }:
+            assert barrier_context is not None
+            return priority_key(barrier_context, task_id, mode)
         raise ValueError(mode)
 
     return {task_id: key(task_id) for task_id in eligible}
@@ -554,7 +680,7 @@ def score_sets(
 ) -> dict[MultiAction, tuple]:
     """Score complete maximal sets without choosing one of them."""
 
-    if mode != "union_downstream":
+    if mode not in {"union_downstream", "barrier_union"}:
         raise ValueError(mode)
     eligible = set(model.eligible(state))
     for action in actions:
@@ -566,10 +692,30 @@ def score_sets(
         if not selected <= eligible or not model.compatible(action.communications) or not maximal:
             raise ValueError("set scores require legal maximal compatible actions")
     tails = _residual_tail(model, state)
+    context = build_context(model, state) if mode == "barrier_union" else None
     return {
-        action: _union_downstream_set_score(model, state, action, tails)
+        action: (
+            _barrier_set_score(context, action)
+            if context is not None
+            else _union_downstream_set_score(model, state, action, tails)
+        )
         for action in actions
     }
+
+
+def _barrier_set_score(
+    context: object, action: MultiAction
+) -> tuple[object, ...]:
+    """Whole-set score with shared downstream and packing handled once."""
+
+    features = action_features(context, action.communications)  # type: ignore[arg-type]
+    return (
+        -features.union_released_compute,
+        -features.completed_join_count,
+        -features.union_downstream_tail,
+        -features.packing_complementarity,
+        features.communication_ids,
+    )
 
 
 def select_best_scored_set(scores: dict[MultiAction, tuple]) -> MultiAction:
@@ -630,7 +776,7 @@ def _residual_tail(
     model: PreemptiveMultiResourceModel, state: MultiState
 ) -> dict[str, int]:
     order = topological_order(model.dag)
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     children = {item: [] for item in order}
     for task in tasks.values():
         for dep in task.deps:

@@ -36,6 +36,14 @@ def solve(
         ),
         "structure_aware": lambda item: solver.schedule_priority(item, "structure_aware"),
         "longest_tail": solver.schedule_longest_tail,
+        "barrier_only": lambda item: solver.schedule_barrier_policy(
+            item, "barrier_only"
+        ),
+        "tail_barrier": lambda item: solver.schedule_barrier_policy(
+            item, "tail_barrier"
+        ),
+        "barrier_safeguarded": solver.schedule_barrier_safeguarded,
+        "barrier_selective_rollout": solver.schedule_selective_barrier_rollout,
         "rollout2": solver.schedule_rollout,
         "beam8": lambda item: solver.beam_search(item, width=8),
         "exact": solver.exact_oracle,

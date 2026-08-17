@@ -21,6 +21,11 @@ from core.execution.preemptive import (
     result_from_trace,
 )
 from core.trace.preemptive import assert_preemptive_trace
+from llm_structured.barrier import (
+    build_context,
+    has_barrier_signal,
+    priority_key,
+)
 
 PriorityName = str
 StateKey = tuple[object, ...]
@@ -70,6 +75,184 @@ def schedule_longest_tail(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
     return schedule_priority(dag, "longest_tail")
 
 
+def schedule_barrier_policy(
+    dag: BenchmarkDAG,
+    mode: str = "tail_barrier",
+    *,
+    trigger: str | None = None,
+) -> PreemptiveScheduleResult:
+    """Run an explicit barrier-score ablation on the public simulator.
+
+    ``mode`` is one of ``barrier_only``, ``unlock_only``, ``tail``,
+    ``tail_unlock``, ``tail_barrier`` or ``tail_unlock_barrier``.  The context
+    is built once per stable decision state and the simulator remains the sole
+    owner of legality and time advancement.  When ``trigger`` is set, the
+    barrier score is evaluated only for states with a residual barrier or
+    unlock signal; other states use the LT choice.
+    """
+
+    validate_complex_chain(dag)
+    model = PreemptiveDAGModel(dag)
+    state = model.initial_state()
+    actions: list[Action] = []
+    while not model.is_finished(state):
+        eligible = model.eligible_communications(state)
+        if not eligible:
+            action = Action.wait()
+        else:
+            context = build_context(model, state, roots=eligible)
+            snapshots = {item: priority_key(context, item, mode) for item in eligible}
+            selected = min(eligible, key=lambda item: snapshots[item])
+            if trigger is not None:
+                if trigger not in {"barrier_only", "barrier_or_unlock"}:
+                    raise ValueError(f"unsupported barrier trigger: {trigger}")
+                triggered = (
+                    priority_key(context, selected, "barrier_only")[0] < 0
+                    if trigger == "barrier_only"
+                    else has_barrier_signal(context, selected)
+                )
+                if not triggered:
+                    selected = _baseline_choice(model, state, "longest_tail")
+            action = Action.run(selected)
+        actions.append(action)
+        state = model.step(state, action).after
+    return _result(model, actions)
+
+
+def schedule_barrier_safeguarded(
+    dag: BenchmarkDAG,
+    *,
+    mode: str = "tail_barrier",
+    trigger: str = "barrier_or_unlock",
+    max_rollouts: int | None = None,
+) -> PreemptiveScheduleResult:
+    """Run a triggered barrier candidate and protect the LT incumbent.
+
+    Longest-tail is the incumbent and is returned whenever the complete
+    candidate run is not strictly better.  ``trigger`` limits barrier scoring
+    to residual barrier/unlock states; ``max_rollouts`` is retained as an
+    explicit budget option for callers and currently permits zero candidate
+    evaluation as a conservative mode.  Both schedules use public simulator
+    transitions; no second event model is introduced.
+
+    This is deliberately a protected candidate policy, not a claim that the
+    barrier score dominates longest-tail.  A final whole-schedule comparison
+    is retained because a locally better LT suffix is not a global proof.
+    """
+
+    if mode not in {"barrier_only", "tail_barrier", "tail_unlock_barrier"}:
+        raise ValueError(f"unsupported safeguarded barrier mode: {mode}")
+    if trigger not in {"barrier_only", "barrier_or_unlock"}:
+        raise ValueError(f"unsupported barrier trigger: {trigger}")
+    if max_rollouts is not None and max_rollouts < 0:
+        raise ValueError("max_rollouts must be non-negative or None")
+
+    validate_complex_chain(dag)
+    baseline = schedule_longest_tail(dag)
+    if max_rollouts == 0:
+        candidate_result = baseline
+    else:
+        candidate_result = schedule_barrier_policy(dag, mode, trigger=trigger)
+    fallback_reasons: list[str] = []
+    if candidate_result.makespan < baseline.makespan:
+        return replace(
+            candidate_result,
+            fallback_count=0,
+            fallback_reasons=tuple(fallback_reasons),
+        )
+    fallback_reasons.append("complete_candidate_not_better_than_longest_tail")
+    return replace(
+        baseline,
+        fallback_count=1,
+        fallback_reasons=tuple(fallback_reasons),
+    )
+
+
+def schedule_selective_barrier_rollout(
+    dag: BenchmarkDAG,
+    *,
+    max_triggers: int = 8,
+    time_limit_s: float | None = 2.0,
+) -> PreemptiveScheduleResult:
+    """Enhance LT only at barrier states using a one-action rollout.
+
+    At a triggered state the planner compares the LT first action with the
+    strongest barrier/unlock candidate.  Each action is followed by the same
+    LT completion policy in the public simulator.  The candidate is committed
+    only on strict residual-cost improvement.  This is an online, state-level
+    safeguard; it does not run two complete candidate policies and select one
+    after observing their final makespans.
+    """
+
+    if max_triggers < 0:
+        raise ValueError("max_triggers must be non-negative")
+    if time_limit_s is not None and time_limit_s < 0:
+        raise ValueError("time_limit_s must be non-negative or None")
+    validate_complex_chain(dag)
+    model = PreemptiveDAGModel(dag)
+    state = model.initial_state()
+    actions: list[Action] = []
+    started = perf_counter()
+    decisions = triggered = improvements = completion_calls = fallback_count = 0
+    fallback_reasons: list[str] = []
+
+    def completion_cost(after: ScheduleState) -> int:
+        nonlocal completion_calls
+        completion_calls += 1
+        suffix = _complete_actions(model, after, "longest_tail")
+        return _apply_actions(model, after, suffix).time
+
+    while not model.is_finished(state):
+        eligible = model.eligible_communications(state)
+        if not eligible:
+            action = Action.wait()
+        else:
+            decisions += 1
+            baseline_id = _baseline_choice(model, state, "longest_tail")
+            context = build_context(model, state, roots=eligible)
+            candidate_id = min(
+                eligible, key=lambda item: priority_key(context, item, "barrier_only")
+            )
+            has_signal = has_barrier_signal(context, candidate_id)
+            budget_ok = triggered < max_triggers and (
+                time_limit_s is None or perf_counter() - started < time_limit_s
+            )
+            selected = baseline_id
+            if candidate_id != baseline_id and has_signal and budget_ok:
+                triggered += 1
+                baseline_after = model.step(state, Action.run(baseline_id)).after
+                candidate_after = model.step(state, Action.run(candidate_id)).after
+                baseline_cost = completion_cost(baseline_after)
+                candidate_cost = completion_cost(candidate_after)
+                if candidate_cost < baseline_cost:
+                    selected = candidate_id
+                    improvements += 1
+            elif candidate_id != baseline_id and has_signal and not budget_ok:
+                fallback_count += 1
+                reason = (
+                    "selective_trigger_limit"
+                    if triggered >= max_triggers
+                    else "selective_time_limit"
+                )
+                if reason not in fallback_reasons:
+                    fallback_reasons.append(reason)
+            action = Action.run(selected)
+        actions.append(action)
+        state = model.step(state, action).after
+    result = _result(model, actions)
+    return replace(
+        result,
+        runtime_ms=(perf_counter() - started) * 1000,
+        evaluated_candidates=completion_calls,
+        fallback_count=fallback_count,
+        fallback_reasons=tuple(fallback_reasons),
+        planner_decisions=decisions,
+        planner_triggered=triggered,
+        planner_improvements=improvements,
+        completion_calls=completion_calls,
+    )
+
+
 def schedule_priority(
     dag: BenchmarkDAG,
     priority: PriorityName = "longest_tail",
@@ -81,6 +264,14 @@ def schedule_priority(
     memoryless functions of the current residual state.  Ties use task ID.
     """
 
+    if priority in {
+        "barrier_only",
+        "unlock_only",
+        "tail_unlock",
+        "tail_barrier",
+        "tail_unlock_barrier",
+    }:
+        return schedule_barrier_policy(dag, priority)
     validate_complex_chain(dag)
     model = PreemptiveDAGModel(dag)
     state = model.initial_state()
@@ -93,7 +284,7 @@ def schedule_priority(
         if not eligible:
             action = Action.wait()
         else:
-            tail = residual_tail(model, state)
+            tail = residual_tail(model, state, eligible)
             if priority == "fifo":
                 selected = min(eligible, key=lambda item: (first_eligible[item], item))
             else:
@@ -173,7 +364,7 @@ def schedule_rollout(
         check_budget()
         stats.expanded_nodes += 1
         eligible = model.eligible_communications(forced_state)
-        tail = residual_tail(model, forced_state)
+        tail = residual_tail(model, forced_state, eligible)
         ranked = _rank_candidates(
             model,
             forced_state,
@@ -202,7 +393,7 @@ def schedule_rollout(
         elif termination_reason is not None:
             action = Action.run(_baseline_choice(model, state, completion_priority))
         else:
-            tail = residual_tail(model, state)
+            tail = residual_tail(model, state, eligible)
             ranked = _rank_candidates(
                 model,
                 state,
@@ -519,7 +710,7 @@ def monte_carlo(
             if not eligible:
                 action = Action.wait()
             else:
-                tail = residual_tail(model, state)
+                tail = residual_tail(model, state, eligible)
                 ranked = sorted(eligible, key=lambda item: (-tail[item], item))
                 pool = ranked[: max(1, min(3, len(ranked)))] if rng.random() < 0.7 else ranked
                 action = Action.run(rng.choice(pool))
@@ -552,7 +743,7 @@ def remaining_lower_bound(
     if mode not in {"none", "communication", "path", "combined"}:
         raise ValueError(f"unknown lower-bound mode: {mode}")
 
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     communication_work = sum(
         _own_remaining(model, state, task_id)
         for task_id in model.task_ids
@@ -568,11 +759,26 @@ def remaining_lower_bound(
     return max(communication_work, longest_path)
 
 
-def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, int]:
+def residual_tail(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    roots: tuple[str, ...] | list[str] | None = None,
+) -> dict[str, int]:
     """Longest residual path including each unfinished task's own work."""
 
-    order = topological_order(model.dag)
-    children = _children(model)
+    children = model.children
+    if roots is None:
+        order = model.task_ids
+    else:
+        reachable = set(roots)
+        pending = list(roots)
+        while pending:
+            current = pending.pop()
+            for child in children[current]:
+                if child not in reachable:
+                    reachable.add(child)
+                    pending.append(child)
+        order = tuple(sorted(reachable, key=model.index.__getitem__))
     tail: dict[str, int] = {}
     for task_id in reversed(order):
         tail[task_id] = _own_remaining(model, state, task_id) + max(
@@ -594,7 +800,7 @@ def immediate_release_gain(
     length or an end-to-end benefit claim.
     """
 
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     completed = {
         item
         for item in model.task_ids
@@ -636,7 +842,7 @@ def immediate_compute_delay(
     the separate ``immediate_release_gain`` feature.
     """
 
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     completed = {
         item
         for item in model.task_ids
@@ -677,8 +883,8 @@ def direct_last_blocker_gain(
 ) -> int:
     """Residual tails of direct joins for which the candidate is last blocker."""
 
-    tails = tail if tail is not None else residual_tail(model, state)
-    tasks = model.dag.task_map()
+    tails = tail if tail is not None else residual_tail(model, state, [task_id])
+    tasks = model.task_map
     gain = 0
     for child in _children(model)[task_id]:
         if len(tasks[child].deps) < 2:
@@ -712,7 +918,7 @@ def downstream_communication_demand(
 ) -> int:
     """Unique residual channel demand downstream of a candidate."""
 
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     return sum(
         _own_remaining(model, state, item)
         for item in _descendants(model, task_id)
@@ -734,8 +940,8 @@ def barrier_urgency(
     deterministic structural feature, not a proven lower bound.
     """
 
-    tails = tail if tail is not None else residual_tail(model, state)
-    tasks = model.dag.task_map()
+    tails = tail if tail is not None else residual_tail(model, state, [task_id])
+    tasks = model.task_map
     children = _children(model)
     distance: dict[str, int] = {task_id: 0}
     for current in topological_order(model.dag):
@@ -807,7 +1013,7 @@ def _baseline_choice(
     priority: str,
 ) -> str:
     eligible = model.eligible_communications(state)
-    tail = residual_tail(model, state)
+    tail = residual_tail(model, state, eligible)
     return min(eligible, key=lambda item: _priority_key(model, state, item, priority, tail))
 
 
@@ -840,7 +1046,15 @@ def _rank_candidates(
 ) -> list[str]:
     if mode == "tail":
         mode = "longest_tail"
-    if mode not in {"longest_tail", "lrpt", "join", "structure", "hybrid"}:
+    if mode not in {
+        "longest_tail",
+        "lrpt",
+        "join",
+        "structure",
+        "barrier",
+        "hybrid",
+        "hybrid_barrier",
+    }:
         raise ValueError(f"unknown candidate mode: {mode}")
     baseline = min(
         eligible,
@@ -864,12 +1078,21 @@ def _rank_candidates(
         eligible,
         key=lambda item: _priority_key(model, state, item, "structure_aware", tail),
     )
+    barrier = []
+    if mode in {"barrier", "hybrid_barrier"}:
+        barrier_context = build_context(model, state, roots=eligible)
+        barrier = sorted(
+            eligible,
+            key=lambda item: priority_key(barrier_context, item, "tail_barrier"),
+        )
     ordered = {
         "longest_tail": longest,
         "lrpt": lrpt,
         "join": join,
         "structure": structure,
+        "barrier": barrier,
         "hybrid": _interleave(longest, join, structure, lrpt),
+        "hybrid_barrier": _interleave(longest, barrier, join, structure, lrpt),
     }[mode]
     selected = [baseline, *(item for item in ordered if item != baseline)]
     return selected if top_k is None else selected[:top_k]
@@ -919,15 +1142,11 @@ def _own_remaining(
         return 0
     if runtime.status in {"running", "suspended"}:
         return runtime.remaining
-    return model.dag.task_map()[task_id].duration
+    return model.task_map[task_id].duration
 
 
 def _children(model: PreemptiveDAGModel) -> dict[str, list[str]]:
-    children = {task_id: [] for task_id in model.task_ids}
-    for task in model.dag.tasks:
-        for dependency in task.deps:
-            children[dependency].append(task.task_id)
-    return children
+    return model.children
 
 
 def _descendants(model: PreemptiveDAGModel, task_id: str) -> set[str]:

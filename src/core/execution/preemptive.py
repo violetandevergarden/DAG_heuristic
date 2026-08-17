@@ -115,6 +115,11 @@ class PreemptiveScheduleResult:
     expanded_nodes: int = 0
     evaluated_candidates: int = 0
     fallback_count: int = 0
+    fallback_reasons: tuple[str, ...] = ()
+    planner_decisions: int = 0
+    planner_triggered: int = 0
+    planner_improvements: int = 0
+    completion_calls: int = 0
 
 
 class PreemptiveDAGModel:
@@ -131,8 +136,14 @@ class PreemptiveDAGModel:
         self.dag = dag
         self.task_ids = tuple(order)
         self.tasks = tuple(task_map[task_id] for task_id in order)
+        self.task_map = task_map
         self.index = {task_id: index for index, task_id in enumerate(order)}
         self.deps = tuple(tuple(self.index[parent] for parent in task.deps) for task in self.tasks)
+        child_lists: dict[str, list[str]] = {task_id: [] for task_id in self.task_ids}
+        for task in self.tasks:
+            for parent in task.deps:
+                child_lists[parent].append(task.task_id)
+        self.children = {task_id: tuple(values) for task_id, values in child_lists.items()}
 
     def initial_state(self) -> ScheduleState:
         state = ScheduleState(0, tuple(RuntimeTask() for _ in self.tasks))

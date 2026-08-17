@@ -330,7 +330,7 @@ def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, 
     """Return the residual longest path including each task's own remainder."""
 
     order = topological_order(model.dag)
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     children: dict[str, list[str]] = {task_id: [] for task_id in order}
     for task in tasks.values():
         for dependency in task.deps:
@@ -358,7 +358,7 @@ def _priority_key(
     tails: dict[str, int] | None,
 ) -> tuple[int, str]:
     runtime = model.task_runtime(state, task_id)
-    remaining = runtime.remaining or model.dag.task_map()[task_id].duration
+    remaining = runtime.remaining or model.task_map[task_id].duration
     if priority == "fifo":
         return arrivals[task_id], task_id
     if priority == "spt":
@@ -391,7 +391,7 @@ def _immediate_compute_delay(
     if position + 1 == len(chain):
         return 0
     child = chain[position + 1]
-    task = model.dag.task_map()[child]
+    task = model.task_map[child]
     if task.kind != "compute":
         raise AssertionError("validated parallel chain stopped alternating")
     runtime = model.task_runtime(state, child)
@@ -545,7 +545,7 @@ def _chain_type_groups(
 ) -> tuple[tuple[int, ...], ...]:
     """Group chains whose complete kind/duration sequences are isomorphic."""
 
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     by_type: dict[tuple[tuple[str, int], ...], list[int]] = {}
     for chain_index, chain in enumerate(instance.chains):
         signature = tuple((tasks[task_id].kind, tasks[task_id].duration) for task_id in chain)
@@ -560,7 +560,7 @@ def _compact_key(
     symmetry_groups: tuple[tuple[int, ...], ...] | None = None,
 ) -> tuple:
     key: list[tuple[int, int]] = []
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     for chain in instance.chains:
         for position, task_id in enumerate(chain):
             runtime = model.task_runtime(state, task_id)
@@ -583,7 +583,7 @@ def _remaining_lower_bound(
     model: PreemptiveDAGModel,
     state: ScheduleState,
 ) -> int:
-    tasks = model.dag.task_map()
+    tasks = model.task_map
     communication = 0
     longest_path = 0
     longest_compute = 0

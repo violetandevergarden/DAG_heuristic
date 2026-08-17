@@ -13,7 +13,10 @@ benchmark_generate/
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
 ├── llm_structure.py            # 真实 AICB 语料 + 真实拓扑 -> benchmark/llm_structure
-├── stage4.py                   # Stage 4a generate/probe/publish 事务工作流
+├── llm/
+│   ├── catalog.py             # AICB 源文件目录与确定性 case 选择
+│   ├── corpus.py              # 真实 LLM corpus generate/audit/publish 事务流
+│   └── barrier_motifs.py      # barrier 参数化小图与 teacher label
 └── simai/
     ├── bootstrap.py            # 查找可选 SimAI checkout
     ├── export.py               # AICB/pipeline workload 转标准 benchmark
@@ -105,17 +108,17 @@ sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算
 `export_semantic_suite` 只写入调用者显式选择的 semantics；随后由 `build_index`
 把输出目录中的合法问题纳入索引。生成器不会自动判断旧文件是否应该删除，改变固定集合后必须检查是否存在过期文件。
 
-## Stage 4a 事务工作流
+## 真实 LLM corpus 事务工作流
 
 真实 LLM 语料不再使用“先删除正式目录、再生成和回放”的单一命令。请使用：
 
 ```powershell
-python -m benchmark_generate.stage4 --mode generate --output benchmark
-python -m benchmark_generate.stage4 --mode probe --output benchmark --fast
-python -m benchmark_generate.stage4 --mode publish --output benchmark
+python -m benchmark_generate.llm.corpus --mode generate --output benchmark
+python -m benchmark_generate.llm.corpus --mode probe --output benchmark --fast
+python -m benchmark_generate.llm.corpus --mode publish --output benchmark
 ```
 
-`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe` 为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 probe 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。probe 报告保存在仓库根目录 `stage4_probe/`，不属于 benchmark 输入。
+`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe`（兼容保留的 CLI mode）执行 contention audit，并为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 audit 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。audit 报告保存在 `benchmark/llm_structure/.artifacts/contention_audit/`，不属于 benchmark 输入，也不会进入公共 index。
 
 ## 从 SimAI 生成真实 DAG
 

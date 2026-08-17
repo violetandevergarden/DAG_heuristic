@@ -79,6 +79,7 @@ class PreemptiveMultiResourceModel:
         self.dag = dag
         self.task_ids = tuple(order)
         self.tasks = tuple(task_map[item] for item in order)
+        self.task_map = task_map
         self.index = {item: index for index, item in enumerate(order)}
         self.deps = tuple(
             tuple(self.index[parent] for parent in task.deps) for task in self.tasks
@@ -92,6 +93,11 @@ class PreemptiveMultiResourceModel:
             task_id: frozenset(resource_set)
             for task_id, resource_set in resources.items()
         }
+        child_lists: dict[str, list[str]] = {task_id: [] for task_id in self.task_ids}
+        for task in self.tasks:
+            for parent in task.deps:
+                child_lists[parent].append(task.task_id)
+        self.children = {task_id: tuple(values) for task_id, values in child_lists.items()}
 
     def initial_state(self) -> MultiResourceState:
         return self._compute_closure(

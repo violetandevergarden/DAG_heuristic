@@ -522,13 +522,13 @@ def job_summaries(
         ]
         comm_work = sum(
             model.task_runtime(state, task_id).remaining
-            or model.dag.task_map()[task_id].duration
+            or model.task_map[task_id].duration
             for task_id in unfinished
-            if model.dag.task_map()[task_id].kind == "comm"
+            if model.task_map[task_id].kind == "comm"
         )
         critical = max((tail[task_id] for task_id in unfinished), default=0)
         active_compute = sum(
-            model.dag.task_map()[task_id].kind == "compute"
+            model.task_map[task_id].kind == "compute"
             and model.task_runtime(state, task_id).status == "running"
             for task_id in task_ids
         )
@@ -792,7 +792,7 @@ def _nominate(
         add(continuation[0])
     by_role: dict[str, str] = {}
     for task_id in tail_ranked:
-        role = model.dag.task_map()[task_id].role or "OTHER"
+        role = model.task_map[task_id].role or "OTHER"
         by_role.setdefault(role, task_id)
     for _role, task_id in sorted(
         by_role.items(),
@@ -811,7 +811,7 @@ def _tail_score(
     task_id: str,
 ) -> int:
     runtime = model.task_runtime(state, task_id)
-    own = runtime.remaining or model.dag.task_map()[task_id].duration
+    own = runtime.remaining or model.task_map[task_id].duration
     return tail[task_id] - own
 
 

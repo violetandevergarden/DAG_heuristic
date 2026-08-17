@@ -296,11 +296,12 @@ def build_index(root: Path) -> list[dict]:
     # The repository also stores experiment/result JSON under ``docs/`` and
     # staging/probe artifacts outside the benchmark tree.  Only files below
     # ``benchmark/`` are problem inputs and may enter the public index.
-    search_root = root / "benchmark" if (root / "benchmark").is_dir() else root
+    benchmark_root = root / "benchmark" if (root / "benchmark").is_dir() else root
+    search_root = benchmark_root
     for target in sorted(search_root.rglob("*.json")):
         if "schema" in target.parts or "reference_results" in target.parts:
             continue
-        relative = target.relative_to(root).as_posix()
+        relative = target.relative_to(benchmark_root).as_posix()
         benchmark = load_benchmark(target)
         rows.append(
             {
@@ -315,12 +316,12 @@ def build_index(root: Path) -> list[dict]:
             }
         )
     rows.sort(key=lambda row: (row["scenario"], row["family"], row["category"], row["id"]))
-    (root / "index.jsonl").write_text(
+    (benchmark_root / "index.jsonl").write_text(
         "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
         encoding="utf-8",
         newline="\n",
     )
-    _refresh_path_manifest_hashes(root)
+    _refresh_path_manifest_hashes(benchmark_root)
     return rows
 
 

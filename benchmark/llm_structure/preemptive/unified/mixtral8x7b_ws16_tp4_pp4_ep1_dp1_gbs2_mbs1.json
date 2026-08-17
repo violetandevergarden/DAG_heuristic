@@ -4,6 +4,8 @@
   "id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
   "metadata": {
     "bandwidth_gbps": 200.0,
+    "dp_rewrite": false,
+    "effective_world_size": 16,
     "gradient_accumulation": 2,
     "parallelism": {
       "dp": 1,
@@ -13,38 +15,60 @@
     },
     "pipeline_mode": "1f1b",
     "projection_relation": "relaxation_unified_channel",
+    "projection_relations": [
+      "relaxation_unified_channel"
+    ],
     "provenance": {
       "converter": {
         "name": "benchmark_generate.simai.export",
         "version": "1.2.0"
       },
+      "dp_rewrite": false,
+      "effective_dp": 1,
+      "effective_world_size": 16,
       "parameters": {
         "dp": 1,
+        "effective_dp": 1,
+        "effective_world_size": 16,
         "ep": 1,
         "gbs": 2,
         "mbs": 1,
         "mode": "1f1b",
         "pp": 4,
+        "requested_dp": null,
+        "source_dp": 1,
+        "source_world_size": 16,
         "tp": 4,
         "ws": 16
       },
+      "requested_dp": null,
       "semantic_contract_version": "llm-v1",
       "source": {
         "content_hash": "791ae954d556e59c1e2df0c9d8e4b8dff91acdd4b72e929725ca6aadca426dfa",
         "kind": "aicb_workload",
         "name": "A100-Mixtral_8x7B_ws16_pp4-world_size16-tp4-pp4-ep1-gbs2-mbs1-seq4096-MOE-True-GEMM-True-flash_attn-True.txt"
       },
-      "tool_version_or_commit": "7839817d879a783039a530470221047f27bbdf45"
+      "source_dp": 1,
+      "source_world_size": 16,
+      "suite": "R-C",
+      "tool_version_or_commit": "7839817d879a783039a530470221047f27bbdf45",
+      "topology_origin": "unified_relaxation",
+      "workload_origin": "real_aicb"
     },
     "semantic_contract_version": "llm-v1",
     "source": "simai-flow-scheduler",
+    "source_dp": 1,
+    "source_world_size": 16,
+    "suite": "R-C",
     "topology": null,
+    "topology_origin": "unified_relaxation",
     "transform_log": [
       "workload compute/flow tasks mapped 1:1 with compute serializer order edges",
       "1F1B pipeline schedule",
       "communication duration = ceil(size_bytes / (bandwidth_gbps*125)) us with bandwidth_gbps=200.0",
       "all communications share the unified bottleneck channel:0"
-    ]
+    ],
+    "workload_origin": "real_aicb"
   },
   "objective": "makespan",
   "resources": [

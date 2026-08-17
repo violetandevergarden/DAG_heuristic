@@ -11,6 +11,8 @@ ALGORITHM_NAMES = (
     "bottleneck_pack",
     "resource_downstream_pack",
     "union_downstream_set",
+    "barrier_safeguarded",
+    "barrier_selective_rollout",
     "rollout_sets2d2",
     "exact",
     "exact_uncompressed",
@@ -34,6 +36,8 @@ def solve(
             item, values, "resource_downstream"
         ),
         "union_downstream_set": solver.schedule_set_policy,
+        "barrier_safeguarded": solver.schedule_barrier_set_safeguarded,
+        "barrier_selective_rollout": solver.schedule_selective_barrier_rollout,
         "rollout_sets2d2": lambda item, values: solver.rollout_sets(
             item, values, top_k=2, depth=2
         ),
