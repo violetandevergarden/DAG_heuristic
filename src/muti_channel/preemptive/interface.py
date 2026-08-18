@@ -14,6 +14,7 @@ ALGORITHM_NAMES = (
     "barrier_safeguarded",
     "barrier_selective_rollout",
     "rollout_sets2d2",
+    "bounded_packing",
     "exact",
     "exact_uncompressed",
 )
@@ -41,6 +42,7 @@ def solve(
         "rollout_sets2d2": lambda item, values: solver.rollout_sets(
             item, values, top_k=2, depth=2
         ),
+        "bounded_packing": solver.schedule_bounded_packing,
         "exact": solver.exact_oracle,
         "exact_uncompressed": solver.exact_oracle_uncompressed,
     }

@@ -177,6 +177,72 @@ def schedule_set_policy(
     )
 
 
+def schedule_bounded_packing(
+    dag: BenchmarkDAG,
+    resources: dict[str, frozenset[str]],
+    *,
+    constructor: str = "multi_seed",
+    score_mode: str = "longest_tail",
+    rollout: bool = False,
+    budget=None,
+) -> MultiResult:
+    """Stage 4f constructor policy with an optional guarded depth-1 evaluator."""
+
+    from muti_channel.preemptive.constructors import (
+        choose_by_depth1_longest_tail,
+        enumerate_bounded,
+        greedy,
+        multi_seed,
+        one_exchange,
+    )
+    from muti_channel.preemptive.packing import PackingBudget
+
+    started = perf_counter()
+    budget = budget or PackingBudget()
+    builders = {
+        "greedy": lambda model, state, scores: greedy(model, state, scores),
+        "multi_seed": lambda model, state, scores: multi_seed(model, state, scores, budget),
+        "one_exchange": lambda model, state, scores: one_exchange(model, state, scores, budget),
+        "enumeration": lambda model, state, scores: enumerate_bounded(model, state, scores, budget),
+    }
+    if constructor not in builders:
+        raise ValueError(f"unknown packing constructor: {constructor}")
+    model = PreemptiveMultiResourceModel(dag, resources)
+    state = model.initial_state()
+    actions: list[MultiAction] = []
+    evaluated = fallbacks = calls = improvements = 0
+    while not model.finished(state):
+        state, _idle = model.normalize_decision_state(state)
+        if model.finished(state):
+            break
+        packed = builders[constructor](model, state, score_tasks(model, state, score_mode))
+        action = packed.selected
+        evaluated += len(packed.candidates)
+        fallbacks += packed.stats.budget_exhausted
+        if rollout and len(packed.candidates) > 1 and calls < budget.b_eval:
+            selected, used = choose_by_depth1_longest_tail(model, state, packed)
+            calls += used
+            improvements += selected != action
+            action = selected
+        actions.append(action)
+        state = model.step(state, action)
+    result = _result(
+        model,
+        actions,
+        runtime_ms=(perf_counter() - started) * 1000,
+        lower_bound=remaining_lower_bound(model, model.initial_state()),
+    )
+    return replace(
+        result,
+        evaluated_candidates=evaluated,
+        completion_calls=calls,
+        fallback_count=fallbacks,
+        planner_decisions=len(actions),
+        planner_triggered=int(calls > 0),
+        planner_improvements=improvements,
+    )
+
+
 def schedule_barrier_set_safeguarded(
     dag: BenchmarkDAG,
     resources: dict[str, frozenset[str]],

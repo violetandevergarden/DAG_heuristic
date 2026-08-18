@@ -85,6 +85,20 @@ class MultiJobResult:
 
 
 @dataclass(frozen=True)
+class MultiResourceJobResult:
+    schedule: MultiResult
+    jobs: tuple[JobOutcome, ...]
+    weighted_jct: float
+    mean_jct: float
+    max_slowdown: float | None
+    jain_slowdown_fairness: float | None
+
+    @property
+    def makespan(self) -> int:
+        return self.schedule.makespan
+
+
+@dataclass(frozen=True)
 class JobSummary:
     job_id: str
     remaining_communication: int
@@ -722,6 +736,108 @@ def schedule_multi_resource_hierarchical(
         _count_multi_preemptions(model, actions),
         trace=trace,
     )
+
+
+def evaluate_multi_resource_schedule(
+    instance: MultiJobInstance,
+    schedule: MultiResult,
+    *,
+    solo_completion: Mapping[str, int] | None = None,
+) -> MultiResourceJobResult:
+    if schedule.trace is None:
+        raise ValueError("multi-resource schedule must retain a trace")
+    completed_at = {
+        interval.task_id: interval.end for interval in schedule.trace.intervals
+    }
+    outcomes = []
+    for job in instance.jobs:
+        task_ids = [
+            item for item, owner in instance.task_job.items()
+            if owner == job.job_id and instance.original_task[item] != "__arrival__"
+        ]
+        completion = max(completed_at.get(item, 0) for item in task_ids)
+        jct = completion - job.arrival
+        denominator = solo_completion.get(job.job_id) if solo_completion else None
+        outcomes.append(JobOutcome(job.job_id, job.arrival, completion, jct, job.weight, jct / denominator if denominator else None))
+    outcomes.sort(key=lambda item: item.job_id)
+    total_weight = sum(item.weight for item in outcomes)
+    slowdowns = [item.slowdown for item in outcomes if item.slowdown is not None]
+    fairness = None
+    if slowdowns and sum(value * value for value in slowdowns):
+        fairness = sum(slowdowns) ** 2 / (len(slowdowns) * sum(value * value for value in slowdowns))
+    return MultiResourceJobResult(
+        schedule,
+        tuple(outcomes),
+        sum(item.weight * item.jct for item in outcomes) / total_weight,
+        mean(item.jct for item in outcomes),
+        max(slowdowns) if slowdowns else None,
+        fairness,
+    )
+
+
+def schedule_multi_resource_policy(
+    instance: MultiJobInstance,
+    resources: Mapping[str, frozenset[str]],
+    *,
+    job_policy: Literal["flat_lt", "shortest_remaining", "weighted_lt", "fcfs", "attained_service"] = "flat_lt",
+    solo_completion: Mapping[str, int] | None = None,
+) -> MultiResourceJobResult:
+    """Choose a job-aware ordering, then maximal-complete across every job."""
+
+    model = PreemptiveMultiResourceModel(instance.dag, dict(resources))
+    state = model.initial_state()
+    actions: list[MultiAction] = []
+    attained = {job.job_id: 0 for job in instance.jobs}
+    last_service = {job.job_id: job.arrival for job in instance.jobs}
+    jobs = {job.job_id: job for job in instance.jobs}
+    while not model.finished(state):
+        state, _idle = model.normalize_decision_state(state)
+        if model.finished(state):
+            break
+        eligible = model.eligible(state)
+        tail = _multi_residual_tail(model, state)
+        remaining = {
+            job_id: sum(
+                state.tasks[model.index[item]].remaining or model.task_map[item].duration
+                for item, owner in instance.task_job.items()
+                if owner == job_id
+                and model.task_map[item].kind == "comm"
+                and state.tasks[model.index[item]].status != "completed"
+            )
+            for job_id in jobs
+        }
+        def key(item: str):
+            owner = instance.task_job[item]
+            local = -_multi_tail_score(model, state, tail, item)
+            if job_policy == "flat_lt":
+                return (local, item)
+            if job_policy == "shortest_remaining":
+                return (remaining[owner], local, item)
+            if job_policy == "weighted_lt":
+                return (local * jobs[owner].weight, item)
+            if job_policy == "fcfs":
+                return (jobs[owner].arrival, local, item)
+            if job_policy == "attained_service":
+                return (attained[owner] / jobs[owner].weight, -(state.time-last_service[owner]), local, item)
+            raise ValueError(f"unknown job policy: {job_policy}")
+        selected = []
+        for item in sorted(eligible, key=key):
+            if model.compatible((*selected, item)):
+                selected.append(item)
+        action = MultiAction(tuple(sorted(selected)))
+        before = state.time
+        state = model.step(state, action)
+        delta = state.time - before
+        for item in action.communications:
+            owner = instance.task_job[item]
+            attained[owner] += delta
+            last_service[owner] = state.time
+        actions.append(action)
+    trace = model.run(actions)
+    from muti_channel.preemptive.trace import assert_multi_resource_trace
+    assert_multi_resource_trace(model.dag, model.resources, trace)
+    schedule = MultiResult(state.time, tuple(actions), len(actions), _count_multi_preemptions(model, actions), trace=trace)
+    return evaluate_multi_resource_schedule(instance, schedule, solo_completion=solo_completion)
 
 
 def build_multi_resource_top1_counterexample(
