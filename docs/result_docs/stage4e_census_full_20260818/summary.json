@@ -1,0 +1,660 @@
+{
+  "case_count": 72,
+  "cases": [
+    {
+      "benchmark_id": "gpt13b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 4041.383899981156,
+      "status": "partial",
+      "task_count": 16032
+    },
+    {
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 469.4303000578657,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "choice_state_count": 2,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 2,
+      "scan_runtime_ms": 483.8767000474036,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 470.54589993786067,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1844.5969999302179,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1826.9603999797255,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1812.7895999932662,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "gpt175b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 6361.733200028539,
+      "status": "partial",
+      "task_count": 24736
+    },
+    {
+      "benchmark_id": "gpt175b_ws16_tp8_pp2_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 3737.868999945931,
+      "status": "partial",
+      "task_count": 15936
+    },
+    {
+      "benchmark_id": "gpt175b_ws16_tp8_pp2_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 3706.850399961695,
+      "status": "partial",
+      "task_count": 15936
+    },
+    {
+      "benchmark_id": "gpt175b_ws16_tp8_pp2_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 3750.3636999754235,
+      "status": "partial",
+      "task_count": 15936
+    },
+    {
+      "benchmark_id": "gpt175b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2888.8081000186503,
+      "status": "partial",
+      "task_count": 12304
+    },
+    {
+      "benchmark_id": "gpt175b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2842.679100111127,
+      "status": "partial",
+      "task_count": 12304
+    },
+    {
+      "benchmark_id": "gpt175b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2856.493200059049,
+      "status": "partial",
+      "task_count": 12304
+    },
+    {
+      "benchmark_id": "gpt22b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 4432.0806999458,
+      "status": "partial",
+      "task_count": 18208
+    },
+    {
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 534.94119993411,
+      "status": "partial",
+      "task_count": 2472
+    },
+    {
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 538.8369000284001,
+      "status": "partial",
+      "task_count": 2472
+    },
+    {
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 534.0223999228328,
+      "status": "partial",
+      "task_count": 2472
+    },
+    {
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2099.0556998876855,
+      "status": "partial",
+      "task_count": 9040
+    },
+    {
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2061.9811000069603,
+      "status": "partial",
+      "task_count": 9040
+    },
+    {
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2074.153200024739,
+      "status": "partial",
+      "task_count": 9040
+    },
+    {
+      "benchmark_id": "gpt7b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 3949.4493000674993,
+      "status": "partial",
+      "task_count": 16032
+    },
+    {
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 471.4509000768885,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "choice_state_count": 2,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 2,
+      "scan_runtime_ms": 484.43340009544045,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 470.4191000200808,
+      "status": "partial",
+      "task_count": 2184
+    },
+    {
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1798.2410999247804,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1764.729099930264,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 1809.647100046277,
+      "status": "partial",
+      "task_count": 7952
+    },
+    {
+      "benchmark_id": "llama405b_sourcews32_effectivews64_tp16_pp2_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 20,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 35751.13229989074,
+      "status": "timeout",
+      "task_count": 157056
+    },
+    {
+      "benchmark_id": "llama405b_ws32_tp16_pp2_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 23785.274799913168,
+      "status": "partial",
+      "task_count": 78464
+    },
+    {
+      "benchmark_id": "llama405b_ws32_tp16_pp2_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 23144.174700020812,
+      "status": "partial",
+      "task_count": 78464
+    },
+    {
+      "benchmark_id": "llama405b_ws32_tp16_pp2_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 1,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 895532.8151000431,
+      "status": "timeout",
+      "task_count": 78464
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews16_effectivews32_tp8_pp2_ep1_dp2_gbs2_mbs1",
+      "choice_state_count": 10,
+      "decision_count": 10,
+      "non_equivalent_choice_count": 10,
+      "scan_runtime_ms": 34804.78989996482,
+      "status": "timeout",
+      "task_count": 49952
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews16_effectivews64_tp4_pp4_ep1_dp4_gbs2_mbs1",
+      "choice_state_count": 20,
+      "decision_count": 20,
+      "non_equivalent_choice_count": 20,
+      "scan_runtime_ms": 31703.788300044835,
+      "status": "timeout",
+      "task_count": 20352
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 6136.739699984901,
+      "status": "partial",
+      "task_count": 22432
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs2_mbs1",
+      "choice_state_count": 12,
+      "decision_count": 12,
+      "non_equivalent_choice_count": 12,
+      "scan_runtime_ms": 33275.04870004486,
+      "status": "timeout",
+      "task_count": 35456
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews8_effectivews32_tp4_pp2_ep1_dp4_gbs2_mbs1",
+      "choice_state_count": 14,
+      "decision_count": 14,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 31292.251399951056,
+      "status": "timeout",
+      "task_count": 28576
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 5952.971299993806,
+      "status": "partial",
+      "task_count": 8688
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 723.0114999692887,
+      "status": "partial",
+      "task_count": 3144
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 708.1520000938326,
+      "status": "partial",
+      "task_count": 3144
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 690.0965999811888,
+      "status": "partial",
+      "task_count": 3144
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 3079.3769999872893,
+      "status": "partial",
+      "task_count": 4992
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 5591.492100036703,
+      "status": "partial",
+      "task_count": 8688
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 16,
+      "decision_count": 16,
+      "non_equivalent_choice_count": 16,
+      "scan_runtime_ms": 31410.67110002041,
+      "status": "timeout",
+      "task_count": 47568
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 31437.097299960442,
+      "status": "partial",
+      "task_count": 24944
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1_it2",
+      "choice_state_count": 15,
+      "decision_count": 15,
+      "non_equivalent_choice_count": 15,
+      "scan_runtime_ms": 31747.38369998522,
+      "status": "timeout",
+      "task_count": 49888
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 16,
+      "decision_count": 16,
+      "non_equivalent_choice_count": 16,
+      "scan_runtime_ms": 31522.0589999808,
+      "status": "timeout",
+      "task_count": 47568
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 2551.4514000387862,
+      "status": "partial",
+      "task_count": 7858
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 1276.853600051254,
+      "status": "partial",
+      "task_count": 3978
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 2634.8326000152156,
+      "status": "partial",
+      "task_count": 7858
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 25,
+      "decision_count": 25,
+      "non_equivalent_choice_count": 25,
+      "scan_runtime_ms": 30925.186899956316,
+      "status": "timeout",
+      "task_count": 30688
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2810.4734000517055,
+      "status": "partial",
+      "task_count": 11152
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2866.194300004281,
+      "status": "partial",
+      "task_count": 11152
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "choice_state_count": 0,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 0,
+      "scan_runtime_ms": 2716.0351999336854,
+      "status": "partial",
+      "task_count": 11152
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 21600.13080004137,
+      "status": "partial",
+      "task_count": 17664
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 25,
+      "decision_count": 25,
+      "non_equivalent_choice_count": 25,
+      "scan_runtime_ms": 30925.763600040227,
+      "status": "timeout",
+      "task_count": 30688
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 1335.586900007911,
+      "status": "partial",
+      "task_count": 4212
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 700.656900065951,
+      "status": "partial",
+      "task_count": 2204
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 14,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 14,
+      "scan_runtime_ms": 1352.9618999455124,
+      "status": "partial",
+      "task_count": 4212
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp4_pp1_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 18926.379600074142,
+      "status": "partial",
+      "task_count": 25188
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp4_pp1_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 8476.857000030577,
+      "status": "partial",
+      "task_count": 12756
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws4_tp4_pp1_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 17649.421499925666,
+      "status": "partial",
+      "task_count": 25188
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 15,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 15,
+      "scan_runtime_ms": 833.4223000565544,
+      "status": "partial",
+      "task_count": 2680
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 15,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 15,
+      "scan_runtime_ms": 471.6784000629559,
+      "status": "partial",
+      "task_count": 1536
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 15,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 15,
+      "scan_runtime_ms": 876.3074999442324,
+      "status": "partial",
+      "task_count": 2680
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs16_mbs4",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 9377.539100009017,
+      "status": "partial",
+      "task_count": 13544
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 4647.958599962294,
+      "status": "partial",
+      "task_count": 7096
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_it2",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 9569.518800009973,
+      "status": "partial",
+      "task_count": 14192
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_it4",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 20520.045100012794,
+      "status": "partial",
+      "task_count": 28384
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs8_mbs2",
+      "choice_state_count": 30,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 30,
+      "scan_runtime_ms": 9083.44550000038,
+      "status": "partial",
+      "task_count": 13544
+    },
+    {
+      "benchmark_id": "simai_example_multi_job_1to1",
+      "choice_state_count": 3,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 3,
+      "scan_runtime_ms": 31.681500026024878,
+      "status": "partial",
+      "task_count": 160
+    },
+    {
+      "benchmark_id": "simai_example_single_job_1to1",
+      "choice_state_count": 32,
+      "decision_count": 32,
+      "non_equivalent_choice_count": 32,
+      "scan_runtime_ms": 24.85120005439967,
+      "status": "partial",
+      "task_count": 40
+    }
+  ],
+  "cases_with_non_equivalent_choice": 35,
+  "choice_state_count": 721,
+  "completed_count": 0,
+  "failed_count": 0,
+  "non_equivalent_choice_count": 721,
+  "partial_count": 72,
+  "schema_version": "llm-contention-census-v1"
+}

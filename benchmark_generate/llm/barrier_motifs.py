@@ -24,6 +24,7 @@ from core.execution.preemptive import Action, PreemptiveDAGModel
 from core.resource import MultiResourceInstance
 from llm_structured.barrier import action_features, build_context, feature_snapshot
 from muti_channel.preemptive.solver import schedule_set_policy
+from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
 from single_channel.complex_chain.preemptive.solver import (
     exact_oracle,
     schedule_barrier_policy,
@@ -279,6 +280,9 @@ def label_motif(motif: BarrierMotif) -> dict[str, Any]:
     labels = _optimal_first_actions(model, scripted)
     union = {str(action.communications): action_features(context, action.communications).__dict__ for action in sets}
     baseline = schedule_set_policy(motif.dag, motif.resources)
+    oracle = multi_exact_oracle(
+        motif.dag, motif.resources, max_states=100_000, time_limit_s=2.0
+    )
     return {
         "name": motif.name,
         "channel": "multi",
@@ -290,6 +294,11 @@ def label_motif(motif: BarrierMotif) -> dict[str, Any]:
         "scripted_action_costs": _first_action_costs(model, scripted),
         "scripted_optimal_actions": [repr(item) for item in labels[1]],
         "baseline_makespan": baseline.makespan,
+        "exact": {
+            "status": oracle.status,
+            "makespan": oracle.makespan,
+            "states": oracle.explored_states,
+        },
         "description": motif.description,
     }
 

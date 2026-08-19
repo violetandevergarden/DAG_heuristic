@@ -52,3 +52,32 @@ def test_cache_does_not_change_actions_or_makespan():
     assert [t.action for t in cached.trace.transitions] == [
         t.action for t in uncached.trace.transitions
     ]
+
+
+def test_depth_two_rollout_uses_extra_prefix_budget_and_is_legal():
+    depth1 = schedule_selective_rollout(
+        _dag(), budget=RolloutBudget(rollout_depth=1, max_triggers=1,
+                                     max_completion_calls=2, total_time_limit_s=None,
+                                     per_decision_time_limit_s=None)
+    )
+    depth2 = schedule_selective_rollout(
+        _dag(), budget=RolloutBudget(rollout_depth=2, max_triggers=1,
+                                     max_completion_calls=2, total_time_limit_s=None,
+                                     per_decision_time_limit_s=None)
+    )
+    assert depth2.completion_calls == depth1.completion_calls == 2
+    assert depth2.expanded_nodes >= depth1.expanded_nodes
+    assert_preemptive_trace(PreemptiveDAGModel(_dag()), depth2.trace)
+
+
+def test_depth_two_respects_completion_budget_and_falls_back_to_lt():
+    baseline = schedule_longest_tail(_dag())
+    result = schedule_selective_rollout(
+        _dag(), budget=RolloutBudget(rollout_depth=2, max_triggers=1,
+                                     max_completion_calls=1, total_time_limit_s=None,
+                                     per_decision_time_limit_s=None)
+    )
+    assert result.makespan == baseline.makespan
+    assert result.fallback_count >= 1
+    assert "completion_call_limit" in result.fallback_reasons
+    assert_preemptive_trace(PreemptiveDAGModel(_dag()), result.trace)

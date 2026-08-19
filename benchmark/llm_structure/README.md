@@ -7,8 +7,8 @@ schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定
 ## 来源
 
 - workload：`third_party/simai-flow-scheduler/inputs/aicb-workload/` 中的真实逐层
-  AICB 文件。当前冻结的 44 个 case 仍以 A100-Mixtral-8x7B 为主；输入目录还包含
-  GPT/Llama family，尚待在 integration 依赖恢复后扩展。每个 benchmark 的 manifest
+  AICB 文件。当前活动 corpus 包含 72 个候选 case；这表示文件数量，不等于 72 个
+  已认证存在竞争的样例。每个 benchmark 的 manifest
   记录源文件内容 hash 与 SimAI checkout commit。
 - 拓扑：`third_party/simai-flow-scheduler/inputs/topologies/`。分级：
   - **production**：AlibabaHPN_16g、Spectrum-X_16g、DCN+DualToR_64g —— 用于真实评估；
@@ -40,9 +40,10 @@ llm_structure/
 
 ## 竞争 probe（manifest 字段 probe）
 
-当前 44 个文件已完成最多 8 个决策点的 `fast_prefix` 公共模拟器采样；这不是完整
-回放，也不是全局无竞争证明。小型 SimAI example 另有 bounded certified choice
-existence 检查。slow full replay 应按 case 恢复，并保留独立 checkpoint。
+当前 72 个候选文件已完成新配置（`probe_config_hash`、`contention-audit-v2`）的最多 8 个
+决策点 `fast_prefix` 公共模拟器采样；这不是完整回放，也不是全局无竞争证明。小型 SimAI
+example 另有 bounded certified choice existence 检查。slow full replay 应按 case
+恢复，并保留独立 checkpoint。
 
 - `decisions` / `contended_decisions`：决策点数与存在竞争的决策点数
   （单通道：eligible>1；多资源：存在资源冲突的 eligible 对）；
@@ -54,6 +55,21 @@ existence 检查。slow full replay 应按 case 恢复，并保留独立 checkpo
 `none_observed_under_probes` 只表示采样轨迹没有发现竞争；除非 certified probe 完成，
 不能写成全局 none，也不能用它作为算法合理性结论。
 
+## 基线与规模结果（2026-08-18）
+
+统一 FIFO / Longest Tail / 固定顺序基线、DP 配对曲线、真实 multi-job、大图规模报告、
+real-derived exact slice 与转换层对拍的结果归档在
+`docs/result_docs/stage4a_remaining_steps_result_20260818.md` 及其引用目录
+（`stage4a_baselines_small_*`、`stage4a_dp_curve_*`、`stage4a_multi_job_*`、
+`stage4a_scaling_*`、`stage4a_exact_slices_*`）。要点：
+
+- 小/中规模（≤12000 任务）39 个 case 中 28 个三个基线完整回放成功；其余至少一个
+  基线在 90s 预算内超时。多资源真实切片（300 任务）已有 Exact 最优证书。
+- 同一 source 的 DP 从 1 增加到 2 只翻倍任务数，却使完整回放全部超过 120s 预算；
+  dp≥2 与大图（≥30k 任务）的完整回放当前不可行，竞争状态未定。
+- 真实 AICB multi-job（同构单通道、异构多资源同时/错峰）3 个 case 已生成，
+  报告 makespan 与 per-job JCT。
+
 ## 精确 reference
 
 小图由 `benchmark_generate/reference.py` 在预算内尝试生成
@@ -63,10 +79,10 @@ existence 检查。slow full replay 应按 case 恢复，并保留独立 checkpo
 ## 重新生成
 
 ```powershell
-python -m benchmark_generate.stage4 --mode generate --output benchmark
-python -m benchmark_generate.stage4 --mode probe --output benchmark --fast
-python -m benchmark_generate.stage4 --mode publish --output benchmark
+python -m benchmark_generate.llm.corpus --mode generate --output benchmark
+python -m benchmark_generate.llm.corpus --mode probe --output benchmark --fast
+python -m benchmark_generate.llm.corpus --mode publish --output benchmark
 ```
 
-事务入口在 `benchmark_generate/stage4.py`；转换逻辑在 `benchmark_generate/llm_structure.py`。
+事务入口在 `benchmark_generate/llm/corpus.py`；转换逻辑在 `benchmark_generate/llm_structure.py`。
 不要手工编辑本目录 JSON；要改就改生成器后重新冻结。

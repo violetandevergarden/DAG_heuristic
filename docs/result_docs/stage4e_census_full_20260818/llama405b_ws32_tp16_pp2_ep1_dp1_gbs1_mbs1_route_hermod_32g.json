@@ -1,0 +1,19 @@
+{
+  "benchmark_hash": "4430873a02a7f47a3ab872f1a2709dd4293b6ff075ea9a7971753ed6c7f455f9",
+  "benchmark_id": "llama405b_ws32_tp16_pp2_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+  "checkpoint": {
+    "decision_index": 1,
+    "trace_prefix_hash": "41c4535d5ff0188e1a068dca81e96f6668f035443c6f5ecb0544cc07e64a201e"
+  },
+  "choice_state_count": 0,
+  "choice_states": [],
+  "decision_count": 1,
+  "first_choice_time": null,
+  "non_equivalent_choice_count": 0,
+  "scan_runtime_ms": 895532.8151000431,
+  "scenario": "muti_channel",
+  "schema_version": "llm-contention-census-v1",
+  "status": "timeout",
+  "task_count": 78464,
+  "termination_reason": "time_limit"
+}

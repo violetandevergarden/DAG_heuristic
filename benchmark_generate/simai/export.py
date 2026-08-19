@@ -449,7 +449,8 @@ def to_benchmark(
             "source": "simai-flow-scheduler",
             "pipeline_mode": built.mode,
             "bandwidth_gbps": bandwidth_gbps,
-            "topology": str(topology_path) if topology_path else None,
+            "topology": topology_path.name if topology_path else None,
+            "duration_model_version": "nominal_bandwidth_ceil_bytes_per_us-v1",
             "parallelism": {
                 "tp": parallelism.tp,
                 "dp": parallelism.dp,

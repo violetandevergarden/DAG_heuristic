@@ -1,0 +1,48 @@
+{
+  "baselines": {
+    "fifo": {
+      "comm_busy_time": 6704352,
+      "contended_decisions": 6213,
+      "decisions": 6336,
+      "first_action": "304",
+      "forced_idle_time": 325333,
+      "makespan": 7029685,
+      "preemptions": 0,
+      "runtime_ms": 130060.76979998033,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "d82781d55c977077cd02464a918e4495379dff04e8da6222b90ac895e11c968a",
+      "utilization": 0.95372
+    },
+    "fixed_order": {
+      "comm_busy_time": 6704352,
+      "contended_decisions": 5976,
+      "decisions": 6228,
+      "first_action": "304",
+      "forced_idle_time": 458372,
+      "makespan": 7162724,
+      "preemptions": 421,
+      "runtime_ms": 122950.71570004802,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "ac1df3e06cddc0da0a58a7e99dd63a9a71616fa311fced7d98222e182e68353c",
+      "utilization": 0.936006
+    },
+    "longest_tail": {
+      "decisions": 3470,
+      "runtime_ms": 90002.16120004188,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "08517d751448f1da06f9177dbd365d28cc39c069a3fa68c970141d121e1ad615"
+    }
+  },
+  "benchmark_hash": "0bd6dde4ea539fa5db88656310bc372cbd41daf12e98d1e14aef52740e771fdc",
+  "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs16_mbs4",
+  "case_runtime_ms": 343745.702,
+  "communication_count": 5088,
+  "scenario": "single_channel",
+  "schema_version": "stage4a-baselines-v1",
+  "suite": "R-C",
+  "task_count": 8688,
+  "time_limit_s": 90.0
+}

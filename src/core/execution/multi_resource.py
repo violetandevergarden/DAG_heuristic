@@ -213,10 +213,18 @@ class PreemptiveMultiResourceModel:
             raise IllegalActionError(
                 f"multi-resource action must use stable sorted IDs at t={state.time}: {action}"
             )
-        if action not in self.legal_actions(state):
+        selected_set = set(selected)
+        is_eligible = selected_set <= set(eligible)
+        is_compatible = self.compatible(selected)
+        is_maximal = is_eligible and is_compatible and all(
+            not self.compatible((*selected, item))
+            for item in eligible
+            if item not in selected_set
+        )
+        if not selected or not is_maximal:
             if not selected:
                 reason = "forced idle is simulator-owned; empty scheduler actions are forbidden"
-            elif set(selected) <= set(eligible) and self.compatible(selected):
+            elif is_eligible and is_compatible:
                 reason = "compatible action is not inclusion-maximal"
             else:
                 reason = "illegal multi-resource action"

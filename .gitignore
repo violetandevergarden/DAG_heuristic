@@ -6,5 +6,4 @@ outputs/
 dist/
 build/
 *.egg-info/
-docs/
 experiments/

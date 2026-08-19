@@ -34,6 +34,10 @@ CORPUS_MANIFEST_VERSION = "llm-corpus-v2"
 STATUSES = {
     "generated",
     "probing",
+    "sampled_prefix",
+    "certified_small",
+    "completed",
+    "state_limit",
     "probed",
     "timeout",
     "failed",
@@ -69,7 +73,12 @@ def _git_state(root: Path) -> dict[str, Any]:
         ).stdout
     except (OSError, subprocess.CalledProcessError):
         return {"commit": None, "dirty": None, "diff_or_source_bundle_hash": None}
-    bundle = ((diff or "") + "\n" + (untracked or "")).encode()
+    untracked_entries = []
+    for relative in (untracked or "").splitlines():
+        candidate = root / relative
+        if candidate.is_file():
+            untracked_entries.append(f"{relative}\0{_sha256_file(candidate)}")
+    bundle = ((diff or "") + "\n" + "\n".join(untracked_entries)).encode()
     return {
         "commit": commit,
         "dirty": bool(diff or untracked),
@@ -189,8 +198,14 @@ def _row_for(
         ).encode()),
         "duration_model": {
             "name": "nominal_bandwidth_ceil_bytes_per_us",
+            "version": metadata.get("duration_model_version", "v1"),
             "bandwidth_gbps": metadata.get("bandwidth_gbps"),
             "time_unit": benchmark.time_unit,
+            "per_link_capacity": False,
+            "includes_nic_resources": any(
+                resource.resource_id.startswith(("nic_tx:", "nic_rx:"))
+                for resource in benchmark.resources
+            ),
         },
         "semantic_contract_version": metadata.get("semantic_contract_version"),
         "converter": {
@@ -226,21 +241,55 @@ def _manifest_path(llm_root: Path) -> Path:
     return llm_root / "manifest.jsonl"
 
 
-def _fast_contention_audit(benchmark, *, horizon: int = 8) -> dict[str, Any]:
+def _normalized_status(row: dict[str, Any]) -> str:
+    """Map the ambiguous v1 success status to its recorded evidence scope."""
+
+    status = row.get("status", "generated")
+    if status == "probed" and (row.get("probe") or {}).get("probe_status") == "sampled_prefix":
+        return "sampled_prefix"
+    return status
+
+
+def _static_overlap_summary(benchmark) -> dict[str, Any]:
+    communications = [task for task in benchmark.tasks if task.kind == "communication"]
+    users: dict[str, int] = {}
+    for task in communications:
+        for resource in task.resources:
+            users[resource] = users.get(resource, 0) + 1
+    return {
+        "communication_count": len(communications),
+        "shared_resource_count": sum(count > 1 for count in users.values()),
+        "resource_membership_pair_count": sum(count * (count - 1) // 2 for count in users.values()),
+        "pair_count_is_upper_bound": True,
+    }
+
+
+def _fast_contention_audit(
+    benchmark,
+    *,
+    horizon: int = 8,
+    enumeration_limit: int = 256,
+    time_limit_s: float | None = None,
+    max_states: int = 2_000,
+) -> dict[str, Any]:
     """Sample a bounded public-simulator prefix without claiming full replay."""
 
     from core.conversion import to_internal_dag, to_multi_resource_instance
-    from core.execution.multi_resource import PreemptiveMultiResourceModel
+    from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
     from core.execution.preemptive import Action, PreemptiveDAGModel
 
     decisions = 0
     contended = 0
     max_eligible = 0
     action_counts: list[int] = []
+    enumeration_truncated = False
+    started = time.perf_counter()
     if benchmark.scenario == "single_channel":
         model = PreemptiveDAGModel(to_internal_dag(benchmark))
         state = model.initial_state()
         while not model.is_finished(state) and decisions < horizon:
+            if time_limit_s is not None and time.perf_counter() - started >= time_limit_s:
+                break
             while not model.is_finished(state) and not model.eligible_communications(state):
                 state = model.step(state, Action.wait()).after
             if model.is_finished(state):
@@ -259,17 +308,34 @@ def _fast_contention_audit(benchmark, *, horizon: int = 8) -> dict[str, Any]:
         model = PreemptiveMultiResourceModel(instance.dag, resources)
         state = model.initial_state()
         while not model.finished(state) and decisions < horizon:
+            if time_limit_s is not None and time.perf_counter() - started >= time_limit_s:
+                break
             while not model.finished(state) and not model.eligible(state):
                 state, _interval = model.advance_forced_idle(state)
             if model.finished(state):
                 break
             eligible = model.eligible(state)
-            legal = model.legal_actions(state)
-            pairs = sum(
-                not resources[left].isdisjoint(resources[right])
-                for index, left in enumerate(eligible)
-                for right in eligible[index + 1:]
-            )
+            if len(eligible) <= enumeration_limit:
+                legal = model.legal_actions(state)
+            else:
+                selected: list[str] = []
+                for item in sorted(eligible):
+                    if model.compatible((*selected, item)):
+                        selected.append(item)
+                legal = (MultiResourceAction(tuple(selected)),)
+                enumeration_truncated = True
+            if len(eligible) <= enumeration_limit:
+                pairs = sum(
+                    not resources[left].isdisjoint(resources[right])
+                    for index, left in enumerate(eligible)
+                    for right in eligible[index + 1:]
+                )
+            else:
+                resource_users: dict[str, int] = {}
+                for item in eligible:
+                    for resource in resources[item]:
+                        resource_users[resource] = resource_users.get(resource, 0) + 1
+                pairs = sum(count * (count - 1) // 2 for count in resource_users.values())
             decisions += 1
             max_eligible = max(max_eligible, len(eligible))
             action_counts.append(len(legal))
@@ -278,12 +344,13 @@ def _fast_contention_audit(benchmark, *, horizon: int = 8) -> dict[str, Any]:
             state = model.step(state, max(legal, key=lambda action: (len(action.communications), action.communications)))
         rule = "max_cardinality_maximal_set"
     fraction = contended / decisions if decisions else 0.0
-    certified = _certified_reachable_choice(benchmark) if len(benchmark.tasks) <= 500 else {
+    certified = _certified_reachable_choice(benchmark, max_states=max_states) if len(benchmark.tasks) <= 500 else {
         "status": "not_run_size_limit",
         "exists_multiple_legal_actions": None,
         "explored_states": 0,
     }
     return {
+        "benchmark_id": benchmark.benchmark_id,
         "probe_kind": "fast_prefix",
         "probe_status": "sampled_prefix",
         "baseline_action_rule": rule,
@@ -297,6 +364,21 @@ def _fast_contention_audit(benchmark, *, horizon: int = 8) -> dict[str, Any]:
         "certified_reachable_choice": certified["exists_multiple_legal_actions"],
         "certified_probe_status": certified["status"],
         "certified_probe_states": certified["explored_states"],
+        "complete_trace": False,
+        "trace_hash": None,
+        "static_resource_overlap": _static_overlap_summary(benchmark),
+        "baseline_replay_competition": {
+            "choice_state_count": contended,
+            "scope": "sampled_prefix",
+        },
+        "enumeration_limit": enumeration_limit,
+        "enumeration_exact": not enumeration_truncated,
+        "enumeration_truncated": enumeration_truncated,
+        "termination_reason": (
+            "time_limit"
+            if time_limit_s is not None and time.perf_counter() - started >= time_limit_s
+            else "horizon" if decisions >= horizon else "completed"
+        ),
     }
 
 
@@ -413,7 +495,18 @@ def generate(root: Path, *, run_id: str | None = None) -> Path:
     return staging
 
 
-def probe(root: Path, *, manifest: Path | None = None, limit: int | None = None, fast: bool = False, force: bool = False) -> Path:
+def probe(
+    root: Path,
+    *,
+    manifest: Path | None = None,
+    limit: int | None = None,
+    fast: bool = False,
+    force: bool = False,
+    time_limit_s: float | None = None,
+    max_decisions: int = 8,
+    max_states: int = 2_000,
+    enumeration_limit: int = 256,
+) -> Path:
     """Resume probes one case at a time and write independent checkpoints."""
 
     root = root.resolve()
@@ -432,12 +525,24 @@ def probe(root: Path, *, manifest: Path | None = None, limit: int | None = None,
     # outside ``benchmark/`` so repository-wide ``*.json`` enumeration cannot
     # mistake a report for a problem instance.
     artifact_root = root.parent if root.name == "benchmark" else root
-    reports_root = llm_root / ".artifacts" / "contention_audit"
+    reports_root = artifact_root / ".artifacts" / "llm_structure" / "contention_audit"
     changed = 0
+    config = {
+        "fast": fast,
+        "time_limit_s": time_limit_s,
+        "max_decisions": max_decisions,
+        "max_states": max_states,
+        "enumeration_limit": enumeration_limit,
+    }
+    config_hash = canonical_parameter_hash(config)
     for row in rows:
         if limit is not None and changed >= limit:
             break
-        if not force and row.get("status") in {"probed", "no-contention-observed", "timeout"}:
+        old_probe = row.get("probe") or {}
+        if not force and row.get("status") in {
+            "sampled_prefix", "certified_small", "completed", "probed",
+            "no-contention-observed", "timeout", "state_limit",
+        } and old_probe.get("probe_config_hash") == config_hash:
             continue
         relative = row.get("path")
         if not relative:
@@ -451,13 +556,25 @@ def probe(root: Path, *, manifest: Path | None = None, limit: int | None = None,
         started = time.perf_counter()
         try:
             benchmark = load_benchmark(path)
-            report = _fast_contention_audit(benchmark) if fast else competition_report(benchmark)
+            report = _fast_contention_audit(
+                benchmark,
+                horizon=max_decisions,
+                enumeration_limit=enumeration_limit,
+                time_limit_s=time_limit_s,
+                max_states=max_states,
+            ) if fast else competition_report(benchmark)
             elapsed = (time.perf_counter() - started) * 1000.0
             report["probe_runtime_ms"] = round(elapsed, 3)
+            report["probe_config_hash"] = config_hash
+            report["probe_schema_version"] = "contention-audit-v2"
             if not fast:
                 report["probe_status"] = "completed"
             row["probe"] = report
-            row["status"] = "probed"
+            row["status"] = (
+                "timeout"
+                if report.get("termination_reason") == "time_limit"
+                else "sampled_prefix" if fast else "completed"
+            )
             row["error_or_exclusion_reason"] = None
             if not fast and report.get("competition_level") == "none":
                 row["status"] = "no-contention-observed"
@@ -489,6 +606,30 @@ def publish(
         candidate = staging / "preemptive"
         if not candidate.is_dir():
             raise FileNotFoundError(f"staging corpus missing: {candidate}")
+        source_manifest = staging / "candidate_manifest.jsonl"
+        rows = _read_jsonl(source_manifest)
+        seen_ids: set[str] = set()
+        seen_paths: set[str] = set()
+        for row in rows:
+            relative = row.get("path")
+            if not relative:
+                continue
+            benchmark_id = row.get("benchmark_id")
+            if benchmark_id in seen_ids or relative in seen_paths:
+                raise ValueError("candidate manifest contains duplicate benchmark_id or path")
+            seen_ids.add(benchmark_id)
+            seen_paths.add(relative)
+            path = (staging / relative).resolve()
+            try:
+                path.relative_to(staging)
+            except ValueError as error:
+                raise ValueError(f"candidate path escapes staging: {relative}") from error
+            if not path.is_file():
+                raise ValueError(f"candidate benchmark missing: {relative}")
+            benchmark = load_benchmark(path)
+            validate_benchmark(benchmark)
+            if row.get("benchmark_content_hash") != _sha256_file(path):
+                raise ValueError(f"candidate benchmark hash mismatch: {relative}")
         if active.exists() and not replace_active:
             raise FileExistsError("active corpus exists; pass replace_active explicitly")
         if active.exists():
@@ -498,8 +639,10 @@ def publish(
             backup = backup_root / f"llm_corpus_previous-{int(time.time())}"
             os.replace(active, backup)
         os.replace(candidate, active)
-        source_manifest = staging / "candidate_manifest.jsonl"
-        rows = _read_jsonl(source_manifest)
+        for name in ("source_catalog.jsonl", "run_metadata.jsonl"):
+            source = staging / name
+            if source.exists():
+                shutil.copy2(source, llm_root / name)
     else:
         previous = {row.get("benchmark_id"): row for row in _read_jsonl(_manifest_path(llm_root))}
         rows = []
@@ -509,7 +652,7 @@ def publish(
             row = _row_for(benchmark, path, root=root)
             old = previous.get(benchmark.benchmark_id)
             if old and old.get("benchmark_content_hash") == row["benchmark_content_hash"]:
-                row["status"] = old.get("status", row["status"])
+                row["status"] = _normalized_status(old)
                 row["probe"] = old.get("probe", row["probe"])
                 row["error_or_exclusion_reason"] = old.get("error_or_exclusion_reason")
             rows.append(row)
@@ -533,11 +676,25 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--replace-active", action="store_true")
     parser.add_argument("--fast", action="store_true", help="sample a bounded public-simulator prefix")
     parser.add_argument("--force", action="store_true", help="rerun an existing checkpoint")
+    parser.add_argument("--time-limit-s", type=float)
+    parser.add_argument("--max-decisions", type=int, default=8)
+    parser.add_argument("--max-states", type=int, default=2000)
+    parser.add_argument("--enumeration-limit", type=int, default=256)
     args = parser.parse_args(argv)
     if args.mode == "generate":
         print(generate(args.output, run_id=args.run_id))
     elif args.mode == "probe":
-        print(probe(args.output, manifest=args.manifest, limit=args.limit, fast=args.fast, force=args.force))
+        print(probe(
+            args.output,
+            manifest=args.manifest,
+            limit=args.limit,
+            fast=args.fast,
+            force=args.force,
+            time_limit_s=args.time_limit_s,
+            max_decisions=args.max_decisions,
+            max_states=args.max_states,
+            enumeration_limit=args.enumeration_limit,
+        ))
     else:
         manifest, count = publish(args.output, staging=args.staging, replace_active=args.replace_active)
         print(f"published {count} index rows: {manifest}")

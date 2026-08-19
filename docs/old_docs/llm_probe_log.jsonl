@@ -1,0 +1,14 @@
+{"id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs8_mbs2_route_alibaba_hpn_16g", "tasks": 47568, "comms": 35904, "resources": 96, "time_s": 596.8, "competition": {"decisions": 4568, "contended_decisions": 3, "contention_fraction": 0.0007, "max_eligible": 16, "conflict_pairs": 24, "competition_level": "low", "feasible_makespan": 2026865}}
+{"id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs8_mbs2_route_spectrum_x_16g", "tasks": 47568, "comms": 35904, "resources": 96, "time_s": 578.2, "competition": {"decisions": 4493, "contended_decisions": 3, "contention_fraction": 0.0007, "max_eligible": 16, "conflict_pairs": 24, "competition_level": "low", "feasible_makespan": 1489083}}
+{"id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs8_mbs2_route_alibaba_hpn_16g", "tasks": 8688, "comms": 5088, "resources": 80, "time_s": 29.3, "competition": {"decisions": 1358, "contended_decisions": 4, "contention_fraction": 0.0029, "max_eligible": 16, "conflict_pairs": 16, "competition_level": "low", "feasible_makespan": 1311644}}
+{"wrote 44 benchmarks under benchmark\llm_structure\preemptive
+reference generation skipped for llm_structure corpus: every case exceeds the exact oracle budget (see manifest)
+  replay mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs2_mbs1: high (483/1266 contended, makespan 3204424)
+  replay mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs8_mbs2: high (1065/2756 contended, makespan 7088089)
+  replay mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs16_mbs4: high (1065/2756 contended, makespan 13042998)
+  replay mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs2_mbs1: high (386/764 contended, makespan 2684267)
+  replay mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs8_mbs2: high (1012/1742 contended, makespan 3237815)
+  replay mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs16_mbs4: high (1083/1767 contended, makespan 5803097)
+  replay mixtral8x7b_ws4_tp4_pp1_ep1_dp1_gbs2_mbs1: high (7189/8106 contended, makespan 3587136)
+  replay mixtral8x7b_ws4_tp4_pp1_ep1_dp1_gbs8_mbs2: high (14455/16411 contended, makespan 13115544)
+"}

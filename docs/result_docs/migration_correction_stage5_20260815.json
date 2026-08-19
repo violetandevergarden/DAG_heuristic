@@ -1,0 +1,75 @@
+{
+  "exchangeable_symmetry": [
+    {
+      "compressed_states": 16,
+      "generic_states": 66,
+      "makespan": 11,
+      "replicas": 3
+    },
+    {
+      "compressed_states": 38,
+      "generic_states": 501,
+      "makespan": 14,
+      "replicas": 4
+    },
+    {
+      "compressed_states": 73,
+      "generic_states": 3163,
+      "makespan": 17,
+      "replicas": 5
+    },
+    {
+      "compressed_states": 126,
+      "generic_states": 18134,
+      "makespan": 20,
+      "replicas": 6
+    },
+    {
+      "compressed_states": 203,
+      "generic_states": 99207,
+      "makespan": 23,
+      "replicas": 7
+    }
+  ],
+  "model": {
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "objective": "makespan",
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "work_conserving": true
+  },
+  "scope": "synthetic fixed motifs; no SimAI/AICB workload is included",
+  "synthetic_repetition": [
+    {
+      "boundary_aware_makespan": 2,
+      "exact_makespan": 2,
+      "independent_copy_makespan": 2,
+      "periods": 1
+    },
+    {
+      "boundary_aware_makespan": 4,
+      "exact_makespan": 4,
+      "independent_copy_makespan": 5,
+      "periods": 2
+    },
+    {
+      "boundary_aware_makespan": 8,
+      "exact_makespan": 8,
+      "independent_copy_makespan": 11,
+      "periods": 4
+    },
+    {
+      "boundary_aware_makespan": 16,
+      "exact_makespan": 16,
+      "independent_copy_makespan": 23,
+      "periods": 8
+    },
+    {
+      "boundary_aware_makespan": 32,
+      "exact_makespan": 32,
+      "independent_copy_makespan": 47,
+      "periods": 16
+    }
+  ]
+}

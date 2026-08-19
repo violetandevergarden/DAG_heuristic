@@ -30,12 +30,13 @@ class RolloutBudget:
     max_triggers: int = 8
     max_completion_calls: int = 16
     max_expansions: int = 100_000
+    rollout_depth: int = 1
     per_decision_time_limit_s: float | None = 0.25
     total_time_limit_s: float | None = 2.0
 
     def __post_init__(self) -> None:
         for name in (
-            "max_candidates", "max_triggers", "max_completion_calls", "max_expansions"
+            "max_candidates", "max_triggers", "max_completion_calls", "max_expansions", "rollout_depth"
         ):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} must be non-negative")

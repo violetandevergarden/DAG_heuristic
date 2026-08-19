@@ -1,0 +1,257 @@
+{
+  "curves": [
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1",
+      "communication_count": 4048,
+      "dp": 1,
+      "effective_world_size": 8,
+      "makespan": {
+        "fifo": 1880593,
+        "fixed_order": 1892454,
+        "longest_tail": 1801988
+      },
+      "pp": 2,
+      "runtime_ms": {
+        "fifo": 85509.4,
+        "fixed_order": 87090.4,
+        "longest_tail": 126398.8
+      },
+      "source_world_size": 8,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      },
+      "task_count": 7096,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews8_effectivews16_tp4_pp2_ep1_dp2_gbs2_mbs1",
+      "communication_count": 8128,
+      "dp": 2,
+      "effective_world_size": 16,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 2,
+      "runtime_ms": {
+        "fifo": 120019.1,
+        "fixed_order": 120000.2,
+        "longest_tail": 120001.2
+      },
+      "source_world_size": 8,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 14224,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews8_effectivews32_tp4_pp2_ep1_dp4_gbs2_mbs1",
+      "communication_count": 16384,
+      "dp": 4,
+      "effective_world_size": 32,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 2,
+      "runtime_ms": {
+        "fifo": 120033.8,
+        "fixed_order": 120030.2,
+        "longest_tail": 120002.7
+      },
+      "source_world_size": 8,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 28576,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
+      "communication_count": 2928,
+      "dp": 1,
+      "effective_world_size": 16,
+      "makespan": {
+        "fifo": 1340983,
+        "fixed_order": 1353860,
+        "longest_tail": 1195599
+      },
+      "pp": 4,
+      "runtime_ms": {
+        "fifo": 40353.3,
+        "fixed_order": 47305.0,
+        "longest_tail": 57313.2
+      },
+      "source_world_size": 16,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      },
+      "task_count": 4992,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews16_effectivews32_tp4_pp4_ep1_dp2_gbs2_mbs1",
+      "communication_count": 5920,
+      "dp": 2,
+      "effective_world_size": 32,
+      "makespan": {
+        "fifo": 3254763,
+        "fixed_order": 3214560,
+        "longest_tail": null
+      },
+      "pp": 4,
+      "runtime_ms": {
+        "fifo": 172976.4,
+        "fixed_order": 169409.9,
+        "longest_tail": 120017.1
+      },
+      "source_world_size": 16,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "timeout"
+      },
+      "task_count": 10048,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews16_effectivews64_tp4_pp4_ep1_dp4_gbs2_mbs1",
+      "communication_count": 12096,
+      "dp": 4,
+      "effective_world_size": 64,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 4,
+      "runtime_ms": {
+        "fifo": 120022.3,
+        "fixed_order": 120013.4,
+        "longest_tail": 120055.6
+      },
+      "source_world_size": 16,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 20352,
+      "tp": 4
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1",
+      "communication_count": 18848,
+      "dp": 1,
+      "effective_world_size": 16,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 2,
+      "runtime_ms": {
+        "fifo": 120001.9,
+        "fixed_order": 120027.0,
+        "longest_tail": 120039.7
+      },
+      "source_world_size": 16,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 24944,
+      "tp": 8
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews16_effectivews32_tp8_pp2_ep1_dp2_gbs2_mbs1",
+      "communication_count": 37760,
+      "dp": 2,
+      "effective_world_size": 32,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 2,
+      "runtime_ms": {
+        "fifo": 120045.2,
+        "fixed_order": 120071.7,
+        "longest_tail": 120058.4
+      },
+      "source_world_size": 16,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 49952,
+      "tp": 8
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs2_mbs1",
+      "communication_count": 13536,
+      "dp": 1,
+      "effective_world_size": 32,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 4,
+      "runtime_ms": {
+        "fifo": 120010.4,
+        "fixed_order": 120024.4,
+        "longest_tail": 120027.3
+      },
+      "source_world_size": 32,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 17664,
+      "tp": 8
+    },
+    {
+      "benchmark_id": "mixtral8x7b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs2_mbs1",
+      "communication_count": 27200,
+      "dp": 2,
+      "effective_world_size": 64,
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "pp": 4,
+      "runtime_ms": {
+        "fifo": 120000.4,
+        "fixed_order": 120000.9,
+        "longest_tail": 120015.2
+      },
+      "source_world_size": 32,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "task_count": 35456,
+      "tp": 8
+    }
+  ],
+  "manifest_hash": "26ce2f292314a6f0edfcf4cd6f643b9fb1c95e7cac7d00e0b2b5221225fb7e0b",
+  "projection_label": "parallelism_rewrite_projection (header all_gpus rewrite)",
+  "schema_version": "stage4a-dp-curve-v1"
+}

@@ -1,0 +1,106 @@
+{
+  "baselines": {
+    "fifo": {
+      "comm_busy_time": 1295064,
+      "contended_decisions": 46,
+      "decisions": 847,
+      "first_action": "A::448+A::449+A::450+A::451",
+      "forced_idle_time": 436346,
+      "jobs": [
+        {
+          "arrival": 0,
+          "completion": 445288,
+          "jct": 445288,
+          "job_id": "A",
+          "task_count": 2185
+        },
+        {
+          "arrival": 0,
+          "completion": 661942,
+          "jct": 661942,
+          "job_id": "B",
+          "task_count": 3145
+        }
+      ],
+      "makespan": 661942,
+      "preemptions": 8,
+      "resource_busy_time": 5207120,
+      "runtime_ms": 14784.219500026666,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "2605eadec8f769eab49ee7140956b0c77c6ba613d5575151abb74d64ca8c3f06",
+      "utilization": 0.09833
+    },
+    "fixed_order": {
+      "comm_busy_time": 1295064,
+      "contended_decisions": 51,
+      "decisions": 847,
+      "first_action": "A::448+A::449+A::450+A::451",
+      "forced_idle_time": 469484,
+      "jobs": [
+        {
+          "arrival": 0,
+          "completion": 439131,
+          "jct": 439131,
+          "job_id": "A",
+          "task_count": 2185
+        },
+        {
+          "arrival": 0,
+          "completion": 688923,
+          "jct": 688923,
+          "job_id": "B",
+          "task_count": 3145
+        }
+      ],
+      "makespan": 688923,
+      "preemptions": 12,
+      "resource_busy_time": 5207120,
+      "runtime_ms": 13947.89710000623,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "5e4990ef1eabcd11d6687a4aaa77006dc0d9b5bc465f851cf68c8b0f0641c365",
+      "utilization": 0.094479
+    },
+    "longest_tail": {
+      "comm_busy_time": 1295064,
+      "contended_decisions": 7,
+      "decisions": 849,
+      "first_action": "A::448+A::449+A::450+A::451",
+      "forced_idle_time": 422747,
+      "jobs": [
+        {
+          "arrival": 0,
+          "completion": 440811,
+          "jct": 440811,
+          "job_id": "A",
+          "task_count": 2185
+        },
+        {
+          "arrival": 0,
+          "completion": 645209,
+          "jct": 645209,
+          "job_id": "B",
+          "task_count": 3145
+        }
+      ],
+      "makespan": 645209,
+      "preemptions": 12,
+      "resource_busy_time": 5207120,
+      "runtime_ms": 29529.01389996987,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "7efff82929777a4641645a1e7c1e62f6b6d8074cbcc3137e52aad752d36747fe",
+      "utilization": 0.10088
+    }
+  },
+  "benchmark_hash": null,
+  "benchmark_id": "mj2_simultaneous",
+  "case_runtime_ms": 58555.601,
+  "communication_count": 3216,
+  "scenario": "muti_channel",
+  "schema_version": "stage4a-baselines-v1",
+  "suite": "external",
+  "task_count": 5330,
+  "time_limit_s": 300.0
+}

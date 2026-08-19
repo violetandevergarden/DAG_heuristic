@@ -1,0 +1,34 @@
+{
+  "case_count": 3,
+  "cases": [
+    {
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g_slice",
+      "exact_runtime_ms": 217.841,
+      "exact_status": "optimal",
+      "explored_states": 14,
+      "optimal_makespan": 71058,
+      "scenario": "muti_channel",
+      "task_count": 300
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_slice",
+      "exact_runtime_ms": 60101.294,
+      "exact_status": "feasible",
+      "explored_states": 4849,
+      "optimal_makespan": null,
+      "scenario": "single_channel",
+      "task_count": 268
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g_slice",
+      "exact_runtime_ms": 259.439,
+      "exact_status": "optimal",
+      "explored_states": 14,
+      "optimal_makespan": 98823,
+      "scenario": "muti_channel",
+      "task_count": 300
+    }
+  ],
+  "certified_count": 2,
+  "schema_version": "stage4a-exact-slices-v1"
+}

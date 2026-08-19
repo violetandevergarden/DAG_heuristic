@@ -1,0 +1,58 @@
+{
+  "baselines": {
+    "fifo": {
+      "comm_busy_time": 842640,
+      "contended_decisions": 53,
+      "decisions": 930,
+      "first_action": "1408+1409+1410+1411+1412+1413+1414+1415",
+      "forced_idle_time": 311052,
+      "makespan": 403678,
+      "preemptions": 0,
+      "resource_busy_time": 3852288,
+      "runtime_ms": 22120.59860001318,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "71d56019dc0b71c10b626cf1c9834ac0d9ad7fb5322ae7729f39bbd5955c5bb5",
+      "utilization": 0.066271
+    },
+    "fixed_order": {
+      "comm_busy_time": 842640,
+      "contended_decisions": 53,
+      "decisions": 930,
+      "first_action": "1408+1409+1410+1411+1412+1413+1414+1415",
+      "forced_idle_time": 311052,
+      "makespan": 403678,
+      "preemptions": 0,
+      "resource_busy_time": 3852288,
+      "runtime_ms": 23708.023800048977,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "71d56019dc0b71c10b626cf1c9834ac0d9ad7fb5322ae7729f39bbd5955c5bb5",
+      "utilization": 0.066271
+    },
+    "longest_tail": {
+      "comm_busy_time": 842640,
+      "contended_decisions": 63,
+      "decisions": 931,
+      "first_action": "1408+1409+1410+1411+1412+1413+1414+1415",
+      "forced_idle_time": 311052,
+      "makespan": 404652,
+      "preemptions": 16,
+      "resource_busy_time": 3852288,
+      "runtime_ms": 52378.217799938284,
+      "status": "completed",
+      "termination_reason": null,
+      "trace_hash": "7b68269c9f07effa44c0e0a2a53f4d9fc55e89d3409da5d6a175f0f36bb4d5e6",
+      "utilization": 0.066111
+    }
+  },
+  "benchmark_hash": "1b8eb06edc58caebfb2d456597576cb0b0ae03074a7dd03eef5c66de53d0dfec",
+  "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+  "case_runtime_ms": 98663.771,
+  "communication_count": 6320,
+  "scenario": "muti_channel",
+  "schema_version": "stage4a-baselines-v1",
+  "suite": "R-S",
+  "task_count": 7952,
+  "time_limit_s": 90.0
+}

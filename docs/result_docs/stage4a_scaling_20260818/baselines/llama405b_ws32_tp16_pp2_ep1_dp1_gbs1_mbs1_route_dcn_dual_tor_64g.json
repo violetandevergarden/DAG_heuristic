@@ -1,0 +1,34 @@
+{
+  "baselines": {
+    "fifo": {
+      "decisions": 359,
+      "runtime_ms": 60154.95909994934,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "711027823a46ee37b99b72e03460d306dda3fea584f3c9b398e44ec05f60b59a"
+    },
+    "fixed_order": {
+      "decisions": 290,
+      "runtime_ms": 60094.19929992873,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "f75fe115e21ca226b47069e152270193062ff21afabcc69aef4b36adcbc76b79"
+    },
+    "longest_tail": {
+      "decisions": 84,
+      "runtime_ms": 60275.67889995407,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "80a9b47eae1ecef98bb094ffcd2de64f34ce7ed5e3ef3caeee3751bac699f249"
+    }
+  },
+  "benchmark_hash": "84c8a8f24cc13e509c2ad8a1f860667f14c7831101c59a9beac551d216f0b960",
+  "benchmark_id": "llama405b_ws32_tp16_pp2_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+  "case_runtime_ms": 186444.652,
+  "communication_count": 71072,
+  "scenario": "muti_channel",
+  "schema_version": "stage4a-baselines-v1",
+  "suite": "R-P",
+  "task_count": 78464,
+  "time_limit_s": 60.0
+}

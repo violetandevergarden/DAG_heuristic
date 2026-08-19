@@ -1,0 +1,117 @@
+{
+  "catalog": "llm_structure_catalog",
+  "date": "2026-08-16",
+  "git_commit": "101c7b7b3460eebfa55e53d4fe9bcbcbae960f8f",
+  "semantic_contract": "llm-v1 (communication_resume, task_event, no voluntary idle, exclusive_fixed_set)",
+  "evidence_json": "docs/result_docs/stage4_structure_experiment_20260816.json",
+  "fixture_note": "counterexamples live as in-code fixtures in src/llm_structured (build_pp_dp_repetition, build_exchangeable_replicas, adversarial_packing_trap) and are exercised by tests/llm_structured; the benchmark corpus under benchmark/llm_structure/ contains only real-derived cases.",
+  "entries": [
+    {
+      "id": "R1",
+      "name": "重复 motif 不推出局部策略有效",
+      "status": "verified",
+      "formal_definition": "对 n 个重复单元组成的 DAG，把每个孤立单元内的最优动作逐单元复制，不能保证全局最优；单元边界上的释放耦合会放大局部决策的误差。",
+      "model_scope": "单 channel、communication_resume、单 job makespan、无抢占开销。",
+      "required_labels": ["microbatch_id", "pipeline_stage"],
+      "positive_evidence": {
+        "copy_dp_local_makespan": [2, 5, 11, 23],
+        "optimal_makespan": [2, 4, 8, 16],
+        "formula": "copy-local = 3n-1, optimum = 2n, ratio -> 1.5",
+        "periods": [1, 2, 4, 8],
+        "note": "longest_tail、rollout2、coupling-aware 在全部四档达到最优。"
+      },
+      "counterexample": "code fixture llm_structured.repetition.build_pp_dp_repetition; tests/llm_structured/test_repetition.py::test_independent_local_optimum_does_not_safely_copy",
+      "proof_or_test_obligations": [
+        "tests/llm_structured/test_repetition.py::test_independent_local_optimum_does_not_safely_copy"
+      ],
+      "algorithm_direction": "否决『仅凭重复率或单元内最优采用逐副本局部调度』；不否决携带 boundary/coupling 信息的方法。",
+      "decision": "reject_copy_local"
+    },
+    {
+      "id": "R2",
+      "name": "严格独立同构分量的置换压缩",
+      "status": "restricted",
+      "formal_definition": "若分量两两不相交、每位置 (kind, duration, role, labels, resources) 相同、分量内依赖形状相同且不存在跨分量边，则任意分量置换是带资源映射的标签 DAG 自同构，排序分量 runtime 向量是精确商，不是启发式哈希。",
+      "model_scope": "单 channel 已配对验证；固定多资源版本需同样证书字段（资源集合一致）并另行交叉验证。",
+      "required_labels": ["repetition_group"],
+      "positive_evidence": {
+        "paired_identity_states": [13, 66, 501, 3163, 18134, 99207],
+        "paired_quotient_states": [8, 16, 38, 73, 126, 203],
+        "replicas": [2, 3, 4, 5, 6, 7],
+        "state_reduction_ratio_max": 488.7,
+        "makespan_agreement": "all pairs equal, all status optimal",
+        "note": "配对 exact 仅改变 memo key（身份 vs 分量商），其余搜索成分逐字节相同。身份 key 状态数恰好复现历史 66/501/3163/18134/99207，说明旧数字来自同一枚举顺序的身份 key 而非通用 branch-and-bound 实现。"
+      },
+      "counterexample": [
+        "注入一条跨分量边 -> ValueError（llm_structured.repetition._validate_exchangeable_components）",
+        "单分量 duration 扰动 -> ValueError",
+        "单分量资源集合不同 -> ValueError"
+      ],
+      "proof_or_test_obligations": [
+        "tests/llm_structured/test_paired_symmetry.py 全部 5 项",
+        "多资源 normalized vs uncompressed exact 在小图交叉验证一致（13/9/9，均 optimal）",
+        "负测试覆盖：跨分量边、时长差异、资源差异"
+      ],
+      "algorithm_direction": "限制开放：仅在证书检查通过时启用分量置换商；一般周期块、跨 micro-batch 共享同步、非同构 stage 保持 pending。",
+      "decision": "restricted"
+    },
+    {
+      "id": "S1",
+      "name": "静态语义角色优先级不足",
+      "status": "rejected",
+      "formal_definition": "固定全局角色优先级（如 PP > EP > DP 或某维度优先）作为通信选择的打分，在结构反例与合成 pipeline 骨架上均不能稳定达到或接近最优。",
+      "model_scope": "单 channel、communication_resume、1F1B/interleaved/zero-bubble 合成骨架 + R1 反例。",
+      "required_labels": ["phase", "parallelism_dimension", "collective_type"],
+      "positive_evidence": {
+        "s1_probe": "6 个合成骨架（3 模式 x ga 2/4）上 static_role_pp/dp 的 ratio 1.000-1.002，严格差于 longest_tail/rollout2（ga=2 时后者达到 exact 最优）",
+        "r1_probe": "同一条静态规则在 R1 反例上 ratio 达 1.5"
+      },
+      "counterexample": "code fixture llm_structured.repetition.build_pp_dp_repetition；证据见 stage4_structure_experiment_20260816.json s1/r1 段",
+      "proof_or_test_obligations": [
+        "结构反例 + 合成骨架消融必须分层报告；单一 schedule 上全优不算证据"
+      ],
+      "algorithm_direction": "否决固定全局角色优先级；保留 residual-criticality + phase + barrier proximity + 资源冲突的条件评分研究。",
+      "decision": "reject_static_priority"
+    },
+    {
+      "id": "M1",
+      "name": "多 job 目标分离",
+      "status": "verified",
+      "formal_definition": "最小化 makespan 与最小化 weighted JCT 是不同的优化目标；同一实例上两者的最优动作可以不同。",
+      "model_scope": "多 job 扩展（arrival/weight 显式定义），单 channel 小图。",
+      "required_labels": ["job_id"],
+      "positive_evidence": {
+        "shared_makespan": 11,
+        "makespan_optimal_weighted_jct": 10.5,
+        "weighted_jct_optimal_weighted_jct": 6.0,
+        "top1_truncation": {"full": 18, "candidate_width_1": 19}
+      },
+      "counterexample": "tests/llm_structured/test_multi_job.py::test_weighted_jct_exact_can_choose_a_different_order 与 test_top1_candidate_truncation_has_a_strict_exact_gap。",
+      "proof_or_test_obligations": [
+        "多 job 结论必须单列 objective/arrival/weight，不得与主线 makespan 表混算"
+      ],
+      "algorithm_direction": "多 job 作为独立实验轨道；不得拿 weighted JCT 收益证明单 job makespan 算法。",
+      "decision": "independent_track"
+    },
+    {
+      "id": "P1",
+      "name": "conflict-graph packing 基线（继承 Stage 3 债务）",
+      "status": "baseline_established",
+      "formal_definition": "多资源动作是 maximal compatible set；maximalizer 是 simulator 合法性的一部分，seed 打分决定集合构造。候选宽度必须按 K_seed（seed 排名数量）/ B_pack（集合搜索预算）/ K_score（昂贵打分预算）分开定义。",
+      "model_scope": "固定多资源、communication_resume、单 job makespan。",
+      "required_labels": ["parallelism_dimension"],
+      "positive_evidence": {
+        "deployed_baselines": "longest_tail_pack / resource_pack / bottleneck_pack 在 packing_trap 与两个 Stage 3 兼容样例上全部达到最优",
+        "trap_effectiveness": "flow-size-first seed 在 trap 上 18 vs 最优 13（ratio 1.385）",
+        "cross_check": "多资源 normalized 与 uncompressed exact 一致（13/9/9，均 optimal）"
+      },
+      "counterexample": "code fixture llm_structured.repetition.adversarial_packing_trap；证据见 stage4_structure_experiment_20260816.json p1 段",
+      "proof_or_test_obligations": [
+        "旧 K=1/K=2 反例（25 vs 18）已撤回：当前 maximal-compatible 语义下 K=1/K=2/flat 均得 18",
+        "任何新 packing 算法必须与 exact 分层比较并做 seed 消融"
+      ],
+      "algorithm_direction": "开放加权 packing / local exchange / 受预算精确集合搜索；先统一 K_seed/B_pack/K_score 定义再比较。",
+      "decision": "open_with_redefined_budgets"
+    }
+  ]
+}

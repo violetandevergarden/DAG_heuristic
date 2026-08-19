@@ -158,6 +158,76 @@ def evaluate_depth1(
     )
 
 
+def evaluate_rollout(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    lt_action: str,
+    challenger_action: str | None,
+    account: BudgetAccount,
+    *,
+    decision_started: float,
+) -> EvaluationOutcome:
+    """Compare LT with a candidate prefix, optionally looking one node ahead.
+
+    The second action is always selected from the simulator's eligible set and
+    defaults to LT.  Thus depth-2 spends the same two completion calls as
+    depth-1 while evaluating a longer candidate prefix.
+    """
+    depth = account.budget.rollout_depth
+    if depth <= 1:
+        return evaluate_depth1(model, state, lt_action, challenger_action, account,
+                               decision_started=decision_started)
+    if challenger_action is None or challenger_action == lt_action:
+        return EvaluationOutcome(lt_action, lt_action, challenger_action, None, None, False,
+                                 "no_distinct_challenger", 0, 0, 0.0)
+    if Action.run(challenger_action) not in model.legal_actions(state):
+        return EvaluationOutcome(lt_action, lt_action, challenger_action, None, None, False,
+                                 "illegal_challenger", 0, 0, 0.0)
+    if account.completion_calls + 2 > account.budget.max_completion_calls:
+        account.note("completion_call_limit")
+        return EvaluationOutcome(lt_action, lt_action, challenger_action, None, None, False,
+                                 "completion_call_limit", 0, 0, 0.0)
+    started = perf_counter()
+
+    def prefix_value(first: str) -> tuple[int, int]:
+        current = model.step(state, Action.run(first)).after
+        expansions = 1
+        for _ in range(depth - 1):
+            eligible = model.eligible_communications(current)
+            if not eligible:
+                break
+            second = solver._baseline_choice(model, current, "longest_tail")
+            current = model.step(current, Action.run(second)).after
+            expansions += 1
+        value, tail_expansions = _lt_completion_value(model, current)
+        return value, expansions + tail_expansions
+
+    lt_value, lt_expansions = prefix_value(lt_action)
+    account.completion_calls += 1
+    account.expansions += lt_expansions
+    if account.expansions > account.budget.max_expansions:
+        account.note("expansion_limit")
+        return EvaluationOutcome(lt_action, lt_action, challenger_action, lt_value, None, False,
+                                 "expansion_limit", 1, lt_expansions,
+                                 (perf_counter() - started) * 1000)
+    deadline = account.budget.per_decision_time_limit_s
+    if deadline is not None and perf_counter() - decision_started >= deadline:
+        account.note("per_decision_time_limit")
+        return EvaluationOutcome(lt_action, lt_action, challenger_action, lt_value, None, False,
+                                 "per_decision_time_limit", 1, lt_expansions,
+                                 (perf_counter() - started) * 1000)
+    challenger_value, challenger_expansions = prefix_value(challenger_action)
+    account.completion_calls += 1
+    account.expansions += challenger_expansions
+    improved = challenger_value < lt_value
+    return EvaluationOutcome(
+        challenger_action if improved else lt_action, lt_action, challenger_action,
+        lt_value, challenger_value, improved,
+        None if improved else "challenger_not_strictly_better", 2,
+        lt_expansions + challenger_expansions, (perf_counter() - started) * 1000,
+    )
+
+
 def schedule_selective_rollout(
     dag: BenchmarkDAG,
     *,
@@ -204,8 +274,8 @@ def schedule_selective_rollout(
                 decision = trigger(features)
                 if decision.triggered and features.challenger_action is not None:
                     account.triggers += 1
-                    outcome = evaluate_depth1(model, state, lt, features.challenger_action,
-                                              account, decision_started=feature_started)
+                    outcome = evaluate_rollout(model, state, lt, features.challenger_action,
+                                               account, decision_started=feature_started)
                     timing.completion_ms += outcome.runtime_ms
                     selected = outcome.selected_action
                     improvements += int(outcome.improved)

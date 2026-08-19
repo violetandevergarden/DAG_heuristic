@@ -1,0 +1,60 @@
+{
+  "benchmark_hash": "dab5a5b51de55e7fc8840fec95f6c78c472c18542e9d2fea4071286796a8a638",
+  "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+  "checkpoint": {
+    "decision_index": 32,
+    "trace_prefix_hash": "6c772c6d2dc320419076203129aba676f3dcd19c88a1f04b018a82d0a5616d9a"
+  },
+  "choice_state_count": 2,
+  "choice_states": [
+    {
+      "action_signatures": [
+        "2160",
+        "2162",
+        "2164",
+        "2166"
+      ],
+      "choice_kind": "candidate_choice",
+      "decision_index": 31,
+      "eligible": [
+        "2160",
+        "2162",
+        "2164",
+        "2166"
+      ],
+      "exact_action_enumeration": true,
+      "lt_action": "2160",
+      "non_equivalent": true,
+      "time": 75850,
+      "trace_prefix_hash": "5c2515125ad6cbbe1ced808e75762b1399ee280abeb72af5d0da3266e21eb89c"
+    },
+    {
+      "action_signatures": [
+        "2162",
+        "2164",
+        "2166"
+      ],
+      "choice_kind": "candidate_choice",
+      "decision_index": 32,
+      "eligible": [
+        "2162",
+        "2164",
+        "2166"
+      ],
+      "exact_action_enumeration": true,
+      "lt_action": "2162",
+      "non_equivalent": true,
+      "time": 76522,
+      "trace_prefix_hash": "379b6ad02660fa020c5f2a064b2308c955cfb83f8013a7d1fc41fde710aecfb8"
+    }
+  ],
+  "decision_count": 32,
+  "first_choice_time": 75850,
+  "non_equivalent_choice_count": 2,
+  "scan_runtime_ms": 484.43340009544045,
+  "scenario": "muti_channel",
+  "schema_version": "llm-contention-census-v1",
+  "status": "partial",
+  "task_count": 2184,
+  "termination_reason": "max_decisions"
+}

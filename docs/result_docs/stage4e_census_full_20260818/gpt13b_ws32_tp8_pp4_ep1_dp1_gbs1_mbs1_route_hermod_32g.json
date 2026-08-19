@@ -1,0 +1,19 @@
+{
+  "benchmark_hash": "58dfd4498d8dfdeb4fcb67d878ae2bd8664dcc7785a377ba82a3aaf9bd9abdb0",
+  "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+  "checkpoint": {
+    "decision_index": 32,
+    "trace_prefix_hash": "6b0426a2104b0ce588350b5a34351b0488549fde506bde265b0593e80b4d095a"
+  },
+  "choice_state_count": 0,
+  "choice_states": [],
+  "decision_count": 32,
+  "first_choice_time": null,
+  "non_equivalent_choice_count": 0,
+  "scan_runtime_ms": 1812.7895999932662,
+  "scenario": "muti_channel",
+  "schema_version": "llm-contention-census-v1",
+  "status": "partial",
+  "task_count": 7952,
+  "termination_reason": "max_decisions"
+}

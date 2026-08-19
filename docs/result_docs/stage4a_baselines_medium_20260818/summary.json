@@ -1,0 +1,89 @@
+{
+  "case_count": 3,
+  "cases": [
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1_it2",
+      "first_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "runtime_ms": {
+        "fifo": 90035.707,
+        "fixed_order": 90055.362,
+        "longest_tail": 90178.672
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 49888
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_it2",
+      "first_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "runtime_ms": {
+        "fifo": 90012.254,
+        "fixed_order": 90006.053,
+        "longest_tail": 90040.284
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 14192
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_it4",
+      "first_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "makespan": {
+        "fifo": null,
+        "fixed_order": null,
+        "longest_tail": null
+      },
+      "runtime_ms": {
+        "fifo": 90025.409,
+        "fixed_order": 90026.12,
+        "longest_tail": 90002.165
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 28384
+    }
+  ],
+  "completed_count": 0,
+  "failed_count": 0,
+  "git": {
+    "commit": "658866815a02c77821ca285a4976b4ffc37c5644",
+    "dirty": true
+  },
+  "manifest_hash": "26ce2f292314a6f0edfcf4cd6f643b9fb1c95e7cac7d00e0b2b5221225fb7e0b",
+  "rules": [
+    "fifo",
+    "longest_tail",
+    "fixed_order"
+  ],
+  "schema_version": "stage4a-baselines-v1",
+  "time_limit_s": 90.0,
+  "timeout_count": 3
+}

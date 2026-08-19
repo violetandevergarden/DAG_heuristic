@@ -1,0 +1,1223 @@
+{
+  "formal_general_dag": {
+    "comparisons": {
+      "beam8": {
+        "better_count": 6,
+        "equal_count": 32,
+        "max_relative_improvement": 0.08695652173913043,
+        "mean_relative_improvement": 0.009631448081405928,
+        "role": "experimental_upper_bound_only",
+        "worse_count": 0
+      },
+      "rollout_k2_d2": {
+        "better_count": 6,
+        "equal_count": 32,
+        "max_relative_improvement": 0.08695652173913043,
+        "mean_relative_improvement": 0.009631448081405928,
+        "role": "deployment_candidate",
+        "worse_count": 0
+      }
+    },
+    "failure_instances": [
+      {
+        "absolute_gap": 2,
+        "benchmark_id": "pm_random_join_30",
+        "category": "adversarial",
+        "longest_tail_makespan": 24,
+        "optimal_makespan": 22,
+        "structure": {
+          "barriers": 1,
+          "communications": 5,
+          "depth": 7,
+          "eligible_peak_observed": 2,
+          "forks": 0,
+          "joins": 1,
+          "max_indegree": 2,
+          "max_outdegree": 1,
+          "nodes": 11,
+          "width": 2
+        },
+        "structure_group": "legacy_structural_regression",
+        "warning_signals": [
+          "join_or_barrier_synchronization"
+        ]
+      },
+      {
+        "absolute_gap": 1,
+        "benchmark_id": "pm_random_join_40",
+        "category": "adversarial",
+        "longest_tail_makespan": 22,
+        "optimal_makespan": 21,
+        "structure": {
+          "barriers": 1,
+          "communications": 8,
+          "depth": 7,
+          "eligible_peak_observed": 4,
+          "forks": 0,
+          "joins": 1,
+          "max_indegree": 4,
+          "max_outdegree": 1,
+          "nodes": 18,
+          "width": 4
+        },
+        "structure_group": "legacy_structural_regression",
+        "warning_signals": [
+          "join_or_barrier_synchronization",
+          "high_indegree_join"
+        ]
+      },
+      {
+        "absolute_gap": 2,
+        "benchmark_id": "pm_stage2_rollout_depth",
+        "category": "adversarial",
+        "longest_tail_makespan": 23,
+        "optimal_makespan": 21,
+        "structure": {
+          "barriers": 2,
+          "communications": 4,
+          "depth": 3,
+          "eligible_peak_observed": 2,
+          "forks": 4,
+          "joins": 3,
+          "max_indegree": 3,
+          "max_outdegree": 3,
+          "nodes": 9,
+          "width": 3
+        },
+        "structure_group": "structural_adversarial",
+        "warning_signals": [
+          "join_or_barrier_synchronization",
+          "fork_join_interaction",
+          "multiple_barriers",
+          "high_indegree_join",
+          "high_outdegree_fork"
+        ]
+      },
+      {
+        "absolute_gap": 1,
+        "benchmark_id": "pm_complex_random_003",
+        "category": "random",
+        "longest_tail_makespan": 21,
+        "optimal_makespan": 20,
+        "structure": {
+          "barriers": 1,
+          "communications": 7,
+          "depth": 7,
+          "eligible_peak_observed": 2,
+          "forks": 0,
+          "joins": 1,
+          "max_indegree": 3,
+          "max_outdegree": 1,
+          "nodes": 15,
+          "width": 3
+        },
+        "structure_group": "legacy_structural_regression",
+        "warning_signals": [
+          "join_or_barrier_synchronization",
+          "high_indegree_join"
+        ]
+      },
+      {
+        "absolute_gap": 1,
+        "benchmark_id": "pm_complex_random_005",
+        "category": "random",
+        "longest_tail_makespan": 20,
+        "optimal_makespan": 19,
+        "structure": {
+          "barriers": 1,
+          "communications": 5,
+          "depth": 7,
+          "eligible_peak_observed": 2,
+          "forks": 0,
+          "joins": 1,
+          "max_indegree": 2,
+          "max_outdegree": 1,
+          "nodes": 11,
+          "width": 2
+        },
+        "structure_group": "legacy_structural_regression",
+        "warning_signals": [
+          "join_or_barrier_synchronization"
+        ]
+      },
+      {
+        "absolute_gap": 1,
+        "benchmark_id": "pm_complex_random_006",
+        "category": "random",
+        "longest_tail_makespan": 19,
+        "optimal_makespan": 18,
+        "structure": {
+          "barriers": 2,
+          "communications": 6,
+          "depth": 6,
+          "eligible_peak_observed": 3,
+          "forks": 0,
+          "joins": 2,
+          "max_indegree": 2,
+          "max_outdegree": 1,
+          "nodes": 14,
+          "width": 3
+        },
+        "structure_group": "legacy_structural_regression",
+        "warning_signals": [
+          "join_or_barrier_synchronization",
+          "multiple_barriers"
+        ]
+      }
+    ],
+    "failure_pattern": {
+      "all_failures_have_join_or_barrier": true,
+      "interpretation": "Observed LT failures concentrate around synchronization and multi-decision release interactions; this is a warning signal, not a causal theorem."
+    },
+    "instances": 38,
+    "longest_tail_failures": 6
+  },
+  "policy": {
+    "beam_role": "experimental upper bound/comparison only; not a deployment candidate",
+    "lower_bound_warning": "not used to rank heuristics or claim approximation quality",
+    "primary_large_graph_metric": "primal relative improvement over Longest-tail",
+    "uncertainty": "[max(P,L), best feasible] interval"
+  },
+  "report_schema": "stage2_primal_comparison_v1",
+  "source_reports": {
+    "formal": "stage2_complex_chain_experiment_round2_20260816.json",
+    "scaling": "stage2_complex_chain_scaling_20260816.json"
+  },
+  "stress_rows": [
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 0,
+        "best_feasible": 17,
+        "lower_bound": 17,
+        "relative_width": 0.0
+      },
+      "longest_tail": 17,
+      "profile": "sparse",
+      "rollout_k2_d2": 17,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082700,
+      "size": 10,
+      "warning_signals": []
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 1,
+        "best_feasible": 18,
+        "lower_bound": 17,
+        "relative_width": 0.05555555555555555
+      },
+      "longest_tail": 18,
+      "profile": "sparse",
+      "rollout_k2_d2": 18,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082701,
+      "size": 10,
+      "warning_signals": []
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 0,
+        "best_feasible": 24,
+        "lower_bound": 24,
+        "relative_width": 0.0
+      },
+      "longest_tail": 24,
+      "profile": "sparse",
+      "rollout_k2_d2": 24,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082702,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 2,
+        "best_feasible": 32,
+        "lower_bound": 30,
+        "relative_width": 0.0625
+      },
+      "longest_tail": 32,
+      "profile": "dense",
+      "rollout_k2_d2": 32,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082710,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 4,
+        "best_feasible": 27,
+        "lower_bound": 23,
+        "relative_width": 0.14814814814814814
+      },
+      "longest_tail": 27,
+      "profile": "dense",
+      "rollout_k2_d2": 27,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082711,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 2,
+        "best_feasible": 25,
+        "lower_bound": 23,
+        "relative_width": 0.08
+      },
+      "longest_tail": 25,
+      "profile": "dense",
+      "rollout_k2_d2": 25,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082712,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 3,
+        "best_feasible": 31,
+        "lower_bound": 28,
+        "relative_width": 0.0967741935483871
+      },
+      "longest_tail": 31,
+      "profile": "barrier",
+      "rollout_k2_d2": 31,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082720,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 1,
+        "best_feasible": 20,
+        "lower_bound": 19,
+        "relative_width": 0.05
+      },
+      "longest_tail": 20,
+      "profile": "barrier",
+      "rollout_k2_d2": 20,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082721,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 5,
+        "best_feasible": 23,
+        "lower_bound": 18,
+        "relative_width": 0.21739130434782608
+      },
+      "longest_tail": 23,
+      "profile": "barrier",
+      "rollout_k2_d2": 23,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26082722,
+      "size": 10,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 3,
+        "best_feasible": 28,
+        "lower_bound": 25,
+        "relative_width": 0.10714285714285714
+      },
+      "longest_tail": 28,
+      "profile": "sparse",
+      "rollout_k2_d2": 28,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083700,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 3,
+        "best_feasible": 28,
+        "lower_bound": 25,
+        "relative_width": 0.10714285714285714
+      },
+      "longest_tail": 28,
+      "profile": "sparse",
+      "rollout_k2_d2": 28,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083701,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 5,
+        "best_feasible": 37,
+        "lower_bound": 32,
+        "relative_width": 0.13513513513513514
+      },
+      "longest_tail": 37,
+      "profile": "sparse",
+      "rollout_k2_d2": 37,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083702,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 9,
+        "best_feasible": 39,
+        "lower_bound": 30,
+        "relative_width": 0.23076923076923078
+      },
+      "longest_tail": 39,
+      "profile": "dense",
+      "rollout_k2_d2": 39,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083710,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 11,
+        "best_feasible": 44,
+        "lower_bound": 33,
+        "relative_width": 0.25
+      },
+      "longest_tail": 44,
+      "profile": "dense",
+      "rollout_k2_d2": 44,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083711,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 11,
+        "best_feasible": 42,
+        "lower_bound": 31,
+        "relative_width": 0.2619047619047619
+      },
+      "longest_tail": 42,
+      "profile": "dense",
+      "rollout_k2_d2": 42,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083712,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 12,
+        "best_feasible": 45,
+        "lower_bound": 33,
+        "relative_width": 0.26666666666666666
+      },
+      "longest_tail": 45,
+      "profile": "barrier",
+      "rollout_k2_d2": 45,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083720,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 15,
+        "best_feasible": 47,
+        "lower_bound": 32,
+        "relative_width": 0.3191489361702128
+      },
+      "longest_tail": 47,
+      "profile": "barrier",
+      "rollout_k2_d2": 47,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083721,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 13,
+        "best_feasible": 45,
+        "lower_bound": 32,
+        "relative_width": 0.28888888888888886
+      },
+      "longest_tail": 45,
+      "profile": "barrier",
+      "rollout_k2_d2": 45,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26083722,
+      "size": 20,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 1,
+        "best_feasible": 44,
+        "lower_bound": 43,
+        "relative_width": 0.022727272727272728
+      },
+      "longest_tail": 44,
+      "profile": "sparse",
+      "rollout_k2_d2": 44,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084700,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 3,
+        "best_feasible": 54,
+        "lower_bound": 51,
+        "relative_width": 0.05555555555555555
+      },
+      "longest_tail": 54,
+      "profile": "sparse",
+      "rollout_k2_d2": 54,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084701,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 6,
+        "best_feasible": 45,
+        "lower_bound": 39,
+        "relative_width": 0.13333333333333333
+      },
+      "longest_tail": 45,
+      "profile": "sparse",
+      "rollout_k2_d2": 45,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084702,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 12,
+        "best_feasible": 43,
+        "lower_bound": 31,
+        "relative_width": 0.27906976744186046
+      },
+      "longest_tail": 43,
+      "profile": "dense",
+      "rollout_k2_d2": 43,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084710,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 11,
+        "best_feasible": 46,
+        "lower_bound": 35,
+        "relative_width": 0.2391304347826087
+      },
+      "longest_tail": 48,
+      "profile": "dense",
+      "rollout_k2_d2": 46,
+      "rollout_relative_improvement": 0.041666666666666664,
+      "seed": 26084711,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 10,
+        "best_feasible": 53,
+        "lower_bound": 43,
+        "relative_width": 0.18867924528301888
+      },
+      "longest_tail": 53,
+      "profile": "dense",
+      "rollout_k2_d2": 53,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084712,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 10,
+        "best_feasible": 48,
+        "lower_bound": 38,
+        "relative_width": 0.20833333333333334
+      },
+      "longest_tail": 48,
+      "profile": "barrier",
+      "rollout_k2_d2": 48,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084720,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 14,
+        "best_feasible": 51,
+        "lower_bound": 37,
+        "relative_width": 0.27450980392156865
+      },
+      "longest_tail": 51,
+      "profile": "barrier",
+      "rollout_k2_d2": 51,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084721,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "optimal",
+      "knowledge_interval": {
+        "absolute_width": 13,
+        "best_feasible": 52,
+        "lower_bound": 39,
+        "relative_width": 0.25
+      },
+      "longest_tail": 52,
+      "profile": "barrier",
+      "rollout_k2_d2": 52,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26084722,
+      "size": 30,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 6,
+        "best_feasible": 76,
+        "lower_bound": 70,
+        "relative_width": 0.07894736842105263
+      },
+      "longest_tail": 76,
+      "profile": "sparse",
+      "rollout_k2_d2": 76,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086700,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 4,
+        "best_feasible": 76,
+        "lower_bound": 72,
+        "relative_width": 0.05263157894736842
+      },
+      "longest_tail": 76,
+      "profile": "sparse",
+      "rollout_k2_d2": 76,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086701,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 5,
+        "best_feasible": 71,
+        "lower_bound": 66,
+        "relative_width": 0.07042253521126761
+      },
+      "longest_tail": 71,
+      "profile": "sparse",
+      "rollout_k2_d2": 71,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086702,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 13,
+        "best_feasible": 80,
+        "lower_bound": 67,
+        "relative_width": 0.1625
+      },
+      "longest_tail": 82,
+      "profile": "dense",
+      "rollout_k2_d2": 80,
+      "rollout_relative_improvement": 0.024390243902439025,
+      "seed": 26086710,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 12,
+        "best_feasible": 75,
+        "lower_bound": 63,
+        "relative_width": 0.16
+      },
+      "longest_tail": 75,
+      "profile": "dense",
+      "rollout_k2_d2": 75,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086711,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 14,
+        "best_feasible": 78,
+        "lower_bound": 64,
+        "relative_width": 0.1794871794871795
+      },
+      "longest_tail": 78,
+      "profile": "dense",
+      "rollout_k2_d2": 78,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086712,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 9,
+        "best_feasible": 73,
+        "lower_bound": 64,
+        "relative_width": 0.1232876712328767
+      },
+      "longest_tail": 73,
+      "profile": "barrier",
+      "rollout_k2_d2": 73,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086720,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 11,
+        "best_feasible": 69,
+        "lower_bound": 58,
+        "relative_width": 0.15942028985507245
+      },
+      "longest_tail": 69,
+      "profile": "barrier",
+      "rollout_k2_d2": 69,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086721,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 14,
+        "best_feasible": 75,
+        "lower_bound": 61,
+        "relative_width": 0.18666666666666668
+      },
+      "longest_tail": 75,
+      "profile": "barrier",
+      "rollout_k2_d2": 75,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26086722,
+      "size": 50,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 5,
+        "best_feasible": 162,
+        "lower_bound": 157,
+        "relative_width": 0.030864197530864196
+      },
+      "longest_tail": 162,
+      "profile": "sparse",
+      "rollout_k2_d2": 162,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091700,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 8,
+        "best_feasible": 142,
+        "lower_bound": 134,
+        "relative_width": 0.056338028169014086
+      },
+      "longest_tail": 142,
+      "profile": "sparse",
+      "rollout_k2_d2": 142,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091701,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 8,
+        "best_feasible": 159,
+        "lower_bound": 151,
+        "relative_width": 0.050314465408805034
+      },
+      "longest_tail": 159,
+      "profile": "sparse",
+      "rollout_k2_d2": 159,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091702,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 16,
+        "best_feasible": 152,
+        "lower_bound": 136,
+        "relative_width": 0.10526315789473684
+      },
+      "longest_tail": 153,
+      "profile": "dense",
+      "rollout_k2_d2": 152,
+      "rollout_relative_improvement": 0.006535947712418301,
+      "seed": 26091710,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 14,
+        "best_feasible": 148,
+        "lower_bound": 134,
+        "relative_width": 0.0945945945945946
+      },
+      "longest_tail": 150,
+      "profile": "dense",
+      "rollout_k2_d2": 148,
+      "rollout_relative_improvement": 0.013333333333333334,
+      "seed": 26091711,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 16,
+        "best_feasible": 162,
+        "lower_bound": 146,
+        "relative_width": 0.09876543209876543
+      },
+      "longest_tail": 162,
+      "profile": "dense",
+      "rollout_k2_d2": 162,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091712,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 15,
+        "best_feasible": 150,
+        "lower_bound": 135,
+        "relative_width": 0.1
+      },
+      "longest_tail": 150,
+      "profile": "barrier",
+      "rollout_k2_d2": 150,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091720,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 16,
+        "best_feasible": 140,
+        "lower_bound": 124,
+        "relative_width": 0.11428571428571428
+      },
+      "longest_tail": 140,
+      "profile": "barrier",
+      "rollout_k2_d2": 140,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091721,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    },
+    {
+      "exact_status": "feasible",
+      "knowledge_interval": {
+        "absolute_width": 16,
+        "best_feasible": 166,
+        "lower_bound": 150,
+        "relative_width": 0.0963855421686747
+      },
+      "longest_tail": 166,
+      "profile": "barrier",
+      "rollout_k2_d2": 166,
+      "rollout_relative_improvement": 0.0,
+      "seed": 26091722,
+      "size": 100,
+      "warning_signals": [
+        "join_or_barrier_synchronization",
+        "fork_join_interaction",
+        "multiple_barriers",
+        "high_indegree_join",
+        "high_outdegree_fork"
+      ]
+    }
+  ],
+  "stress_summary": {
+    "10": {
+      "instances": 9,
+      "knowledge_interval_max_relative_width": 0.21739130434782608,
+      "knowledge_interval_mean_relative_width": 0.07892991128887965,
+      "lt_risk_signal_count": 7,
+      "multiple_barrier_count": 6,
+      "rollout_better_count": 0,
+      "rollout_equal_count": 9,
+      "rollout_max_relative_improvement": 0.0,
+      "rollout_mean_relative_improvement": 0.0,
+      "rollout_worse_count": 0
+    },
+    "100": {
+      "instances": 9,
+      "knowledge_interval_max_relative_width": 0.11428571428571428,
+      "knowledge_interval_mean_relative_width": 0.08297901468346325,
+      "lt_risk_signal_count": 9,
+      "multiple_barrier_count": 9,
+      "rollout_better_count": 2,
+      "rollout_equal_count": 7,
+      "rollout_max_relative_improvement": 0.013333333333333334,
+      "rollout_mean_relative_improvement": 0.0022076978939724037,
+      "rollout_worse_count": 0
+    },
+    "20": {
+      "instances": 9,
+      "knowledge_interval_max_relative_width": 0.3191489361702128,
+      "knowledge_interval_mean_relative_width": 0.21853325931340115,
+      "lt_risk_signal_count": 9,
+      "multiple_barrier_count": 9,
+      "rollout_better_count": 0,
+      "rollout_equal_count": 9,
+      "rollout_max_relative_improvement": 0.0,
+      "rollout_mean_relative_improvement": 0.0,
+      "rollout_worse_count": 0
+    },
+    "30": {
+      "instances": 9,
+      "knowledge_interval_max_relative_width": 0.27906976744186046,
+      "knowledge_interval_mean_relative_width": 0.1834820829309502,
+      "lt_risk_signal_count": 9,
+      "multiple_barrier_count": 9,
+      "rollout_better_count": 1,
+      "rollout_equal_count": 8,
+      "rollout_max_relative_improvement": 0.041666666666666664,
+      "rollout_mean_relative_improvement": 0.004629629629629629,
+      "rollout_worse_count": 0
+    },
+    "50": {
+      "instances": 9,
+      "knowledge_interval_max_relative_width": 0.18666666666666668,
+      "knowledge_interval_mean_relative_width": 0.13037369886905378,
+      "lt_risk_signal_count": 9,
+      "multiple_barrier_count": 9,
+      "rollout_better_count": 1,
+      "rollout_equal_count": 8,
+      "rollout_max_relative_improvement": 0.024390243902439025,
+      "rollout_mean_relative_improvement": 0.0027100271002710027,
+      "rollout_worse_count": 0
+    }
+  }
+}

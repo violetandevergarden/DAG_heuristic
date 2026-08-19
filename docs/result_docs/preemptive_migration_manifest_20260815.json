@@ -1,0 +1,58 @@
+{
+  "base_commit": "adfe5c8db06c341526c52f20cc265575d9a9e826",
+  "date": "2026-08-15",
+  "dirty_worktree": true,
+  "environment": {
+    "os": "Microsoft Windows NT 10.0.26200.0",
+    "powershell": "5.1.26100.6899",
+    "python": "3.13.13",
+    "timezone": "Asia/Shanghai"
+  },
+  "model": {
+    "compute": "automatic_nonpreemptive_unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "objective": "makespan",
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set",
+    "work_conserving": true
+  },
+  "commands": [
+    "python -m benchmark_generate preemptive --samples 10 --seed 260819 --output benchmark",
+    "python -m benchmark_generate reference --output benchmark",
+    "python -m benchmark_generate.studies.preemptive.stage0_4 --benchmark-root benchmark --output docs/result_docs/preemptive_stage0_4_20260815.json",
+    "python -m benchmark_generate.studies.preemptive.stage5 --output docs/result_docs/preemptive_stage5_20260815.json",
+    "python -m benchmark_generate.studies.preemptive.stage6 --samples 30 --seed 260812 --output docs/result_docs/preemptive_stage6_20260815.json",
+    "python -m pytest -q"
+  ],
+  "exact_budgets": {
+    "reference": {
+      "max_states": 100000,
+      "time_limit_seconds": 5
+    },
+    "stage0_4": {
+      "max_states": 150000,
+      "time_limit_seconds": 5
+    }
+  },
+  "benchmarks": {
+    "all": 139,
+    "v1": 75,
+    "v2": 64,
+    "v2_adversarial": 34
+  },
+  "references": {
+    "all": 66,
+    "v1": 33,
+    "v2": 33,
+    "v2_timeout_without_sidecar": [
+      "preemptive/single_channel/parallel_chain/adversarial/pm_fixed_beam_counterexample.json"
+    ]
+  },
+  "tests": {
+    "command": "python -m pytest -q",
+    "passed": 76,
+    "failed": 0
+  }
+}

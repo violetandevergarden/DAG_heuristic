@@ -1,0 +1,917 @@
+{
+  "case_count": 39,
+  "cases": [
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "simai_example_single_job_1to1",
+      "first_actions": {
+        "fifo": "4",
+        "fixed_order": "4",
+        "longest_tail": "4"
+      },
+      "makespan": {
+        "fifo": 44460,
+        "fixed_order": 47775,
+        "longest_tail": 44460
+      },
+      "runtime_ms": {
+        "fifo": 6.172,
+        "fixed_order": 5.453,
+        "longest_tail": 7.086
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 40
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "simai_example_multi_job_1to1",
+      "first_actions": {
+        "fifo": "j1:44",
+        "fixed_order": "j1:44",
+        "longest_tail": "j1:44"
+      },
+      "makespan": {
+        "fifo": 108672,
+        "fixed_order": 108900,
+        "longest_tail": 108672
+      },
+      "runtime_ms": {
+        "fifo": 71.851,
+        "fixed_order": 78.336,
+        "longest_tail": 141.843
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 160
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs2_mbs1",
+      "first_actions": {
+        "fifo": "120",
+        "fixed_order": "120",
+        "longest_tail": "120"
+      },
+      "makespan": {
+        "fifo": 3370062,
+        "fixed_order": 3333626,
+        "longest_tail": 3331609
+      },
+      "runtime_ms": {
+        "fifo": 3295.082,
+        "fixed_order": 3162.672,
+        "longest_tail": 3872.257
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 1536
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 506605,
+        "fixed_order": 500332,
+        "longest_tail": 500332
+      },
+      "runtime_ms": {
+        "fifo": 2369.651,
+        "fixed_order": 2554.688,
+        "longest_tail": 5036.855
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 452638,
+        "fixed_order": 452638,
+        "longest_tail": 452638
+      },
+      "runtime_ms": {
+        "fifo": 3183.522,
+        "fixed_order": 3514.528,
+        "longest_tail": 6721.084
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 444044,
+        "fixed_order": 442570,
+        "longest_tail": 442570
+      },
+      "runtime_ms": {
+        "fifo": 2363.455,
+        "fixed_order": 2564.919,
+        "longest_tail": 5000.408
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 445288,
+        "fixed_order": 439131,
+        "longest_tail": 439131
+      },
+      "runtime_ms": {
+        "fifo": 2369.692,
+        "fixed_order": 2558.101,
+        "longest_tail": 5013.1
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 402495,
+        "fixed_order": 402495,
+        "longest_tail": 403678
+      },
+      "runtime_ms": {
+        "fifo": 3218.233,
+        "fixed_order": 3557.199,
+        "longest_tail": 6809.106
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 397000,
+        "fixed_order": 394431,
+        "longest_tail": 394431
+      },
+      "runtime_ms": {
+        "fifo": 2376.213,
+        "fixed_order": 2580.196,
+        "longest_tail": 5032.275
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2184
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs2_mbs1",
+      "first_actions": {
+        "fifo": "60",
+        "fixed_order": "60",
+        "longest_tail": "60"
+      },
+      "makespan": {
+        "fifo": 2664078,
+        "fixed_order": 2679271,
+        "longest_tail": 2623977
+      },
+      "runtime_ms": {
+        "fifo": 6699.917,
+        "fixed_order": 6541.657,
+        "longest_tail": 8278.123
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 2204
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 663861,
+        "fixed_order": 651825,
+        "longest_tail": 651825
+      },
+      "runtime_ms": {
+        "fifo": 3145.584,
+        "fixed_order": 3395.335,
+        "longest_tail": 6652.391
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2472
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 573441,
+        "fixed_order": 573441,
+        "longest_tail": 573441
+      },
+      "runtime_ms": {
+        "fifo": 4343.342,
+        "fixed_order": 4714.65,
+        "longest_tail": 9252.84
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 2472
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "first_actions": {
+        "fifo": "448+449+450+451",
+        "fixed_order": "448+449+450+451",
+        "longest_tail": "448+449+450+451"
+      },
+      "makespan": {
+        "fifo": 566126,
+        "fixed_order": 561357,
+        "longest_tail": 561357
+      },
+      "runtime_ms": {
+        "fifo": 3143.082,
+        "fixed_order": 2544.628,
+        "longest_tail": 6647.464
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 2472
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs16_mbs4",
+      "first_actions": {
+        "fifo": null,
+        "fixed_order": "120",
+        "longest_tail": "120"
+      },
+      "makespan": {
+        "fifo": null,
+        "fixed_order": 3095570,
+        "longest_tail": 2787037
+      },
+      "runtime_ms": {
+        "fifo": 894079.858,
+        "fixed_order": 8964.165,
+        "longest_tail": 11492.192
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 2680
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp2_pp4_ep1_dp1_gbs8_mbs2",
+      "first_actions": {
+        "fifo": "120",
+        "fixed_order": "120",
+        "longest_tail": "120"
+      },
+      "makespan": {
+        "fifo": 1929729,
+        "fixed_order": 1917318,
+        "longest_tail": 1731511
+      },
+      "runtime_ms": {
+        "fifo": 12357.65,
+        "fixed_order": 10940.496,
+        "longest_tail": 14734.83
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 2680
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g",
+      "first_actions": {
+        "fifo": "304+305+306+307",
+        "fixed_order": "304+305+306+307",
+        "longest_tail": "304+305+306+307"
+      },
+      "makespan": {
+        "fifo": 645209,
+        "fixed_order": 645209,
+        "longest_tail": 645209
+      },
+      "runtime_ms": {
+        "fifo": 5032.763,
+        "fixed_order": 4858.494,
+        "longest_tail": 10075.563
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 3144
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_cassini_24g",
+      "first_actions": {
+        "fifo": "304+305+306+307",
+        "fixed_order": "304+305+306+307",
+        "longest_tail": "304+305+306+307"
+      },
+      "makespan": {
+        "fifo": 595817,
+        "fixed_order": 595817,
+        "longest_tail": 595817
+      },
+      "runtime_ms": {
+        "fifo": 5082.935,
+        "fixed_order": 6935.841,
+        "longest_tail": 10713.73
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 3144
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_spectrum_x_16g",
+      "first_actions": {
+        "fifo": "304+305+306+307",
+        "fixed_order": "304+305+306+307",
+        "longest_tail": "304+305+306+307"
+      },
+      "makespan": {
+        "fifo": 592793,
+        "fixed_order": 592793,
+        "longest_tail": 592793
+      },
+      "runtime_ms": {
+        "fifo": 6563.745,
+        "fixed_order": 5084.795,
+        "longest_tail": 9701.389
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 3144
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs2_mbs1",
+      "first_actions": {
+        "fifo": "30",
+        "fixed_order": "30",
+        "longest_tail": "30"
+      },
+      "makespan": {
+        "fifo": 3204424,
+        "fixed_order": 3204424,
+        "longest_tail": 3204424
+      },
+      "runtime_ms": {
+        "fifo": 21676.452,
+        "fixed_order": 21846.836,
+        "longest_tail": 26639.287
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 3978
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs16_mbs4",
+      "first_actions": {
+        "fifo": "60",
+        "fixed_order": "60",
+        "longest_tail": "60"
+      },
+      "makespan": {
+        "fifo": 5303737,
+        "fixed_order": 5647971,
+        "longest_tail": 5134452
+      },
+      "runtime_ms": {
+        "fifo": 25660.043,
+        "fixed_order": 25330.227,
+        "longest_tail": 33868.751
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 4212
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws4_tp2_pp2_ep1_dp1_gbs8_mbs2",
+      "first_actions": {
+        "fifo": "60",
+        "fixed_order": "60",
+        "longest_tail": "60"
+      },
+      "makespan": {
+        "fifo": 3024796,
+        "fixed_order": 3164119,
+        "longest_tail": 2933306
+      },
+      "runtime_ms": {
+        "fifo": 25873.478,
+        "fixed_order": 25430.006,
+        "longest_tail": 33955.382
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 4212
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
+      "first_actions": {
+        "fifo": "304",
+        "fixed_order": "304",
+        "longest_tail": "304"
+      },
+      "makespan": {
+        "fifo": 1340983,
+        "fixed_order": 1353860,
+        "longest_tail": 1195599
+      },
+      "runtime_ms": {
+        "fifo": 42915.21,
+        "fixed_order": 41632.687,
+        "longest_tail": 59944.173
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 4992
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1",
+      "first_actions": {
+        "fifo": "152",
+        "fixed_order": "152",
+        "longest_tail": "152"
+      },
+      "makespan": {
+        "fifo": 1880593,
+        "fixed_order": 1892454,
+        "longest_tail": 1801988
+      },
+      "runtime_ms": {
+        "fifo": 83457.6,
+        "fixed_order": 83755.913,
+        "longest_tail": 121572.956
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 7096
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs16_mbs4",
+      "first_actions": {
+        "fifo": "30",
+        "fixed_order": "30",
+        "longest_tail": "30"
+      },
+      "makespan": {
+        "fifo": 13042998,
+        "fixed_order": 13048368,
+        "longest_tail": 13042998
+      },
+      "runtime_ms": {
+        "fifo": 82490.256,
+        "fixed_order": 84056.622,
+        "longest_tail": 109598.478
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 7858
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws2_tp2_pp1_ep1_dp1_gbs8_mbs2",
+      "first_actions": {
+        "fifo": "30",
+        "fixed_order": "30",
+        "longest_tail": "30"
+      },
+      "makespan": {
+        "fifo": 7088089,
+        "fixed_order": 7090775,
+        "longest_tail": 7088089
+      },
+      "runtime_ms": {
+        "fifo": 85309.394,
+        "fixed_order": 91322.891,
+        "longest_tail": 107020.182
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 7858
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 403678,
+        "fixed_order": 403678,
+        "longest_tail": 404652
+      },
+      "runtime_ms": {
+        "fifo": 22120.599,
+        "fixed_order": 23708.024,
+        "longest_tail": 52378.218
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 445656,
+        "fixed_order": 445656,
+        "longest_tail": 445656
+      },
+      "runtime_ms": {
+        "fifo": 18344.176,
+        "fixed_order": 20021.297,
+        "longest_tail": 43324.113
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt13b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 643730,
+        "fixed_order": 710850,
+        "longest_tail": 673698
+      },
+      "runtime_ms": {
+        "fifo": 29263.554,
+        "fixed_order": 31107.814,
+        "longest_tail": 77927.437
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 379647,
+        "fixed_order": 379647,
+        "longest_tail": 380319
+      },
+      "runtime_ms": {
+        "fifo": 21536.601,
+        "fixed_order": 23752.529,
+        "longest_tail": 52801.538
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 412345,
+        "fixed_order": 412345,
+        "longest_tail": 412345
+      },
+      "runtime_ms": {
+        "fifo": 18243.404,
+        "fixed_order": 20225.311,
+        "longest_tail": 43892.834
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 569049,
+        "fixed_order": 621913,
+        "longest_tail": 593838
+      },
+      "runtime_ms": {
+        "fifo": 28779.283,
+        "fixed_order": 31204.751,
+        "longest_tail": 80195.647
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 7952
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs16_mbs4",
+      "first_actions": {
+        "fifo": "304",
+        "fixed_order": "304",
+        "longest_tail": null
+      },
+      "makespan": {
+        "fifo": 7029685,
+        "fixed_order": 7162724,
+        "longest_tail": null
+      },
+      "runtime_ms": {
+        "fifo": 130060.77,
+        "fixed_order": 122950.716,
+        "longest_tail": 90002.161
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 8688
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs8_mbs2",
+      "first_actions": {
+        "fifo": "304",
+        "fixed_order": "304",
+        "longest_tail": null
+      },
+      "makespan": {
+        "fifo": 3718176,
+        "fixed_order": 3742056,
+        "longest_tail": null
+      },
+      "runtime_ms": {
+        "fifo": 122216.45,
+        "fixed_order": 123210.388,
+        "longest_tail": 90002.66
+      },
+      "scenario": "single_channel",
+      "status": "incomplete",
+      "suite": "R-C",
+      "task_count": 8688
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 484802,
+        "fixed_order": 484802,
+        "longest_tail": 485838
+      },
+      "runtime_ms": {
+        "fifo": 27648.216,
+        "fixed_order": 30506.154,
+        "longest_tail": 65102.366
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 9040
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 554584,
+        "fixed_order": 554584,
+        "longest_tail": 554584
+      },
+      "runtime_ms": {
+        "fifo": 23363.77,
+        "fixed_order": 25552.947,
+        "longest_tail": 55314.899
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 9040
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "gpt22b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "first_actions": {
+        "fifo": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "fixed_order": "1408+1409+1410+1411+1412+1413+1414+1415",
+        "longest_tail": "1408+1409+1410+1411+1412+1413+1414+1415"
+      },
+      "makespan": {
+        "fifo": 831052,
+        "fixed_order": 936864,
+        "longest_tail": 865816
+      },
+      "runtime_ms": {
+        "fifo": 37169.445,
+        "fixed_order": 39019.72,
+        "longest_tail": 99209.811
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 9040
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_cassini_64g",
+      "first_actions": {
+        "fifo": "864+865+866+867+868+869+870+871",
+        "fixed_order": "864+865+866+867+868+869+870+871",
+        "longest_tail": "864+865+866+867+868+869+870+871"
+      },
+      "makespan": {
+        "fifo": 549334,
+        "fixed_order": 549418,
+        "longest_tail": 549334
+      },
+      "runtime_ms": {
+        "fifo": 34820.626,
+        "fixed_order": 38672.614,
+        "longest_tail": 83440.587
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 11152
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_dcn_dual_tor_64g",
+      "first_actions": {
+        "fifo": "864+865+866+867+868+869+870+871",
+        "fixed_order": "864+865+866+867+868+869+870+871",
+        "longest_tail": "864+865+866+867+868+869+870+871"
+      },
+      "makespan": {
+        "fifo": 608302,
+        "fixed_order": 608302,
+        "longest_tail": 608302
+      },
+      "runtime_ms": {
+        "fifo": 32961.12,
+        "fixed_order": 36357.227,
+        "longest_tail": 79194.371
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-P",
+      "task_count": 11152
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs1_mbs1_route_hermod_32g",
+      "first_actions": {
+        "fifo": "864+865+866+867+868+869+870+871",
+        "fixed_order": "864+865+866+867+868+869+870+871",
+        "longest_tail": "864+865+866+867+868+869+870+871"
+      },
+      "makespan": {
+        "fifo": 743374,
+        "fixed_order": 745054,
+        "longest_tail": 743374
+      },
+      "runtime_ms": {
+        "fifo": 38137.529,
+        "fixed_order": 45256.108,
+        "longest_tail": 94620.166
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-S",
+      "task_count": 11152
+    }
+  ],
+  "completed_count": 36,
+  "failed_count": 0,
+  "git": {
+    "commit": "658866815a02c77821ca285a4976b4ffc37c5644",
+    "dirty": true
+  },
+  "manifest_hash": "26ce2f292314a6f0edfcf4cd6f643b9fb1c95e7cac7d00e0b2b5221225fb7e0b",
+  "rules": [
+    "fifo",
+    "longest_tail",
+    "fixed_order"
+  ],
+  "schema_version": "stage4a-baselines-v1",
+  "time_limit_s": 90.0,
+  "timeout_count": 3
+}

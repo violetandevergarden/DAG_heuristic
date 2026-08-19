@@ -1,0 +1,208 @@
+{
+  "census": {
+    "case_count": 72,
+    "cases_with_non_equivalent_choice": 35,
+    "partial_count": 72
+  },
+  "dp_curve": [
+    {
+      "dp": 1,
+      "id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1",
+      "mk_fifo": 1880593,
+      "mk_lt": 1801988,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      },
+      "tasks": 7096
+    },
+    {
+      "dp": 2,
+      "id": "mixtral8x7b_sourcews8_effectivews16_tp4_pp2_ep1_dp2_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 14224
+    },
+    {
+      "dp": 4,
+      "id": "mixtral8x7b_sourcews8_effectivews32_tp4_pp2_ep1_dp4_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 28576
+    },
+    {
+      "dp": 1,
+      "id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
+      "mk_fifo": 1340983,
+      "mk_lt": 1195599,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      },
+      "tasks": 4992
+    },
+    {
+      "dp": 2,
+      "id": "mixtral8x7b_sourcews16_effectivews32_tp4_pp4_ep1_dp2_gbs2_mbs1",
+      "mk_fifo": 3254763,
+      "mk_lt": null,
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "timeout"
+      },
+      "tasks": 10048
+    },
+    {
+      "dp": 4,
+      "id": "mixtral8x7b_sourcews16_effectivews64_tp4_pp4_ep1_dp4_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 20352
+    },
+    {
+      "dp": 1,
+      "id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 24944
+    },
+    {
+      "dp": 2,
+      "id": "mixtral8x7b_sourcews16_effectivews32_tp8_pp2_ep1_dp2_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 49952
+    },
+    {
+      "dp": 1,
+      "id": "mixtral8x7b_ws32_tp8_pp4_ep1_dp1_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 17664
+    },
+    {
+      "dp": 2,
+      "id": "mixtral8x7b_sourcews32_effectivews64_tp8_pp4_ep1_dp2_gbs2_mbs1",
+      "mk_fifo": null,
+      "mk_lt": null,
+      "status": {
+        "fifo": "timeout",
+        "fixed_order": "timeout",
+        "longest_tail": "timeout"
+      },
+      "tasks": 35456
+    }
+  ],
+  "exact_slices": [
+    {
+      "benchmark_id": "gpt7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g_slice",
+      "exact_runtime_ms": 217.841,
+      "exact_status": "optimal",
+      "explored_states": 14,
+      "optimal_makespan": 71058,
+      "scenario": "muti_channel",
+      "task_count": 300
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_slice",
+      "exact_runtime_ms": 60101.294,
+      "exact_status": "feasible",
+      "explored_states": 4849,
+      "optimal_makespan": null,
+      "scenario": "single_channel",
+      "task_count": 268
+    },
+    {
+      "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs1_mbs1_route_alibaba_hpn_16g_slice",
+      "exact_runtime_ms": 259.439,
+      "exact_status": "optimal",
+      "explored_states": 14,
+      "optimal_makespan": 98823,
+      "scenario": "muti_channel",
+      "task_count": 300
+    }
+  ],
+  "multi_job": [
+    {
+      "id": "mj1_simultaneous",
+      "makespan": {
+        "fifo": 3203064,
+        "fixed_order": 3301551,
+        "longest_tail": null
+      },
+      "scenario": "single_channel",
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "timeout"
+      }
+    },
+    {
+      "id": "mj2_simultaneous",
+      "makespan": {
+        "fifo": 661942,
+        "fixed_order": 688923,
+        "longest_tail": 645209
+      },
+      "scenario": "muti_channel",
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      }
+    },
+    {
+      "id": "mj3_staggered",
+      "makespan": {
+        "fifo": 864774,
+        "fixed_order": 864774,
+        "longest_tail": 864774
+      },
+      "scenario": "muti_channel",
+      "status": {
+        "fifo": "completed",
+        "fixed_order": "completed",
+        "longest_tail": "completed"
+      }
+    }
+  ],
+  "small_baselines": {
+    "case_count": 39,
+    "completed": 36,
+    "failed": 0,
+    "timeout": 3
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "note": "SimAI 原生展开仅存在于动态 executor 的逐 iteration 路径；本表对拍的是转换层：原始 builder 任务/边数 vs 导出 benchmark 任务/边数，并单独列出 serializer 追加的 compute-order 边数。",
+  "rows": [
+    {
+      "conversion_delta": {
+        "edge_delta": 2272,
+        "task_delta": 0
+      },
+      "exported": {
+        "benchmark_id": "mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1",
+        "communication_count": 4048,
+        "compute_count": 3048,
+        "edge_count": 16072,
+        "task_count": 7096
+      },
+      "native_builder": {
+        "compute_order_edge_count": 3040,
+        "flow_count": 4048,
+        "raw_edge_count": 13800,
+        "task_count": 7096
+      },
+      "spec": {
+        "ep": 1,
+        "gbs": 2,
+        "mbs": 1,
+        "pp": 2,
+        "tp": 4,
+        "ws": 8
+      }
+    },
+    {
+      "conversion_delta": {
+        "edge_delta": 4544,
+        "task_delta": 0
+      },
+      "exported": {
+        "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1",
+        "communication_count": 18848,
+        "compute_count": 6096,
+        "edge_count": 68944,
+        "task_count": 24944
+      },
+      "native_builder": {
+        "compute_order_edge_count": 6080,
+        "flow_count": 18848,
+        "raw_edge_count": 64400,
+        "task_count": 24944
+      },
+      "spec": {
+        "ep": 1,
+        "gbs": 2,
+        "mbs": 1,
+        "pp": 2,
+        "tp": 8,
+        "ws": 16
+      }
+    },
+    {
+      "conversion_delta": {
+        "edge_delta": 1472,
+        "task_delta": 0
+      },
+      "exported": {
+        "benchmark_id": "mixtral8x7b_ws16_tp4_pp4_ep1_dp1_gbs2_mbs1",
+        "communication_count": 2928,
+        "compute_count": 2064,
+        "edge_count": 11456,
+        "task_count": 4992
+      },
+      "native_builder": {
+        "compute_order_edge_count": 2048,
+        "flow_count": 2928,
+        "raw_edge_count": 9984,
+        "task_count": 4992
+      },
+      "spec": {
+        "ep": 1,
+        "gbs": 2,
+        "mbs": 1,
+        "pp": 4,
+        "tp": 4,
+        "ws": 16
+      }
+    }
+  ],
+  "schema_version": "stage4a-conversion-pairing-v1"
+}

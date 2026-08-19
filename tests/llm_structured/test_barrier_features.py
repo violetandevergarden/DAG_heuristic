@@ -12,6 +12,14 @@ from llm_structured.barrier import (
     score_snapshot,
 )
 from muti_channel.preemptive.solver import score_sets
+from benchmark_generate.llm.barrier_motifs import (
+    label_motif,
+    multi_resource_motifs,
+    single_channel_motifs,
+)
+from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
+from muti_channel.preemptive.trace import assert_multi_resource_trace
+from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 
 
 def _join_dag() -> BenchmarkDAG:
@@ -102,3 +110,22 @@ def test_score_modes_are_deterministic_and_reject_unknown() -> None:
     assert score_snapshot(snapshot, "barrier_only") == score_snapshot(snapshot, "barrier_only")
     with pytest.raises(ValueError):
         score_snapshot(snapshot, "unknown")
+
+
+def test_barrier_motif_evidence_has_exact_certificate_for_each_channel() -> None:
+    """P0/G1 evidence must distinguish feasible baselines from Exact labels."""
+
+    for motif in single_channel_motifs():
+        report = label_motif(motif)
+        assert report["exact"]["status"] == "optimal"
+        assert report["exact"]["makespan"] == report["baseline_makespan"]
+
+    motif = multi_resource_motifs()[0]
+    report = label_motif(motif)
+    assert report["exact"]["status"] == "optimal"
+    assert report["exact"]["makespan"] == tiny_tick_optimum(
+        motif.dag, motif.resources
+    )
+    result = multi_exact_oracle(motif.dag, motif.resources, max_states=100_000)
+    assert result.trace is not None
+    assert_multi_resource_trace(motif.dag, motif.resources, result.trace)

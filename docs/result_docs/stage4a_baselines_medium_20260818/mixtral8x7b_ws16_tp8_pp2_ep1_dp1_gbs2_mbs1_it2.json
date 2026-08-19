@@ -1,0 +1,34 @@
+{
+  "baselines": {
+    "fifo": {
+      "decisions": 995,
+      "runtime_ms": 90035.70709994528,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "e264659ef82d6450913ba485edfa2b8a05b370cfdf153a10b392bb5998e2040b"
+    },
+    "fixed_order": {
+      "decisions": 1065,
+      "runtime_ms": 90055.3620000137,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "f85cbe3805d147429882239232c0033e4fff2adc95e0e566749e46b85fc5b923"
+    },
+    "longest_tail": {
+      "decisions": 393,
+      "runtime_ms": 90178.67210006807,
+      "status": "timeout",
+      "termination_reason": "time_limit",
+      "trace_prefix_hash": "f0944a5e67cbbe0f828273c4b7ca64cc602f42a3741b7f69391487e5c884bc48"
+    }
+  },
+  "benchmark_hash": "1e89a8e576dcc7e1a57f64dfd66f9cc20f52a16bae1485f694b2b15e442eb0fb",
+  "benchmark_id": "mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1_it2",
+  "case_runtime_ms": 273417.825,
+  "communication_count": 37696,
+  "scenario": "single_channel",
+  "schema_version": "stage4a-baselines-v1",
+  "suite": "R-C",
+  "task_count": 49888,
+  "time_limit_s": 90.0
+}

@@ -1,0 +1,3841 @@
+{
+  "model": {
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "work_conserving": true
+  },
+  "muti_channel": {
+    "instances": [
+      {
+        "category": "adversarial",
+        "id": "pm_active_reservation_np",
+        "opt": 5,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 5,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3986000083386898
+          },
+          "longest_tail_pack": {
+            "makespan": 5,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.46280003152787685
+          },
+          "resource_pack": {
+            "makespan": 5,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6139000179246068
+          },
+          "rollout_sets2": {
+            "makespan": 5,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.554199970792979
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "id": "pm_disjoint_routes_np",
+        "opt": 7,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 7,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.2810999867506325
+          },
+          "longest_tail_pack": {
+            "makespan": 7,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3152000135742128
+          },
+          "resource_pack": {
+            "makespan": 7,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.28929999098181725
+          },
+          "rollout_sets2": {
+            "makespan": 7,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.31239999225363135
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "id": "pm_nonmaximal_start_np",
+        "opt": 8,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 8,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.6031999946571887
+          },
+          "longest_tail_pack": {
+            "makespan": 8,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.6158999749459326
+          },
+          "resource_pack": {
+            "makespan": 8,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.5975000094622374
+          },
+          "rollout_sets2": {
+            "makespan": 8,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.1320999474264681
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "id": "pm_shared_route_np",
+        "opt": 11,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5452999612316489
+          },
+          "longest_tail_pack": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.44219999108463526
+          },
+          "resource_pack": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.4259999841451645
+          },
+          "rollout_sets2": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7156000356189907
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_000",
+        "opt": 15,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 15,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.1693999986164272
+          },
+          "longest_tail_pack": {
+            "makespan": 15,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.1861000093631446
+          },
+          "resource_pack": {
+            "makespan": 15,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.2265999685041606
+          },
+          "rollout_sets2": {
+            "makespan": 15,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.5126999826170504
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_001",
+        "opt": 14,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 14,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.034500019159168
+          },
+          "longest_tail_pack": {
+            "makespan": 14,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.046299992594868
+          },
+          "resource_pack": {
+            "makespan": 14,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0350999655202031
+          },
+          "rollout_sets2": {
+            "makespan": 14,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.08020000718534
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_002",
+        "opt": 13,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 16,
+            "preemptions": 0,
+            "ratio": 1.2307692307692308,
+            "runtime_ms": 0.8555999957025051
+          },
+          "longest_tail_pack": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8833999745547771
+          },
+          "resource_pack": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8425000123679638
+          },
+          "rollout_sets2": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.4915000065229833
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_003",
+        "opt": 18,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 19,
+            "preemptions": 0,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 3.318500006571412
+          },
+          "longest_tail_pack": {
+            "makespan": 19,
+            "preemptions": 4,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 3.583199984859675
+          },
+          "resource_pack": {
+            "makespan": 19,
+            "preemptions": 4,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 3.979699977207929
+          },
+          "rollout_sets2": {
+            "makespan": 18,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 14.700300002004951
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_004",
+        "opt": 22,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0454545454545454,
+            "runtime_ms": 1.8433999503031373
+          },
+          "longest_tail_pack": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.008399984333664
+          },
+          "resource_pack": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.1294000325724483
+          },
+          "rollout_sets2": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 7.727899996098131
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_005",
+        "opt": 18,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.6206000000238419
+          },
+          "longest_tail_pack": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.8028999911621213
+          },
+          "resource_pack": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.639000023715198
+          },
+          "rollout_sets2": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.714700044132769
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_006",
+        "opt": 18,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 18,
+            "preemptions": 6,
+            "ratio": 1.0,
+            "runtime_ms": 4.599899984896183
+          },
+          "longest_tail_pack": {
+            "makespan": 18,
+            "preemptions": 6,
+            "ratio": 1.0,
+            "runtime_ms": 3.894899971783161
+          },
+          "resource_pack": {
+            "makespan": 18,
+            "preemptions": 6,
+            "ratio": 1.0,
+            "runtime_ms": 3.805499989539385
+          },
+          "rollout_sets2": {
+            "makespan": 18,
+            "preemptions": 6,
+            "ratio": 1.0,
+            "runtime_ms": 14.223099977243692
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_007",
+        "opt": 21,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 21,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 5.149700038600713
+          },
+          "longest_tail_pack": {
+            "makespan": 21,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 5.386000033468008
+          },
+          "resource_pack": {
+            "makespan": 21,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 5.182000051718205
+          },
+          "rollout_sets2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 20.69050003774464
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_008",
+        "opt": 27,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 31,
+            "preemptions": 5,
+            "ratio": 1.1481481481481481,
+            "runtime_ms": 3.733699966687709
+          },
+          "longest_tail_pack": {
+            "makespan": 28,
+            "preemptions": 5,
+            "ratio": 1.037037037037037,
+            "runtime_ms": 4.698899982031435
+          },
+          "resource_pack": {
+            "makespan": 28,
+            "preemptions": 5,
+            "ratio": 1.037037037037037,
+            "runtime_ms": 4.743599973153323
+          },
+          "rollout_sets2": {
+            "makespan": 28,
+            "preemptions": 4,
+            "ratio": 1.037037037037037,
+            "runtime_ms": 20.757700025569648
+          }
+        }
+      },
+      {
+        "category": "random",
+        "id": "pm_muti_random_009",
+        "opt": 20,
+        "results": {
+          "bottleneck_pack": {
+            "makespan": 23,
+            "preemptions": 4,
+            "ratio": 1.15,
+            "runtime_ms": 3.159899963065982
+          },
+          "longest_tail_pack": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.5646000178530812
+          },
+          "resource_pack": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.1562999938614666
+          },
+          "rollout_sets2": {
+            "makespan": 20,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 12.668900017160922
+          }
+        }
+      }
+    ],
+    "summary": {
+      "bottleneck_pack": {
+        "instances": 14,
+        "max_ratio": 1.2307692307692308,
+        "mean_preemptions": 1.3571428571428572,
+        "mean_ratio": 1.04499481999482,
+        "mean_runtime_ms": 2.022385705328946,
+        "optimal_fraction": 0.6428571428571429
+      },
+      "longest_tail_pack": {
+        "instances": 14,
+        "max_ratio": 1.0555555555555556,
+        "mean_preemptions": 1.3571428571428572,
+        "mean_ratio": 1.0066137566137565,
+        "mean_runtime_ms": 2.135057139509757,
+        "optimal_fraction": 0.8571428571428571
+      },
+      "resource_pack": {
+        "instances": 14,
+        "max_ratio": 1.0555555555555556,
+        "mean_preemptions": 1.3571428571428572,
+        "mean_ratio": 1.0066137566137565,
+        "mean_runtime_ms": 2.119028570762436,
+        "optimal_fraction": 0.8571428571428571
+      },
+      "rollout_sets2": {
+        "instances": 14,
+        "max_ratio": 1.037037037037037,
+        "mean_preemptions": 1.2142857142857142,
+        "mean_ratio": 1.0026455026455026,
+        "mean_runtime_ms": 7.448700003026586,
+        "optimal_fraction": 0.9285714285714286
+      }
+    }
+  },
+  "single_channel": {
+    "instances": [
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_combined_chain_14",
+        "opt": 21,
+        "results": {
+          "beam32": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 8.649900031741709
+          },
+          "beam8": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 8.363099943380803
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9145000367425382
+          },
+          "join_rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 4.108700028154999
+          },
+          "longest_tail": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.8713999995961785
+          },
+          "lpt": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.1428571428571428,
+            "runtime_ms": 0.9017999982461333
+          },
+          "lrpt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.8491000044159591
+          },
+          "monte_carlo64": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 73.0113999452442
+          },
+          "rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.793399955611676
+          },
+          "spt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0476190476190477,
+            "runtime_ms": 0.8960000122897327
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_combined_chain_70",
+        "opt": 18,
+        "results": {
+          "beam32": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 82.87469996139407
+          },
+          "beam8": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 36.47440002532676
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.0949000134132802
+          },
+          "join_rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.507000012788922
+          },
+          "longest_tail": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.153399993199855
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9879999561235309
+          },
+          "lrpt": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.124400005210191
+          },
+          "monte_carlo64": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 73.74630001140758
+          },
+          "rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.385500018950552
+          },
+          "spt": {
+            "makespan": 25,
+            "preemptions": 0,
+            "ratio": 1.3888888888888888,
+            "runtime_ms": 1.006699982099235
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_combined_chain_86",
+        "opt": 23,
+        "results": {
+          "beam32": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 476.2559999944642
+          },
+          "beam8": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 204.9113999819383
+          },
+          "fifo": {
+            "makespan": 35,
+            "preemptions": 1,
+            "ratio": 1.5217391304347827,
+            "runtime_ms": 2.8338999836705625
+          },
+          "join_rollout2": {
+            "makespan": 23,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 26.64529997855425
+          },
+          "longest_tail": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.937100002076477
+          },
+          "lpt": {
+            "makespan": 28,
+            "preemptions": 1,
+            "ratio": 1.2173913043478262,
+            "runtime_ms": 2.966500003822148
+          },
+          "lrpt": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0434782608695652,
+            "runtime_ms": 3.163799992762506
+          },
+          "monte_carlo64": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 124.14490000810474
+          },
+          "rollout2": {
+            "makespan": 23,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 30.184099974576384
+          },
+          "spt": {
+            "makespan": 35,
+            "preemptions": 2,
+            "ratio": 1.5217391304347827,
+            "runtime_ms": 3.487100009806454
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_deferred_w_competition",
+        "opt": 9,
+        "results": {
+          "beam32": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.7632000274024904
+          },
+          "beam8": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.424100006464869
+          },
+          "fifo": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6139000179246068
+          },
+          "join_rollout2": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.796900003682822
+          },
+          "longest_tail": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5668000085279346
+          },
+          "lpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5826999549753964
+          },
+          "lrpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5800999933853745
+          },
+          "monte_carlo64": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 38.39240001980215
+          },
+          "rollout2": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.7068000161089003
+          },
+          "spt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5938000394962728
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_fork_multi_unlock",
+        "opt": 8,
+        "results": {
+          "beam32": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.691500005312264
+          },
+          "beam8": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.814000006765127
+          },
+          "fifo": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6467000348493457
+          },
+          "join_rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.819700002670288
+          },
+          "longest_tail": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5640999879688025
+          },
+          "lpt": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.625,
+            "runtime_ms": 0.44899998465552926
+          },
+          "lrpt": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6916999700479209
+          },
+          "monte_carlo64": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 36.65170003660023
+          },
+          "rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.9555999897420406
+          },
+          "spt": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7798000006005168
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_join_false_critical",
+        "opt": 10,
+        "results": {
+          "beam32": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.3253000215627253
+          },
+          "beam8": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.6731999930925667
+          },
+          "fifo": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3847999614663422
+          },
+          "join_rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8262000046670437
+          },
+          "longest_tail": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3760000108741224
+          },
+          "lpt": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.3,
+            "runtime_ms": 0.3657999914139509
+          },
+          "lrpt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.36349997390061617
+          },
+          "monte_carlo64": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 25.202999997418374
+          },
+          "rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8003999828360975
+          },
+          "spt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.36890001501888037
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_large_flow_vs_long_tail",
+        "opt": 10,
+        "results": {
+          "beam32": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.644900010433048
+          },
+          "beam8": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.5641999780200422
+          },
+          "fifo": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.39650005055591464
+          },
+          "join_rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8823000243864954
+          },
+          "longest_tail": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3823000006377697
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.8,
+            "runtime_ms": 0.4029999836347997
+          },
+          "lrpt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.36800000816583633
+          },
+          "monte_carlo64": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 36.05009999591857
+          },
+          "rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8231999818235636
+          },
+          "spt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.3861000295728445
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_last_blocker_overboost",
+        "opt": 20,
+        "results": {
+          "beam32": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 65.13880001148209
+          },
+          "beam8": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 46.58299998845905
+          },
+          "fifo": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.566799997817725
+          },
+          "join_rollout2": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 15.991199994459748
+          },
+          "longest_tail": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.6339999856427312
+          },
+          "lpt": {
+            "makespan": 21,
+            "preemptions": 3,
+            "ratio": 1.05,
+            "runtime_ms": 1.6339999856427312
+          },
+          "lrpt": {
+            "makespan": 20,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 1.818799995817244
+          },
+          "monte_carlo64": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 152.47819997603074
+          },
+          "rollout2": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 10.192600020673126
+          },
+          "spt": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.440799969714135
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_longest_tail_counterexample",
+        "opt": 8,
+        "results": {
+          "beam32": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.238100023940206
+          },
+          "beam8": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.528199962805957
+          },
+          "fifo": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.832799996715039
+          },
+          "join_rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.0617999834939837
+          },
+          "longest_tail": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.6379999686032534
+          },
+          "lpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.5943999858573079
+          },
+          "lrpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.5728999967686832
+          },
+          "monte_carlo64": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 60.23709999863058
+          },
+          "rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.6629000310786068
+          },
+          "spt": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.596199999563396
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_lrpt_double_count",
+        "opt": 10,
+        "results": {
+          "beam32": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 18.72600003844127
+          },
+          "beam8": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 14.632899954449385
+          },
+          "fifo": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7865999941714108
+          },
+          "join_rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.0077000157907605
+          },
+          "longest_tail": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.800000037997961
+          },
+          "lpt": {
+            "makespan": 12,
+            "preemptions": 1,
+            "ratio": 1.2,
+            "runtime_ms": 0.7984999683685601
+          },
+          "lrpt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0980999795719981
+          },
+          "monte_carlo64": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 55.96130003686994
+          },
+          "rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.0466999635100365
+          },
+          "spt": {
+            "makespan": 13,
+            "preemptions": 1,
+            "ratio": 1.3,
+            "runtime_ms": 0.8461999823339283
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_optimizer_dp_burst",
+        "opt": 11,
+        "results": {
+          "beam32": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 8.881199988536537
+          },
+          "beam8": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 7.746800023596734
+          },
+          "fifo": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9150999831035733
+          },
+          "join_rollout2": {
+            "makespan": 11,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.938400022685528
+          },
+          "longest_tail": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7282000151462853
+          },
+          "lpt": {
+            "makespan": 11,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.7388000376522541
+          },
+          "lrpt": {
+            "makespan": 11,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.6995000294409692
+          },
+          "monte_carlo64": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 43.43510000035167
+          },
+          "rollout2": {
+            "makespan": 11,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.6554999640211463
+          },
+          "spt": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8091999916359782
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_random_join_23",
+        "opt": 17,
+        "results": {
+          "beam32": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.5970000103116035
+          },
+          "beam8": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.42270002188161
+          },
+          "fifo": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9851999930106103
+          },
+          "join_rollout2": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.9946999857202172
+          },
+          "longest_tail": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.8910999749787152
+          },
+          "lpt": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.1764705882352942,
+            "runtime_ms": 0.8432000176981091
+          },
+          "lrpt": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.8762000361457467
+          },
+          "monte_carlo64": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 55.65009999554604
+          },
+          "rollout2": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.945199958048761
+          },
+          "spt": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9142999770119786
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_random_join_30",
+        "opt": 22,
+        "results": {
+          "beam32": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.591000022832304
+          },
+          "beam8": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.262699967715889
+          },
+          "fifo": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9716000058688223
+          },
+          "join_rollout2": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.6593999937176704
+          },
+          "longest_tail": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.0909090909090908,
+            "runtime_ms": 0.8562000002712011
+          },
+          "lpt": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.0909090909090908,
+            "runtime_ms": 0.8864999981597066
+          },
+          "lrpt": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.0909090909090908,
+            "runtime_ms": 0.8542999858036637
+          },
+          "monte_carlo64": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 55.792099970858544
+          },
+          "rollout2": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.6086000143550336
+          },
+          "spt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9197999606840312
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_random_join_40",
+        "opt": 21,
+        "results": {
+          "beam32": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 160.9351999941282
+          },
+          "beam8": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 70.53490000544116
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.7396000330336392
+          },
+          "join_rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 14.634200022555888
+          },
+          "longest_tail": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0476190476190477,
+            "runtime_ms": 1.6562999808229506
+          },
+          "lpt": {
+            "makespan": 22,
+            "preemptions": 2,
+            "ratio": 1.0476190476190477,
+            "runtime_ms": 1.7809999990276992
+          },
+          "lrpt": {
+            "makespan": 21,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 2.4881999706849456
+          },
+          "monte_carlo64": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 131.23890000861138
+          },
+          "rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 13.053900038357824
+          },
+          "spt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0476190476190477,
+            "runtime_ms": 1.7790999845601618
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_random_join_46",
+        "opt": 22,
+        "results": {
+          "beam32": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 36.47240001009777
+          },
+          "beam8": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 32.896799966692924
+          },
+          "fifo": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.3863000203855336
+          },
+          "join_rollout2": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.812000006902963
+          },
+          "longest_tail": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.4124999870546162
+          },
+          "lpt": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.1363636363636365,
+            "runtime_ms": 1.444099994841963
+          },
+          "lrpt": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.3495999737642705
+          },
+          "monte_carlo64": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 137.03459996031597
+          },
+          "rollout2": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.896000006236136
+          },
+          "spt": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0454545454545454,
+            "runtime_ms": 1.4522999990731478
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "pm_random_join_60",
+        "opt": 24,
+        "results": {
+          "beam32": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 353.38950000004843
+          },
+          "beam8": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 149.06389999669045
+          },
+          "fifo": {
+            "makespan": 24,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.852799963671714
+          },
+          "join_rollout2": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 13.749700039625168
+          },
+          "longest_tail": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 1.6688000177964568
+          },
+          "lpt": {
+            "makespan": 28,
+            "preemptions": 3,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.9192000036127865
+          },
+          "lrpt": {
+            "makespan": 24,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 1.747499976772815
+          },
+          "monte_carlo64": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 140.9117000293918
+          },
+          "rollout2": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 12.943500012625009
+          },
+          "spt": {
+            "makespan": 25,
+            "preemptions": 3,
+            "ratio": 1.0416666666666667,
+            "runtime_ms": 1.9007999799214303
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "complex_chain",
+        "id": "preemption_unlock",
+        "opt": 15,
+        "results": {
+          "beam32": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.1119999689981341
+          },
+          "beam8": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.177600002847612
+          },
+          "fifo": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.4666666666666666,
+            "runtime_ms": 0.3839000128209591
+          },
+          "join_rollout2": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.7596000214107335
+          },
+          "longest_tail": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.41689997306093574
+          },
+          "lpt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.4666666666666666,
+            "runtime_ms": 0.3591999993659556
+          },
+          "lrpt": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.5204000044614077
+          },
+          "monte_carlo64": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 23.822000017389655
+          },
+          "rollout2": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.7447999669238925
+          },
+          "spt": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.36310002906247973
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_000",
+        "opt": 19,
+        "results": {
+          "beam32": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 21.01810002932325
+          },
+          "beam8": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 25.76069999486208
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.105263157894737,
+            "runtime_ms": 1.0519999777898192
+          },
+          "join_rollout2": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 7.63480004388839
+          },
+          "longest_tail": {
+            "makespan": 19,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0799000156112015
+          },
+          "lpt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.105263157894737,
+            "runtime_ms": 1.0254000080749393
+          },
+          "lrpt": {
+            "makespan": 19,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9806000161916018
+          },
+          "monte_carlo64": {
+            "makespan": 19,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 99.99449999304488
+          },
+          "rollout2": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.1512999925762415
+          },
+          "spt": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.2105263157894737,
+            "runtime_ms": 1.0267000179737806
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_001",
+        "opt": 29,
+        "results": {
+          "beam32": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 775.9476999635808
+          },
+          "beam8": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 253.48529999610037
+          },
+          "fifo": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.507299999706447
+          },
+          "join_rollout2": {
+            "makespan": 29,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 28.825599991250783
+          },
+          "longest_tail": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.2319999989122152
+          },
+          "lpt": {
+            "makespan": 31,
+            "preemptions": 3,
+            "ratio": 1.0689655172413792,
+            "runtime_ms": 2.502200019080192
+          },
+          "lrpt": {
+            "makespan": 29,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.127900021150708
+          },
+          "monte_carlo64": {
+            "makespan": 29,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 174.7857999871485
+          },
+          "rollout2": {
+            "makespan": 29,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 34.12129997741431
+          },
+          "spt": {
+            "makespan": 30,
+            "preemptions": 0,
+            "ratio": 1.0344827586206897,
+            "runtime_ms": 2.500400005374104
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_002",
+        "opt": 21,
+        "results": {
+          "beam32": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.509399994276464
+          },
+          "beam8": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.176199949346483
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7824000203981996
+          },
+          "join_rollout2": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.348800015170127
+          },
+          "longest_tail": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9037000127136707
+          },
+          "lpt": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7278999546542764
+          },
+          "lrpt": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7930999854579568
+          },
+          "monte_carlo64": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 65.30950003070757
+          },
+          "rollout2": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.1074999822303653
+          },
+          "spt": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7649000035598874
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_003",
+        "opt": 20,
+        "results": {
+          "beam32": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 22.0905999885872
+          },
+          "beam8": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 21.948200010228902
+          },
+          "fifo": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.3644999708049
+          },
+          "join_rollout2": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 6.761700031347573
+          },
+          "longest_tail": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.05,
+            "runtime_ms": 1.3883999781683087
+          },
+          "lpt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.1,
+            "runtime_ms": 1.215199998114258
+          },
+          "lrpt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.05,
+            "runtime_ms": 1.6898000030778348
+          },
+          "monte_carlo64": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 90.45810002135113
+          },
+          "rollout2": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.889999971259385
+          },
+          "spt": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.1174000101163983
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_004",
+        "opt": 25,
+        "results": {
+          "beam32": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 17.369599954690784
+          },
+          "beam8": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 16.246600018348545
+          },
+          "fifo": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.4278999879024923
+          },
+          "join_rollout2": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 7.437499996740371
+          },
+          "longest_tail": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.4774000155739486
+          },
+          "lpt": {
+            "makespan": 29,
+            "preemptions": 2,
+            "ratio": 1.16,
+            "runtime_ms": 1.463300024624914
+          },
+          "lrpt": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.5033999807201326
+          },
+          "monte_carlo64": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 125.80530002014711
+          },
+          "rollout2": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 7.707499957177788
+          },
+          "spt": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.406800001859665
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_005",
+        "opt": 19,
+        "results": {
+          "beam32": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.282899994403124
+          },
+          "beam8": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.986500007566065
+          },
+          "fifo": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0526315789473684,
+            "runtime_ms": 1.018800016026944
+          },
+          "join_rollout2": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.239200043026358
+          },
+          "longest_tail": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0526315789473684,
+            "runtime_ms": 1.014399982523173
+          },
+          "lpt": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0526315789473684,
+            "runtime_ms": 1.0744999744929373
+          },
+          "lrpt": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0526315789473684,
+            "runtime_ms": 0.9967000223696232
+          },
+          "monte_carlo64": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 64.07929997658357
+          },
+          "rollout2": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.1296999659389257
+          },
+          "spt": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.0526315789473684,
+            "runtime_ms": 1.0511999716982245
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_006",
+        "opt": 18,
+        "results": {
+          "beam32": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 43.345000012777746
+          },
+          "beam8": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 28.560500009916723
+          },
+          "fifo": {
+            "makespan": 19,
+            "preemptions": 2,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 1.4798000338487327
+          },
+          "join_rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.440000026486814
+          },
+          "longest_tail": {
+            "makespan": 19,
+            "preemptions": 2,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 1.4812000445090234
+          },
+          "lpt": {
+            "makespan": 20,
+            "preemptions": 2,
+            "ratio": 1.1111111111111112,
+            "runtime_ms": 1.4750999980606139
+          },
+          "lrpt": {
+            "makespan": 19,
+            "preemptions": 2,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 1.375799998641014
+          },
+          "monte_carlo64": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 117.03720001969486
+          },
+          "rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.704100010916591
+          },
+          "spt": {
+            "makespan": 19,
+            "preemptions": 1,
+            "ratio": 1.0555555555555556,
+            "runtime_ms": 1.818499993532896
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_007",
+        "opt": 17,
+        "results": {
+          "beam32": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.943699994124472
+          },
+          "beam8": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.923200012650341
+          },
+          "fifo": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7896000170148909
+          },
+          "join_rollout2": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.0323999924585223
+          },
+          "longest_tail": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7696999819017947
+          },
+          "lpt": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.7510000141337514
+          },
+          "lrpt": {
+            "makespan": 17,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.7453000289388001
+          },
+          "monte_carlo64": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 48.48439997294918
+          },
+          "rollout2": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.9425000064074993
+          },
+          "spt": {
+            "makespan": 17,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7702999864704907
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_008",
+        "opt": 27,
+        "results": {
+          "beam32": {
+            "makespan": 27,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 697.5899999961257
+          },
+          "beam8": {
+            "makespan": 27,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 274.6785000199452
+          },
+          "fifo": {
+            "makespan": 27,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.388499957509339
+          },
+          "join_rollout2": {
+            "makespan": 27,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 24.482999986503273
+          },
+          "longest_tail": {
+            "makespan": 27,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.868300012778491
+          },
+          "lpt": {
+            "makespan": 30,
+            "preemptions": 2,
+            "ratio": 1.1111111111111112,
+            "runtime_ms": 3.7820999859832227
+          },
+          "lrpt": {
+            "makespan": 27,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 2.5791999651119113
+          },
+          "monte_carlo64": {
+            "makespan": 27,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 184.69680001726374
+          },
+          "rollout2": {
+            "makespan": 27,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 24.192499986384064
+          },
+          "spt": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.2222222222222223,
+            "runtime_ms": 3.706499992404133
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "complex_chain",
+        "id": "pm_complex_random_009",
+        "opt": 28,
+        "results": {
+          "beam32": {
+            "makespan": 28,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 779.6555000240915
+          },
+          "beam8": {
+            "makespan": 28,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 293.10039995471016
+          },
+          "fifo": {
+            "makespan": 31,
+            "preemptions": 0,
+            "ratio": 1.1071428571428572,
+            "runtime_ms": 1.9215999636799097
+          },
+          "join_rollout2": {
+            "makespan": 28,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 20.134299993515015
+          },
+          "longest_tail": {
+            "makespan": 28,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.3016000050120056
+          },
+          "lpt": {
+            "makespan": 32,
+            "preemptions": 3,
+            "ratio": 1.1428571428571428,
+            "runtime_ms": 2.3805999662727118
+          },
+          "lrpt": {
+            "makespan": 28,
+            "preemptions": 6,
+            "ratio": 1.0,
+            "runtime_ms": 2.5622000102885067
+          },
+          "monte_carlo64": {
+            "makespan": 28,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 151.8686000490561
+          },
+          "rollout2": {
+            "makespan": 28,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 20.346000033896416
+          },
+          "spt": {
+            "makespan": 28,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.944600011687726
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_large_flow_vs_long_tail",
+        "opt": 10,
+        "results": {
+          "beam32": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.4846999547444284
+          },
+          "beam8": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.49789999704808
+          },
+          "fifo": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5245000356808305
+          },
+          "join_rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9473999962210655
+          },
+          "longest_tail": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.4651000490412116
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.8,
+            "runtime_ms": 0.5015000351704657
+          },
+          "lrpt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.4539000219665468
+          },
+          "monte_carlo64": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 36.529600038193166
+          },
+          "rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9274000185541809
+          },
+          "spt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6969000096432865
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_longest_tail_counterexample",
+        "opt": 8,
+        "results": {
+          "beam32": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.346500034444034
+          },
+          "beam8": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.6423999699763954
+          },
+          "fifo": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.8807999547570944
+          },
+          "join_rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.0345000084489584
+          },
+          "longest_tail": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.7356000132858753
+          },
+          "lpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.692599976900965
+          },
+          "lrpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.125,
+            "runtime_ms": 0.6509000086225569
+          },
+          "monte_carlo64": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 51.73150001792237
+          },
+          "rollout2": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.8458999693393707
+          },
+          "spt": {
+            "makespan": 8,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7272000075317919
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_lrpt_double_count",
+        "opt": 10,
+        "results": {
+          "beam32": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 24.500700004864484
+          },
+          "beam8": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 19.75259999744594
+          },
+          "fifo": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9352000197395682
+          },
+          "join_rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.134599981829524
+          },
+          "longest_tail": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0376999853178859
+          },
+          "lpt": {
+            "makespan": 12,
+            "preemptions": 1,
+            "ratio": 1.2,
+            "runtime_ms": 1.0329000069759786
+          },
+          "lrpt": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0790000087581575
+          },
+          "monte_carlo64": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 65.65000000409782
+          },
+          "rollout2": {
+            "makespan": 10,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.842399958055466
+          },
+          "spt": {
+            "makespan": 13,
+            "preemptions": 1,
+            "ratio": 1.3,
+            "runtime_ms": 0.9894000249914825
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_14",
+        "opt": 21,
+        "results": {
+          "beam32": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 12.868999969214201
+          },
+          "beam8": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 11.864100000821054
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9613999864086509
+          },
+          "join_rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.96169995656237
+          },
+          "longest_tail": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9569000103510916
+          },
+          "lpt": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.1428571428571428,
+            "runtime_ms": 1.0486000101082027
+          },
+          "lrpt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9227000409737229
+          },
+          "monte_carlo64": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 70.31380000989884
+          },
+          "rollout2": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.5929000005126
+          },
+          "spt": {
+            "makespan": 22,
+            "preemptions": 0,
+            "ratio": 1.0476190476190477,
+            "runtime_ms": 1.0863000061362982
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_52",
+        "opt": 20,
+        "results": {
+          "beam32": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 4.92340000346303
+          },
+          "beam8": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.628099956084043
+          },
+          "fifo": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.2,
+            "runtime_ms": 1.5400999691337347
+          },
+          "join_rollout2": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 3.6164000048302114
+          },
+          "longest_tail": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.1833999888040125
+          },
+          "lpt": {
+            "makespan": 24,
+            "preemptions": 0,
+            "ratio": 1.2,
+            "runtime_ms": 1.2066999915987253
+          },
+          "lrpt": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.7189999925903976
+          },
+          "monte_carlo64": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 58.75939998077229
+          },
+          "rollout2": {
+            "makespan": 20,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 4.371799994260073
+          },
+          "spt": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.05,
+            "runtime_ms": 1.3479000190272927
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_60",
+        "opt": 15,
+        "results": {
+          "beam32": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 66.93359999917448
+          },
+          "beam8": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 32.9819000326097
+          },
+          "fifo": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.075299980584532
+          },
+          "join_rollout2": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 4.978400014806539
+          },
+          "longest_tail": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.0231000487692654
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.2,
+            "runtime_ms": 1.0302000446245074
+          },
+          "lrpt": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.0666000307537615
+          },
+          "monte_carlo64": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 87.42110000457615
+          },
+          "rollout2": {
+            "makespan": 15,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 5.080999981146306
+          },
+          "spt": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.3333333333333333,
+            "runtime_ms": 1.4263000339269638
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_70",
+        "opt": 18,
+        "results": {
+          "beam32": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 93.60330004710704
+          },
+          "beam8": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 49.1833999985829
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 0,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.33940001251176
+          },
+          "join_rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 12.725299980957061
+          },
+          "longest_tail": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.4616000116802752
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.3974999892525375
+          },
+          "lrpt": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.5427000471390784
+          },
+          "monte_carlo64": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 92.09970000665635
+          },
+          "rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 10.499899974092841
+          },
+          "spt": {
+            "makespan": 25,
+            "preemptions": 0,
+            "ratio": 1.3888888888888888,
+            "runtime_ms": 1.2803999707102776
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_77",
+        "opt": 26,
+        "results": {
+          "beam32": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 150.76219994807616
+          },
+          "beam8": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 74.83320002211258
+          },
+          "fifo": {
+            "makespan": 31,
+            "preemptions": 1,
+            "ratio": 1.1923076923076923,
+            "runtime_ms": 1.897699956316501
+          },
+          "join_rollout2": {
+            "makespan": 26,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 13.253599987365305
+          },
+          "longest_tail": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.1172999986447394
+          },
+          "lpt": {
+            "makespan": 34,
+            "preemptions": 2,
+            "ratio": 1.3076923076923077,
+            "runtime_ms": 1.3609000016003847
+          },
+          "lrpt": {
+            "makespan": 27,
+            "preemptions": 2,
+            "ratio": 1.0384615384615385,
+            "runtime_ms": 1.609099970664829
+          },
+          "monte_carlo64": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 115.50030001671985
+          },
+          "rollout2": {
+            "makespan": 26,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 13.498199987225235
+          },
+          "spt": {
+            "makespan": 31,
+            "preemptions": 1,
+            "ratio": 1.1923076923076923,
+            "runtime_ms": 1.6120999935083091
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_86",
+        "opt": 23,
+        "results": {
+          "beam32": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 554.4838999630883
+          },
+          "beam8": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 179.6485999948345
+          },
+          "fifo": {
+            "makespan": 35,
+            "preemptions": 1,
+            "ratio": 1.5217391304347827,
+            "runtime_ms": 1.9132999586872756
+          },
+          "join_rollout2": {
+            "makespan": 23,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 24.52639996772632
+          },
+          "longest_tail": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.256099949590862
+          },
+          "lpt": {
+            "makespan": 28,
+            "preemptions": 1,
+            "ratio": 1.2173913043478262,
+            "runtime_ms": 2.411500026937574
+          },
+          "lrpt": {
+            "makespan": 24,
+            "preemptions": 2,
+            "ratio": 1.0434782608695652,
+            "runtime_ms": 2.0611000363714993
+          },
+          "monte_carlo64": {
+            "makespan": 23,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 146.54119999613613
+          },
+          "rollout2": {
+            "makespan": 23,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 21.920899976976216
+          },
+          "spt": {
+            "makespan": 35,
+            "preemptions": 2,
+            "ratio": 1.5217391304347827,
+            "runtime_ms": 2.2683999850414693
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_98",
+        "opt": 16,
+        "results": {
+          "beam32": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 99.17900001164526
+          },
+          "beam8": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 47.44370002299547
+          },
+          "fifo": {
+            "makespan": 20,
+            "preemptions": 0,
+            "ratio": 1.25,
+            "runtime_ms": 1.5480999718420208
+          },
+          "join_rollout2": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 7.15759996091947
+          },
+          "longest_tail": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.3488999684341252
+          },
+          "lpt": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.4375,
+            "runtime_ms": 1.1411000159569085
+          },
+          "lrpt": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.546700019389391
+          },
+          "monte_carlo64": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 85.26600000914186
+          },
+          "rollout2": {
+            "makespan": 16,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 7.016000046860427
+          },
+          "spt": {
+            "makespan": 19,
+            "preemptions": 0,
+            "ratio": 1.1875,
+            "runtime_ms": 1.2611999991349876
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_scaled_five_four_s4",
+        "opt": 33,
+        "results": {
+          "beam32": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.6184999626129866
+          },
+          "beam8": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.731000004336238
+          },
+          "fifo": {
+            "makespan": 40,
+            "preemptions": 1,
+            "ratio": 1.2121212121212122,
+            "runtime_ms": 1.1369999847374856
+          },
+          "join_rollout2": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.3645999608561397
+          },
+          "longest_tail": {
+            "makespan": 40,
+            "preemptions": 1,
+            "ratio": 1.2121212121212122,
+            "runtime_ms": 1.5724999830126762
+          },
+          "lpt": {
+            "makespan": 40,
+            "preemptions": 0,
+            "ratio": 1.2121212121212122,
+            "runtime_ms": 1.3915000017732382
+          },
+          "lrpt": {
+            "makespan": 40,
+            "preemptions": 0,
+            "ratio": 1.2121212121212122,
+            "runtime_ms": 1.3087000115774572
+          },
+          "monte_carlo64": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 46.44040000857785
+          },
+          "rollout2": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.816000021994114
+          },
+          "spt": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.0278999689035118
+          }
+        }
+      },
+      {
+        "category": "adversarial",
+        "family": "parallel_chain",
+        "id": "pm_tight_optional_wait_m20",
+        "opt": 22,
+        "results": {
+          "beam32": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.2575999717228115
+          },
+          "beam8": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.3279999839141965
+          },
+          "fifo": {
+            "makespan": 41,
+            "preemptions": 0,
+            "ratio": 1.8636363636363635,
+            "runtime_ms": 0.6002999725751579
+          },
+          "join_rollout2": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.9771999903023243
+          },
+          "longest_tail": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.513700011651963
+          },
+          "lpt": {
+            "makespan": 41,
+            "preemptions": 0,
+            "ratio": 1.8636363636363635,
+            "runtime_ms": 0.5643999902531505
+          },
+          "lrpt": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.5019999807700515
+          },
+          "monte_carlo64": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 25.82869998877868
+          },
+          "rollout2": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.04310002643615
+          },
+          "spt": {
+            "makespan": 22,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 0.5951999919489026
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_0",
+        "opt": 29,
+        "results": {
+          "beam32": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 827.0198999671265
+          },
+          "beam8": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 305.91709999134764
+          },
+          "fifo": {
+            "makespan": 32,
+            "preemptions": 2,
+            "ratio": 1.103448275862069,
+            "runtime_ms": 2.413199981674552
+          },
+          "join_rollout2": {
+            "makespan": 29,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 28.110200015362352
+          },
+          "longest_tail": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.6788999675773084
+          },
+          "lpt": {
+            "makespan": 36,
+            "preemptions": 4,
+            "ratio": 1.2413793103448276,
+            "runtime_ms": 2.6061999960802495
+          },
+          "lrpt": {
+            "makespan": 30,
+            "preemptions": 1,
+            "ratio": 1.0344827586206897,
+            "runtime_ms": 2.4476000107824802
+          },
+          "monte_carlo64": {
+            "makespan": 29,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 174.42260001553223
+          },
+          "rollout2": {
+            "makespan": 29,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 25.801399955525994
+          },
+          "spt": {
+            "makespan": 35,
+            "preemptions": 0,
+            "ratio": 1.206896551724138,
+            "runtime_ms": 2.4394000065512955
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_1",
+        "opt": 9,
+        "results": {
+          "beam32": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.398200009949505
+          },
+          "beam8": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.903499957639724
+          },
+          "fifo": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.743500015232712
+          },
+          "join_rollout2": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.1556999892927706
+          },
+          "longest_tail": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7932999869808555
+          },
+          "lpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7971000159159303
+          },
+          "lrpt": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7861999911256135
+          },
+          "monte_carlo64": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 69.49889997486025
+          },
+          "rollout2": {
+            "makespan": 9,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.9049000004306436
+          },
+          "spt": {
+            "makespan": 11,
+            "preemptions": 0,
+            "ratio": 1.2222222222222223,
+            "runtime_ms": 0.9876000112853944
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_2",
+        "opt": 25,
+        "results": {
+          "beam32": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 633.7075000046752
+          },
+          "beam8": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 239.6302000270225
+          },
+          "fifo": {
+            "makespan": 31,
+            "preemptions": 1,
+            "ratio": 1.24,
+            "runtime_ms": 2.134100010152906
+          },
+          "join_rollout2": {
+            "makespan": 25,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 32.97280002152547
+          },
+          "longest_tail": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 2.4494999670423567
+          },
+          "lpt": {
+            "makespan": 31,
+            "preemptions": 1,
+            "ratio": 1.24,
+            "runtime_ms": 2.2225999855436385
+          },
+          "lrpt": {
+            "makespan": 25,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 2.369199995882809
+          },
+          "monte_carlo64": {
+            "makespan": 25,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 156.62989998236299
+          },
+          "rollout2": {
+            "makespan": 25,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 22.762999986298382
+          },
+          "spt": {
+            "makespan": 31,
+            "preemptions": 1,
+            "ratio": 1.24,
+            "runtime_ms": 2.1913000382483006
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_3",
+        "opt": 13,
+        "results": {
+          "beam32": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.7565000345930457
+          },
+          "beam8": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.670499961823225
+          },
+          "fifo": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.9118000161834061
+          },
+          "join_rollout2": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.5427999896928668
+          },
+          "longest_tail": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.6005999748595059
+          },
+          "lpt": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5929000326432288
+          },
+          "lrpt": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.5756000173278153
+          },
+          "monte_carlo64": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 37.70100005203858
+          },
+          "rollout2": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.5133999986574054
+          },
+          "spt": {
+            "makespan": 14,
+            "preemptions": 0,
+            "ratio": 1.0769230769230769,
+            "runtime_ms": 0.6210000137798488
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_4",
+        "opt": 26,
+        "results": {
+          "beam32": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 234.50070002581924
+          },
+          "beam8": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 107.89629997452721
+          },
+          "fifo": {
+            "makespan": 33,
+            "preemptions": 0,
+            "ratio": 1.2692307692307692,
+            "runtime_ms": 1.65049999486655
+          },
+          "join_rollout2": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 23.938899976201355
+          },
+          "longest_tail": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.727399998344481
+          },
+          "lpt": {
+            "makespan": 33,
+            "preemptions": 1,
+            "ratio": 1.2692307692307692,
+            "runtime_ms": 1.6973000019788742
+          },
+          "lrpt": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 1.7834999598562717
+          },
+          "monte_carlo64": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 125.66820002393797
+          },
+          "rollout2": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 15.373400005046278
+          },
+          "spt": {
+            "makespan": 30,
+            "preemptions": 1,
+            "ratio": 1.1538461538461537,
+            "runtime_ms": 1.8149000243283808
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_5",
+        "opt": 23,
+        "results": {
+          "beam32": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 3.9949999772943556
+          },
+          "beam8": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 4.039200022816658
+          },
+          "fifo": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8191000088118017
+          },
+          "join_rollout2": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.4495000252500176
+          },
+          "longest_tail": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8779999916441739
+          },
+          "lpt": {
+            "makespan": 25,
+            "preemptions": 0,
+            "ratio": 1.0869565217391304,
+            "runtime_ms": 0.7130000158213079
+          },
+          "lrpt": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.8294000290334225
+          },
+          "monte_carlo64": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 49.658300005830824
+          },
+          "rollout2": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 2.394600014667958
+          },
+          "spt": {
+            "makespan": 23,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 0.7603999692946672
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_7",
+        "opt": 13,
+        "results": {
+          "beam32": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 25.260300026275218
+          },
+          "beam8": {
+            "makespan": 13,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 19.040600047446787
+          },
+          "fifo": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.3846153846153846,
+            "runtime_ms": 1.7458999645896256
+          },
+          "join_rollout2": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 5.955900007393211
+          },
+          "longest_tail": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.056700013577938
+          },
+          "lpt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.3846153846153846,
+            "runtime_ms": 0.9947000071406364
+          },
+          "lrpt": {
+            "makespan": 14,
+            "preemptions": 1,
+            "ratio": 1.0769230769230769,
+            "runtime_ms": 1.0123999672941864
+          },
+          "monte_carlo64": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 62.197099963668734
+          },
+          "rollout2": {
+            "makespan": 13,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 6.178200012072921
+          },
+          "spt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.3846153846153846,
+            "runtime_ms": 1.088299963157624
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_8",
+        "opt": 18,
+        "results": {
+          "beam32": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 32.00910001760349
+          },
+          "beam8": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 27.684499975293875
+          },
+          "fifo": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.8035999964922667
+          },
+          "join_rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.506200006697327
+          },
+          "longest_tail": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.714400015771389
+          },
+          "lpt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.8767000292427838
+          },
+          "lrpt": {
+            "makespan": 18,
+            "preemptions": 0,
+            "ratio": 1.0,
+            "runtime_ms": 1.296799979172647
+          },
+          "monte_carlo64": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 87.43709995178506
+          },
+          "rollout2": {
+            "makespan": 18,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 6.694299983792007
+          },
+          "spt": {
+            "makespan": 21,
+            "preemptions": 1,
+            "ratio": 1.1666666666666667,
+            "runtime_ms": 1.5686999540776014
+          }
+        }
+      },
+      {
+        "category": "random",
+        "family": "parallel_chain",
+        "id": "pm_random_chain_9",
+        "opt": 26,
+        "results": {
+          "beam32": {
+            "makespan": 26,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 949.5128000271507
+          },
+          "beam8": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 310.9822999686003
+          },
+          "fifo": {
+            "makespan": 38,
+            "preemptions": 0,
+            "ratio": 1.4615384615384615,
+            "runtime_ms": 4.008899966720492
+          },
+          "join_rollout2": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 30.327300017233938
+          },
+          "longest_tail": {
+            "makespan": 26,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 2.898500009905547
+          },
+          "lpt": {
+            "makespan": 31,
+            "preemptions": 2,
+            "ratio": 1.1923076923076923,
+            "runtime_ms": 2.7866000309586525
+          },
+          "lrpt": {
+            "makespan": 26,
+            "preemptions": 3,
+            "ratio": 1.0,
+            "runtime_ms": 3.257900010794401
+          },
+          "monte_carlo64": {
+            "makespan": 26,
+            "preemptions": 2,
+            "ratio": 1.0,
+            "runtime_ms": 174.77169999619946
+          },
+          "rollout2": {
+            "makespan": 26,
+            "preemptions": 1,
+            "ratio": 1.0,
+            "runtime_ms": 31.648900010623038
+          },
+          "spt": {
+            "makespan": 38,
+            "preemptions": 0,
+            "ratio": 1.4615384615384615,
+            "runtime_ms": 3.765899979043752
+          }
+        }
+      }
+    ],
+    "summary": {
+      "beam32": {
+        "instances": 48,
+        "max_ratio": 1.0,
+        "mean_preemptions": 0.5416666666666666,
+        "mean_ratio": 1.0,
+        "mean_runtime_ms": 152.9200333340365,
+        "optimal_fraction": 1
+      },
+      "beam8": {
+        "instances": 48,
+        "max_ratio": 1.0,
+        "mean_preemptions": 0.5625,
+        "mean_ratio": 1.0,
+        "mean_runtime_ms": 62.08831457721923,
+        "optimal_fraction": 1
+      },
+      "fifo": {
+        "instances": 48,
+        "max_ratio": 1.8636363636363635,
+        "mean_preemptions": 0.4583333333333333,
+        "mean_ratio": 1.1199507549247647,
+        "mean_runtime_ms": 1.3462916625333794,
+        "optimal_fraction": 0.5416666666666666
+      },
+      "join_rollout2": {
+        "instances": 48,
+        "max_ratio": 1.0,
+        "mean_preemptions": 0.7708333333333334,
+        "mean_ratio": 1.0,
+        "mean_runtime_ms": 9.066022919190194,
+        "optimal_fraction": 1
+      },
+      "longest_tail": {
+        "instances": 48,
+        "max_ratio": 1.2121212121212122,
+        "mean_preemptions": 0.5833333333333334,
+        "mean_ratio": 1.0158090934406725,
+        "mean_runtime_ms": 1.3237270820051588,
+        "optimal_fraction": 0.8333333333333334
+      },
+      "lpt": {
+        "instances": 48,
+        "max_ratio": 1.8636363636363635,
+        "mean_preemptions": 0.875,
+        "mean_ratio": 1.2017549674664072,
+        "mean_runtime_ms": 1.2941562502722566,
+        "optimal_fraction": 0.16666666666666666
+      },
+      "lrpt": {
+        "instances": 48,
+        "max_ratio": 1.2121212121212122,
+        "mean_preemptions": 1,
+        "mean_ratio": 1.0197508611099513,
+        "mean_runtime_ms": 1.319606251248236,
+        "optimal_fraction": 0.75
+      },
+      "monte_carlo64": {
+        "instances": 48,
+        "max_ratio": 1.0,
+        "mean_preemptions": 0.625,
+        "mean_ratio": 1.0,
+        "mean_runtime_ms": 87.63222708633596,
+        "optimal_fraction": 1
+      },
+      "rollout2": {
+        "instances": 48,
+        "max_ratio": 1.0,
+        "mean_preemptions": 0.7916666666666666,
+        "mean_ratio": 1.0,
+        "mean_runtime_ms": 8.487889577130167,
+        "optimal_fraction": 1
+      },
+      "spt": {
+        "instances": 48,
+        "max_ratio": 1.5217391304347827,
+        "mean_preemptions": 0.4166666666666667,
+        "mean_ratio": 1.1229687993320445,
+        "mean_runtime_ms": 1.3584208318206947,
+        "optimal_fraction": 0.4166666666666667
+      }
+    }
+  },
+  "skipped_exact": [
+    {
+      "id": "pm_fixed_beam_counterexample",
+      "reason": "TimeoutError"
+    },
+    {
+      "id": "pm_random_chain_6",
+      "reason": "TimeoutError"
+    }
+  ]
+}
