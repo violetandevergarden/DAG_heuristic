@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 from statistics import mean
+from random import Random
 from time import perf_counter
 from typing import Literal
 
@@ -65,6 +66,10 @@ class MultiResult:
     planner_decisions: int = 0
     planner_triggered: int = 0
     planner_improvements: int = 0
+    generated_candidates: int = 0
+    fallback_reasons: tuple[tuple[str, int], ...] = ()
+    selector: str | None = None
+    max_completion_calls_per_decision: int = 0
 
 
 @dataclass
@@ -116,6 +121,8 @@ def schedule_pack(
     dag: BenchmarkDAG,
     resources: dict[str, frozenset[str]],
     mode: str = "longest_tail",
+    *,
+    seed: int = 0,
 ) -> MultiResult:
     """Greedy-fill a maximal set using one communication priority."""
 
@@ -127,9 +134,13 @@ def schedule_pack(
         state, _idle = model.normalize_decision_state(state)
         if model.finished(state):
             break
-        action = greedy_fill_from_task_scores(
-            model, state, score_tasks(model, state, mode)
-        )
+        if mode == "random":
+            order = list(model.eligible(state))
+            Random(seed + len(actions)).shuffle(order)
+            scores = {task_id: (order.index(task_id), task_id) for task_id in order}
+        else:
+            scores = score_tasks(model, state, mode)
+        action = greedy_fill_from_task_scores(model, state, scores)
         actions.append(action)
         state = model.step(state, action)
     return _result(
@@ -184,9 +195,15 @@ def schedule_bounded_packing(
     constructor: str = "multi_seed",
     score_mode: str = "longest_tail",
     rollout: bool = False,
+    selector: Literal["baseline", "set_score", "depth1_completion"] | None = None,
     budget=None,
 ) -> MultiResult:
-    """Stage 4f constructor policy with an optional guarded depth-1 evaluator."""
+    """Stage 4c packing with explicit construction and selection phases.
+
+    ``rollout`` is retained as a compatibility alias for
+    ``selector='depth1_completion'``.  New callers must name the selector so a
+    non-baseline constructor cannot silently execute the LT baseline.
+    """
 
     from muti_channel.preemptive.constructors import (
         choose_by_depth1_longest_tail,
@@ -195,35 +212,56 @@ def schedule_bounded_packing(
         multi_seed,
         one_exchange,
     )
-    from muti_channel.preemptive.packing import PackingBudget
+    from muti_channel.preemptive.packing import DecisionBudget, PackingBudget, PackingResult
 
     started = perf_counter()
     budget = budget or PackingBudget()
+    if selector is None:
+        selector = "depth1_completion" if rollout else "baseline"
+    if rollout and selector != "depth1_completion":
+        raise ValueError("rollout is only compatible with depth1_completion")
     builders = {
-        "greedy": lambda model, state, scores: greedy(model, state, scores),
-        "multi_seed": lambda model, state, scores: multi_seed(model, state, scores, budget),
-        "one_exchange": lambda model, state, scores: one_exchange(model, state, scores, budget),
-        "enumeration": lambda model, state, scores: enumerate_bounded(model, state, scores, budget),
+        "greedy": lambda model, state, scores, ledger: greedy(model, state, scores, ledger),
+        "multi_seed": lambda model, state, scores, ledger: multi_seed(model, state, scores, budget, ledger),
+        "one_exchange": lambda model, state, scores, ledger: one_exchange(model, state, scores, budget, ledger),
+        "enumeration": lambda model, state, scores, ledger: enumerate_bounded(model, state, scores, budget, ledger),
     }
     if constructor not in builders:
         raise ValueError(f"unknown packing constructor: {constructor}")
     model = PreemptiveMultiResourceModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
-    evaluated = fallbacks = calls = improvements = 0
+    evaluated = generated = fallbacks = calls = improvements = triggered = max_calls = 0
+    fallback_reasons: dict[str, int] = {}
     while not model.finished(state):
         state, _idle = model.normalize_decision_state(state)
         if model.finished(state):
             break
-        packed = builders[constructor](model, state, score_tasks(model, state, score_mode))
-        action = packed.selected
-        evaluated += len(packed.candidates)
-        fallbacks += packed.stats.budget_exhausted
-        if rollout and len(packed.candidates) > 1 and calls < budget.b_eval:
-            selected, used = choose_by_depth1_longest_tail(model, state, packed)
+        ledger = DecisionBudget(budget)
+        packed = builders[constructor](model, state, score_tasks(model, state, score_mode), ledger)
+        action = packed.baseline
+        generated += packed.stats.generated_candidates
+        if selector == "set_score" and packed.candidates:
+            choices = (packed.baseline, *packed.candidates)
+            action = select_best_scored_set(score_sets(model, state, choices, "union_downstream"))
+            evaluated += len(choices)
+            triggered += 1
+        elif selector == "depth1_completion" and packed.candidates:
+            selected, used = choose_by_depth1_longest_tail(model, state, packed, ledger)
             calls += used
-            improvements += selected != action
+            evaluated += used
+            triggered += 1
             action = selected
+        else:
+            fallback_reasons["selector_baseline" if selector == "baseline" else "no_alternative"] = (
+                fallback_reasons.get("selector_baseline" if selector == "baseline" else "no_alternative", 0) + 1
+            )
+        packed = replace(packed, selected=action, selector=selector, fallback_reason=ledger.fallback_reason or packed.fallback_reason)
+        if packed.fallback_reason:
+            fallbacks += 1
+            fallback_reasons[packed.fallback_reason] = fallback_reasons.get(packed.fallback_reason, 0) + 1
+        improvements += action != packed.baseline
+        max_calls = max(max_calls, ledger.completion_calls)
         actions.append(action)
         state = model.step(state, action)
     result = _result(
@@ -238,8 +276,12 @@ def schedule_bounded_packing(
         completion_calls=calls,
         fallback_count=fallbacks,
         planner_decisions=len(actions),
-        planner_triggered=int(calls > 0),
+        planner_triggered=triggered,
         planner_improvements=improvements,
+        generated_candidates=generated,
+        fallback_reasons=tuple(sorted(fallback_reasons.items())),
+        selector=selector,
+        max_completion_calls_per_decision=max_calls,
     )
 
 
@@ -487,6 +529,86 @@ def exact_oracle_uncompressed(
     return _exact(dag, resources, max_states, time_limit_s, compressed=False)
 
 
+def exact_completion_from_state_uncompressed(
+    model: PreemptiveMultiResourceModel,
+    state: MultiState,
+    *,
+    max_states: int = 100_000,
+    time_limit_s: float | None = 5.0,
+) -> MultiResult:
+    """Exact suffix value from an already-normalized public simulator state.
+
+    This audit helper deliberately keeps the full state key and returns no
+    initial-state trace: it is for annotating each legal first action, not for
+    replacing the normal whole-DAG oracle.
+    """
+    started = perf_counter()
+    initial, _idle = model.normalize_decision_state(state)
+    baseline_state, baseline_actions = _complete_pack(model, initial)
+    stats = _SearchStats()
+    memo: dict[tuple, tuple[int, tuple[MultiAction, ...]]] = {}
+
+    def check_budget() -> None:
+        if stats.explored >= max_states:
+            raise _BudgetExceeded("state_limit")
+        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
+            raise _BudgetExceeded("time_limit")
+
+    def search(current: MultiState) -> tuple[int, tuple[MultiAction, ...]]:
+        current, _ = model.normalize_decision_state(current)
+        key = uncompressed_state_key(current)
+        if key in memo:
+            stats.deduplicated += 1
+            return memo[key]
+        check_budget()
+        stats.explored += 1
+        if model.finished(current):
+            memo[key] = (0, ())
+            return memo[key]
+        completed, suffix = _complete_pack(model, current)
+        best_cost = completed.time - current.time
+        best_actions = suffix
+        actions = model.maximal_actions(current)
+        stats.compatible_sets += len(actions)
+        stats.max_branch = max(stats.max_branch, len(actions))
+        for action in sorted(actions, key=lambda item: score_sets(model, current, actions, "union_downstream")[item]):
+            check_budget()
+            after = model.step(current, action)
+            after, _ = model.normalize_decision_state(after)
+            stats.generated += 1
+            immediate = after.time - current.time
+            if immediate + remaining_lower_bound(model, after) > best_cost:
+                stats.pruned += 1
+                continue
+            suffix_cost, suffix_actions = search(after)
+            candidate = immediate + suffix_cost
+            candidate_actions = (action, *suffix_actions)
+            if (candidate, tuple(item.communications for item in candidate_actions)) < (
+                best_cost, tuple(item.communications for item in best_actions)
+            ):
+                best_cost, best_actions = candidate, candidate_actions
+        memo[key] = (best_cost, best_actions)
+        return memo[key]
+
+    try:
+        cost, actions = search(initial)
+        status: Literal["feasible", "optimal"] = "optimal"
+        reason = "complete_enumeration"
+        makespan = initial.time + cost
+    except _BudgetExceeded as error:
+        actions = baseline_actions
+        status = "feasible"
+        reason = str(error)
+        makespan = baseline_state.time
+    return MultiResult(
+        makespan=makespan, actions=actions, decision_count=len(actions), preemptions=0,
+        explored_states=stats.explored, status=status, termination_reason=reason,
+        runtime_ms=(perf_counter() - started) * 1000, generated_transitions=stats.generated,
+        deduplicated_states=stats.deduplicated, compatible_sets_generated=stats.compatible_sets,
+        max_branch=stats.max_branch,
+    )
+
+
 def _exact(
     dag: BenchmarkDAG,
     resources: dict[str, frozenset[str]],
@@ -699,6 +821,12 @@ def score_tasks(
         bottleneck = max((load[item] for item in model.resources[task_id]), default=0)
         if mode == "longest_tail":
             return (-tails[task_id], task_id)
+        if mode == "fixed_order":
+            return (task_id,)
+        if mode == "fifo":
+            # An eligible set is formed at one event time; input/topological
+            # order is the deterministic FIFO tie-break within that batch.
+            return (model.index[task_id], task_id)
         if mode == "resource_tail":
             return (-tails[task_id], -bottleneck, task_id)
         if mode == "bottleneck":
