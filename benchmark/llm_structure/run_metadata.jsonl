@@ -1,10 +1,1 @@
-{
-  "case_count": 72,
-  "corpus_manifest_version": "llm-corpus-v2",
-  "generated_at": "2026-08-17T14:40:37.461335+00:00",
-  "git": {
-    "commit": "273aa7fdef2ee2dd6d4a99bfd36a6016b8dda5f7",
-    "diff_or_source_bundle_hash": "258f245e7a19e6196d15a4e0ce52c9b932e42bbdd69b8011b89c1c77e066e2e2",
-    "dirty": true
-  }
-}
+{"case_count": 72, "corpus_manifest_version": "llm-corpus-v3", "generated_at": "2026-08-21T06:00:42.820251+00:00", "git": {"commit": "e0f280ab399bf69f11e327192130caa5fab3b444", "diff_or_source_bundle_hash": "dfc366bcbdae5c508e7bda11c43a4b0db59a7194b438c0188c8a3a677f5f6f1d", "dirty": true}}

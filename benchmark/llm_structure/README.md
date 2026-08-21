@@ -1,4 +1,4 @@
-# LLM 结构化 benchmark 语料（真实 AICB + 真实拓扑）
+# LLM 结构化 benchmark 语料（真实 AICB + 固定拓扑投影）
 
 本目录冻结由真实 LLM 训练 workload 生成的预抢占 DAG benchmark。全部文件为
 schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定排他资源集合）。
@@ -10,10 +10,10 @@ schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定
   AICB 文件。当前活动 corpus 包含 72 个候选 case；这表示文件数量，不等于 72 个
   已认证存在竞争的样例。每个 benchmark 的 manifest
   记录源文件内容 hash 与 SimAI checkout commit。
-- 拓扑：`third_party/simai-flow-scheduler/inputs/topologies/`。分级：
-  - **production**：AlibabaHPN_16g、Spectrum-X_16g、DCN+DualToR_64g —— 用于真实评估；
-  - **experimental**：Cassini_24g/64g、Hermod_32g —— 小型实验拓扑，链路共享集中，
-    用于人为制造冲突。
+- 拓扑：`third_party/simai-flow-scheduler/inputs/topologies/`。当前只确认这些文件来自
+  SimAI checkout 并被转换器固定投影；仓库内没有足以认证“生产拓扑”的来源材料，故
+  AlibabaHPN、Spectrum-X、DCN+DualToR、Cassini、Hermod 的生产真实性均视为
+  `unverified`。Cassini/Hermod 继续作为受控冲突投影使用，不与来源已认证的拓扑合并结论。
 - 多 iteration：单 job 领域内，把同一 AICB iteration 重复 N 次，iteration 之间按
   rank 的 sink→source 依赖连接，保留 1F1B 的跨 iteration 流水重叠。
 - DP 重写：Mixtral AICB 网格原生 `dp = all_gpus/(tp*pp) = 1`。带 `_dpN` 后缀的
@@ -26,7 +26,7 @@ schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定
 ```text
 llm_structure/
 ├── README.md
-├── manifest.jsonl                # 每文件 lineage + probe 状态 + hash
+├── manifest.jsonl                # v3：转换/竞争证据/发布状态分离
 ├── preemptive/
 │   ├── unified/                  # 单通道统一瓶颈变体
 │   ├── routed/<topology_tag>/    # 路由冻结多资源变体（含生产/实验拓扑分级）
@@ -50,7 +50,7 @@ example 另有 bounded certified choice existence 检查。slow full replay 应�
 - `max_eligible`、`conflict_pairs`、`contention_fraction`；
 - `probe_kind`、`probe_status`、`baseline_action_rule`；
 - `decisions_sampled`、`contended_decisions_sampled`、`action_set_count_max`；
-- `certified_probe_status` 与 `certified_reachable_choice`（仅小图）。
+- `multiple_legal_actions_exists` 与 `certified_non_equivalent_choice_exists`（仅小图）。
 
 `none_observed_under_probes` 只表示采样轨迹没有发现竞争；除非 certified probe 完成，
 不能写成全局 none，也不能用它作为算法合理性结论。
@@ -63,8 +63,10 @@ real-derived exact slice 与转换层对拍的结果归档在
 （`stage4a_baselines_small_*`、`stage4a_dp_curve_*`、`stage4a_multi_job_*`、
 `stage4a_scaling_*`、`stage4a_exact_slices_*`）。要点：
 
-- 小/中规模（≤12000 任务）39 个 case 中 28 个三个基线完整回放成功；其余至少一个
-  基线在 90s 预算内超时。多资源真实切片（300 任务）已有 Exact 最优证书。
+- 旧版协作式预算结果中，小/中规模（≤12000 任务）39 个 case 有 36 个三个基线
+  完整回放成功、3 个不完整。该预算不能中断单次慢状态转移，因此只能作为历史成本证据，
+  不能解释为严格 90 秒截止。2026-08-21 起的新结果使用 `process_wall_timeout_v2`。
+  多资源真实切片（300 任务）已有 Exact 最优证书。
 - 同一 source 的 DP 从 1 增加到 2 只翻倍任务数，却使完整回放全部超过 120s 预算；
   dp≥2 与大图（≥30k 任务）的完整回放当前不可行，竞争状态未定。
 - 真实 AICB multi-job（同构单通道、异构多资源同时/错峰）3 个 case 已生成，

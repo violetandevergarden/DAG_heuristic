@@ -339,6 +339,11 @@ def to_benchmark(
             "iteration": task.iteration,
             "layer_id": task.layer_id,
             "item_id": task.item_id,
+            # Preserve the native dependency layer separately from serializer
+            # compute-order edges.  Multi-iteration expansion must identify
+            # per-rank boundaries from SimAI's raw graph, exactly as SimAI's
+            # own iteration utility does.
+            "simai_raw_dependencies": [str(value) for value in sorted(task.deps)],
             "chunk_id": task.chunk_id,
             "num_chunks": task.num_chunks,
         }

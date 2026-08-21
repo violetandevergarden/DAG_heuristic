@@ -1,0 +1,47 @@
+{
+  "schema_version": "stage4a-acceptance-v1",
+  "date": "2026-08-21",
+  "stage_status": "not_complete",
+  "manifest": {
+    "path": "benchmark/llm_structure/manifest.jsonl",
+    "sha256": "8bbc2879d924a32fed800b75941edcd434918e3caa4dd170ba0101839b761daf",
+    "schema_version": "llm-corpus-v3",
+    "case_count": 72,
+    "conversion_status": {"valid": 72},
+    "publication_status": {"published": 72},
+    "contention_evidence_level": {"sampled_prefix": 72},
+    "contention_classification": {
+      "informative-observed": 33,
+      "no-contention-observed": 39
+    }
+  },
+  "strict_budget_smoke": {
+    "path": "docs/result_docs/stage4a_completion_20260821/baselines_smoke/summary.json",
+    "sha256": "2da1852145ef2b6f2f7c9d92975379f7831fdd44baa733f82f4daae49ca60883",
+    "timeout_contract": "process_wall_timeout_v2",
+    "case_count": 2,
+    "completed_count": 2,
+    "failed_count": 0
+  },
+  "tests": {"command": "python -m pytest -q", "passed": 175, "duration_s": 81.57},
+  "exit_conditions": [
+    {"id": 1, "status": "partial", "reason": "workload and topology hashes exist; full environment metadata remains incomplete"},
+    {"id": 2, "status": "partial", "reason": "public DAG validation passes; native iteration semantics remain unverified"},
+    {"id": 3, "status": "not_met", "reason": "native dynamic execution and multi-iteration pairing are absent"},
+    {"id": 4, "status": "partial", "reason": "rollback and coverage checks implemented; versioned single-pointer snapshot is not implemented"},
+    {"id": 5, "status": "met", "reason": "manifest v3 separates conversion, contention evidence/classification, and publication"},
+    {"id": 6, "status": "partial", "reason": "certificate semantics fixed and regression-tested; active corpus remains prefix evidence only"},
+    {"id": 7, "status": "not_met", "reason": "controlled topology, native iteration, and 1/2/3/4-job curves are incomplete"},
+    {"id": 8, "status": "partial", "reason": "strict process budget implemented and smoke-tested; full 72-case rerun is not complete"},
+    {"id": 9, "status": "partial", "reason": "historical exact results lack all required result-contract fields"},
+    {"id": 10, "status": "partial", "reason": "historical scaling report lacks all required per-stage measurements"},
+    {"id": 11, "status": "partial", "reason": "prefix classes are frozen; certified negative and timeout/exclusion strata are absent"},
+    {"id": 12, "status": "not_met", "reason": "a trustworthy 4b--4g frozen input set cannot be issued from prefix evidence alone"}
+  ],
+  "blocking_conditions": [
+    "native SimAI dynamic multi-iteration pairing has not been produced",
+    "the full corpus has not been rerun under the strict process-level budget",
+    "the controlled DP/topology/iteration/multi-job evidence matrix is incomplete",
+    "exact and scaling result contracts are incomplete"
+  ]
+}

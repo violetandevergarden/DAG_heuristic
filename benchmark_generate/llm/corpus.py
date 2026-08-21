@@ -30,7 +30,18 @@ from typing import Any
 from benchmark import load_benchmark, validate_benchmark
 from benchmark_generate.export import build_index
 
-CORPUS_MANIFEST_VERSION = "llm-corpus-v2"
+CORPUS_MANIFEST_VERSION = "llm-corpus-v3"
+CONVERSION_STATUSES = {"not_run", "valid", "explained_delta", "mismatch", "invalid"}
+CONTENTION_CLASSIFICATIONS = {
+    "informative-certified", "informative-observed", "contention-structural",
+    "no-choice-certified", "no-contention-observed", "unknown-timeout",
+    "invalid", "excluded",
+}
+CONTENTION_EVIDENCE_LEVELS = {
+    "not_run", "static_only", "sampled_prefix", "bounded_search",
+    "completed_replay", "certified_choice_exists", "certified_no_choice",
+}
+PUBLICATION_STATUSES = {"staged", "published", "excluded", "superseded"}
 STATUSES = {
     "generated",
     "probing",
@@ -164,7 +175,12 @@ def _row_for(
         "path": rel,
         "suite": inferred_suite,
         "stage4_layer": inferred_layer,
-        "status": status,
+        "conversion_status": "valid",
+        "contention_classification": "contention-structural",
+        "contention_evidence_level": "not_run",
+        "publication_status": "staged",
+        "baseline_status": None,
+        "exact_status": None,
         "scenario": benchmark.scenario,
         "category": benchmark.category,
         "task_count": len(benchmark.tasks),
@@ -248,6 +264,80 @@ def _normalized_status(row: dict[str, Any]) -> str:
     if status == "probed" and (row.get("probe") or {}).get("probe_status") == "sampled_prefix":
         return "sampled_prefix"
     return status
+
+
+def _migrate_manifest_row(row: dict[str, Any], *, published: bool = False) -> dict[str, Any]:
+    """Return a v3 row without retaining the ambiguous v2 ``status`` field."""
+
+    migrated = dict(row)
+    legacy = _normalized_status(row)
+    probe = migrated.get("probe") or {}
+    migrated.pop("status", None)
+    migrated["schema_version"] = CORPUS_MANIFEST_VERSION
+    migrated.setdefault("conversion_status", "invalid" if legacy in {"failed", "invalid"} else "valid")
+    evidence = migrated.get("contention_evidence_level")
+    if evidence is None or (
+        evidence in {"not_run", "bounded_search"} and probe.get("probe_status") == "sampled_prefix"
+    ):
+        certified_status = probe.get("certified_probe_status")
+        if certified_status == "certified_choice_exists":
+            evidence = "certified_choice_exists"
+        elif certified_status == "certified_no_choice":
+            evidence = "certified_no_choice"
+        elif legacy == "completed":
+            evidence = "completed_replay"
+        elif legacy in {"sampled_prefix", "probed"} or probe.get("probe_status") == "sampled_prefix":
+            evidence = "sampled_prefix"
+        elif probe:
+            evidence = "bounded_search"
+        else:
+            evidence = "not_run"
+        migrated["contention_evidence_level"] = evidence
+    if "contention_classification" not in migrated or (
+        migrated.get("contention_classification") == "contention-structural" and probe.get("probe_status")
+    ):
+        if migrated["conversion_status"] == "invalid":
+            classification = "invalid"
+        elif legacy == "excluded":
+            classification = "excluded"
+        elif evidence == "certified_choice_exists":
+            classification = "informative-certified"
+        elif evidence == "certified_no_choice":
+            classification = "no-choice-certified"
+        elif legacy == "timeout":
+            classification = "unknown-timeout"
+        elif probe.get("contended_decisions_sampled", 0) > 0:
+            classification = "informative-observed"
+        elif probe:
+            classification = "no-contention-observed"
+        else:
+            classification = "contention-structural"
+        migrated["contention_classification"] = classification
+    if published:
+        migrated["publication_status"] = "published"
+    else:
+        migrated.setdefault("publication_status", "staged")
+    migrated.setdefault("baseline_status", None)
+    migrated.setdefault("exact_status", None)
+    _validate_manifest_v3_row(migrated)
+    return migrated
+
+
+def _validate_manifest_v3_row(row: dict[str, Any]) -> None:
+    required = {"benchmark_id", "path", "conversion_status", "contention_classification",
+                "contention_evidence_level", "publication_status"}
+    missing = sorted(name for name in required if not row.get(name))
+    if missing:
+        raise ValueError(f"manifest v3 row missing required fields: {missing}")
+    checks = (
+        ("conversion_status", CONVERSION_STATUSES),
+        ("contention_classification", CONTENTION_CLASSIFICATIONS),
+        ("contention_evidence_level", CONTENTION_EVIDENCE_LEVELS),
+        ("publication_status", PUBLICATION_STATUSES),
+    )
+    for field, allowed in checks:
+        if row[field] not in allowed:
+            raise ValueError(f"invalid {field}: {row[field]}")
 
 
 def _static_overlap_summary(benchmark) -> dict[str, Any]:
@@ -346,7 +436,8 @@ def _fast_contention_audit(
     fraction = contended / decisions if decisions else 0.0
     certified = _certified_reachable_choice(benchmark, max_states=max_states) if len(benchmark.tasks) <= 500 else {
         "status": "not_run_size_limit",
-        "exists_multiple_legal_actions": None,
+        "multiple_legal_actions_exists": None,
+        "certified_non_equivalent_choice_exists": None,
         "explored_states": 0,
     }
     return {
@@ -361,7 +452,8 @@ def _fast_contention_audit(
         "action_set_count_max": max(action_counts, default=0),
         "contention_fraction_sampled": round(fraction, 4),
         "none_observed_under_probes": decisions > 0 and contended == 0,
-        "certified_reachable_choice": certified["exists_multiple_legal_actions"],
+        "multiple_legal_actions_exists": certified["multiple_legal_actions_exists"],
+        "certified_non_equivalent_choice_exists": certified["certified_non_equivalent_choice_exists"],
         "certified_probe_status": certified["status"],
         "certified_probe_states": certified["explored_states"],
         "complete_trace": False,
@@ -383,7 +475,7 @@ def _fast_contention_audit(
 
 
 def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[str, Any]:
-    """Bounded exhaustive choice existence check for small snapshots."""
+    """Boundedly search for actions producing distinct, uncompressed residual states."""
 
     from collections import deque
 
@@ -416,6 +508,7 @@ def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[s
 
     queue = deque([initial])
     seen = {key(initial)}
+    multiple_actions = False
     while queue and len(seen) <= max_states:
         state = queue.popleft()
         while not finished(state) and not eligible(state):
@@ -427,7 +520,15 @@ def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[s
             continue
         actions = tuple(legal(state))
         if len(actions) > 1:
-            return {"status": "certified", "exists_multiple_legal_actions": True, "explored_states": len(seen)}
+            multiple_actions = True
+            child_keys = {key(advance(state, action)) for action in actions}
+            if len(child_keys) > 1:
+                return {
+                    "status": "certified_choice_exists",
+                    "multiple_legal_actions_exists": True,
+                    "certified_non_equivalent_choice_exists": True,
+                    "explored_states": len(seen),
+                }
         for action in actions:
             child = advance(state, action)
             child_key = key(child)
@@ -436,8 +537,9 @@ def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[s
                 queue.append(child)
     complete = len(seen) <= max_states and not queue
     return {
-        "status": "certified" if complete else "state_limit",
-        "exists_multiple_legal_actions": False if complete else None,
+        "status": "certified_no_choice" if complete else "state_limit",
+        "multiple_legal_actions_exists": multiple_actions if complete else (True if multiple_actions else None),
+        "certified_non_equivalent_choice_exists": False if complete else None,
         "explored_states": len(seen),
     }
 
@@ -478,7 +580,13 @@ def generate(root: Path, *, run_id: str | None = None) -> Path:
         rows.append({
             "schema_version": CORPUS_MANIFEST_VERSION,
             "benchmark_id": entry["benchmark_id"],
-            "status": "failed",
+            "path": f"quarantine/{entry['benchmark_id']}.json",
+            "conversion_status": "invalid",
+            "contention_classification": "invalid",
+            "contention_evidence_level": "not_run",
+            "publication_status": "excluded",
+            "baseline_status": None,
+            "exact_status": None,
             "stage4_layer": "unknown",
             "suite": "unknown",
             "error_or_exclusion_reason": entry["error"],
@@ -539,9 +647,9 @@ def probe(
         if limit is not None and changed >= limit:
             break
         old_probe = row.get("probe") or {}
-        if not force and row.get("status") in {
-            "sampled_prefix", "certified_small", "completed", "probed",
-            "no-contention-observed", "timeout", "state_limit",
+        if not force and row.get("contention_evidence_level") in {
+            "sampled_prefix", "bounded_search", "completed_replay",
+            "certified_choice_exists", "certified_no_choice",
         } and old_probe.get("probe_config_hash") == config_hash:
             continue
         relative = row.get("path")
@@ -549,7 +657,8 @@ def probe(
             continue
         path = llm_root / relative
         if not path.exists():
-            row["status"] = "invalid"
+            row["conversion_status"] = "invalid"
+            row["contention_classification"] = "invalid"
             row["error_or_exclusion_reason"] = "benchmark path missing"
             changed += 1
             continue
@@ -570,20 +679,28 @@ def probe(
             if not fast:
                 report["probe_status"] = "completed"
             row["probe"] = report
-            row["status"] = (
-                "timeout"
-                if report.get("termination_reason") == "time_limit"
-                else "sampled_prefix" if fast else "completed"
+            certified_status = report.get("certified_probe_status")
+            row["contention_evidence_level"] = (
+                "certified_choice_exists" if certified_status == "certified_choice_exists"
+                else "certified_no_choice" if certified_status == "certified_no_choice"
+                else "sampled_prefix" if fast else "completed_replay"
+            )
+            row["contention_classification"] = (
+                "unknown-timeout" if report.get("termination_reason") == "time_limit"
+                else "informative-certified" if certified_status == "certified_choice_exists"
+                else "no-choice-certified" if certified_status == "certified_no_choice"
+                else "informative-observed" if report.get("contended_decisions_sampled", 0) > 0
+                else "no-contention-observed"
             )
             row["error_or_exclusion_reason"] = None
             if not fast and report.get("competition_level") == "none":
-                row["status"] = "no-contention-observed"
+                row["contention_classification"] = "no-contention-observed"
             reports_root.mkdir(parents=True, exist_ok=True)
             (reports_root / f"{benchmark.benchmark_id}.jsonl").write_text(
                 json.dumps(report, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8"
             )
         except Exception as error:  # noqa: BLE001 - checkpoint the failure
-            row["status"] = "failed"
+            row["contention_classification"] = "unknown-timeout"
             row["error_or_exclusion_reason"] = f"{type(error).__name__}: {error}"
         changed += 1
         _write_jsonl(manifest, rows)
@@ -607,7 +724,16 @@ def publish(
         if not candidate.is_dir():
             raise FileNotFoundError(f"staging corpus missing: {candidate}")
         source_manifest = staging / "candidate_manifest.jsonl"
-        rows = _read_jsonl(source_manifest)
+        rows = [_migrate_manifest_row(row) for row in _read_jsonl(source_manifest)
+                if row.get("publication_status") != "excluded" and row.get("conversion_status") != "invalid"]
+        candidate_files = {
+            path.relative_to(staging).as_posix() for path in candidate.rglob("*.json")
+        }
+        manifest_files = {row["path"] for row in rows}
+        if candidate_files != manifest_files:
+            missing = sorted(candidate_files - manifest_files)
+            extra = sorted(manifest_files - candidate_files)
+            raise ValueError(f"candidate manifest/file mismatch: missing_rows={missing}, missing_files={extra}")
         seen_ids: set[str] = set()
         seen_paths: set[str] = set()
         for row in rows:
@@ -615,6 +741,8 @@ def publish(
             if not relative:
                 continue
             benchmark_id = row.get("benchmark_id")
+            if not benchmark_id:
+                raise ValueError("candidate manifest contains empty benchmark_id")
             if benchmark_id in seen_ids or relative in seen_paths:
                 raise ValueError("candidate manifest contains duplicate benchmark_id or path")
             seen_ids.add(benchmark_id)
@@ -632,17 +760,44 @@ def publish(
                 raise ValueError(f"candidate benchmark hash mismatch: {relative}")
         if active.exists() and not replace_active:
             raise FileExistsError("active corpus exists; pass replace_active explicitly")
+        backup = None
+        sidecar_backups: dict[Path, bytes | None] = {}
+        sidecar_names = ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl", "manifest.jsonl")
+        for name in sidecar_names:
+            target = llm_root / name
+            sidecar_backups[target] = target.read_bytes() if target.exists() else None
+        index_path = root / "index.jsonl"
+        sidecar_backups[index_path] = index_path.read_bytes() if index_path.exists() else None
         if active.exists():
             # Keep the rollback copy outside ``benchmark/``; otherwise the
             # repository indexer would mistake the backup for another corpus.
             backup_root = root.parent if root.name == "benchmark" else root
             backup = backup_root / f"llm_corpus_previous-{int(time.time())}"
             os.replace(active, backup)
-        os.replace(candidate, active)
-        for name in ("source_catalog.jsonl", "run_metadata.jsonl"):
-            source = staging / name
-            if source.exists():
+        try:
+            os.replace(candidate, active)
+            for name in ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl"):
+                source = staging / name
+                if not source.is_file():
+                    raise ValueError(f"candidate sidecar missing: {name}")
                 shutil.copy2(source, llm_root / name)
+            rows = [{**row, "publication_status": "published"} for row in rows]
+            rows.sort(key=lambda row: row.get("benchmark_id", ""))
+            _write_jsonl(_manifest_path(llm_root), rows)
+            index_rows = build_index(root)
+        except Exception:
+            if active.exists():
+                shutil.rmtree(active)
+            if backup is not None and backup.exists():
+                os.replace(backup, active)
+            for target, content in sidecar_backups.items():
+                if content is None:
+                    target.unlink(missing_ok=True)
+                else:
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(content)
+            raise
+        return _manifest_path(llm_root), len(index_rows)
     else:
         previous = {row.get("benchmark_id"): row for row in _read_jsonl(_manifest_path(llm_root))}
         rows = []
@@ -652,10 +807,16 @@ def publish(
             row = _row_for(benchmark, path, root=root)
             old = previous.get(benchmark.benchmark_id)
             if old and old.get("benchmark_content_hash") == row["benchmark_content_hash"]:
-                row["status"] = _normalized_status(old)
+                migrated_old = _migrate_manifest_row(old, published=True)
                 row["probe"] = old.get("probe", row["probe"])
                 row["error_or_exclusion_reason"] = old.get("error_or_exclusion_reason")
+                row.update({key: migrated_old[key] for key in (
+                    "conversion_status", "contention_classification", "contention_evidence_level",
+                    "baseline_status", "exact_status",
+                )})
+            row["publication_status"] = "published"
             rows.append(row)
+    rows = [_migrate_manifest_row(row, published=True) for row in rows]
     rows.sort(key=lambda row: row.get("benchmark_id", ""))
     _write_jsonl(_manifest_path(llm_root), rows)
     index_rows = build_index(root)

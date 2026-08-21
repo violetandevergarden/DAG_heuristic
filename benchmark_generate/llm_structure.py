@@ -272,22 +272,46 @@ def repeat_iterations(benchmark: Benchmark, iterations: int) -> Benchmark:
 
     if iterations < 2:
         raise ValueError("iterations must be at least 2")
+    raw_dependencies = {
+        task.task_id: tuple(str(parent) for parent in task.metadata.get(
+            "simai_raw_dependencies", task.dependencies,
+        ))
+        for task in benchmark.tasks
+    }
     children: dict[str, list[str]] = {task.task_id: [] for task in benchmark.tasks}
     for task in benchmark.tasks:
-        for parent in task.dependencies:
+        for parent in raw_dependencies[task.task_id]:
             children[parent].append(task.task_id)
 
-    def rank_of(task) -> int:
-        return int(task.metadata.get("rank", task.metadata.get("src", -1)))
+    task_by_id = {task.task_id: task for task in benchmark.tasks}
 
+    def ranks_of(task) -> set[int]:
+        if task.kind == "compute":
+            value = task.metadata.get("rank")
+            return {int(value)} if value is not None else set()
+        return {
+            int(value) for value in (task.metadata.get("src"), task.metadata.get("dst"))
+            if value is not None
+        }
+
+    # Match SimAI's native ``_find_boundary_tasks`` definition: a task is a
+    # source/sink for each rank it touches when it has no predecessor/successor
+    # touching that same rank.  Communication endpoints therefore participate
+    # on both ranks; using only ``src`` silently lost most iteration barriers.
     sinks: dict[int, list[str]] = {}
     sources: dict[int, list[str]] = {}
     for task in benchmark.tasks:
-        rank = rank_of(task)
-        if not children[task.task_id]:
-            sinks.setdefault(rank, []).append(task.task_id)
-        if not task.dependencies:
-            sources.setdefault(rank, []).append(task.task_id)
+        for rank in ranks_of(task):
+            has_rank_pred = any(
+                rank in ranks_of(task_by_id[parent]) for parent in raw_dependencies[task.task_id]
+            )
+            has_rank_succ = any(
+                rank in ranks_of(task_by_id[child]) for child in children[task.task_id]
+            )
+            if not has_rank_succ:
+                sinks.setdefault(rank, []).append(task.task_id)
+            if not has_rank_pred:
+                sources.setdefault(rank, []).append(task.task_id)
 
     tasks = []
     for it in range(iterations):
@@ -301,17 +325,18 @@ def repeat_iterations(benchmark: Benchmark, iterations: int) -> Benchmark:
             for task in benchmark.tasks
         ]
         if it > 0:
-            boundary = []
+            boundary_by_source: dict[str, set[str]] = {}
             for rank, sink_ids in sinks.items():
                 for source_id in sources.get(rank, ()):
-                    for sink_id in sink_ids:
-                        boundary.append((f"{source_id}@it{it}", f"{sink_id}@it{it - 1}"))
+                    boundary_by_source.setdefault(f"{source_id}@it{it}", set()).update(
+                        f"{sink_id}@it{it - 1}" for sink_id in sink_ids
+                    )
             renamed = [
                 replace(
                     task,
                     dependencies=tuple(sorted({
                         *task.dependencies,
-                        *(sink for source, sink in boundary if source == task.task_id),
+                        *boundary_by_source.get(task.task_id, ()),
                     })),
                 )
                 for task in renamed

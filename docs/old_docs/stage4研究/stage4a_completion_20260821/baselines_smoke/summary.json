@@ -1,0 +1,66 @@
+{
+  "case_count": 2,
+  "cases": [
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "simai_example_multi_job_1to1",
+      "first_actions": {
+        "fifo": "j1:44",
+        "fixed_order": "j1:44",
+        "longest_tail": "j1:44"
+      },
+      "makespan": {
+        "fifo": 108672,
+        "fixed_order": 108900,
+        "longest_tail": 108672
+      },
+      "runtime_ms": {
+        "fifo": 199.226,
+        "fixed_order": 198.22,
+        "longest_tail": 258.163
+      },
+      "scenario": "muti_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 160
+    },
+    {
+      "baselines_differ_at_first_action": false,
+      "benchmark_id": "simai_example_single_job_1to1",
+      "first_actions": {
+        "fifo": "4",
+        "fixed_order": "4",
+        "longest_tail": "4"
+      },
+      "makespan": {
+        "fifo": 44460,
+        "fixed_order": 47775,
+        "longest_tail": 44460
+      },
+      "runtime_ms": {
+        "fifo": 177.009,
+        "fixed_order": 165.832,
+        "longest_tail": 200.573
+      },
+      "scenario": "single_channel",
+      "status": "completed",
+      "suite": "R-C",
+      "task_count": 40
+    }
+  ],
+  "completed_count": 2,
+  "failed_count": 0,
+  "git": {
+    "commit": "e0f280ab399bf69f11e327192130caa5fab3b444",
+    "dirty": true
+  },
+  "manifest_hash": "20f6ba4ff705d440e7fbf037312bf22fbe56e2da8c1fa64638cd001eb4c24686",
+  "rules": [
+    "fifo",
+    "longest_tail",
+    "fixed_order"
+  ],
+  "schema_version": "stage4a-baselines-v2",
+  "time_limit_s": 10.0,
+  "timeout_count": 0
+}
