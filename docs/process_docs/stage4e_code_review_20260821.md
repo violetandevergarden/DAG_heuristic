@@ -1,10 +1,12 @@
 # Stage 4e Barrier 感知调度代码审查
 
+> 2026-08-22 口径更新：全量真实 LLM DAG 不再承担主要收益验证，实验改为 Stage 1--3 主筛选、100--1000 节点冻结验证和 1--2 个中大图逐例检查。
+
 ## 1. 审查范围与总体结论
 
 本审查依据 `docs/plan_docs/stage4_LLM_search.md` 和 `docs/plan_docs/stage4e_barrier_scheduling.md`，检查 barrier 的结构定义、剩余状态特征、单通道和固定多资源策略、测试、实验入口及当前证据。`docs/old_docs/stage4研究` 中的记录仅用于复核历史问题，不作为当前正确性的来源。
 
-总体判断：**现有 Stage 4e 已形成可运行的 barrier 特征与受控实验骨架，但没有满足正式阶段要求。** 可以保留公共模拟器衔接、直接 last-missing、立即 compute 释放、共享下游去重的部分实现和 motif 回归；但若干特征名称与实际含义不一致，完整双日程 safeguard 使用部署时不可获得的事后信息，真实 census、决策级因果标签、条件修正、统一消融和 holdout 均未完成。因此当前状态应为“特征原型和诊断工具可用，在线算法与真实结论未验收”。
+总体判断：**现有 Stage 4e 已形成可运行的 barrier 特征与受控实验骨架，但没有满足正式阶段要求。** 可以保留公共模拟器衔接、直接 last-missing、立即 compute 释放、共享下游去重的部分实现和 motif 回归；但若干特征名称与实际含义不一致，完整双日程 safeguard 使用部署时不可获得的事后信息，Stage 1--3 主实验、决策级因果标签、条件修正、统一消融和 100--1000 节点冻结验证均未完成。因此当前状态应为“特征原型和诊断工具可用，在线算法与跨规模结论未验收”。
 
 本次未修改代码、benchmark 或实验结果，只新增审查和修正建议文档。
 
@@ -20,7 +22,7 @@
 - `experiments/llm_structure/barrier_motif_evaluation.py`
 - `benchmark_generate/llm/barrier_motifs.py`
 - 单通道、多资源和 barrier 特征测试
-- Stage 4a manifest 与旧 Stage 4e 研究记录
+- Stage 1--3 benchmark、Stage 4a 少量派生样例边界与旧 Stage 4e 研究记录
 
 验证结果：
 
@@ -28,9 +30,9 @@
 - 完整测试：175 passed，耗时 132.03 秒；
 - 受控 motif 的 Exact 与 trace 检查通过；
 - 在当前多资源 motif 的两个合法极大动作上，`packing_complementarity` 都为 0；
-- 当前 `docs/result_docs` 中没有可作为 Stage 4e 正式 holdout 证据的冻结结果目录。
+- 当前 `docs/result_docs` 中没有按“Stage 1--3 主实验—100--1000 节点冻结验证—1--2 个中大图检查”组织的正式结果目录。
 
-测试通过说明现有受测路径稳定，不证明特征含义、在线信息边界或真实收益符合新分纲。
+测试通过说明现有受测路径稳定，不证明特征含义、在线信息边界或跨规模迁移收益符合新分纲。
 
 ## 3. 已基本满足的部分
 
@@ -104,11 +106,11 @@ barrier 模块只读取状态，不直接推进时间。单通道策略通过 `P
 
 ### 5.3 条件修正只覆盖严格 tail 词典序平局
 
-`tail_barrier` 把 exclusive tail 放在第一排序位，barrier 只在 tail 完全相同后打破平局。这是一种安全的精确 tie-break 雏形，但没有实现“归一化 LT margin 小于阈值时有限修正”，也没有阈值、敏感性和 holdout 冻结。
+`tail_barrier` 把 exclusive tail 放在第一排序位，barrier 只在 tail 完全相同后打破平局。这是一种安全的精确 tie-break 雏形，但没有实现“归一化 LT margin 小于阈值时有限修正”，也没有阈值、敏感性和 100--1000 节点冻结验证。
 
 ### 5.4 barrier-only 仍作为在线候选广泛运行
 
-barrier-only 可作为诊断对照保留，但正式真实 runner 把它作为 `barrier_candidate` 与 LT并列汇总。它没有明确标成诊断失败基线，容易把少量胜场解释为推荐算法。当前 Stage 4 总纲已经规定 barrier 不应替代 LT。
+barrier-only 可作为诊断对照保留，但现有 runner 把它作为 `barrier_candidate` 与 LT并列汇总。它没有明确标成诊断失败基线，容易把少量胜场解释为推荐算法。当前 Stage 4 总纲已经规定 barrier 不应替代 LT。
 
 ### 5.5 selective barrier rollout 混合了 barrier 与额外搜索
 
@@ -124,13 +126,13 @@ barrier-only 可作为诊断对照保留，但正式真实 runner 把它作为 `
 
 ## 6. 实验与证据缺口
 
-### 6.1 Stage 4a 输入筛选仍不严格
+### 6.1 runner 没有按新的三层实验顺序组织
 
-`barrier_evaluation.py` 已能读取 Stage 4a manifest、保存 manifest hash、代码 revision 并按模型、topology、DP 和 contention 分组，这是比旧 runner 更好的基础。但它仍依赖单一顶层 `status`，接受 sampled-prefix/旧状态，没有独立验证转换、竞争、发布状态，也没有只选择 barrier 信号和策略分歧明确的正式质量集。
+`barrier_evaluation.py` 已能读取 Stage 4a manifest、保存 manifest hash、代码 revision 并按模型、topology、DP 和 contention 分组，这是可保留的迁移检查入口。但更新后的正式顺序应先运行 Stage 1--3 旧 benchmark，再用 100--1000 节点小图冻结验证，最后只选 1--2 个中大图逐例检查。当前 runner 直接面向 Stage 4a manifest，且仍依赖单一顶层 `status`，没有覆盖新的主实验顺序。
 
-### 6.2 没有开发/验证/holdout 划分
+### 6.2 没有 Stage 1--3 开发集与 100--1000 节点冻结验证划分
 
-真实 runner 按 manifest 顺序和 `limit/max_tasks` 选样例，没有冻结 workload/topology holdout。阈值、规则、motif 和最终报告边界没有机器可读清单，无法判断结构泄漏。
+现有 runner 按 manifest 顺序和 `limit/max_tasks` 选样例，没有先冻结 Stage 1--3 开发/validation 清单，也没有独立的 100--1000 节点验证集。阈值、规则、motif 和最终报告边界没有机器可读清单，无法判断结构泄漏。
 
 ### 6.3 基线和三类加强不齐
 
@@ -140,9 +142,9 @@ barrier-only 可作为诊断对照保留，但正式真实 runner 把它作为 `
 
 Exact motif 只保存最终 makespan，没有逐决策全部首动作、目标 barrier ready/complete 时间、后续 barrier 时间及局部提前与全局变化的对应关系。因此无法回答“barrier 提前是否导致 makespan 改善”。
 
-### 6.5 缺少真实 census
+### 6.5 缺少分层 barrier 统计
 
-没有按完整回放、sampled prefix、真实切片分别统计 barrier 类型、层级、last-missing、LT 分歧、动作后 barrier 时间变化和最终 makespan变化。不能从现有 runner 推出 barrier 在真实 72-case corpus 中的频率或价值。
+没有在 Stage 1--3 主集合和 100--1000 节点验证集上统计 barrier 类型、层级、last-missing、LT 分歧、动作后 barrier 时间变化和最终 makespan 变化。少量 real-derived slice 仍应保留来源和证据等级，但不再要求从完整 72-case corpus 估计总体频率。
 
 ### 6.6 成本和失败状态不完整
 
@@ -150,7 +152,7 @@ Exact motif 只保存最终 makespan，没有逐决策全部首动作、目标 b
 
 ### 6.7 历史结果的适用范围有限
 
-旧记录中的 45 个单通道样例、9 个 motif 和 22 个多资源样例可以作为开发背景。barrier-only/原始 union 的退化是重要负面证据；完整 safeguard 不退化是由事后选择直接保证；带 rollout 的改善主要证明前瞻有价值。它们都不能证明真实 holdout 上 barrier 信息有独立净收益。
+旧记录中的 45 个单通道样例、9 个 motif 和 22 个多资源样例可以作为第一层开发背景。barrier-only/原始 union 的退化是重要负面证据；完整 safeguard 不退化是由事后选择直接保证；带 rollout 的改善主要证明前瞻有价值。它们尚未形成冻结的 Stage 1--3 主实验，也不能证明收益迁移到 100--1000 节点验证集。
 
 ## 7. 对十五项退出条件的判断
 
@@ -160,12 +162,12 @@ Exact motif 只保存最终 makespan，没有逐决策全部首动作、目标 b
 | 2. 精确特征来自 residual，估计单列 | 部分满足 | remaining 正确；多个名称和证据等级过强或含义错误 |
 | 3. 单/多资源动作服从公共契约 | 基本满足 | 公共 step 与极大集合校验已用；forced-idle 历史表示仍存在 |
 | 4. 小图验证局部 barrier 与 makespan 关系 | 部分满足 | 有 motif Exact 最终值；缺首动作和 barrier 时间标签 |
-| 5. 正式真实输入按证据和规模分层 | 未满足 | 有 manifest runner，但准入与固定分层不足 |
+| 5. 按 Stage 1--3—100--1000 节点—1--2 个中大图分层 | 未满足 | runner 直接面向 Stage 4a manifest，未建立新三层清单 |
 | 6. 完整统一基线与三类加强对照 | 未满足 | 正式 runner 只有三种方法 |
 | 7. 初筛、修正、tie-break、trigger 消融 | 未满足 | 各入口零散且信息/预算不一致 |
 | 8. barrier 提前与 makespan 不一致均报告 | 未满足 | 没有 barrier ready/complete 时间 |
 | 9. 主要失败模式有反例 | 部分满足 | motif 有部分负例，缺共享、slack、远端、抢占和成本系统分析 |
-| 10. 真实 workload/topology holdout | 未满足 | 没有冻结划分和最终报告 |
+| 10. 100--1000 节点冻结验证和有限中大图报告 | 未满足 | 没有冻结划分和最终报告 |
 | 11. wall-clock、内存、超时和 fallback 完整 | 未满足 | 有部分 runtime/fallback，无硬超时、内存和特征分项 |
 | 12. 明确适用范围 | 未满足 | 缺真实因果和分层证据 |
 | 13. 等质量低成本结论 | 未满足 | 没有正式初筛成本实验 |
@@ -192,9 +194,9 @@ Exact motif 只保存最终 makespan，没有逐决策全部首动作、目标 b
 - `packing_complementarity` 能区分合法极大动作；
 - 完整 schedule safeguard 是可部署在线算法或低成本保护；
 - barrier selective rollout 的全部收益来自 barrier 信号；
-- 现有真实 runner 已完成统一预算、holdout 和完整成本验证；
+- 现有 runner 已完成 Stage 1--3 主实验、100--1000 节点冻结验证和有限中大图成本检查；
 - Stage 4e 组件可以进入 Stage 4g。
 
 ## 9. 最终结论
 
-当前 Stage 4e 应记录为：**直接 barrier 特征和受控回归骨架已建立；特征语义、在线策略边界和正式证据链未完成。** 优先修正释放量、arrival/slack、暂停通信和多资源恒定字段，隔离离线 safeguard；随后建立 barrier 时间与首动作标签、真实 census 和统一消融；最后才在冻结 holdout 上判断 barrier 应作为 tie-break、过滤器、rollout trigger，还是仅保留为诊断信息。
+当前 Stage 4e 应记录为：**直接 barrier 特征和受控回归骨架已建立；特征语义、在线策略边界和正式证据链未完成。** 优先修正释放量、arrival/slack、暂停通信和多资源恒定字段，隔离离线 safeguard；随后在 Stage 1--3 主集合建立 barrier 时间与首动作标签和统一消融；再用 100--1000 节点小图冻结验证，最后只在 1--2 个中大图逐例检查成本，据此判断 barrier 应作为 tie-break、过滤器、rollout trigger，还是仅保留为诊断信息。

@@ -287,7 +287,7 @@ Barrier-only 全局排序保留为诊断基线和反例对象，不作为默认�
 
 ## 13. 数据集分层
 
-### 13.1 受控 motif
+### 13.1 第一层：Stage 1--3 旧 benchmark 与受控 motif
 
 只用于隔离 barrier 机制，包括：
 
@@ -300,23 +300,19 @@ Barrier-only 全局排序保留为诊断基线和反例对象，不作为默认�
 - 多资源集合共同完成多个独立缺口；
 - 静态 tail 与 residual tail 在抢占后产生不同排序。
 
-Motif 不能证明真实训练图中的出现频率或端到端收益。
+Stage 1--3 的随机图、回归图、攻击图和上述 motif 是主要开发与筛选输入，用于判断 barrier 信号是否提供超出 Longest Tail 的稳定信息。Motif 不能证明真实训练图中的出现频率或端到端收益。
 
-### 13.2 Real-derived 小图
+### 13.2 第二层：100--1000 节点小图
 
-从 Stage 4a 真实 DAG 截取或缩减，保存来源 hash、截取规则、删除的外部依赖和结构变化。用于检查真实 barrier 形状，并尽量获得 Exact 或首动作标签。
+使用 100--1000 节点的随机图、攻击图和从 Stage 4a 真实 DAG 截取或缩减的 real-derived slice。真实切片保存来源 hash、截取规则、删除的外部依赖和结构变化。该层在冻结第一层参数后做完整回放，检查 barrier 形状和净收益能否迁移。
 
-### 13.3 中型真实图
+### 13.3 第三层：1--2 个中大图
 
-使用统一基线可完成且竞争证据明确的真实 DAG，是正式收益比较主体。按模型族、topology、DP/TP/PP、pipeline 配置、barrier 密度和资源模型分层。
+只预先选择 1--2 个具有代表性且尽可能可完成的中大图，用于检查特征计算、缓存、完整回放和退化边界。逐例报告结果，不将少量样例视为真实总体收益证据。
 
-### 13.4 大型真实图
+### 13.4 开发集与 holdout
 
-用于测量 barrier context 构建、特征计算、缓存、回放、内存和超时退化。若算法不能完整完成，不比较不完整 makespan。
-
-### 13.5 开发集与 holdout
-
-阈值、权重和筛选规则只在开发/validation 集确定，然后在未参与设计的 workload/topology holdout 上冻结。相同来源的重复 iteration、相邻切片或高度相似配置不得跨集合造成泄漏。
+阈值、权重和筛选规则只在 Stage 1--3 开发/validation 集确定，然后在未参与调参的 100--1000 节点验证集上冻结。相同来源的重复 iteration、相邻切片或高度相似配置不得跨集合造成泄漏。
 
 ## 14. Barrier census
 
@@ -343,7 +339,7 @@ Motif 不能证明真实训练图中的出现频率或端到端收益。
 
 以 Exact 为参照，比较 Longest Tail、barrier-only 和三类 Longest Tail 加强方法，报告首动作最优率、最终 gap、修复次数和引入错误次数。重点计算 barrier 信息对 Longest Tail 的净贡献，而不是只统计成功修复。
 
-### 15.3 中型真实图端到端对照
+### 15.3 100--1000 节点端到端对照
 
 在固定 manifest 和统一预算下报告 makespan、wall-clock、抢占、forced idle、资源利用率和完整状态。按 barrier 信号是否实际导致动作分歧分层，避免大量无信号状态稀释结论。
 
@@ -355,7 +351,7 @@ Motif 不能证明真实训练图中的出现频率或端到端收益。
 
 固定 rollout 候选和深度，只改变触发信号，比较 barrier trigger、Longest Tail 分差、随机和周期触发。该实验只评价 barrier 作为触发器的增量价值，不把 rollout 本身的收益归因于 barrier。
 
-### 15.6 大图成本
+### 15.6 1--2 个中大图成本
 
 测量 barrier 分析随任务数、边数、reachable 子图大小、barrier 数和决策数增长的成本。比较全图重算、局部计算和安全缓存，但任何优化都不能改变动作或 trace。
 
@@ -427,14 +423,14 @@ Motif 不能证明真实训练图中的出现频率或端到端收益。
 
 ## 19. 实验执行步骤
 
-1. **冻结协议**：固定 Stage 4a manifest、模拟器版本、Longest Tail 定义、数据划分、预算和 tie-break。
+1. **冻结协议**：固定 Stage 1--3 主实验清单、100--1000 节点验证清单、1--2 个中大图、模拟器版本、Longest Tail 定义、预算和 tie-break。
 2. **确定结构定义**：在小图上明确 barrier、层级、last-missing 和去重规则。
 3. **建立小图标签**：用 Exact 或完整首动作枚举记录 barrier 时间与 makespan 的关系。
-4. **完成真实 census**：统计 barrier 出现、Longest Tail 分歧和局部/全局效果链条。
+4. **先完成 Stage 1--3 主实验**：统计 barrier 出现、Longest Tail 分歧和局部/全局效果链条，淘汰没有稳定增量信息的形式。
 5. **从简单规则开始**：依次研究初筛、tie-break、有限修正，再研究 rollout trigger。
 6. **分离评分与搜索**：固定候选和预算，区分 barrier 信息与额外前瞻的收益。
-7. **冻结参数做 holdout**：在真实 workload/topology holdout 上验证，保留负面与 unknown。
-8. **测量大图成本**：报告时间、内存、超时和安全降级范围。
+7. **冻结参数做小图验证**：在 100--1000 节点集合上验证，保留负面与 unknown。
+8. **测量有限中大图成本**：只在 1--2 个样例上报告时间、内存、超时和安全降级范围。
 9. **形成受限结论**：决定 barrier 组件是否、以及以哪种形式进入 Stage 4g。
 
 ## 20. 现有资产的使用边界
@@ -455,7 +451,7 @@ Motif 不能证明真实训练图中的出现频率或端到端收益。
 
 截至 2026-08-21，能够保留的谨慎背景是：历史探索中 barrier 单独作为全局优先级的证据较弱，因此当前只把它作为 Longest Tail 的条件特征、筛选信息或 rollout 触发信号。这是研究起点，不是已经完成的正式结论。
 
-Stage 4a 的 72-case corpus 主要只有最多 8 个决策点的 sampled-prefix 竞争信息；dp>=2 和大图完整回放受限；Stage 4b 的真实结构规律仍需按证据等级复核。因此目前不能宣称：
+Stage 4a 的 72-case corpus 主要只有最多 8 个决策点的 sampled-prefix 竞争信息；dp>=2 和大图完整回放受限。进一步观察表明，当前真实 LLM DAG 的可用实验质量和策略敏感性不足，多种算法之间往往没有明显差异。因此 4e 暂不以完整真实 corpus 为主实验集，而采用 Stage 1--3 主筛选、100--1000 节点验证、1--2 个中大图检查的策略。这不证明所有 LLM DAG 都不存在调度空间。因此目前不能宣称：
 
 - barrier 信号在全部真实 DAG 中普遍存在；
 - 检测到 last-missing 就会改善 makespan；
@@ -476,8 +472,8 @@ Stage 4a 的 72-case corpus 主要只有最多 8 个决策点的 sampled-prefix 
 - last-missing、slack、下游并集和资源影响的特征消融；
 - 初筛、条件修正、tie-break 和 rollout trigger 的统一对照；
 - 单 channel 与固定多资源的分别结果；
-- 真实 holdout 的质量、成本和最坏退化报告；
-- 大图特征计算、内存、超时与 fallback 报告；
+- Stage 1--3 主实验及 100--1000 节点验证集的质量、成本和最坏退化报告；
+- 1--2 个中大图的特征计算、内存、超时与 fallback 逐例报告；
 - 失败案例及是否进入 Stage 4g 的受限结论。
 
 所有结果保存输入 hash、代码和模拟器版本、机器环境、seed、预算、完成状态和 fallback 原因。benchmark 或公共语义改变后，不直接沿用旧标签、缓存和实验表格。
@@ -490,16 +486,16 @@ Stage 4a 的 72-case corpus 主要只有最多 8 个决策点的 sampled-prefix 
 2. 所有精确特征来自当前 residual state，启发式估计被单独标记；
 3. 单 channel 和多资源动作均服从公共模拟器及 Stage 4c 合法集合契约；
 4. 小图通过手工检查、Exact 或全首动作枚举验证局部 barrier 与最终 makespan 的关系；
-5. 正式真实输入来自 Stage 4a 固定 manifest，并按证据与规模分层；
+5. 已按 Stage 1--3 旧 benchmark、100--1000 节点小图和 1--2 个中大图完成分层实验；
 6. 完成 FIFO、固定顺序、Longest Tail、barrier-only 和三类 Longest Tail 加强方法的统一对照；
 7. 初筛、条件修正、tie-break 与 rollout trigger 的贡献通过消融分开；
 8. barrier 时间提前、makespan 改善和二者不一致的情况均被报告；
 9. 共享下游、局部 barrier、slack、热点误导和抢占退化有明确反例；
-10. 在未参与设计的真实 workload/topology holdout 上报告净收益、最坏退化和完整率；
+10. 在未参与调参的 100--1000 节点验证集上报告净收益、最坏退化和完整率，并对有限中大图逐例报告；
 11. 特征和额外搜索的 wall-clock、内存、超时与 fallback 未被排除；
 12. 明确适用的 workload、pipeline/collective 结构、topology、资源模型、规模和预算；
 13. 若只减少开销而不改善 makespan，明确写成等质量低成本结论；
 14. 若没有稳定净收益，形成 barrier-only 无效、仅限 tie-break/trigger 或不进入综合算法的否定/受限结论；
-15. 只有在统一预算和真实 holdout 上具有可复现净收益的形式，才可作为 Stage 4g 候选组件。
+15. 只有先通过 Stage 1--3 主实验、再在 100--1000 节点验证集保持可复现净收益的形式，才可作为 Stage 4g 候选组件。
 
 本阶段不以实现 barrier 特征、在合成 motif 上取得正收益或提前某个局部 join 为完成标志。最终必须回答：哪些同步关系真实阻塞训练进度，barrier 信息应以何种受控方式增强 Longest Tail，以及其端到端收益是否值得特征和搜索成本。

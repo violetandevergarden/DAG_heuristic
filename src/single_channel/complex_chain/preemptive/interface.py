@@ -36,13 +36,14 @@ def solve(
         ),
         "structure_aware": lambda item: solver.schedule_priority(item, "structure_aware"),
         "longest_tail": solver.schedule_longest_tail,
+        "barrier_prescreen": solver.schedule_barrier_prescreen,
         "barrier_only": lambda item: solver.schedule_barrier_policy(
             item, "barrier_only"
         ),
         "tail_barrier": lambda item: solver.schedule_barrier_policy(
             item, "tail_barrier"
         ),
-        "barrier_safeguarded": solver.schedule_barrier_safeguarded,
+        "barrier_margin_tiebreak": solver.schedule_barrier_margin_tiebreak,
         "barrier_selective_rollout": solver.schedule_selective_barrier_rollout,
         "selective_rollout": lambda item: __import__(
             "single_channel.complex_chain.preemptive.selective_rollout",
@@ -58,8 +59,12 @@ def solve(
     except KeyError as error:
         raise ValueError(f"unknown preemptive complex-chain algorithm: {algorithm}") from error
     if options:
+        if algorithm == "barrier_margin_tiebreak":
+            return solver.schedule_barrier_margin_tiebreak(dag, **options)  # type: ignore[arg-type]
         if algorithm == "selective_rollout":
-            from single_channel.complex_chain.preemptive.selective_rollout import schedule_selective_rollout
+            from single_channel.complex_chain.preemptive.selective_rollout import (
+                schedule_selective_rollout,
+            )
             return schedule_selective_rollout(dag, **options)  # type: ignore[arg-type]
         if algorithm == "rollout2":
             return solver.schedule_rollout(dag, **options)  # type: ignore[arg-type]

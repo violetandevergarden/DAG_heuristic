@@ -2,6 +2,11 @@ from __future__ import annotations
 
 import pytest
 
+from benchmark_generate.llm.barrier_motifs import (
+    label_motif,
+    multi_resource_motifs,
+    single_channel_motifs,
+)
 from core.dag import BenchmarkDAG, BenchTask
 from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
 from core.execution.preemptive import Action, PreemptiveDAGModel
@@ -9,15 +14,11 @@ from llm_structured.barrier import (
     action_features,
     build_context,
     feature_snapshot,
+    safe_barrier_prescreen,
     score_snapshot,
 )
-from muti_channel.preemptive.solver import score_sets
-from benchmark_generate.llm.barrier_motifs import (
-    label_motif,
-    multi_resource_motifs,
-    single_channel_motifs,
-)
 from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
+from muti_channel.preemptive.solver import score_sets
 from muti_channel.preemptive.trace import assert_multi_resource_trace
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 
@@ -43,11 +44,15 @@ def test_barrier_snapshot_uses_residual_state_and_deduplicates_downstream() -> N
     context = build_context(model, state)
     snapshot = feature_snapshot(context, "candidate")
     assert snapshot.remaining_work == 2
-    assert snapshot.last_missing_join_count == 1
-    assert snapshot.local_last_missing_count + snapshot.global_last_missing_count == 1
+    assert snapshot.direct_last_missing_join_count == 1
+    assert snapshot.direct_last_missing_join_ids == ("join",)
     assert snapshot.downstream_join_tail == 5
-    assert snapshot.immediate_compute_release == 3
-    assert snapshot.quantity_modes[-2][1] == "heuristic_estimate"
+    assert snapshot.newly_ready_compute_work == 3
+    assert snapshot.newly_ready_compute_ids == ("join",)
+    assert snapshot.reachable_descendant_compute_work == 5
+    assert snapshot.estimated_candidate_branch_arrival == 2
+    assert snapshot.estimated_arrival_spread == 2
+    assert dict(snapshot.quantity_modes)["estimated_arrival_spread"] == "heuristic_estimate"
 
 
 def test_barrier_label_does_not_change_structural_feature() -> None:
@@ -76,7 +81,7 @@ def test_barrier_label_does_not_change_structural_feature() -> None:
     second_state = second.step(second.initial_state(), Action.run("independent")).after
     first_snapshot = feature_snapshot(build_context(first, first_state), "candidate")
     second_snapshot = feature_snapshot(build_context(second, second_state), "candidate")
-    assert first_snapshot.__dict__ | {"label_hint": second_snapshot.label_hint} == second_snapshot.__dict__
+    assert first_snapshot == second_snapshot
 
 
 def test_action_features_count_shared_downstream_once() -> None:
@@ -97,10 +102,53 @@ def test_action_features_count_shared_downstream_once() -> None:
     state = model.initial_state()
     context = build_context(model, state)
     features = action_features(context, ("a", "b"))
-    assert features.union_released_compute == 7
+    assert features.newly_ready_compute_work == 4
+    assert features.newly_ready_compute_ids == ("left", "right")
+    assert features.reachable_descendant_compute_work == 7
     assert features.shared_downstream_count == 1
     scored = score_sets(model, state, (MultiResourceAction(("a", "b")),), "barrier_union")
     assert scored
+
+
+def test_newly_ready_does_not_count_reachable_compute_before_its_other_predecessor() -> None:
+    dag = BenchmarkDAG(
+        "reachable_is_not_release",
+        "test",
+        (
+            BenchTask("candidate", "comm", 1),
+            BenchTask("blocked", "comm", 1),
+            BenchTask("join", "compute", 9, ("candidate", "blocked")),
+        ),
+    )
+    model = PreemptiveDAGModel(dag)
+    snapshot = feature_snapshot(build_context(model, model.initial_state()), "candidate")
+    assert snapshot.newly_ready_compute_work == 0
+    assert snapshot.newly_ready_compute_ids == ()
+    assert snapshot.reachable_descendant_compute_work == 9
+
+
+def test_zero_duration_compute_closure_is_processed_once_before_new_release() -> None:
+    dag = BenchmarkDAG(
+        "zero_closure_release",
+        "test",
+        (
+            BenchTask("candidate", "comm", 1),
+            BenchTask("zero", "compute", 0, ("candidate",)),
+            BenchTask("released", "compute", 5, ("zero",)),
+        ),
+    )
+    model = PreemptiveDAGModel(dag)
+    snapshot = feature_snapshot(build_context(model, model.initial_state()), "candidate")
+    assert snapshot.newly_ready_compute_ids == ("released",)
+    assert snapshot.newly_ready_compute_work == 5
+
+
+def test_direct_only_prescreen_keeps_lt_and_all_candidates() -> None:
+    model = PreemptiveDAGModel(_join_dag())
+    state = model.initial_state()
+    context = build_context(model, state)
+    eligible = model.eligible_communications(state)
+    assert safe_barrier_prescreen(context, eligible, "independent") == eligible
 
 
 def test_score_modes_are_deterministic_and_reject_unknown() -> None:

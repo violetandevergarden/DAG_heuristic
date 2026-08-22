@@ -1,5 +1,7 @@
 # Stage 4e Barrier 感知调度修正与验证建议
 
+> 2026-08-22 口径更新：不再以完整真实 LLM corpus 为主实验集，改用 Stage 1--3 旧 benchmark、100--1000 节点小图和 1--2 个中大图的三层方案。
+
 ## 1. 修正目标
 
 本方案针对 `stage4e_code_review_20260821.md`。修正重点不是继续增加 barrier 优先级，而是让每个特征名称与实际 residual 含义一致，严格隔离在线策略和离线上界，并用决策级标签验证“局部 barrier 推进—barrier 时间变化—最终 makespan”三层关系。
@@ -80,7 +82,7 @@
 
 ### 3.3 严格预算
 
-barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享账户，限制候选数、completion calls、展开、单决策和整图墙钟。正式真实运行使用进程级硬超时。任何未完整评价的 challenger 不参与比较。
+barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享账户，限制候选数、completion calls、展开、单决策和整图墙钟。100--1000 节点完整验证和 1--2 个中大图检查使用进程级硬超时。任何未完整评价的 challenger 不参与比较。
 
 ## 4. P1：实现三类 LT 增强
 
@@ -100,7 +102,7 @@ barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享�
 
 ### 4.4 多资源整集合评分
 
-所有动作由 Stage 4c 已验证构造器生成，并保持相同 packing 规则。整集合特征对后代、barrier 和新增释放按节点并集去重；barrier 评分实验不能同时改变集合构造。若 Stage 4c 尚未验收，真实多资源 Stage 4e 质量结论保持 blocked/unknown，而不是绕过依赖。
+所有动作由 Stage 4c 已验证构造器生成，并保持相同 packing 规则。整集合特征对后代、barrier 和新增释放按节点并集去重；barrier 评分实验不能同时改变集合构造。若 Stage 4c 尚未验收，多资源 Stage 4e 质量结论保持 blocked/unknown，而不是绕过依赖。
 
 ## 5. P1：补齐最小反例和测试
 
@@ -138,15 +140,15 @@ barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享�
 
 分开统计：修复 LT 错误、破坏 LT 正确选择、barrier 提前且 makespan 改善、提前但持平、提前却退化。heuristic completion 结果标为条件观察，不冒充 Exact 因果标签。
 
-## 7. P2：冻结真实 census 与数据划分
+## 7. P2：冻结三层数据与 barrier 统计
 
-### 7.1 Stage 4e manifest
+### 7.1 Stage 4e 三层清单
 
-从 Stage 4a 活动 manifest 派生固定清单，记录转换状态、固定资源映射、竞争证据、规模、barrier 分析等级和开发/验证/holdout。sampled prefix 只支持前缀观察；未观察到 barrier 或分歧不能写成全图不存在。
+建立固定清单：第一层为 Stage 1--3 旧 benchmark 主实验，第二层为 100--1000 节点随机图、攻击图和少量可追溯 real-derived slice，第三层只预选 1--2 个中大图。real-derived 样例仍记录转换状态、固定资源映射、竞争证据和来源 hash；sampled prefix 未观察到 barrier 或分歧不能写成全图不存在。
 
-### 7.2 真实 census
+### 7.2 分层 barrier 统计
 
-逐样例和决策统计：
+在 Stage 1--3 主集合和 100--1000 节点验证集逐样例、逐决策统计：
 
 - barrier 类型、前驱数、层级、共享和嵌套；
 - direct/indirect last-missing 次数；
@@ -155,11 +157,11 @@ barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享�
 - 分歧后 barrier 时间和 makespan 变化；
 - 特征访问节点/边、runtime、内存和截断状态。
 
-完整回放、sampled prefix、真实切片和有界分析分别汇总。
+第一层和第二层分别汇总；1--2 个中大图逐例报告。real-derived slice 的完整回放、sampled prefix 和有界分析继续明确区分。
 
 ### 7.3 防止数据泄漏
 
-按原 workload/topology 分组划分，不把重复 iteration、相邻切片或高度相似配置分到开发和 holdout 两侧。margin、权重和筛选规则只在开发/验证集选择，holdout 冻结后只运行最终配置。
+Stage 1--3 按模板划分开发和 validation，同模板不同 seed 不跨组。margin、权重和筛选规则只在第一层选择，100--1000 节点验证集不参与调参。相同来源的 real-derived 相邻切片不得跨边界造成泄漏。
 
 ## 8. P2：统一实验与结果契约
 
@@ -190,8 +192,8 @@ barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享�
 5. E5：实现初筛、严格 tie-break 和 margin 修正；
 6. E6：接入 Stage 4d 严格预算 trigger；
 7. E7：补齐反例、手工检查和全部首动作/barrier 时间标签；
-8. E8：冻结 Stage 4e manifest，完成真实 census；
-9. E9：运行单通道、多资源、消融、holdout 和大图成本实验；
+8. E8：冻结 Stage 1--3 主集合、100--1000 节点验证集和 1--2 个中大图，完成分层统计；
+9. E9：运行单通道、多资源、消融、冻结验证和有限中大图成本实验；
 10. E10：形成适用范围和正面、受限或否定结论。
 
 公共模拟器、Exact、schema 或 benchmark 变化后运行完整测试，重新生成受影响标签和结果；旧结果保留为 legacy，不覆盖。
@@ -212,7 +214,7 @@ barrier selective rollout 复用修正后的 Stage 4d `RolloutBudget` 和共享�
 | 条件修正 | margin 冻结，阈值外严格保持 LT |
 | trigger | 与相同调用率随机、周期和非 barrier 对照 |
 | 小图标签 | 首动作、barrier 时间和最终 makespan 可独立复核 |
-| 真实 holdout | workload/topology 未参与调参，完整报告最坏退化 |
+| 冻结验证 | 参数在 Stage 1--3 确定，100--1000 节点完整报告最坏退化 |
 | 成本 | 特征、搜索、内存、超时和 fallback 全部计入 |
 | 阶段结论 | 明确 barrier 应作为何种组件，或形成否定结论 |
 

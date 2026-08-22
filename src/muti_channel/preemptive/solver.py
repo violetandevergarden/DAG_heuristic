@@ -8,8 +8,8 @@ compatible sets and searches over the simulator's legal actions.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from statistics import mean
 from random import Random
+from statistics import mean
 from time import perf_counter
 from typing import Literal
 
@@ -76,6 +76,18 @@ class MultiResult:
     max_actual_depth: int = 0
     trigger_reason_counts: tuple[tuple[str, int], ...] = ()
     fallback_details: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class OfflineBarrierUpperBound:
+    """Post-hoc comparison of two full multi-resource schedules."""
+
+    online: bool
+    full_schedule_runs: int
+    baseline: MultiResult
+    candidate: MultiResult
+    selected_policy: str
+    runtime_ms: float
 
 
 @dataclass
@@ -218,7 +230,7 @@ def schedule_bounded_packing(
         multi_seed,
         one_exchange,
     )
-    from muti_channel.preemptive.packing import DecisionBudget, PackingBudget, PackingResult
+    from muti_channel.preemptive.packing import DecisionBudget, PackingBudget
 
     started = perf_counter()
     budget = budget or PackingBudget()
@@ -291,26 +303,22 @@ def schedule_bounded_packing(
     )
 
 
-def schedule_barrier_set_safeguarded(
+def offline_best_of_lt_and_barrier(
     dag: BenchmarkDAG,
     resources: dict[str, frozenset[str]],
-) -> MultiResult:
-    """Compare a barrier whole-set candidate against LT packing.
+) -> OfflineBarrierUpperBound:
+    """Return an explicitly offline best-of comparison of two complete runs."""
 
-    The two complete schedules use the same public multi-resource model.  The
-    barrier candidate is returned only when it strictly improves makespan;
-    ties intentionally retain the longest-tail packing trace so this policy
-    remains a protected research candidate rather than a replacement claim.
-    """
-
+    started = perf_counter()
     baseline = schedule_pack(dag, resources, "longest_tail")
     candidate = schedule_set_policy(dag, resources, "barrier_union")
-    if candidate.makespan < baseline.makespan:
-        return candidate
-    return replace(
-        baseline,
-        fallback_count=1,
-        fallback_reason="barrier_set_not_strictly_better_than_longest_tail",
+    return OfflineBarrierUpperBound(
+        online=False,
+        full_schedule_runs=2,
+        baseline=baseline,
+        candidate=candidate,
+        selected_policy=("barrier_candidate" if candidate.makespan < baseline.makespan else "longest_tail"),
+        runtime_ms=(perf_counter() - started) * 1000,
     )
 
 
@@ -906,14 +914,18 @@ def score_sets(
 def _barrier_set_score(
     context: object, action: MultiAction
 ) -> tuple[object, ...]:
-    """Whole-set score with shared downstream and packing handled once."""
+    """Whole-set diagnostic score with shared nodes handled once.
+
+    Resource complementarity is deliberately absent here: inclusion-maximal
+    packing is constructed before scoring, and the old field was constant or
+    unrelated across many legal actions.
+    """
 
     features = action_features(context, action.communications)  # type: ignore[arg-type]
     return (
-        -features.union_released_compute,
-        -features.completed_join_count,
+        -features.newly_ready_compute_work,
+        -features.completed_direct_join_count,
         -features.union_downstream_tail,
-        -features.packing_complementarity,
         features.communication_ids,
     )
 

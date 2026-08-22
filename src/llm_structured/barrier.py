@@ -1,11 +1,9 @@
-"""Read-only residual barrier features for LLM-structured scheduling.
+"""Read-only residual barrier features for structured scheduling.
 
-The module deliberately contains no clock advancement, action validation, or
-schedule selection.  It accepts either the public single-channel or fixed
-multi-resource model/state pair and derives structural quantities from the
-current residual state.  Exact quantities and estimates are kept explicit in
-the returned snapshots so callers cannot silently treat a heuristic signal as
-an oracle value.
+The functions in this module never advance a clock or select an action. They
+describe the current public simulator state only. A structural path quantity
+is never labelled as a time or makespan benefit, and every arrival quantity is
+explicitly a contention-free estimate.
 """
 
 from __future__ import annotations
@@ -13,81 +11,87 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from core.dag import BenchTask, topological_order
+from core.dag import BenchTask
 
 
 @dataclass(frozen=True)
 class BarrierFeatureSnapshot:
-    """Per-communication residual feature snapshot.
+    """Features of one currently eligible communication.
 
-    ``estimated_arrival_spread`` and ``paused_tail_penalty`` are estimates;
-    all other values are structural/residual quantities computed from the
-    supplied state.  ``residual_tail`` includes the candidate's remaining
-    work, while ``exclusive_tail`` removes that own work.
+    Only direct residual joins are represented: a join is counted when this
+    candidate is its sole unfinished predecessor. Indirect barrier discovery
+    is deliberately not inferred from task names or unbounded traversal.
     """
 
     task_id: str
     remaining_work: int
     residual_tail: int
-    immediate_compute_release: int
-    reachable_compute_release: int
-    last_missing_join_count: int
-    local_last_missing_count: int
-    global_last_missing_count: int
+    exclusive_tail: int
+    newly_ready_compute_work: int
+    newly_ready_compute_ids: tuple[str, ...]
+    reachable_descendant_compute_work: int
+    direct_last_missing_join_count: int
+    direct_last_missing_join_ids: tuple[str, ...]
     downstream_join_tail: int
-    estimated_arrival_spread: int
+    estimated_latest_branch_arrival: int | None
+    estimated_second_latest_branch_arrival: int | None
+    estimated_candidate_branch_arrival: int | None
+    estimated_barrier_slack: int | None
+    estimated_arrival_spread: int | None
     resource_count: int
     hotspot_conflict_degree: int
-    compatible_completion_gain: int
-    paused_tail_penalty: int
-    exclusive_tail: int
-    label_hint: str = ""
+    indirect_barrier_status: str = "not_computed"
     quantity_modes: tuple[tuple[str, str], ...] = (
         ("remaining_work", "residual_exact"),
         ("residual_tail", "structural_exact"),
-        ("immediate_compute_release", "residual_exact"),
-        ("reachable_compute_release", "structural_exact"),
-        ("last_missing_join_count", "structural_exact"),
-        ("local_last_missing_count", "structural_exact"),
-        ("global_last_missing_count", "structural_exact"),
+        ("exclusive_tail", "structural_exact"),
+        ("newly_ready_compute_work", "residual_exact"),
+        ("newly_ready_compute_ids", "residual_exact"),
+        ("reachable_descendant_compute_work", "structural_exact"),
+        ("direct_last_missing_join_count", "structural_exact"),
+        ("direct_last_missing_join_ids", "structural_exact"),
         ("downstream_join_tail", "structural_exact"),
+        ("estimated_latest_branch_arrival", "heuristic_estimate"),
+        ("estimated_second_latest_branch_arrival", "heuristic_estimate"),
+        ("estimated_candidate_branch_arrival", "heuristic_estimate"),
+        ("estimated_barrier_slack", "heuristic_estimate"),
         ("estimated_arrival_spread", "heuristic_estimate"),
         ("resource_count", "residual_exact"),
         ("hotspot_conflict_degree", "residual_exact"),
-        ("compatible_completion_gain", "structural_exact"),
-        ("paused_tail_penalty", "heuristic_estimate"),
-        ("exclusive_tail", "structural_exact"),
+        ("indirect_barrier_status", "structural_exact"),
     )
 
 
 @dataclass(frozen=True)
 class BarrierActionFeatures:
-    """Whole-action features for a legal single or maximal multi-resource action."""
+    """De-duplicated features of one legal single or maximal multi action."""
 
     communication_ids: tuple[str, ...]
-    union_released_compute: int
+    newly_ready_compute_work: int
+    newly_ready_compute_ids: tuple[str, ...]
+    reachable_descendant_compute_work: int
     union_downstream_tail: int
-    completed_join_count: int
-    barrier_spread_reduction: int
+    completed_direct_join_count: int
+    completed_direct_join_ids: tuple[str, ...]
     occupied_resource_count: int
     excluded_candidate_count: int
-    packing_complementarity: int
     shared_downstream_count: int
     quantity_modes: tuple[tuple[str, str], ...] = (
-        ("union_released_compute", "structural_exact"),
+        ("newly_ready_compute_work", "residual_exact"),
+        ("newly_ready_compute_ids", "residual_exact"),
+        ("reachable_descendant_compute_work", "structural_exact"),
         ("union_downstream_tail", "structural_exact"),
-        ("completed_join_count", "structural_exact"),
-        ("barrier_spread_reduction", "heuristic_estimate"),
+        ("completed_direct_join_count", "structural_exact"),
+        ("completed_direct_join_ids", "structural_exact"),
         ("occupied_resource_count", "residual_exact"),
         ("excluded_candidate_count", "residual_exact"),
-        ("packing_complementarity", "structural_exact"),
         ("shared_downstream_count", "structural_exact"),
     )
 
 
 @dataclass(frozen=True)
 class BarrierAnalysisContext:
-    """Shared immutable analysis data for one stable decision state."""
+    """Immutable data reused for all candidates at one decision boundary."""
 
     model: Any
     state: Any
@@ -97,37 +101,27 @@ class BarrierAnalysisContext:
     completed: frozenset[str]
     tails: dict[str, int]
     eligible: tuple[str, ...]
-    active: frozenset[str]
     resources: dict[str, frozenset[str]]
 
 
 def build_context(
     model: Any, state: Any, *, roots: tuple[str, ...] | None = None
 ) -> BarrierAnalysisContext:
-    """Build a context once and reuse it for all candidates in a state."""
+    """Build a full residual context; ``roots`` remains for API stability.
 
+    Arrival estimates need every branch of a direct join, so selectively
+    calculating tails from eligible roots would produce incomplete values.
+    """
+
+    del roots
     order = tuple(model.task_ids)
     tasks = model.task_map
     children = model.children
     completed = frozenset(
-        task_id
-        for task_id in order
-        if _runtime(model, state, task_id).status == "completed"
+        task_id for task_id in order if _runtime(model, state, task_id).status == "completed"
     )
-    if roots is None:
-        tail_order = order
-    else:
-        reachable = set(roots)
-        pending = list(roots)
-        while pending:
-            current = pending.pop()
-            for child in children[current]:
-                if child not in reachable:
-                    reachable.add(child)
-                    pending.append(child)
-        tail_order = tuple(sorted(reachable, key=model.index.__getitem__))
     tails: dict[str, int] = {}
-    for task_id in reversed(tail_order):
+    for task_id in reversed(order):
         tails[task_id] = _own_remaining(model, state, task_id, tasks[task_id]) + max(
             (tails[child] for child in children[task_id]), default=0
         )
@@ -136,250 +130,208 @@ def build_context(
         if hasattr(model, "eligible_communications")
         else model.eligible(state)
     )
-    if hasattr(model, "active_computes"):
-        active_raw = model.active_computes(state)
-        active = frozenset(
-            item if isinstance(item, str) else model.tasks[item].task_id
-            for item in active_raw
-        )
-    else:
-        active = frozenset()
-    if hasattr(model, "eligible_communications"):
-        resources = {task_id: frozenset({"channel:0"}) for task_id in eligible}
-    else:
-        resources = {
+    resources = (
+        {task_id: frozenset({"channel:0"}) for task_id in eligible}
+        if hasattr(model, "eligible_communications")
+        else {
             task_id: frozenset(getattr(model, "resources", {}).get(task_id, ()))
             for task_id in eligible
         }
+    )
     return BarrierAnalysisContext(
-        model,
-        state,
-        tasks,
-        order,
-        children,
-        completed,
-        tails,
-        eligible,
-        active,
-        resources,
+        model, state, tasks, order, children, completed, tails, eligible, resources
     )
 
 
-def feature_snapshot(
-    context: BarrierAnalysisContext, task_id: str
-) -> BarrierFeatureSnapshot:
-    """Return a deterministic, read-only feature snapshot for one candidate."""
+def feature_snapshot(context: BarrierAnalysisContext, task_id: str) -> BarrierFeatureSnapshot:
+    """Return an auditable snapshot for one currently eligible communication."""
 
     if task_id not in context.eligible:
         raise ValueError(f"candidate {task_id!r} is not eligible")
     task = context.tasks[task_id]
     remaining = _own_remaining(context.model, context.state, task_id, task)
-    joins = _last_missing_joins(context, task_id)
-    local = 0
-    global_count = 0
-    downstream_join_tail = 0
-    for join_id in joins:
-        downstream_join_tail = max(downstream_join_tail, context.tails[join_id])
-        sinks = _reachable_sinks(context, join_id)
-        all_sinks = _residual_sinks(context)
-        if all_sinks and all_sinks <= sinks:
-            global_count += 1
-        else:
-            local += 1
-    immediate_compute = _immediate_compute_release(context, task_id)
+    joins = _direct_last_missing_joins(context, task_id)
+    arrivals = _arrival_estimates(context, joins, task_id)
+    newly_ready_ids = _newly_ready_compute_ids(context, (task_id,))
+    descendants = _descendants(context, (task_id,))
     reachable_compute = sum(
         _own_remaining(context.model, context.state, item, context.tasks[item])
-        for item in _descendants(context, (task_id,))
+        for item in descendants
         if context.tasks[item].kind == "compute" and item not in context.completed
     )
-    candidate_resources = context.resources.get(task_id, frozenset())
+    resources = context.resources.get(task_id, frozenset())
     hotspot = sum(
-        bool(candidate_resources & context.resources.get(other, frozenset()))
+        bool(resources & context.resources.get(other, frozenset()))
         for other in context.eligible
         if other != task_id
-    )
-    arrival_spread = _arrival_spread(context, joins)
-    paused_penalty = max(
-        (
-            context.tails[item] - _own_remaining(
-                context.model, context.state, item, context.tasks[item]
-            )
-            for item in context.active
-            if item != task_id
-        ),
-        default=0,
     )
     return BarrierFeatureSnapshot(
         task_id=task_id,
         remaining_work=remaining,
         residual_tail=context.tails[task_id],
-        immediate_compute_release=immediate_compute,
-        reachable_compute_release=reachable_compute,
-        last_missing_join_count=len(joins),
-        local_last_missing_count=local,
-        global_last_missing_count=global_count,
-        downstream_join_tail=downstream_join_tail,
-        estimated_arrival_spread=arrival_spread,
-        resource_count=len(candidate_resources),
-        hotspot_conflict_degree=hotspot,
-        compatible_completion_gain=immediate_compute + reachable_compute,
-        paused_tail_penalty=paused_penalty,
         exclusive_tail=max(0, context.tails[task_id] - remaining),
-        label_hint=task.label_map().get("collective_type", task.role),
+        newly_ready_compute_work=sum(context.tasks[item].duration for item in newly_ready_ids),
+        newly_ready_compute_ids=newly_ready_ids,
+        reachable_descendant_compute_work=reachable_compute,
+        direct_last_missing_join_count=len(joins),
+        direct_last_missing_join_ids=joins,
+        downstream_join_tail=max((context.tails[item] for item in joins), default=0),
+        estimated_latest_branch_arrival=arrivals[0],
+        estimated_second_latest_branch_arrival=arrivals[1],
+        estimated_candidate_branch_arrival=arrivals[2],
+        estimated_barrier_slack=arrivals[3],
+        estimated_arrival_spread=arrivals[4],
+        resource_count=len(resources),
+        hotspot_conflict_degree=hotspot,
     )
 
 
 def priority_key(
     context: BarrierAnalysisContext, task_id: str, mode: str = "tail_barrier"
 ) -> tuple[object, ...]:
-    """Compute only fields used by an online priority comparison.
+    """Dictionary-free online score used only by diagnostic policies."""
 
-    ``feature_snapshot`` intentionally remains comprehensive for audits.  A
-    scheduler must not pay for descendant unions, global-sink classification,
-    resource diagnostics and label extraction when its key does not use them.
-    """
-
-    if task_id not in context.eligible:
-        raise ValueError(f"candidate {task_id!r} is not eligible")
-    task = context.tasks[task_id]
-    remaining = _own_remaining(context.model, context.state, task_id, task)
-    joins = _last_missing_joins(context, task_id)
-    downstream_join_tail = max(
-        (context.tails[join_id] for join_id in joins), default=0
-    )
-    immediate_compute = (
-        _immediate_compute_release(context, task_id)
-        if mode in {"unlock_only", "tail_unlock", "tail_barrier", "barrier_aware", "tail_unlock_barrier"}
-        else 0
-    )
-    exclusive_tail = max(0, context.tails[task_id] - remaining)
+    snapshot = _online_inputs(context, task_id)
     if mode == "barrier_only":
-        return (-len(joins), -downstream_join_tail, task_id)
+        return (-snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, task_id)
     if mode == "unlock_only":
-        return (-immediate_compute, task_id)
+        return (-snapshot.newly_ready_compute_work, task_id)
     if mode == "tail":
-        return (-exclusive_tail, task_id)
+        return (-snapshot.exclusive_tail, task_id)
     if mode == "tail_unlock":
-        return (-exclusive_tail, -immediate_compute, task_id)
+        return (-snapshot.exclusive_tail, -snapshot.newly_ready_compute_work, task_id)
     if mode in {"tail_barrier", "barrier_aware"}:
-        return (
-            -exclusive_tail,
-            -len(joins),
-            -downstream_join_tail,
-            -immediate_compute,
-            task_id,
-        )
+        return (-snapshot.exclusive_tail, -snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, -snapshot.newly_ready_compute_work, task_id)
     if mode == "tail_unlock_barrier":
-        return (
-            -exclusive_tail,
-            -immediate_compute,
-            -len(joins),
-            -downstream_join_tail,
-            task_id,
-        )
+        return (-snapshot.exclusive_tail, -snapshot.newly_ready_compute_work, -snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, task_id)
     raise ValueError(f"unknown barrier score mode: {mode}")
 
 
 def has_barrier_signal(context: BarrierAnalysisContext, task_id: str) -> bool:
-    """Return whether a candidate closes a join or releases compute now."""
+    """A direct last-missing join or a genuine immediate compute release."""
 
-    return bool(_last_missing_joins(context, task_id)) or bool(
-        _immediate_compute_release(context, task_id)
-    )
+    snapshot = _online_inputs(context, task_id)
+    return bool(snapshot.direct_last_missing_join_count or snapshot.newly_ready_compute_work)
+
+
+@dataclass(frozen=True)
+class OnlineBarrierInputs:
+    """The bounded subset of fields used by online barrier policies.
+
+    It intentionally omits descendant unions and arrival estimates. Those are
+    audit fields and calculating them at every candidate would turn a small
+    tie-break into an avoidable whole-reachable-subgraph scan.
+    """
+
+    exclusive_tail: int
+    direct_last_missing_join_count: int
+    newly_ready_compute_work: int
+    downstream_join_tail: int
+
+
+def online_barrier_inputs(
+    context: BarrierAnalysisContext, task_id: str
+) -> OnlineBarrierInputs:
+    """Return only the residual fields consumed by online comparisons."""
+
+    return _online_inputs(context, task_id)
+
+
+def safe_barrier_prescreen(
+    context: BarrierAnalysisContext,
+    candidates: tuple[str, ...],
+    longest_tail_action: str,
+) -> tuple[str, ...]:
+    """Return the candidates safe to retain before an LT decision.
+
+    The current implementation recognizes direct joins only.  Absence of a
+    direct signal cannot prove absence of an indirect barrier effect, so no
+    non-LT candidate is removed.  This explicit no-op is preferable to an
+    unverifiable filter and gives callers an auditable baseline for future
+    stronger proofs.
+    """
+
+    if not candidates or longest_tail_action not in candidates:
+        raise ValueError("prescreen requires a non-empty candidate set containing LT")
+    if not set(candidates) <= set(context.eligible):
+        raise ValueError("prescreen candidates must be currently eligible")
+    return candidates
 
 
 def action_features(
     context: BarrierAnalysisContext, communication_ids: tuple[str, ...]
 ) -> BarrierActionFeatures:
-    """Compute shared-downstream de-duplicated features for an action."""
+    """Compute set features with node unions, never per-member summation."""
 
     selected = tuple(sorted(set(communication_ids)))
     if not selected or not set(selected) <= set(context.eligible):
         raise ValueError("action must contain eligible communications")
     descendants = _descendants(context, selected)
-    compute_union = sum(
-        _own_remaining(context.model, context.state, item, context.tasks[item])
-        for item in descendants
-        if context.tasks[item].kind == "compute" and item not in context.completed
-    )
-    joins = {
-        join_id
-        for task_id in selected
-        for join_id in _last_missing_joins(context, task_id)
-    }
-    completed_join_count = len(joins)
-    tails = [context.tails[item] for item in descendants if item not in context.completed]
+    joins = tuple(sorted({join for item in selected for join in _direct_last_missing_joins(context, item)}))
+    newly_ready_ids = _newly_ready_compute_ids(context, selected)
     occupied = set().union(*(context.resources.get(item, frozenset()) for item in selected))
-    excluded = set(context.eligible) - set(selected)
-    complementarity = sum(
-        1
-        for item in excluded
-        if not (context.resources.get(item, frozenset()) & occupied)
-    )
-    join_ids = tuple(sorted(joins))
-    before_spread = _arrival_spread(context, join_ids)
-    after_spread = _arrival_spread(context, join_ids, selected)
+    shared = sum(len(_descendants(context, (item,))) for item in selected) - len(descendants)
     return BarrierActionFeatures(
         communication_ids=selected,
-        union_released_compute=compute_union,
-        union_downstream_tail=max(tails, default=0),
-        completed_join_count=completed_join_count,
-        barrier_spread_reduction=max(0, before_spread - after_spread),
+        newly_ready_compute_work=sum(context.tasks[item].duration for item in newly_ready_ids),
+        newly_ready_compute_ids=newly_ready_ids,
+        reachable_descendant_compute_work=sum(
+            _own_remaining(context.model, context.state, item, context.tasks[item])
+            for item in descendants
+            if context.tasks[item].kind == "compute" and item not in context.completed
+        ),
+        union_downstream_tail=max((context.tails[item] for item in descendants if item not in context.completed), default=0),
+        completed_direct_join_count=len(joins),
+        completed_direct_join_ids=joins,
         occupied_resource_count=len(occupied),
-        excluded_candidate_count=len(excluded),
-        packing_complementarity=complementarity,
-        shared_downstream_count=max(0, sum(len(_descendants(context, (item,))) for item in selected) - len(descendants)),
+        excluded_candidate_count=len(set(context.eligible) - set(selected)),
+        shared_downstream_count=max(0, shared),
     )
 
 
-def score_snapshot(
-    snapshot: BarrierFeatureSnapshot, mode: str = "tail_barrier"
-) -> tuple[object, ...]:
-    """Stable dictionary-free score for ablations and policy experiments."""
+def score_snapshot(snapshot: BarrierFeatureSnapshot, mode: str = "tail_barrier") -> tuple[object, ...]:
+    """Stable score used by diagnostic ablations, not an optimality claim."""
 
     if mode == "barrier_only":
-        return (-snapshot.last_missing_join_count, -snapshot.downstream_join_tail, snapshot.task_id)
+        return (-snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, snapshot.task_id)
     if mode == "unlock_only":
-        return (-snapshot.immediate_compute_release, snapshot.task_id)
+        return (-snapshot.newly_ready_compute_work, snapshot.task_id)
     if mode == "tail":
         return (-snapshot.exclusive_tail, snapshot.task_id)
     if mode == "tail_unlock":
-        return (-snapshot.exclusive_tail, -snapshot.immediate_compute_release, snapshot.task_id)
+        return (-snapshot.exclusive_tail, -snapshot.newly_ready_compute_work, snapshot.task_id)
     if mode in {"tail_barrier", "barrier_aware"}:
-        return (
-            -snapshot.exclusive_tail,
-            -snapshot.last_missing_join_count,
-            -snapshot.downstream_join_tail,
-            -snapshot.immediate_compute_release,
-            snapshot.task_id,
-        )
+        return (-snapshot.exclusive_tail, -snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, -snapshot.newly_ready_compute_work, snapshot.task_id)
     if mode == "tail_unlock_barrier":
-        return (
-            -snapshot.exclusive_tail,
-            -snapshot.immediate_compute_release,
-            -snapshot.last_missing_join_count,
-            -snapshot.downstream_join_tail,
-            snapshot.task_id,
-        )
+        return (-snapshot.exclusive_tail, -snapshot.newly_ready_compute_work, -snapshot.direct_last_missing_join_count, -snapshot.downstream_join_tail, snapshot.task_id)
     raise ValueError(f"unknown barrier score mode: {mode}")
 
 
 def _runtime(model: Any, state: Any, task_id: str) -> Any:
-    if hasattr(model, "task_runtime"):
-        return model.task_runtime(state, task_id)
-    return state.tasks[model.index[task_id]]
+    return model.task_runtime(state, task_id) if hasattr(model, "task_runtime") else state.tasks[model.index[task_id]]
 
 
 def _own_remaining(model: Any, state: Any, task_id: str, task: BenchTask) -> int:
     runtime = _runtime(model, state, task_id)
-    if runtime.status == "completed":
-        return 0
-    return runtime.remaining or task.duration
+    return 0 if runtime.status == "completed" else runtime.remaining or task.duration
+
+
+def _online_inputs(context: BarrierAnalysisContext, task_id: str) -> OnlineBarrierInputs:
+    if task_id not in context.eligible:
+        raise ValueError(f"candidate {task_id!r} is not eligible")
+    joins = _direct_last_missing_joins(context, task_id)
+    remaining = _own_remaining(context.model, context.state, task_id, context.tasks[task_id])
+    newly_ready = _newly_ready_compute_ids(context, (task_id,))
+    return OnlineBarrierInputs(
+        exclusive_tail=max(0, context.tails[task_id] - remaining),
+        direct_last_missing_join_count=len(joins),
+        newly_ready_compute_work=sum(context.tasks[item].duration for item in newly_ready),
+        downstream_join_tail=max((context.tails[item] for item in joins), default=0),
+    )
 
 
 def _descendants(context: BarrierAnalysisContext, roots: tuple[str, ...]) -> frozenset[str]:
-    seen = set(roots)
-    stack = list(roots)
+    seen, stack = set(roots), list(roots)
     while stack:
         current = stack.pop()
         for child in context.children[current]:
@@ -389,70 +341,84 @@ def _descendants(context: BarrierAnalysisContext, roots: tuple[str, ...]) -> fro
     return frozenset(seen)
 
 
-def _last_missing_joins(context: BarrierAnalysisContext, task_id: str) -> tuple[str, ...]:
-    result = []
-    for child in context.children[task_id]:
-        deps = context.tasks[child].deps
-        if len(deps) > 1 and all(
-            dependency == task_id or dependency in context.completed for dependency in deps
-        ):
-            result.append(child)
-    return tuple(sorted(result))
+def _direct_last_missing_joins(context: BarrierAnalysisContext, task_id: str) -> tuple[str, ...]:
+    return tuple(sorted(
+        child for child in context.children[task_id]
+        if len(context.tasks[child].deps) > 1
+        and all(dep == task_id or dep in context.completed for dep in context.tasks[child].deps)
+    ))
 
 
-def _immediate_compute_release(context: BarrierAnalysisContext, task_id: str) -> int:
-    completed = set(context.completed)
-    completed.add(task_id)
-    changed = True
-    while changed:
-        changed = False
-        for item in context.order:
-            task = context.tasks[item]
-            if item in completed or task.kind != "compute":
-                continue
-            runtime = _runtime(context.model, context.state, item)
-            if runtime.status == "pending" and task.duration == 0 and set(task.deps) <= completed:
-                completed.add(item)
-                changed = True
-    already_ready = set(context.eligible) | set(context.active)
-    return sum(
-        task.duration
-        for item, task in context.tasks.items()
+def _newly_ready_compute_ids(
+    context: BarrierAnalysisContext, completed_communications: tuple[str, ...]
+) -> tuple[str, ...]:
+    """Counterfactual completion plus same-time zero-compute closure.
+
+    This reports only compute nodes that were pending beforehand and become
+    ready after the selected communication(s) complete. It does not count
+    descendants merely because they are structurally reachable.
+    """
+
+    completed = set(context.completed) | set(completed_communications)
+    while True:
+        newly_zero = [
+            item for item in context.order
+            if item not in completed
+            and context.tasks[item].kind == "compute"
+            and context.tasks[item].duration == 0
+            and _runtime(context.model, context.state, item).status == "pending"
+            and set(context.tasks[item].deps) <= completed
+        ]
+        if not newly_zero:
+            break
+        completed.update(newly_zero)
+    return tuple(
+        item for item in context.order
         if item not in completed
-        and item not in already_ready
-        and task.kind == "compute"
+        and context.tasks[item].kind == "compute"
         and _runtime(context.model, context.state, item).status == "pending"
-        and set(task.deps) <= completed
+        and set(context.tasks[item].deps) <= completed
     )
 
 
-def _reachable_sinks(context: BarrierAnalysisContext, root: str) -> frozenset[str]:
-    reachable = _descendants(context, (root,))
-    return frozenset(
-        item for item in reachable if not context.children[item]
-    )
+def _path_estimate_to_join(
+    context: BarrierAnalysisContext, start: str, join_id: str, memo: dict[str, int | None]
+) -> int | None:
+    if start in memo:
+        return memo[start]
+    if start == join_id:
+        return 0
+    children = [child for child in context.children[start] if join_id in _descendants(context, (child,))]
+    if not children:
+        memo[start] = None
+        return None
+    own = _own_remaining(context.model, context.state, start, context.tasks[start])
+    values = [_path_estimate_to_join(context, child, join_id, memo) for child in children]
+    values = [value for value in values if value is not None]
+    memo[start] = own + max(values) if values else None
+    return memo[start]
 
 
-def _residual_sinks(context: BarrierAnalysisContext) -> frozenset[str]:
-    return frozenset(
-        item
-        for item in context.order
-        if not context.children[item] and item not in context.completed
-    )
+def _arrival_estimates(
+    context: BarrierAnalysisContext, joins: tuple[str, ...], candidate: str
+) -> tuple[int | None, int | None, int | None, int | None, int | None]:
+    """Contention-free branch-to-join estimates for direct joins only."""
 
-
-def _arrival_spread(
-    context: BarrierAnalysisContext,
-    joins: tuple[str, ...],
-    extra_completed: tuple[str, ...] = (),
-) -> int:
-    completed = context.completed | frozenset(extra_completed)
-    estimates = []
+    rows: list[tuple[int, int, int]] = []
     for join_id in joins:
-        estimates.extend(
-            0
-            if dependency in completed
-            else context.tails[dependency]
-            for dependency in context.tasks[join_id].deps
-        )
-    return max(estimates, default=0) - min(estimates, default=0)
+        values: list[tuple[str, int]] = []
+        for dep in context.tasks[join_id].deps:
+            if dep in context.completed:
+                values.append((dep, 0))
+            else:
+                estimate = _path_estimate_to_join(context, dep, join_id, {})
+                if estimate is not None:
+                    values.append((dep, estimate))
+        ordered = sorted((value for _dep, value in values), reverse=True)
+        candidate_value = next((value for dep, value in values if dep == candidate), None)
+        if ordered and candidate_value is not None:
+            rows.append((ordered[0], ordered[1] if len(ordered) > 1 else 0, candidate_value))
+    if not rows:
+        return (None, None, None, None, None)
+    latest, second, candidate_value = max(rows, key=lambda row: (row[0], row[1], row[2]))
+    return (latest, second, candidate_value, max(0, latest - candidate_value), latest - min(second, candidate_value))

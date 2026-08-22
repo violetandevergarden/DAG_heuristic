@@ -1,10 +1,12 @@
 # Stage 4d Selective Rollout 代码审查
 
+> 2026-08-22 口径更新：全量真实 LLM DAG 不再是主实验或退出条件，改用 Stage 1--3 旧 benchmark、100--1000 节点冻结验证和 1--2 个中大图逐例检查。
+
 ## 1. 审查范围与总体结论
 
 本审查依据 `docs/plan_docs/stage4_LLM_search.md` 和 `docs/plan_docs/stage4d_selective_rollout.md`，检查当前 selective rollout 的公共契约、单通道实现、多资源相关实现、测试、实验入口和证据。`docs/old_docs/stage4研究` 中的历史材料仅用于定位旧问题，不替代当前代码检查。
 
-总体判断：**当前 Stage 4d 是能够运行并安全保留 Longest Tail 的单通道研究原型，但不满足正式阶段要求，不能作为已验证组件进入 Stage 4g。** 现有代码完成了基础触发接口、部分剩余状态特征、调用/展开计数和合法轨迹回退；候选宽度、深度、触发语义、缓存、严格预算、决策级标签、真实 holdout 和等预算实验均未完成。
+总体判断：**当前 Stage 4d 是能够运行并安全保留 Longest Tail 的单通道研究原型，但不满足正式阶段要求，不能作为已验证组件进入 Stage 4g。** 现有代码完成了基础触发接口、部分剩余状态特征、调用/展开计数和合法轨迹回退；候选宽度、深度、触发语义、缓存、严格预算、决策级标签、Stage 1--3 主实验、100--1000 节点冻结验证和等预算实验均未完成。
 
 2026-08-18 旧审查列出的核心问题在当前代码中仍可复现。本次仅新增审查文档，没有修改代码、benchmark 或实验结果。
 
@@ -18,7 +20,7 @@
 - `experiments/llm_structure/selective_rollout_evaluation.py`
 - `tests/llm_structured/test_selective_rollout_features.py`
 - `tests/single_channel/complex_chain/preemptive/test_selective_rollout.py`
-- Stage 4a 活动 manifest、现有 45 个 complex-chain benchmark 和旧 Stage 4 记录
+- 现有 45 个 complex-chain benchmark、Stage 1--3 数据入口、Stage 4a 少量迁移样例边界和旧 Stage 4 记录
 
 实际验证：
 
@@ -104,9 +106,9 @@ depth 大于 1 时，每个分支后续动作都由 LT 唯一决定，最后再�
 
 实验模块说明为 Stage 4e，输出 schema 是 `stage4e-selective-evaluation-v1`，与当前正式 Stage 4d 编号不一致。旧结果必须作为 legacy 保存，不能直接作为新阶段证据。
 
-### 5.2 数据不是正式真实 LLM holdout
+### 5.2 数据没有按新的三层实验口径冻结
 
-runner 默认扫描 45 个 `benchmark/single_channel/complex_chain/preemptive` 样例，没有使用 Stage 4a 72-case manifest，也没有检查转换、竞争证据等级或策略分歧。随机、攻击和真实类别虽写入行数据，但没有冻结开发/验证/holdout 划分；阈值 0.10、0.25 和多个随机/周期率在同一数据集上比较并汇总。
+runner 默认扫描 45 个 `benchmark/single_channel/complex_chain/preemptive` 样例，这与“先用 Stage 1--3 旧 benchmark”的新方向一致；但同一批数据同时用于多个阈值和最终汇总，没有冻结开发/validation 子集，也没有独立的 100--1000 节点验证集或 1--2 个中大图压力清单。因此缺口不再是“没有跑全量 Stage 4a”，而是旧 benchmark 主实验和后续两层没有形成可复现边界。
 
 ### 5.3 缺少决策级标签和触发准确性
 
@@ -126,7 +128,7 @@ runner 只给整图 Exact 和最终 makespan，没有为每个决策保存全部
 
 ### 5.7 旧数字只能作为历史观察
 
-旧记录的 45 例中 7 胜、38 平、0 负，以及 134 对 350 completion calls，可保留为开发期观察。但数据同时参与阈值设计和报告，三个旧真实派生样例没有胜例，72-case census 又只有有界前缀证据。因此这些数字不能证明真实 LLM holdout 上有稳定净收益。
+旧记录的 45 例中 7 胜、38 平、0 负，以及 134 对 350 completion calls，可保留为 Stage 1--3 开发期观察。但数据同时参与阈值设计和报告，也没有在冻结的 100--1000 节点验证集上复验。因此这些数字不能证明收益能够跨规模或迁移到 LLM 派生小图。
 
 ## 6. 对十四项退出条件的判断
 
@@ -140,10 +142,10 @@ runner 只给整图 Exact 和最终 makespan，没有为每个决策保存全部
 | 6. 候选召回与评价误判分离 | 未满足 | 只有单 challenger，无覆盖率 |
 | 7. 深度、宽度、触发和调用同预算比较 | 未满足 | max_candidates 不生效，depth 语义有限 |
 | 8. 所有不完整评价回退 LT并完整记录 | 部分满足 | 多数路径回退 LT；时间/展开可越界且状态记录不足 |
-| 9. 真实 workload/topology holdout 报告 | 未满足 | 当前 runner 是旧 45-case 数据 |
+| 9. 100--1000 节点冻结验证和有限中大图报告 | 未满足 | 当前 runner 只有未拆分的旧 45-case 数据 |
 | 10. 特征和搜索开销纳入 wall-clock | 部分满足 | 总 runtime 包含大部分开销，但无硬上限和完整分项/内存 |
 | 11. 计划列出的失败模式有反例 | 未满足 | 缺分差、无关释放、缓存、深度不足和预算不对称的系统反例 |
-| 12. 明确适用范围 | 未满足 | 没有真实分层证据 |
+| 12. 明确适用范围 | 未满足 | 没有跨旧 benchmark、100--1000 节点和有限中大图的证据 |
 | 13. 无收益时形成受限/否定结论 | 未满足 | 目前只能判为证据不足 |
 | 14. 同预算净收益组件才进入 Stage 4g | 未满足 | 尚无合格配置 |
 
@@ -165,9 +167,9 @@ runner 只给整图 Exact 和最终 makespan，没有为每个决策保存全部
 - `heuristic_disagreement`、释放或 join 信号具有准确语义；
 - 触发器已经取得可靠 precision/recall；
 - 节省的预算已转化为更深或更宽搜索收益；
-- 在 Stage 4a 真实 72-case corpus 或独立 holdout 上有稳定收益；
+- 已在冻结的 100--1000 节点验证集上复现净收益，或能据此外推完整真实 LLM corpus；
 - 当前 Stage 4d 可以进入 Stage 4g。
 
 ## 8. 最终结论
 
-Stage 4d 当前状态应记录为：**单通道原型可运行，LT 回退骨架可复用；深度、候选、触发特征、缓存和预算契约待修；真实决策标签、等预算曲线和 holdout 验证未开始。** 应先关闭可复现的实现缺陷，再建立决策级真值和 Stage 4a 分层清单，最后才运行真实端到端实验。
+Stage 4d 当前状态应记录为：**单通道原型可运行，LT 回退骨架可复用；深度、候选、触发特征、缓存和预算契约待修；决策级标签、等预算曲线和冻结验证未开始。** 应先关闭可复现的实现缺陷，再在 Stage 1--3 旧 benchmark 上建立主实验和决策级真值，随后用 100--1000 节点小图冻结验证，最后只用 1--2 个中大图逐例检查可执行性与成本。

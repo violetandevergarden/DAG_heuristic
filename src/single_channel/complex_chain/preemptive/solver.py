@@ -25,7 +25,9 @@ from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.barrier import (
     build_context,
     has_barrier_signal,
+    online_barrier_inputs,
     priority_key,
+    safe_barrier_prescreen,
 )
 
 PriorityName = str
@@ -55,6 +57,23 @@ class ExactSuffixResult:
     termination_reason: str
     explored_states: int
     generated_transitions: int
+    runtime_ms: float
+
+
+@dataclass(frozen=True)
+class OfflineBarrierUpperBound:
+    """Two complete schedules selected after observing their makespans.
+
+    This is an offline comparison object, intentionally distinct from an
+    online scheduler result.  It is useful to bound the value of a candidate
+    policy but cannot be deployed as a decision policy.
+    """
+
+    online: bool
+    full_schedule_runs: int
+    baseline: PreemptiveScheduleResult
+    candidate: PreemptiveScheduleResult
+    selected_policy: str
     runtime_ms: float
 
 
@@ -133,52 +152,145 @@ def schedule_barrier_policy(
     return _result(model, actions)
 
 
-def schedule_barrier_safeguarded(
+def offline_best_of_lt_and_barrier(
     dag: BenchmarkDAG,
     *,
     mode: str = "tail_barrier",
     trigger: str = "barrier_or_unlock",
     max_rollouts: int | None = None,
-) -> PreemptiveScheduleResult:
-    """Run a triggered barrier candidate and protect the LT incumbent.
-
-    Longest-tail is the incumbent and is returned whenever the complete
-    candidate run is not strictly better.  ``trigger`` limits barrier scoring
-    to residual barrier/unlock states; ``max_rollouts`` is retained as an
-    explicit budget option for callers and currently permits zero candidate
-    evaluation as a conservative mode.  Both schedules use public simulator
-    transitions; no second event model is introduced.
-
-    This is deliberately a protected candidate policy, not a claim that the
-    barrier score dominates longest-tail.  A final whole-schedule comparison
-    is retained because a locally better LT suffix is not a global proof.
-    """
+) -> OfflineBarrierUpperBound:
+    """Return the offline best of two full schedules, never an online result."""
 
     if mode not in {"barrier_only", "tail_barrier", "tail_unlock_barrier"}:
         raise ValueError(f"unsupported safeguarded barrier mode: {mode}")
     if trigger not in {"barrier_only", "barrier_or_unlock"}:
         raise ValueError(f"unsupported barrier trigger: {trigger}")
-    if max_rollouts is not None and max_rollouts < 0:
-        raise ValueError("max_rollouts must be non-negative or None")
+    if max_rollouts is not None and max_rollouts <= 0:
+        raise ValueError("offline comparison always requires two complete schedules")
 
     validate_complex_chain(dag)
+    started = perf_counter()
     baseline = schedule_longest_tail(dag)
-    if max_rollouts == 0:
-        candidate_result = baseline
-    else:
-        candidate_result = schedule_barrier_policy(dag, mode, trigger=trigger)
-    fallback_reasons: list[str] = []
+    candidate_result = schedule_barrier_policy(dag, mode, trigger=trigger)
     if candidate_result.makespan < baseline.makespan:
-        return replace(
-            candidate_result,
-            fallback_count=0,
-            fallback_reasons=tuple(fallback_reasons),
-        )
-    fallback_reasons.append("complete_candidate_not_better_than_longest_tail")
+        selected = "barrier_candidate"
+    else:
+        selected = "longest_tail"
+    return OfflineBarrierUpperBound(
+        online=False,
+        full_schedule_runs=2,
+        baseline=baseline,
+        candidate=candidate_result,
+        selected_policy=selected,
+        runtime_ms=(perf_counter() - started) * 1000,
+    )
+
+
+def schedule_barrier_margin_tiebreak(
+    dag: BenchmarkDAG,
+    *,
+    max_normalized_margin: float = 0.25,
+) -> PreemptiveScheduleResult:
+    """Online LT enhancement with a frozen, bounded barrier tie-break.
+
+    Longest Tail remains available at every state. A barrier challenger is
+    eligible only when its residual exclusive-tail distance from LT is within
+    ``max_normalized_margin``. The rule is lexicographic: direct last-missing
+    joins, then genuine newly-ready compute, then the stable task ID.
+    """
+
+    if max_normalized_margin < 0:
+        raise ValueError("max_normalized_margin must be non-negative")
+    validate_complex_chain(dag)
+    model = PreemptiveDAGModel(dag)
+    state = model.initial_state()
+    actions: list[Action] = []
+    audits: list[str] = []
+    decisions = triggered = improvements = 0
+    while not model.is_finished(state):
+        eligible = model.eligible_communications(state)
+        if not eligible:
+            action = Action.wait()
+        else:
+            decisions += 1
+            baseline = _baseline_choice(model, state, "longest_tail")
+            context = build_context(model, state, roots=eligible)
+            snapshots = {item: online_barrier_inputs(context, item) for item in eligible}
+            baseline_tail = snapshots[baseline].exclusive_tail
+            eligible_challengers = [
+                item
+                for item in eligible
+                if (baseline_tail - snapshots[item].exclusive_tail) / max(baseline_tail, 1)
+                <= max_normalized_margin
+                and (snapshots[item].direct_last_missing_join_count > 0 or snapshots[item].newly_ready_compute_work > 0)
+            ]
+            selected = baseline
+            if eligible_challengers:
+                challenger = min(
+                    eligible_challengers,
+                    key=lambda item: (
+                        -snapshots[item].direct_last_missing_join_count,
+                        -snapshots[item].newly_ready_compute_work,
+                        -snapshots[item].downstream_join_tail,
+                        item,
+                    ),
+                )
+                margin = (baseline_tail - snapshots[challenger].exclusive_tail) / max(baseline_tail, 1)
+                triggered += challenger != baseline
+                selected = challenger
+                improvements += challenger != baseline
+                audits.append(
+                    f"baseline={baseline};selected={selected};margin={margin:.6f};"
+                    f"last_missing={snapshots[challenger].direct_last_missing_join_count};"
+                    f"new_ready={snapshots[challenger].newly_ready_compute_work}"
+                )
+            action = Action.run(selected)
+        actions.append(action)
+        state = model.step(state, action).after
+    result = _result(model, actions)
     return replace(
-        baseline,
-        fallback_count=1,
-        fallback_reasons=tuple(fallback_reasons),
+        result,
+        planner_decisions=decisions,
+        planner_triggered=triggered,
+        planner_improvements=improvements,
+        fallback_details=tuple(audits),
+    )
+
+
+def schedule_barrier_prescreen(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
+    """Run the currently safe direct-barrier prefilter before residual LT.
+
+    Direct-only analysis cannot prove a candidate has no indirect barrier
+    effect, so the filter deliberately retains every eligible candidate and
+    records that no rejection occurred.  The returned trace must equal LT.
+    """
+
+    validate_complex_chain(dag)
+    model = PreemptiveDAGModel(dag)
+    state = model.initial_state()
+    actions: list[Action] = []
+    audits: list[str] = []
+    started = perf_counter()
+    while not model.is_finished(state):
+        eligible = model.eligible_communications(state)
+        if not eligible:
+            action = Action.wait()
+        else:
+            baseline = _baseline_choice(model, state, "longest_tail")
+            retained = safe_barrier_prescreen(
+                build_context(model, state, roots=eligible), eligible, baseline
+            )
+            if baseline not in retained or tuple(retained) != tuple(eligible):
+                raise AssertionError("direct-barrier prescreen may not silently alter LT")
+            audits.append(f"before={len(eligible)};after={len(retained)};rejected=0")
+            action = Action.run(baseline)
+        actions.append(action)
+        state = model.step(state, action).after
+    return replace(
+        _result(model, actions),
+        runtime_ms=(perf_counter() - started) * 1000,
+        planner_decisions=len(audits),
+        fallback_details=tuple(audits),
     )
 
 
@@ -301,6 +413,8 @@ def schedule_priority(
             tail = residual_tail(model, state, eligible)
             if priority == "fifo":
                 selected = min(eligible, key=lambda item: (first_eligible[item], item))
+            elif priority == "fixed_order":
+                selected = min(eligible)
             else:
                 selected = min(
                     eligible,
@@ -1057,6 +1171,8 @@ def _priority_key(
     exclusive_tail = tail[task_id] - remaining
     if priority == "spt":
         return (remaining, 0, task_id)
+    if priority == "fixed_order":
+        return (task_id,)
     if priority == "lpt":
         return (-remaining, 0, task_id)
     if priority == "longest_delay":
