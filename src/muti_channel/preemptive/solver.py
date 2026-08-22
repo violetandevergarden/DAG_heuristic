@@ -70,6 +70,12 @@ class MultiResult:
     fallback_reasons: tuple[tuple[str, int], ...] = ()
     selector: str | None = None
     max_completion_calls_per_decision: int = 0
+    trigger_positives: int = 0
+    completed_rollout_evaluations: int = 0
+    budget_rejected_triggers: int = 0
+    max_actual_depth: int = 0
+    trigger_reason_counts: tuple[tuple[str, int], ...] = ()
+    fallback_details: tuple[str, ...] = ()
 
 
 @dataclass

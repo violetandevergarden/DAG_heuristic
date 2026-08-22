@@ -11,6 +11,7 @@ import random
 from collections.abc import Callable
 from dataclasses import dataclass, replace
 from time import perf_counter
+from typing import Literal
 
 from core.dag import BenchmarkDAG, topological_order
 from core.execution.preemptive import (
@@ -42,6 +43,19 @@ class _SearchStats:
     expanded_nodes: int = 0
     evaluated_candidates: int = 0
     fallback_count: int = 0
+
+
+@dataclass(frozen=True)
+class ExactSuffixResult:
+    """Audit result for an arbitrary public simulator state."""
+
+    makespan: int
+    actions: tuple[Action, ...]
+    status: Literal["feasible", "optimal"]
+    termination_reason: str
+    explored_states: int
+    generated_transitions: int
+    runtime_ms: float
 
 
 class _BudgetExceeded(RuntimeError):
@@ -688,6 +702,79 @@ def exact_oracle_uncompressed(
         use_memo=use_memo,
         use_incumbent=use_incumbent,
     )
+
+
+def exact_completion_from_state_uncompressed(
+    model: PreemptiveDAGModel,
+    state: ScheduleState,
+    *,
+    max_states: int = 100_000,
+    time_limit_s: float | None = 5.0,
+) -> ExactSuffixResult:
+    """Exact suffix from an arbitrary state, retaining the full audit key.
+
+    The result intentionally has no initial-state trace. It is used to label
+    legal first actions at small decision states and never substitutes for the
+    whole-DAG Exact oracle.
+    """
+
+    if max_states < 1:
+        raise ValueError("max_states must be positive")
+    started = perf_counter()
+    stats = _SearchStats()
+    baseline_actions = _complete_actions(model, state, "longest_tail")
+    baseline_end = _apply_actions(model, state, baseline_actions)
+    memo: dict[StateKey, tuple[int, tuple[Action, ...]]] = {}
+
+    def check_budget() -> None:
+        if stats.explored >= max_states:
+            raise _BudgetExceeded("state_limit")
+        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
+            raise _BudgetExceeded("time_limit")
+
+    def search(current: ScheduleState) -> tuple[int, tuple[Action, ...]]:
+        key = audit_state_key(current)
+        cached = memo.get(key)
+        if cached is not None:
+            stats.duplicates += 1
+            return cached
+        check_budget()
+        stats.explored += 1
+        if model.is_finished(current):
+            memo[key] = (0, ())
+            return memo[key]
+        completion = _complete_actions(model, current, "longest_tail")
+        best_cost = _apply_actions(model, current, completion).time - current.time
+        best_actions = completion
+        for action in model.legal_actions(current):
+            check_budget()
+            after = model.step(current, action).after
+            stats.generated += 1
+            elapsed = after.time - current.time
+            if elapsed + remaining_lower_bound(model, after) > best_cost:
+                stats.lower_bound_prunes += 1
+                continue
+            suffix_cost, suffix = search(after)
+            candidate_cost = elapsed + suffix_cost
+            candidate_actions = (action, *suffix)
+            if (candidate_cost, _action_key(candidate_actions)) < (
+                best_cost, _action_key(best_actions)
+            ):
+                best_cost, best_actions = candidate_cost, candidate_actions
+        memo[key] = (best_cost, best_actions)
+        return memo[key]
+
+    try:
+        cost, actions = search(state)
+        return ExactSuffixResult(
+            state.time + cost, actions, "optimal", "complete_enumeration",
+            stats.explored, stats.generated, (perf_counter() - started) * 1000,
+        )
+    except _BudgetExceeded as error:
+        return ExactSuffixResult(
+            baseline_end.time, baseline_actions, "feasible", error.reason,
+            stats.explored, stats.generated, (perf_counter() - started) * 1000,
+        )
 
 
 def monte_carlo(
