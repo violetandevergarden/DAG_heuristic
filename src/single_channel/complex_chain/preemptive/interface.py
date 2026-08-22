@@ -36,6 +36,14 @@ def solve(
         ),
         "structure_aware": lambda item: solver.schedule_priority(item, "structure_aware"),
         "longest_tail": solver.schedule_longest_tail,
+        "integrated_v0": lambda item: __import__(
+            "llm_structured.integrated", fromlist=["schedule_single"]
+        ).schedule_single(
+            item,
+            __import__(
+                "llm_structured.integrated", fromlist=["integrated_v0"]
+            ).integrated_v0("single"),
+        ).schedule,
         "barrier_prescreen": solver.schedule_barrier_prescreen,
         "barrier_only": lambda item: solver.schedule_barrier_policy(
             item, "barrier_only"

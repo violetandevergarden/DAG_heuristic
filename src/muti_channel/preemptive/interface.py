@@ -7,6 +7,7 @@ from muti_channel.preemptive import solver
 
 ALGORITHM_NAMES = (
     "longest_tail_pack",
+    "integrated_v0",
     "resource_pack",
     "bottleneck_pack",
     "resource_downstream_pack",
@@ -26,6 +27,15 @@ def solve(
 ):
     algorithms = {
         "longest_tail_pack": solver.schedule_pack,
+        "integrated_v0": lambda item, values: __import__(
+            "llm_structured.integrated", fromlist=["schedule_multi"]
+        ).schedule_multi(
+            item,
+            values,
+            __import__(
+                "llm_structured.integrated", fromlist=["integrated_v0"]
+            ).integrated_v0("fixed_multi"),
+        ).schedule,
         "resource_pack": lambda item, values: solver.schedule_pack(
             item, values, "resource_tail"
         ),

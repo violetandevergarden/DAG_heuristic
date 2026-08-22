@@ -235,6 +235,13 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     lambda b: multi_interface.solve(*convert_multi(b), "bottleneck_pack"),
                     "Research baseline: bottleneck-load-first packing; not a deployment candidate.",
                 ),
+                "integrated_v0": Algorithm(
+                    "integrated_v0",
+                    "muti_channel",
+                    benchmark.family,
+                    lambda b: multi_interface.solve(*convert_multi(b), "integrated_v0"),
+                    "Frozen Stage 4g baseline: residual-LT greedy maximal packing.",
+                ),
                 "resource_downstream_pack": Algorithm(
                     "resource_downstream_pack",
                     "muti_channel",
@@ -448,6 +455,16 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 benchmark.family,
                 lambda b: solver.schedule_longest_tail(to_internal_dag(b)),
                 "Event-driven residual longest-tail with communication pause/resume.",
+            ),
+            "integrated_v0": Algorithm(
+                "integrated_v0",
+                "single_channel",
+                benchmark.family,
+                lambda b: __import__(
+                    "single_channel.complex_chain.preemptive.interface",
+                    fromlist=["solve"],
+                ).solve(convert(b), "integrated_v0"),
+                "Frozen Stage 4g baseline: online residual Longest Tail.",
             ),
             "join_aware": Algorithm(
                 "join_aware",
