@@ -1,0 +1,2407 @@
+{
+  "schema": "stage4h-local-frontier-v1",
+  "frozen_config": {
+    "name": "stage4h_frozen_risk_v1",
+    "version": "stage4h-v1",
+    "max_candidates": 2,
+    "decision_depth": 8,
+    "max_local_nodes": 128,
+    "max_expansions": 256,
+    "per_decision_time_limit_s": 0.02,
+    "total_time_limit_s": 10,
+    "max_graph_tasks": 1000,
+    "adoption_mode": "risk_controlled",
+    "min_proxy_gain": 1,
+    "max_normalized_tail_margin": 1.0
+  },
+  "manifest_counts": {
+    "development": 36,
+    "calibration": 20,
+    "validation": 18
+  },
+  "development": [
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_longest_tail_counterexample.json",
+      "input_hash": "7e00734c8b2a0f6241b409f1751d5ddc8d03a6e6306bdb6ee0a33a030a0217fa",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "7e",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 1.897399895824492,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain1_flow0"
+        ],
+        "lt_wrong": true,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_14.json",
+      "input_hash": "96435de91130fda2ed7a5e3d247e01f698208b9a544a0fd875a3326a8f0378cc",
+      "category": "adversarial",
+      "task_count": 12,
+      "resource_mode": "single",
+      "split_key": "96",
+      "lt_makespan": 21,
+      "frontier_makespan": 21,
+      "gain": 0,
+      "wall_ms": 1.9630000460892916,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 10,
+        "region_ratio": 0.8333333333333334,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_60.json",
+      "input_hash": "45f7d3c8243e369b1463deaedfee1f9a9d91064492adac06816393967cec9225",
+      "category": "adversarial",
+      "task_count": 14,
+      "resource_mode": "single",
+      "split_key": "45",
+      "lt_makespan": 15,
+      "frontier_makespan": 15,
+      "gain": 0,
+      "wall_ms": 3.4188999561592937,
+      "evaluations": 5,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 0.42857142857142855,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_70.json",
+      "input_hash": "a87aa0cdde2199e3284e01609281bd3da71f6f9a04194a032be1c86be83453ac",
+      "category": "adversarial",
+      "task_count": 16,
+      "resource_mode": "single",
+      "split_key": "a8",
+      "lt_makespan": 18,
+      "frontier_makespan": 18,
+      "gain": 0,
+      "wall_ms": 4.817100008949637,
+      "evaluations": 4,
+      "complete_evaluations": 0,
+      "changed_actions": 0,
+      "fallback_count": 4,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain1_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain1_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.5,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -3
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_scaled_five_four_s4.json",
+      "input_hash": "48a029f6ea19b30a7eb8c8d8abe7ed8d6083e69fc920df465ef76c267367c8cd",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "48",
+      "lt_makespan": 40,
+      "frontier_makespan": 40,
+      "gain": 0,
+      "wall_ms": 1.4687000075355172,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain1_flow0"
+        ],
+        "lt_wrong": true,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 7
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_1.json",
+      "input_hash": "096f6dd53388152af3e7a4b7083c84b321476dac54c0b5e5a5f67f545ea3cc49",
+      "category": "random",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "09",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 1.5217000618577003,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -2
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_2.json",
+      "input_hash": "57fe0214d5786fa88212f316e71c235a2effb7a7ebb408e43db4c66811153f11",
+      "category": "random",
+      "task_count": 22,
+      "resource_mode": "single",
+      "split_key": "57",
+      "lt_makespan": 25,
+      "frontier_makespan": 25,
+      "gain": 0,
+      "wall_ms": 7.938800030387938,
+      "evaluations": 10,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 9,
+      "region_p95_nodes": 12,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            26,
+            "optimal"
+          ],
+          [
+            "chain1_flow0",
+            25,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            25,
+            "feasible"
+          ],
+          [
+            "chain3_flow0",
+            25,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_5.json",
+      "input_hash": "c66376f5709ec77231c36f356549a4c61c244094d35d97b8748ee88893ec31dd",
+      "category": "random",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "c6",
+      "lt_makespan": 23,
+      "frontier_makespan": 23,
+      "gain": 0,
+      "wall_ms": 1.4721000334247947,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -2
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_6.json",
+      "input_hash": "1e1bbfde9413a8aadce6f858838e74e9bd29ceec7610b1a26508fe3d53f0c756",
+      "category": "random",
+      "task_count": 29,
+      "resource_mode": "single",
+      "split_key": "1e",
+      "lt_makespan": 33,
+      "frontier_makespan": 33,
+      "gain": 0,
+      "wall_ms": 14.652100042439997,
+      "evaluations": 17,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 16,
+      "region_p95_nodes": 16,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            33,
+            "feasible"
+          ],
+          [
+            "chain1_flow0",
+            33,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            33,
+            "feasible"
+          ],
+          [
+            "chain3_flow0",
+            33,
+            "feasible"
+          ],
+          [
+            "chain4_flow0",
+            33,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/real/pm_structured_channel_bound.json",
+      "input_hash": "ab44d3558ba9c027bde4cb13b035a50808416379369938614ab14578408ecc86",
+      "category": "real",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "ab",
+      "lt_makespan": 30,
+      "frontier_makespan": 30,
+      "gain": 0,
+      "wall_ms": 4.904499975964427,
+      "evaluations": 8,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 5,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain2_flow0",
+        "optimal_actions": [
+          "chain0_flow0",
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 0.46153846153846156,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/real/pm_structured_compute_bound.json",
+      "input_hash": "1b482d0b1c63f429c3be1acda59ac8f4789aa85bb33a4cafdc307bc2aaa85b97",
+      "category": "real",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "1b",
+      "lt_makespan": 18,
+      "frontier_makespan": 18,
+      "gain": 0,
+      "wall_ms": 1.3063999358564615,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 4,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_deferred_w_competition.json",
+      "input_hash": "0063fbe28a15700f5668b2fc9b4374a714798550fb7f2bcaf8e614ebd21d4993",
+      "category": "adversarial",
+      "task_count": 9,
+      "resource_mode": "single",
+      "split_key": "00",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 1.245400053448975,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 5,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_join_false_critical.json",
+      "input_hash": "e1c8c8de84fb459c5f16ddd9b2767470b598edb32e7a7bbd442ff4982f9cd81d",
+      "category": "adversarial",
+      "task_count": 5,
+      "resource_mode": "single",
+      "split_key": "e1",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 0.77479996252805,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 4,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "a_flow",
+        "challenger": "b_flow",
+        "optimal_actions": [
+          "a_flow"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "a_flow",
+        "region_nodes": 4,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -3
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_last_blocker_overboost.json",
+      "input_hash": "1e9dfa568ce05ce302fab30db5e2a6cd399458727f3ce5fbfeb9ba54a2e2a1cc",
+      "category": "adversarial",
+      "task_count": 15,
+      "resource_mode": "single",
+      "split_key": "1e",
+      "lt_makespan": 20,
+      "frontier_makespan": 20,
+      "gain": 0,
+      "wall_ms": 3.6425000289455056,
+      "evaluations": 4,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 11,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_longest_tail_counterexample.json",
+      "input_hash": "096b5235e5f58b62f7e02a9ceb2ca5ae480f23d13df27750a15aef9dac836c7c",
+      "category": "adversarial",
+      "task_count": 8,
+      "resource_mode": "single",
+      "split_key": "09",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 1.572999986819923,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c0_flow0",
+        "challenger": "c1_flow0",
+        "optimal_actions": [
+          "c1_flow0"
+        ],
+        "lt_wrong": true,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "c1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_lrpt_double_count.json",
+      "input_hash": "54638da31774fd076e330e9165320abd6decabcbd36f44fa2fd21aca976c1574",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "54",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 2.6558999670669436,
+      "evaluations": 3,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c0_flow0",
+        "challenger": "c1_flow0",
+        "optimal_actions": [
+          "c0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "c0_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_random_join_30.json",
+      "input_hash": "b4430e8a25f110d4f0306c8812228ab95d6f85ba8821f736ef482924714e8ea4",
+      "category": "adversarial",
+      "task_count": 11,
+      "resource_mode": "single",
+      "split_key": "b4",
+      "lt_makespan": 24,
+      "frontier_makespan": 24,
+      "gain": 0,
+      "wall_ms": 1.731499913148582,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_random_join_40.json",
+      "input_hash": "c0a90ae527ad7a09a21503feb5cc77fc32774b56b2c1f8b6eebfa5bc42a75e7d",
+      "category": "adversarial",
+      "task_count": 18,
+      "resource_mode": "single",
+      "split_key": "c0",
+      "lt_makespan": 22,
+      "frontier_makespan": 22,
+      "gain": 0,
+      "wall_ms": 5.413000006228685,
+      "evaluations": 6,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 4,
+      "region_p95_nodes": 14,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_random_join_60.json",
+      "input_hash": "ead51c21a2fd0bc4e2c6e97db67d6f146e441e875e4052bf38606890b2283b32",
+      "category": "adversarial",
+      "task_count": 18,
+      "resource_mode": "single",
+      "split_key": "ea",
+      "lt_makespan": 24,
+      "frontier_makespan": 24,
+      "gain": 0,
+      "wall_ms": 4.7599999234080315,
+      "evaluations": 6,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 4,
+      "region_p95_nodes": 13,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_stage2_rollout_depth.json",
+      "input_hash": "3ce1f5b17b92f389836d21f169801b3500bef25c5207646bd997952c5fce7595",
+      "category": "adversarial",
+      "task_count": 9,
+      "resource_mode": "single",
+      "split_key": "3c",
+      "lt_makespan": 23,
+      "frontier_makespan": 23,
+      "gain": 0,
+      "wall_ms": 2.1821000846102834,
+      "evaluations": 3,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "l0_n0",
+        "challenger": "l0_n2",
+        "optimal_actions": [
+          "l0_n2"
+        ],
+        "lt_wrong": true,
+        "candidate_recall": true,
+        "evaluator_correct": false,
+        "suggested": "l0_n0",
+        "region_nodes": 8,
+        "region_ratio": 0.8888888888888888,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_001.json",
+      "input_hash": "a8adc6953bb6f81c52b2579a32340d672fec560541ad39664e9b037289c95a8e",
+      "category": "random",
+      "task_count": 22,
+      "resource_mode": "single",
+      "split_key": "a8",
+      "lt_makespan": 29,
+      "frontier_makespan": 29,
+      "gain": 0,
+      "wall_ms": 7.993999985046685,
+      "evaluations": 10,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 7,
+      "region_p95_nodes": 14,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_002.json",
+      "input_hash": "2411719ae009d54d4063f70d222d6d8d1689d0615afa7f359316d4065ba6c962",
+      "category": "random",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "24",
+      "lt_makespan": 21,
+      "frontier_makespan": 21,
+      "gain": 0,
+      "wall_ms": 1.2530999956652522,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_003.json",
+      "input_hash": "30e94b40272bc640b25b30e2256776f5a4d1e54f64ca8bfc03fbc34fb6770430",
+      "category": "random",
+      "task_count": 15,
+      "resource_mode": "single",
+      "split_key": "30",
+      "lt_makespan": 21,
+      "frontier_makespan": 21,
+      "gain": 0,
+      "wall_ms": 3.1952999997884035,
+      "evaluations": 4,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 11,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c2_0",
+        "challenger": "c1_0",
+        "optimal_actions": [
+          "c1_0"
+        ],
+        "lt_wrong": true,
+        "candidate_recall": true,
+        "evaluator_correct": false,
+        "suggested": "c2_0",
+        "region_nodes": 11,
+        "region_ratio": 0.7333333333333333,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_004.json",
+      "input_hash": "f681bbd4c562a1f84721423d437f1b4dd4cbad10ec278015c99363d0296aa4d4",
+      "category": "random",
+      "task_count": 16,
+      "resource_mode": "single",
+      "split_key": "f6",
+      "lt_makespan": 25,
+      "frontier_makespan": 25,
+      "gain": 0,
+      "wall_ms": 2.9448000714182854,
+      "evaluations": 3,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_005.json",
+      "input_hash": "f92422e9e61d888c3d827531d7366391149f6626503d2c8069c9af5d62fcd565",
+      "category": "random",
+      "task_count": 11,
+      "resource_mode": "single",
+      "split_key": "f9",
+      "lt_makespan": 20,
+      "frontier_makespan": 20,
+      "gain": 0,
+      "wall_ms": 1.9148999126628041,
+      "evaluations": 2,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_006.json",
+      "input_hash": "ed76552f211a205b146f2c01916b69e72ec9b6921093f8f6644b9367510995e7",
+      "category": "random",
+      "task_count": 14,
+      "resource_mode": "single",
+      "split_key": "ed",
+      "lt_makespan": 19,
+      "frontier_makespan": 19,
+      "gain": 0,
+      "wall_ms": 3.4757000394165516,
+      "evaluations": 5,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_007.json",
+      "input_hash": "e1e933a9b8e23159eee353b5ea3b888a13fb87a956113c61e77d99f8d8ee33e5",
+      "category": "random",
+      "task_count": 9,
+      "resource_mode": "single",
+      "split_key": "e1",
+      "lt_makespan": 17,
+      "frontier_makespan": 17,
+      "gain": 0,
+      "wall_ms": 1.2622000649571419,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 3,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_000.json",
+      "input_hash": "459d6993b87f624548ba3c1ee213c970bcf801256f5dd674b3454e6a1953bfdc",
+      "category": "random",
+      "task_count": 11,
+      "resource_mode": "single",
+      "split_key": "45",
+      "lt_makespan": 27,
+      "frontier_makespan": 27,
+      "gain": 0,
+      "wall_ms": 4.718299955129623,
+      "evaluations": 8,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 5,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "l0_n0",
+        "challenger": "l0_n1",
+        "optimal_actions": [
+          "l0_n0",
+          "l0_n1"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "l0_n0",
+        "region_nodes": 10,
+        "region_ratio": 0.9090909090909091,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_001.json",
+      "input_hash": "f008238f7d83add0aaca1e19504c9428a9e35f51561854bd738543cdaddc8ca8",
+      "category": "random",
+      "task_count": 17,
+      "resource_mode": "single",
+      "split_key": "f0",
+      "lt_makespan": 33,
+      "frontier_makespan": 33,
+      "gain": 0,
+      "wall_ms": 13.705400051549077,
+      "evaluations": 11,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 8,
+      "region_p95_nodes": 17,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "l0_n1",
+            33,
+            "feasible"
+          ],
+          [
+            "l0_n2",
+            35,
+            "optimal"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_002.json",
+      "input_hash": "84ddd0e30b45bfe7bd1d5bd9c57077b876ae3fb341e27a7be324741c8455b405",
+      "category": "random",
+      "task_count": 15,
+      "resource_mode": "single",
+      "split_key": "84",
+      "lt_makespan": 26,
+      "frontier_makespan": 26,
+      "gain": 0,
+      "wall_ms": 4.05970006249845,
+      "evaluations": 5,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 4,
+      "region_p95_nodes": 11,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_003.json",
+      "input_hash": "8ab43f0c28bcf81fd1f9ab940d437f2e57340e357ea6f89e3fbbe67c4d81918b",
+      "category": "random",
+      "task_count": 12,
+      "resource_mode": "single",
+      "split_key": "8a",
+      "lt_makespan": 13,
+      "frontier_makespan": 13,
+      "gain": 0,
+      "wall_ms": 1.6683000139892101,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_004.json",
+      "input_hash": "3f6faa60050ef02ed506ade4ab20eb3b86401754eac180ac12a20fc5a5572d7b",
+      "category": "random",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "3f",
+      "lt_makespan": 20,
+      "frontier_makespan": 20,
+      "gain": 0,
+      "wall_ms": 1.7294000135734677,
+      "evaluations": 1,
+      "complete_evaluations": 0,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 11,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_008.json",
+      "input_hash": "1ec5c87987d165f0aa50aecca41d85d5305d686ced39cf026775903c0db9bfbe",
+      "category": "random",
+      "task_count": 14,
+      "resource_mode": "single",
+      "split_key": "1e",
+      "lt_makespan": 23,
+      "frontier_makespan": 23,
+      "gain": 0,
+      "wall_ms": 3.075700020417571,
+      "evaluations": 4,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_009.json",
+      "input_hash": "ed9cbf761cf337d3c1f90e6ff9d2e188967a1b6753d84d316dbdaced449e9e6c",
+      "category": "random",
+      "task_count": 11,
+      "resource_mode": "single",
+      "split_key": "ed",
+      "lt_makespan": 27,
+      "frontier_makespan": 27,
+      "gain": 0,
+      "wall_ms": 3.1675000209361315,
+      "evaluations": 6,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 5,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "l0_n0",
+        "challenger": "l0_n1",
+        "optimal_actions": [
+          "l0_n0",
+          "l0_n1"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "l0_n0",
+        "region_nodes": 5,
+        "region_ratio": 0.45454545454545453,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/real/pm_tp_collective_plus_pp.json",
+      "input_hash": "bd9dd69bd93754bcda6e143b34700685cfff66045c2b09038034e02f64d812c6",
+      "category": "real",
+      "task_count": 7,
+      "resource_mode": "single",
+      "split_key": "bd",
+      "lt_makespan": 11,
+      "frontier_makespan": 11,
+      "gain": 0,
+      "wall_ms": 1.3534999452531338,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 4,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/real/pm_zb_bw_fork.json",
+      "input_hash": "1b67c6b81b7f5645c4be497fd881653b115d29c93d0dcaca1b2341a70744895a",
+      "category": "real",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "1b",
+      "lt_makespan": 13,
+      "frontier_makespan": 13,
+      "gain": 0,
+      "wall_ms": 0.9692000458016992,
+      "evaluations": 0,
+      "complete_evaluations": 0,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 0,
+      "root_label": {
+        "status": "no_choice"
+      }
+    }
+  ],
+  "development_summary": {
+    "cases": 36,
+    "exact_known_roots": 15,
+    "lt_wrong_roots": 5,
+    "candidate_recall_on_lt_wrong": 1.0,
+    "evaluator_accuracy_on_complete_lt_wrong": null,
+    "complete_lt_wrong_evaluations": 0,
+    "region_ratio_p95": 1.0,
+    "wins": 0,
+    "ties": 36,
+    "losses": 0,
+    "total_gain": 0,
+    "median_gain": 0.0,
+    "max_regression": 0
+  },
+  "development_quality_curves": [
+    {
+      "config": {
+        "name": "local_frontier_tiny_risk_controlled",
+        "version": "stage4h-v1",
+        "max_candidates": 2,
+        "decision_depth": 2,
+        "max_local_nodes": 32,
+        "max_expansions": 32,
+        "per_decision_time_limit_s": 0.002,
+        "total_time_limit_s": 0.5,
+        "max_graph_tasks": 1000,
+        "adoption_mode": "risk_controlled",
+        "min_proxy_gain": 1,
+        "max_normalized_tail_margin": 1.0
+      },
+      "summary": {
+        "cases": 36,
+        "exact_known_roots": 15,
+        "lt_wrong_roots": 5,
+        "candidate_recall_on_lt_wrong": 1.0,
+        "evaluator_accuracy_on_complete_lt_wrong": null,
+        "complete_lt_wrong_evaluations": 0,
+        "region_ratio_p95": 1.0,
+        "wins": 0,
+        "ties": 36,
+        "losses": 0,
+        "total_gain": 0,
+        "median_gain": 0.0,
+        "max_regression": 0
+      }
+    },
+    {
+      "config": {
+        "name": "local_frontier_small_risk_controlled",
+        "version": "stage4h-v1",
+        "max_candidates": 2,
+        "decision_depth": 4,
+        "max_local_nodes": 64,
+        "max_expansions": 96,
+        "per_decision_time_limit_s": 0.005,
+        "total_time_limit_s": 2,
+        "max_graph_tasks": 1000,
+        "adoption_mode": "risk_controlled",
+        "min_proxy_gain": 1,
+        "max_normalized_tail_margin": 1.0
+      },
+      "summary": {
+        "cases": 36,
+        "exact_known_roots": 15,
+        "lt_wrong_roots": 5,
+        "candidate_recall_on_lt_wrong": 1.0,
+        "evaluator_accuracy_on_complete_lt_wrong": null,
+        "complete_lt_wrong_evaluations": 0,
+        "region_ratio_p95": 1.0,
+        "wins": 1,
+        "ties": 35,
+        "losses": 0,
+        "total_gain": 2,
+        "median_gain": 0.0,
+        "max_regression": 0
+      }
+    },
+    {
+      "config": {
+        "name": "local_frontier_medium_risk_controlled",
+        "version": "stage4h-v1",
+        "max_candidates": 2,
+        "decision_depth": 8,
+        "max_local_nodes": 128,
+        "max_expansions": 256,
+        "per_decision_time_limit_s": 0.02,
+        "total_time_limit_s": 10.0,
+        "max_graph_tasks": 1000,
+        "adoption_mode": "risk_controlled",
+        "min_proxy_gain": 1,
+        "max_normalized_tail_margin": 1.0
+      },
+      "summary": {
+        "cases": 36,
+        "exact_known_roots": 15,
+        "lt_wrong_roots": 5,
+        "candidate_recall_on_lt_wrong": 1.0,
+        "evaluator_accuracy_on_complete_lt_wrong": 0.8,
+        "complete_lt_wrong_evaluations": 5,
+        "region_ratio_p95": 1.0,
+        "wins": 9,
+        "ties": 27,
+        "losses": 0,
+        "total_gain": 16,
+        "median_gain": 0.0,
+        "max_regression": 0
+      }
+    }
+  ],
+  "calibration": [
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_52.json",
+      "input_hash": "108f2e705c011787800e8c672432d97ea7275bdc422c9e615a255d73184f1b45",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "10",
+      "lt_makespan": 20,
+      "frontier_makespan": 20,
+      "gain": 0,
+      "wall_ms": 1.868500025011599,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain1_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain1_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -4
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_77.json",
+      "input_hash": "85a710b1ca04a51cef05b4d3563ccfe12ce394481de60b412a5dfcda280b5fa2",
+      "category": "adversarial",
+      "task_count": 17,
+      "resource_mode": "single",
+      "split_key": "85",
+      "lt_makespan": 26,
+      "frontier_makespan": 26,
+      "gain": 0,
+      "wall_ms": 7.928399951197207,
+      "evaluations": 8,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 12,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain1_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain0_flow0",
+          "chain1_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 12,
+        "region_ratio": 0.7058823529411765,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_86.json",
+      "input_hash": "64cddbe2b25c5a7a450be244f2b68107b6924d9d2e671253a9231f26d9975570",
+      "category": "adversarial",
+      "task_count": 22,
+      "resource_mode": "single",
+      "split_key": "64",
+      "lt_makespan": 23,
+      "frontier_makespan": 23,
+      "gain": 0,
+      "wall_ms": 11.16690004710108,
+      "evaluations": 10,
+      "complete_evaluations": 7,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 13,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            26,
+            "optimal"
+          ],
+          [
+            "chain1_flow0",
+            23,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            23,
+            "optimal"
+          ],
+          [
+            "chain3_flow0",
+            23,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_random_chain_98.json",
+      "input_hash": "645b82f2f9d0cdd18ccf1655e3d8829118622362c8abcb270e06b2ddef6a0f9c",
+      "category": "adversarial",
+      "task_count": 16,
+      "resource_mode": "single",
+      "split_key": "64",
+      "lt_makespan": 16,
+      "frontier_makespan": 16,
+      "gain": 0,
+      "wall_ms": 5.312499939464033,
+      "evaluations": 6,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain2_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain2_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.5,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_rollout_depth_counterexample.json",
+      "input_hash": "5bb2f80d01ead167775bef48d1e71141e9954fb52c8ee6a4eff3b05b67827938",
+      "category": "adversarial",
+      "task_count": 25,
+      "resource_mode": "single",
+      "split_key": "5b",
+      "lt_makespan": 49,
+      "frontier_makespan": 49,
+      "gain": 0,
+      "wall_ms": 10.344799957238138,
+      "evaluations": 8,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 6,
+      "region_p95_nodes": 21,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain2_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain1_flow0",
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": false,
+        "suggested": "chain0_flow0",
+        "region_nodes": 14,
+        "region_ratio": 0.56,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 2
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_4.json",
+      "input_hash": "2b6642c287f96d75a00378207b5351ecbc2bc6a1492888dbc4960784962f0e1f",
+      "category": "random",
+      "task_count": 20,
+      "resource_mode": "single",
+      "split_key": "2b",
+      "lt_makespan": 26,
+      "frontier_makespan": 26,
+      "gain": 0,
+      "wall_ms": 7.455699960701168,
+      "evaluations": 7,
+      "complete_evaluations": 5,
+      "changed_actions": 0,
+      "fallback_count": 2,
+      "region_p95_nodes": 13,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain2_flow0",
+        "challenger": "chain0_flow0",
+        "optimal_actions": [
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain2_flow0",
+        "region_nodes": 10,
+        "region_ratio": 0.5,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -2
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_7.json",
+      "input_hash": "3dd38451992646bb8b831a0e4174cae11bc93006d52720988783c2be4bcdb7e8",
+      "category": "random",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "3d",
+      "lt_makespan": 13,
+      "frontier_makespan": 13,
+      "gain": 0,
+      "wall_ms": 3.7101999623700976,
+      "evaluations": 5,
+      "complete_evaluations": 5,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain2_flow0",
+        "optimal_actions": [
+          "chain0_flow0",
+          "chain1_flow0",
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 0.46153846153846156,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_9.json",
+      "input_hash": "f4609a6035269675976c146382a44b5655be1f6ca72199e0b2b030d2ccf2a29b",
+      "category": "random",
+      "task_count": 25,
+      "resource_mode": "single",
+      "split_key": "f4",
+      "lt_makespan": 26,
+      "frontier_makespan": 26,
+      "gain": 0,
+      "wall_ms": 13.51369998883456,
+      "evaluations": 12,
+      "complete_evaluations": 8,
+      "changed_actions": 0,
+      "fallback_count": 4,
+      "region_p95_nodes": 14,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            27,
+            "feasible"
+          ],
+          [
+            "chain1_flow0",
+            27,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            27,
+            "feasible"
+          ],
+          [
+            "chain3_flow0",
+            29,
+            "optimal"
+          ],
+          [
+            "chain4_flow0",
+            26,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/real/pm_structured_symmetric.json",
+      "input_hash": "dc30f8c41f21fdb7170a433256ae67ea11560ee95e5610a24b6d8b4e5a439eea",
+      "category": "real",
+      "task_count": 15,
+      "resource_mode": "single",
+      "split_key": "dc",
+      "lt_makespan": 14,
+      "frontier_makespan": 14,
+      "gain": 0,
+      "wall_ms": 3.261299920268357,
+      "evaluations": 5,
+      "complete_evaluations": 5,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0",
+          "chain1_flow0",
+          "chain2_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.5333333333333333,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_combined_chain_14.json",
+      "input_hash": "257322a243eaf061d232fd2feb1cbdb0c59ddc48b74537350a75af99f51a7a67",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "25",
+      "lt_makespan": 21,
+      "frontier_makespan": 21,
+      "gain": 0,
+      "wall_ms": 2.0478999940678477,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c0_flow0",
+        "challenger": "c1_flow0",
+        "optimal_actions": [
+          "c0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "c0_flow0",
+        "region_nodes": 10,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_combined_chain_70.json",
+      "input_hash": "4c0e3692ab3a7bb6f846b6e52356c868e73e82f67c01407518f8c8136a752d9f",
+      "category": "adversarial",
+      "task_count": 12,
+      "resource_mode": "single",
+      "split_key": "4c",
+      "lt_makespan": 18,
+      "frontier_makespan": 18,
+      "gain": 0,
+      "wall_ms": 5.261800019070506,
+      "evaluations": 4,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c1_flow0",
+        "challenger": "c0_flow0",
+        "optimal_actions": [
+          "c1_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "c1_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.6666666666666666,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -3
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_combined_chain_86.json",
+      "input_hash": "a0040790945c8d733260931e1a92a13b5c2fe84fdd00dac08d30a47089bcb9b0",
+      "category": "adversarial",
+      "task_count": 18,
+      "resource_mode": "single",
+      "split_key": "a0",
+      "lt_makespan": 23,
+      "frontier_makespan": 23,
+      "gain": 0,
+      "wall_ms": 11.006099986843765,
+      "evaluations": 10,
+      "complete_evaluations": 7,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 13,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "c0_flow0",
+            26,
+            "optimal"
+          ],
+          [
+            "c1_flow0",
+            23,
+            "feasible"
+          ],
+          [
+            "c2_flow0",
+            23,
+            "optimal"
+          ],
+          [
+            "c3_flow0",
+            23,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_fork_multi_unlock.json",
+      "input_hash": "a3b82d5456f398a91f534367fd04dcb6874fc940c590dddcaaba4378e1d62768",
+      "category": "adversarial",
+      "task_count": 6,
+      "resource_mode": "single",
+      "split_key": "a3",
+      "lt_makespan": 8,
+      "frontier_makespan": 8,
+      "gain": 0,
+      "wall_ms": 1.0983999818563461,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "fork_flow",
+        "challenger": "large_side_flow",
+        "optimal_actions": [
+          "fork_flow"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "fork_flow",
+        "region_nodes": 6,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -5
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_large_flow_vs_long_tail.json",
+      "input_hash": "97a3c2edd78601addd650b25aedd2ed1f098e2aa81d02364fc79cacc7721b86d",
+      "category": "adversarial",
+      "task_count": 6,
+      "resource_mode": "single",
+      "split_key": "97",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 0.9911999804899096,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "c0_flow0",
+        "challenger": "c1_flow0",
+        "optimal_actions": [
+          "c0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "c0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -8
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_stage2_release_breadth.json",
+      "input_hash": "01cd057ef58171d4b8f46ea1c47877ba30404b3a395a8fa5bbf1e60b1177bcc1",
+      "category": "adversarial",
+      "task_count": 6,
+      "resource_mode": "single",
+      "split_key": "01",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 0.901999999769032,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "blocker",
+        "challenger": "release",
+        "optimal_actions": [
+          "blocker"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "blocker",
+        "region_nodes": 6,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_stage2_shared_downstream.json",
+      "input_hash": "f7fed174b6685a5b7ea4a25131ba5d3e2e39ef00c83ad9b495732ade16d65d52",
+      "category": "adversarial",
+      "task_count": 8,
+      "resource_mode": "single",
+      "split_key": "f7",
+      "lt_makespan": 15,
+      "frontier_makespan": 15,
+      "gain": 0,
+      "wall_ms": 0.9986999211832881,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 3,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/preemption_unlock.json",
+      "input_hash": "373ad52ddddf11715c2a7540708d93d9d7bda7a22475438342a32d1997280c6d",
+      "category": "adversarial",
+      "task_count": 4,
+      "resource_mode": "single",
+      "split_key": "37",
+      "lt_makespan": 15,
+      "frontier_makespan": 15,
+      "gain": 0,
+      "wall_ms": 0.6430000066757202,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 3,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_008.json",
+      "input_hash": "eb2658290fa35aa53c9c4d9c9f26b18ba27ce8ba355aa71897ff8701dad5e394",
+      "category": "random",
+      "task_count": 24,
+      "resource_mode": "single",
+      "split_key": "eb",
+      "lt_makespan": 27,
+      "frontier_makespan": 27,
+      "gain": 0,
+      "wall_ms": 13.987099984660745,
+      "evaluations": 11,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 5,
+      "region_p95_nodes": 16,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_005.json",
+      "input_hash": "0768d9b5d348b02bdb3cdf2c5ad67678767c0d47964c02c757b37e06640983af",
+      "category": "random",
+      "task_count": 22,
+      "resource_mode": "single",
+      "split_key": "07",
+      "lt_makespan": 37,
+      "frontier_makespan": 37,
+      "gain": 0,
+      "wall_ms": 19.35860002413392,
+      "evaluations": 15,
+      "complete_evaluations": 9,
+      "changed_actions": 0,
+      "fallback_count": 6,
+      "region_p95_nodes": 18,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_006.json",
+      "input_hash": "a0b573c2b21658ea14dd1d408c0851488da6d3bce762514f05199b43d3a644ce",
+      "category": "random",
+      "task_count": 11,
+      "resource_mode": "single",
+      "split_key": "a0",
+      "lt_makespan": 20,
+      "frontier_makespan": 20,
+      "gain": 0,
+      "wall_ms": 3.8998000090941787,
+      "evaluations": 6,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "no_choice"
+      }
+    }
+  ],
+  "calibration_summary": {
+    "cases": 20,
+    "exact_known_roots": 12,
+    "lt_wrong_roots": 0,
+    "candidate_recall_on_lt_wrong": null,
+    "evaluator_accuracy_on_complete_lt_wrong": null,
+    "complete_lt_wrong_evaluations": 0,
+    "region_ratio_p95": 1.0,
+    "wins": 0,
+    "ties": 20,
+    "losses": 0,
+    "total_gain": 0,
+    "median_gain": 0.0,
+    "max_regression": 0
+  },
+  "validation": [
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_fixed_beam_counterexample.json",
+      "input_hash": "b93ea1f2f23b8fe0df18674bc636d186a410969f90a76bac4715ce049db7fe76",
+      "category": "adversarial",
+      "task_count": 30,
+      "resource_mode": "single",
+      "split_key": "b9",
+      "lt_makespan": 44,
+      "frontier_makespan": 44,
+      "gain": 0,
+      "wall_ms": 25.570500059984624,
+      "evaluations": 16,
+      "complete_evaluations": 9,
+      "changed_actions": 0,
+      "fallback_count": 7,
+      "region_p95_nodes": 16,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            50,
+            "feasible"
+          ],
+          [
+            "chain1_flow0",
+            52,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            44,
+            "feasible"
+          ],
+          [
+            "chain3_flow0",
+            47,
+            "feasible"
+          ],
+          [
+            "chain4_flow0",
+            46,
+            "feasible"
+          ],
+          [
+            "chain5_flow0",
+            46,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_large_flow_vs_long_tail.json",
+      "input_hash": "74c059a0cabe0908a39b67606f90e16ef14a4c022287a245833b83d99bad3337",
+      "category": "adversarial",
+      "task_count": 8,
+      "resource_mode": "single",
+      "split_key": "74",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 1.0552998865023255,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 0.75,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -8
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_lrpt_double_count.json",
+      "input_hash": "c595110249de18304a26aa72babb8edceb847b16dc766809e271ecb00896deae",
+      "category": "adversarial",
+      "task_count": 13,
+      "resource_mode": "single",
+      "split_key": "c5",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 2.5755000533536077,
+      "evaluations": 3,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 8,
+        "region_ratio": 0.6153846153846154,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/adversarial/pm_tight_optional_wait_m20.json",
+      "input_hash": "924a9c349beb32c21d8c8f6ce134ef1856a0dbb0f0cd36b88fa18c8c7f995f27",
+      "category": "adversarial",
+      "task_count": 6,
+      "resource_mode": "single",
+      "split_key": "92",
+      "lt_makespan": 22,
+      "frontier_makespan": 22,
+      "gain": 0,
+      "wall_ms": 0.7585999555885792,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 4,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_0.json",
+      "input_hash": "95e6a074f821a70fd30667bb48ca0e7ab70b31f57765d68b1172af126e8cfbc5",
+      "category": "random",
+      "task_count": 24,
+      "resource_mode": "single",
+      "split_key": "95",
+      "lt_makespan": 29,
+      "frontier_makespan": 29,
+      "gain": 0,
+      "wall_ms": 14.38329997472465,
+      "evaluations": 13,
+      "complete_evaluations": 6,
+      "changed_actions": 0,
+      "fallback_count": 7,
+      "region_p95_nodes": 15,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "chain0_flow0",
+            29,
+            "feasible"
+          ],
+          [
+            "chain1_flow0",
+            29,
+            "feasible"
+          ],
+          [
+            "chain2_flow0",
+            29,
+            "feasible"
+          ],
+          [
+            "chain3_flow0",
+            29,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_3.json",
+      "input_hash": "d40aab1a64fc13d444d25d88209ef445760de8c267919465eb1780ce30ff83c3",
+      "category": "random",
+      "task_count": 8,
+      "resource_mode": "single",
+      "split_key": "d4",
+      "lt_makespan": 13,
+      "frontier_makespan": 13,
+      "gain": 0,
+      "wall_ms": 2.9063000110909343,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain0_flow0",
+        "challenger": "chain1_flow0",
+        "optimal_actions": [
+          "chain0_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain0_flow0",
+        "region_nodes": 6,
+        "region_ratio": 0.75,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/random/pm_random_chain_8.json",
+      "input_hash": "c53dbbebb36391fee28f4c56da6773466c048fdf2b9391bd5100a0b947c0ab6f",
+      "category": "random",
+      "task_count": 15,
+      "resource_mode": "single",
+      "split_key": "c5",
+      "lt_makespan": 18,
+      "frontier_makespan": 18,
+      "gain": 0,
+      "wall_ms": 5.4197999415919185,
+      "evaluations": 5,
+      "complete_evaluations": 4,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "chain1_flow0",
+        "challenger": "chain2_flow0",
+        "optimal_actions": [
+          "chain1_flow0"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "chain1_flow0",
+        "region_nodes": 10,
+        "region_ratio": 0.6666666666666666,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": -2
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/real/pm_1f1b_chain_projection.json",
+      "input_hash": "50c344e52e1b8699f31e9ef45cd1ae88c80489045b8eeaf35b34909a3e767fbc",
+      "category": "real",
+      "task_count": 21,
+      "resource_mode": "single",
+      "split_key": "50",
+      "lt_makespan": 16,
+      "frontier_makespan": 16,
+      "gain": 0,
+      "wall_ms": 12.75370002258569,
+      "evaluations": 7,
+      "complete_evaluations": 4,
+      "changed_actions": 0,
+      "fallback_count": 3,
+      "region_p95_nodes": 17,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/parallel_chain/preemptive/real/pm_zero_bubble_chain_projection.json",
+      "input_hash": "1a1f5ea96a558c6877c1e144a5dfa532128e30a27a777a4ade20003b23c75d76",
+      "category": "real",
+      "task_count": 19,
+      "resource_mode": "single",
+      "split_key": "1a",
+      "lt_makespan": 13,
+      "frontier_makespan": 13,
+      "gain": 0,
+      "wall_ms": 8.816099958494306,
+      "evaluations": 5,
+      "complete_evaluations": 4,
+      "changed_actions": 2,
+      "fallback_count": 1,
+      "region_p95_nodes": 12,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_optimizer_dp_burst.json",
+      "input_hash": "d1ab1f0e2d3cdae70f341e7cd6afe93428697d4af1e95508870c61669412247d",
+      "category": "adversarial",
+      "task_count": 9,
+      "resource_mode": "single",
+      "split_key": "d1",
+      "lt_makespan": 11,
+      "frontier_makespan": 11,
+      "gain": 0,
+      "wall_ms": 2.8948000399395823,
+      "evaluations": 4,
+      "complete_evaluations": 4,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 7,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_random_join_23.json",
+      "input_hash": "235323efc811edcf030928288d81842a6644bd075d5a1d5369fa9cb9feb6da45",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "23",
+      "lt_makespan": 17,
+      "frontier_makespan": 17,
+      "gain": 0,
+      "wall_ms": 1.9397001015022397,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 6,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_random_join_46.json",
+      "input_hash": "414c832148eada2cac14a28d23075fa8d6f518067afb70a9093f51d3c3f942ac",
+      "category": "adversarial",
+      "task_count": 16,
+      "resource_mode": "single",
+      "split_key": "41",
+      "lt_makespan": 22,
+      "frontier_makespan": 22,
+      "gain": 0,
+      "wall_ms": 3.710400080308318,
+      "evaluations": 3,
+      "complete_evaluations": 3,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 10,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_stage2_join_starvation.json",
+      "input_hash": "a41b472c8b7c76da837ae8e37b679bbf489522e669ac46428b45cd90715a6f51",
+      "category": "adversarial",
+      "task_count": 6,
+      "resource_mode": "single",
+      "split_key": "a4",
+      "lt_makespan": 10,
+      "frontier_makespan": 10,
+      "gain": 0,
+      "wall_ms": 1.02830003015697,
+      "evaluations": 1,
+      "complete_evaluations": 1,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 5,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "side_flow",
+        "challenger": "join_flow",
+        "optimal_actions": [
+          "side_flow"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "side_flow",
+        "region_nodes": 5,
+        "region_ratio": 0.8333333333333334,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -1
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/adversarial/pm_stage2_nested_barrier.json",
+      "input_hash": "ef9ef3cfd32c3da459e3f64e225be0189243480c7bc4653d56edd921ab1151df",
+      "category": "adversarial",
+      "task_count": 10,
+      "resource_mode": "single",
+      "split_key": "ef",
+      "lt_makespan": 14,
+      "frontier_makespan": 14,
+      "gain": 0,
+      "wall_ms": 3.543300088495016,
+      "evaluations": 4,
+      "complete_evaluations": 4,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 8,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "root",
+        "challenger": "c_flow",
+        "optimal_actions": [
+          "root"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "root",
+        "region_nodes": 8,
+        "region_ratio": 0.8,
+        "region_complete": true,
+        "evaluation_complete": true,
+        "proxy_gain": -3
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_000.json",
+      "input_hash": "6bd4a5f02a8d09efeb15536bf43edb80da78021e8a507eb69cc761bb9437f4f0",
+      "category": "random",
+      "task_count": 12,
+      "resource_mode": "single",
+      "split_key": "6b",
+      "lt_makespan": 19,
+      "frontier_makespan": 19,
+      "gain": 0,
+      "wall_ms": 3.3280999632552266,
+      "evaluations": 4,
+      "complete_evaluations": 4,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 9,
+      "root_label": {
+        "status": "no_choice"
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_complex_random_009.json",
+      "input_hash": "8915e719db13abb0cae5d38024b8d787df4bc6b34714128380e31cc45ec64bab",
+      "category": "random",
+      "task_count": 22,
+      "resource_mode": "single",
+      "split_key": "89",
+      "lt_makespan": 28,
+      "frontier_makespan": 28,
+      "gain": 0,
+      "wall_ms": 11.145900003612041,
+      "evaluations": 11,
+      "complete_evaluations": 8,
+      "changed_actions": 1,
+      "fallback_count": 3,
+      "region_p95_nodes": 15,
+      "root_label": {
+        "status": "exact_incomplete",
+        "actions": [
+          [
+            "c0_0",
+            28,
+            "feasible"
+          ],
+          [
+            "c1_0",
+            28,
+            "feasible"
+          ]
+        ]
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/random/pm_stage2_layered_007.json",
+      "input_hash": "62876942a0cc758f30192d7e9a08840b6b875d0c54edcf207b509705a33cec61",
+      "category": "random",
+      "task_count": 17,
+      "resource_mode": "single",
+      "split_key": "62",
+      "lt_makespan": 26,
+      "frontier_makespan": 26,
+      "gain": 0,
+      "wall_ms": 5.140800029039383,
+      "evaluations": 3,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 1,
+      "region_p95_nodes": 17,
+      "root_label": {
+        "status": "optimal",
+        "lt_action": "l0_n2",
+        "challenger": "l0_n3",
+        "optimal_actions": [
+          "l0_n2",
+          "l0_n3"
+        ],
+        "lt_wrong": false,
+        "candidate_recall": true,
+        "evaluator_correct": true,
+        "suggested": "l0_n2",
+        "region_nodes": 17,
+        "region_ratio": 1.0,
+        "region_complete": true,
+        "evaluation_complete": false,
+        "proxy_gain": 0
+      }
+    },
+    {
+      "path": "benchmark/single_channel/complex_chain/preemptive/real/pm_w_dp_optimizer_join.json",
+      "input_hash": "413b39eec7419ab13bd5e0a7f7718aed508ad9195676a436f0a0c49940142fd5",
+      "category": "real",
+      "task_count": 7,
+      "resource_mode": "single",
+      "split_key": "41",
+      "lt_makespan": 9,
+      "frontier_makespan": 9,
+      "gain": 0,
+      "wall_ms": 1.539899967610836,
+      "evaluations": 2,
+      "complete_evaluations": 2,
+      "changed_actions": 0,
+      "fallback_count": 0,
+      "region_p95_nodes": 5,
+      "root_label": {
+        "status": "no_choice"
+      }
+    }
+  ],
+  "validation_summary": {
+    "cases": 18,
+    "exact_known_roots": 7,
+    "lt_wrong_roots": 0,
+    "candidate_recall_on_lt_wrong": null,
+    "evaluator_accuracy_on_complete_lt_wrong": null,
+    "complete_lt_wrong_evaluations": 0,
+    "region_ratio_p95": 1.0,
+    "wins": 0,
+    "ties": 18,
+    "losses": 0,
+    "total_gain": 0,
+    "median_gain": 0.0,
+    "max_regression": 0
+  },
+  "generated_validation_and_cost": [
+    {
+      "category": "random",
+      "requested_tasks": 100,
+      "task_count": 100,
+      "seed": 81,
+      "makespan": 138,
+      "wall_ms": 250.12910005170852,
+      "evaluations": 66,
+      "complete_evaluations": 11,
+      "changed_actions": 0,
+      "fallback_count": 55,
+      "region_p95_nodes": 89
+    },
+    {
+      "category": "random",
+      "requested_tasks": 300,
+      "task_count": 300,
+      "seed": 82,
+      "makespan": 387,
+      "wall_ms": 802.8872000286356,
+      "evaluations": 85,
+      "complete_evaluations": 15,
+      "changed_actions": 0,
+      "fallback_count": 176,
+      "region_p95_nodes": 128
+    },
+    {
+      "category": "random",
+      "requested_tasks": 600,
+      "task_count": 600,
+      "seed": 83,
+      "makespan": 753,
+      "wall_ms": 2417.5344998948276,
+      "evaluations": 111,
+      "complete_evaluations": 18,
+      "changed_actions": 0,
+      "fallback_count": 369,
+      "region_p95_nodes": 128
+    },
+    {
+      "category": "random",
+      "requested_tasks": 1000,
+      "task_count": 1000,
+      "seed": 84,
+      "makespan": 1290,
+      "wall_ms": 5653.555800090544,
+      "evaluations": 134,
+      "complete_evaluations": 18,
+      "changed_actions": 0,
+      "fallback_count": 634,
+      "region_p95_nodes": 128
+    },
+    {
+      "category": "random",
+      "requested_tasks": 1500,
+      "task_count": 1500,
+      "seed": 85,
+      "makespan": 1938,
+      "wall_ms": 4549.688099999912,
+      "evaluations": 0,
+      "complete_evaluations": 0,
+      "changed_actions": 0,
+      "fallback_count": 1067,
+      "region_p95_nodes": 0
+    }
+  ],
+  "multi_resource": {
+    "status": "not_started",
+    "reason": "single_channel_admission_prerequisite"
+  },
+  "admission": {
+    "integrated_v1": false,
+    "outcome": "stopped_by_frozen_gates"
+  }
+}
