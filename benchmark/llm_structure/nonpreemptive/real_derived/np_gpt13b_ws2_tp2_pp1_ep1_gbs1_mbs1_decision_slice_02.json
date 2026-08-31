@@ -1,0 +1,810 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_02",
+  "metadata": {
+    "bandwidth_gbps": 200.0,
+    "dp_rewrite": false,
+    "duration_model_version": "nominal_bandwidth_ceil_bytes_per_us-v1",
+    "effective_world_size": 2,
+    "gradient_accumulation": 1,
+    "parallelism": {
+      "dp": 1,
+      "ep": 1,
+      "pp": 1,
+      "tp": 2
+    },
+    "pipeline_mode": "1f1b",
+    "projection_relation": "relaxation_unified_channel",
+    "projection_relations": [
+      "relaxation_unified_channel"
+    ],
+    "provenance": {
+      "converter": {
+        "name": "benchmark_generate.simai.nonpreemptive_export",
+        "version": "1.0.0"
+      },
+      "dp_rewrite": false,
+      "effective_dp": 1,
+      "effective_world_size": 2,
+      "parameters": {
+        "dp": 1,
+        "effective_dp": 1,
+        "effective_world_size": 2,
+        "ep": 1,
+        "gbs": 1,
+        "mbs": 1,
+        "mode": "1f1b",
+        "pp": 1,
+        "requested_dp": null,
+        "source_dp": 1,
+        "source_world_size": 2,
+        "tp": 2,
+        "ws": 2
+      },
+      "requested_dp": null,
+      "semantic_contract_version": "llm-nonpreemptive-v1",
+      "source": {
+        "content_hash": "53e8d8fb8f4be3b9ac7ef16e6d5db83eba723f1e6ba30dcd1cc72ef9005cc332",
+        "kind": "aicb_workload",
+        "name": "A100-gpt_13B_ws2_pp1-world_size2-tp2-pp1-ep1-gbs1-mbs1-seq4096-MOE-False-GEMM-False-flash_attn-True.txt"
+      },
+      "source_dp": 1,
+      "source_world_size": 2,
+      "suite": "R-C",
+      "tool_version_or_commit": "7839817d879a783039a530470221047f27bbdf45",
+      "topology_origin": "unified_relaxation",
+      "workload_origin": "real_aicb"
+    },
+    "semantic_contract_version": "llm-nonpreemptive-v1",
+    "slice_relation": {
+      "anchor_decision_tasks": [
+        "40",
+        "41"
+      ],
+      "boundary_successors": [
+        "60",
+        "61",
+        "62",
+        "63",
+        "68",
+        "69"
+      ],
+      "dependencies_cut": 0,
+      "duration_or_resource_changes": 0,
+      "kept_task_count": 24,
+      "removed_task_count": 894,
+      "selection_rule": "bounded_successors_plus_full_predecessor_closure-v1",
+      "slice_scope": "local_self_contained_problem_only",
+      "source_benchmark_hash": "62b39793f70c9aa2695f0b28ca9c1ac96b096d67f3f4ebc133da24e5198ce153",
+      "successor_depth": 2
+    },
+    "source": "simai-flow-scheduler",
+    "source_dp": 1,
+    "source_world_size": 2,
+    "stage4_layer": "real_derived",
+    "suite": "R-C",
+    "topology": null,
+    "topology_origin": "unified_relaxation",
+    "transform_log": [
+      "workload compute/flow tasks mapped 1:1 with compute serializer order edges",
+      "1F1B pipeline schedule",
+      "communication duration = ceil(size_bytes / (bandwidth_gbps*125)) us with bandwidth_gbps=200.0",
+      "all communications share the unified bottleneck channel:0"
+    ],
+    "workload_origin": "real_aicb"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "3.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "minimum_quantum": 0,
+    "optional_idle": true,
+    "preemption": "none",
+    "preemption_cost": 0,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "0",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 0,
+        "iteration": -1,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "1",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 0,
+        "iteration": -1,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "0"
+      ],
+      "duration": 0,
+      "id": "6",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 1,
+        "iteration": -1,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "0"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "1"
+      ],
+      "duration": 0,
+      "id": "7",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 1,
+        "iteration": -1,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "1"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "6"
+      ],
+      "duration": 0,
+      "id": "12",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 2,
+        "iteration": -1,
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "6"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "7"
+      ],
+      "duration": 0,
+      "id": "13",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 2,
+        "iteration": -1,
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "7"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "12"
+      ],
+      "duration": 0,
+      "id": "18",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 3,
+        "iteration": -1,
+        "layer_id": 3,
+        "layer_or_block_id": 3,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "12"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "13"
+      ],
+      "duration": 0,
+      "id": "19",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 3,
+        "iteration": -1,
+        "layer_id": 3,
+        "layer_or_block_id": 3,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "13"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "18"
+      ],
+      "duration": 0,
+      "id": "28",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 4,
+        "iteration": -1,
+        "layer_id": 4,
+        "layer_or_block_id": 4,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "18"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "19"
+      ],
+      "duration": 0,
+      "id": "29",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 4,
+        "iteration": -1,
+        "layer_id": 4,
+        "layer_or_block_id": 4,
+        "microbatch_id": -1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "19"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "28"
+      ],
+      "duration": 62056,
+      "id": "38",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "28"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "29"
+      ],
+      "duration": 62056,
+      "id": "39",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "29"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "38"
+      ],
+      "duration": 839,
+      "id": "40",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "38"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "39"
+      ],
+      "duration": 839,
+      "id": "41",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "39"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "38",
+        "41"
+      ],
+      "duration": 839,
+      "id": "42",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "38",
+          "41"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "39",
+        "40"
+      ],
+      "duration": 839,
+      "id": "43",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 5,
+        "iteration": 0,
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "39",
+          "40"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "38",
+        "41",
+        "43"
+      ],
+      "duration": 2591,
+      "id": "48",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "41",
+          "43"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "39",
+        "40",
+        "42"
+      ],
+      "duration": 2591,
+      "id": "49",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "40",
+          "42"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "48"
+      ],
+      "duration": 839,
+      "id": "50",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "48"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "49"
+      ],
+      "duration": 839,
+      "id": "51",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "49"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "48",
+        "51"
+      ],
+      "duration": 839,
+      "id": "52",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "48",
+          "51"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "49",
+        "50"
+      ],
+      "duration": 839,
+      "id": "53",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 6,
+        "iteration": 0,
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "49",
+          "50"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "48",
+        "51",
+        "53"
+      ],
+      "duration": 3636,
+      "id": "58",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 7,
+        "iteration": 0,
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "51",
+          "53"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "49",
+        "50",
+        "52"
+      ],
+      "duration": 3636,
+      "id": "59",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 7,
+        "iteration": 0,
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "50",
+          "52"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "us"
+}

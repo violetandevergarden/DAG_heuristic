@@ -1,4 +1,4 @@
-"""End-to-end preemptive semantics checks on SimAI-exported benchmarks.
+﻿"""End-to-end preemptive semantics checks on SimAI-exported benchmarks.
 
 Every test drives the public simulator on a benchmark that went through the
 real conversion chain and then replays it with the independent trace
@@ -15,10 +15,10 @@ from pathlib import Path
 
 from benchmark import Benchmark
 from benchmark_generate.simai.projection import project_resources
-from benchmark_generate.simai.export import (
+from benchmark_generate.simai.preemptive_export import (
     build_synthetic_input,
     build_workload,
-    to_benchmark,
+    to_preemptive_benchmark,
 )
 from core.conversion import to_internal_dag, to_multi_resource_instance
 from core.dag import BenchmarkDAG
@@ -31,7 +31,7 @@ from muti_channel.preemptive.trace import assert_multi_resource_trace
 def _exported_1f1b(*, pp=2, ga=2, bandwidth_gbps=200.0) -> Benchmark:
     header, items = build_synthetic_input(pp=pp, tp=1, dp=1, ep=1, ga=ga, layers=1)
     built = build_workload("1f1b", header, items)
-    return to_benchmark(
+    return to_preemptive_benchmark(
         built,
         f"e2e_1f1b_pp{pp}_ga{ga}",
         bandwidth_gbps=bandwidth_gbps,
@@ -107,7 +107,7 @@ def test_1_preemption_preserves_remaining_work() -> None:
 def test_2_disjoint_communications_enter_maximal_actions() -> None:
     header, items = build_synthetic_input(pp=2, tp=2, dp=2, ep=1, ga=2, layers=1)
     built = build_workload("1f1b", header, items)
-    benchmark = to_benchmark(
+    benchmark = to_preemptive_benchmark(
         built,
         "e2e_parallel",
         category="random",
@@ -155,7 +155,7 @@ def test_3_two_resource_communication_acquires_atomically() -> None:
     topology = Path(__file__).parent / "fixtures/two_gpu_topology.txt"
     header, items = build_synthetic_input(pp=2, tp=1, dp=1, ep=1, ga=2, layers=1)
     built = build_workload("1f1b", header, items)
-    benchmark = to_benchmark(
+    benchmark = to_preemptive_benchmark(
         built,
         "e2e_atomic",
         topology_path=topology,
@@ -203,7 +203,7 @@ def test_4_forced_idle_is_simulator_owned_and_wait_is_forbidden() -> None:
     topology = Path(__file__).parent / "fixtures/two_gpu_topology.txt"
     header, items = build_synthetic_input(pp=2, tp=1, dp=1, ep=1, ga=1, layers=1)
     built = build_workload("1f1b", header, items)
-    multi = to_benchmark(
+    multi = to_preemptive_benchmark(
         built,
         "e2e_forced_idle",
         topology_path=topology,
@@ -250,3 +250,4 @@ def test_5_same_time_events_are_processed_atomically() -> None:
                 f"decision at t={time} interleaves before same-time completion "
                 f"of {task_id}"
             )
+

@@ -91,7 +91,7 @@ def compose_real_jobs(
             "arrival encoded as a release compute node per job",
         ],
         "provenance": {
-            "converter": {"name": "benchmark_generate.llm.real_multi_job", "version": "1.0.0"},
+            "converter": {"name": "benchmark_generate.llm.common.multi_job", "version": "1.0.0"},
             "jobs": [
                 {
                     "job_id": job_id,

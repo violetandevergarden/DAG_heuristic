@@ -5,7 +5,12 @@ from pathlib import Path
 
 import pytest
 
-from benchmark import BenchmarkValidationError, benchmark_from_dict, load_benchmark
+from benchmark import (
+    BenchmarkValidationError,
+    benchmark_from_dict,
+    benchmark_to_dict,
+    load_benchmark,
+)
 from registry import solve
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +50,8 @@ def test_every_committed_benchmark_loads() -> None:
         ("2.0", "muti_channel", "complex_chain", "adversarial"): 9,
         ("2.0", "muti_channel", "complex_chain", "random"): 10,
         ("2.0", "muti_channel", "complex_chain", "real"): 43,
+        ("3.0", "single_channel", "complex_chain", "real"): 36,
+        ("3.0", "muti_channel", "complex_chain", "real"): 2,
     }
     assert {item.scenario for item in loaded} == {"single_channel", "muti_channel"}
     assert {item.category for item in loaded} == {"random", "adversarial", "real"}
@@ -152,4 +159,73 @@ def test_cycle_is_rejected() -> None:
         ],
     }
     with pytest.raises(BenchmarkValidationError, match="cycle"):
+        benchmark_from_dict(payload)
+
+
+def _v3_payload(*, scenario: str = "muti_channel") -> dict:
+    resource_model = "exclusive_fixed_set" if scenario == "muti_channel" else "exclusive"
+    resources = (
+        [{"id": "link:0->1", "kind": "directed_link"}]
+        if scenario == "muti_channel"
+        else [{"id": "channel:0", "kind": "channel"}]
+    )
+    resource_id = resources[0]["id"]
+    return {
+        "schema_version": "3.0",
+        "id": "v3_nonpreemptive",
+        "scenario": scenario,
+        "family": "complex_chain",
+        "category": "real",
+        "objective": "makespan",
+        "time_unit": "us",
+        "semantics": {
+            "preemption": "none",
+            "decision_epoch": "task_completion",
+            "optional_idle": True,
+            "compute_model": "unbounded_parallel",
+            "resource_model": resource_model,
+            "preemption_cost": 0,
+            "minimum_quantum": 0,
+        },
+        "resources": resources,
+        "tasks": [
+            {
+                "id": "comm",
+                "kind": "communication",
+                "duration": 1,
+                "dependencies": [],
+                "resources": [resource_id],
+            }
+        ],
+    }
+
+
+def test_v3_nonpreemptive_fixed_resource_round_trip() -> None:
+    payload = _v3_payload()
+    benchmark = benchmark_from_dict(payload)
+    assert benchmark_to_dict(benchmark) == payload
+    assert benchmark.semantics.optional_idle
+    assert not benchmark.semantics.is_preemptive
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("preemption", "communication_resume", "forbids communication preemption"),
+        ("decision_epoch", "task_event", "requires decision_epoch"),
+        ("optional_idle", False, "requires optional_idle"),
+        ("resource_model", "exclusive", "requires exclusive_fixed_set"),
+    ],
+)
+def test_v3_rejects_wrong_semantic_contract(field, value, message) -> None:
+    payload = _v3_payload()
+    payload["semantics"][field] = value
+    with pytest.raises(BenchmarkValidationError, match=message):
+        benchmark_from_dict(payload)
+
+
+def test_v3_rejects_empty_fixed_resource_set() -> None:
+    payload = _v3_payload()
+    payload["tasks"][0]["resources"] = []
+    with pytest.raises(BenchmarkValidationError, match="needs a resource"):
         benchmark_from_dict(payload)

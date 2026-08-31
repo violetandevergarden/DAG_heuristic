@@ -1,4 +1,4 @@
-"""Post-export projections of SimAI-derived benchmarks.
+﻿"""Post-export projections of SimAI-derived benchmarks.
 
 Projections rewrite resource sets or re-label a parsed workload into the
 neutral benchmark model without changing scheduling semantics.  SimAI-dependent,
@@ -13,10 +13,12 @@ from pathlib import Path
 
 from benchmark import Benchmark, Resource, Task
 from benchmark_generate.simai.bootstrap import SIMAI_ROOT
-from benchmark_generate.simai.export import (
-    SEMANTIC_CONTRACT_VERSION,
+from benchmark_generate.simai.common_export import (
     content_sha256,
     git_commit,
+)
+from benchmark_generate.simai.preemptive_export import (
+    SEMANTIC_CONTRACT_VERSION,
     preemptive_semantics,
 )
 
@@ -67,7 +69,7 @@ def project_resources(benchmark: Benchmark, placement: str) -> Benchmark:
     )
 
 
-def workload_to_benchmark(
+def workload_to_preemptive_benchmark(
     workload,
     *,
     benchmark_id: str,
@@ -203,7 +205,7 @@ def example_cases() -> dict[str, Benchmark]:
     reader = WorkloadReader()
     single_path = SIMAI_ROOT / "examples/single_job/single_job_workload.json"
     multi_path = SIMAI_ROOT / "examples/multi_job/multi_job_workload.json"
-    single = workload_to_benchmark(
+    single = workload_to_preemptive_benchmark(
         reader.read(single_path),
         benchmark_id="simai_example_single_job_1to1",
         scenario="single_channel",
@@ -218,7 +220,7 @@ def example_cases() -> dict[str, Benchmark]:
             "all flows share the unified bottleneck resource channel:0",
         ),
     )
-    multi = workload_to_benchmark(
+    multi = workload_to_preemptive_benchmark(
         reader.read(multi_path),
         benchmark_id="simai_example_multi_job_1to1",
         scenario="muti_channel",
@@ -235,5 +237,6 @@ def example_cases() -> dict[str, Benchmark]:
     return {"single_job_1to1": single, "multi_job_1to1": multi}
 
 
-__all__ = ["example_cases", "project_resources", "workload_to_benchmark"]
+__all__ = ["example_cases", "project_resources", "workload_to_preemptive_benchmark"]
+
 

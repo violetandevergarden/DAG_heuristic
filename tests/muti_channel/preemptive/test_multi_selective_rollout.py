@@ -1,4 +1,4 @@
-from benchmark_generate.llm.packing_motifs import packing_motifs
+from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
 from core.execution.multi_resource import PreemptiveMultiResourceModel
 from llm_structured.selective_rollout import RolloutBudget
 from muti_channel.preemptive.selective_rollout import (

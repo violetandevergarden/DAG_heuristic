@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from benchmark import Benchmark, Resource, SchedulingSemantics, Task, write_benchmark
-from benchmark_generate.llm.corpus import (
+from benchmark_generate.llm.preemptive.corpus import (
     _certified_reachable_choice,
     _fast_contention_audit,
     _migrate_manifest_row,
@@ -50,7 +50,7 @@ def test_fast_probe_truncates_maximal_set_enumeration(monkeypatch: pytest.Monkey
 
     monkeypatch.setattr(PreemptiveMultiResourceModel, "legal_actions", forbidden)
     monkeypatch.setattr(
-        "benchmark_generate.llm.corpus._certified_reachable_choice",
+        "benchmark_generate.llm.preemptive.corpus._certified_reachable_choice",
         lambda *_args, **_kwargs: {
             "status": "not_run_test",
             "multiple_legal_actions_exists": None,
@@ -139,7 +139,7 @@ def test_publish_rolls_back_after_index_failure(monkeypatch: pytest.MonkeyPatch)
     for name in ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl"):
         (staging / name).write_text("{}\n", encoding="utf-8")
 
-    monkeypatch.setattr("benchmark_generate.llm.corpus.build_index", lambda *_args: (_ for _ in ()).throw(RuntimeError("injected index failure")))
+    monkeypatch.setattr("benchmark_generate.llm.preemptive.corpus.build_index", lambda *_args: (_ for _ in ()).throw(RuntimeError("injected index failure")))
     with pytest.raises(RuntimeError, match="injected index failure"):
         publish(root, staging=staging, replace_active=True)
     assert marker.read_text(encoding="utf-8") == "old-corpus"

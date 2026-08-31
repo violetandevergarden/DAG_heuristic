@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from benchmark_generate.llm.barrier_motifs import (
+from benchmark_generate.llm.preemptive.barrier_motifs import (
     label_motif,
     multi_resource_motifs,
     single_channel_motifs,

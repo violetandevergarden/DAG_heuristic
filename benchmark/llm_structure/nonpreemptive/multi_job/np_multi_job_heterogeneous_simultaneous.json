@@ -1,0 +1,812 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "np_multi_job_heterogeneous_simultaneous",
+  "metadata": {
+    "multi_job": [
+      {
+        "arrival": 0,
+        "job_id": "job0",
+        "source_benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00",
+        "source_content_hash": "88f25dd22396407ba42d08bdd8d89da1b79f3d6cd335d6ee16258174f564a10c"
+      },
+      {
+        "arrival": 0,
+        "job_id": "job1",
+        "source_benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_01",
+        "source_content_hash": "5a66906ca2228c348555478f46cd7a53c5297acd4eba1c29191f4793dd396d54"
+      }
+    ],
+    "projection_relation": "real_multi_job_composition",
+    "provenance": {
+      "converter": {
+        "name": "benchmark_generate.llm.real_multi_job",
+        "version": "1.0.0"
+      },
+      "jobs": [
+        {
+          "arrival": 0,
+          "job_id": "job0",
+          "source": {
+            "content_hash": "53e8d8fb8f4be3b9ac7ef16e6d5db83eba723f1e6ba30dcd1cc72ef9005cc332",
+            "kind": "aicb_workload",
+            "name": "A100-gpt_13B_ws2_pp1-world_size2-tp2-pp1-ep1-gbs1-mbs1-seq4096-MOE-False-GEMM-False-flash_attn-True.txt"
+          },
+          "source_benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00",
+          "source_content_hash": "88f25dd22396407ba42d08bdd8d89da1b79f3d6cd335d6ee16258174f564a10c"
+        },
+        {
+          "arrival": 0,
+          "job_id": "job1",
+          "source": {
+            "content_hash": "53e8d8fb8f4be3b9ac7ef16e6d5db83eba723f1e6ba30dcd1cc72ef9005cc332",
+            "kind": "aicb_workload",
+            "name": "A100-gpt_13B_ws2_pp1-world_size2-tp2-pp1-ep1-gbs1-mbs1-seq4096-MOE-False-GEMM-False-flash_attn-True.txt"
+          },
+          "source_benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_01",
+          "source_content_hash": "5a66906ca2228c348555478f46cd7a53c5297acd4eba1c29191f4793dd396d54"
+        }
+      ]
+    },
+    "semantic_contract_version": "llm-nonpreemptive-v1",
+    "source": "real AICB multi-job composition",
+    "transform_log": [
+      "jobs merged into one DAG with {job_id}:: prefixed task ids and per-task job_id labels",
+      "no cross-job precedence edges; jobs share only the fixed resource universe",
+      "arrival encoded as a release compute node per job"
+    ]
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "3.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_completion",
+    "minimum_quantum": 0,
+    "optional_idle": true,
+    "preemption": "none",
+    "preemption_cost": 0,
+    "resource_model": "exclusive"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "job0::__arrival__",
+      "kind": "compute",
+      "metadata": {
+        "job_id": "job0",
+        "multi_job_index": 0,
+        "task_role": "JOB_ARRIVAL"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::__arrival__"
+      ],
+      "duration": 0,
+      "id": "job0::0",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 0,
+        "iteration": -1,
+        "job_id": "job0",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": -1,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::0"
+      ],
+      "duration": 0,
+      "id": "job0::6",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 1,
+        "iteration": -1,
+        "job_id": "job0",
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": -1,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "0"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::6"
+      ],
+      "duration": 0,
+      "id": "job0::12",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 2,
+        "iteration": -1,
+        "job_id": "job0",
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": -1,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "6"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::12"
+      ],
+      "duration": 0,
+      "id": "job0::18",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 3,
+        "iteration": -1,
+        "job_id": "job0",
+        "layer_id": 3,
+        "layer_or_block_id": 3,
+        "microbatch_id": -1,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "12"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::18"
+      ],
+      "duration": 0,
+      "id": "job0::28",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 4,
+        "iteration": -1,
+        "job_id": "job0",
+        "layer_id": 4,
+        "layer_or_block_id": 4,
+        "microbatch_id": -1,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "18"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::28"
+      ],
+      "duration": 62056,
+      "id": "job0::38",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job0",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 0,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "28"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job0::38"
+      ],
+      "duration": 839,
+      "id": "job0::40",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job0",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 0,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "38"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "job1::__arrival__",
+      "kind": "compute",
+      "metadata": {
+        "job_id": "job1",
+        "multi_job_index": 1,
+        "task_role": "JOB_ARRIVAL"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::__arrival__"
+      ],
+      "duration": 0,
+      "id": "job1::0",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 0,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::__arrival__"
+      ],
+      "duration": 0,
+      "id": "job1::1",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 0,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::0"
+      ],
+      "duration": 0,
+      "id": "job1::6",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 1,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "0"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::1"
+      ],
+      "duration": 0,
+      "id": "job1::7",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 1,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "1"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::6"
+      ],
+      "duration": 0,
+      "id": "job1::12",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 2,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "6"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::7"
+      ],
+      "duration": 0,
+      "id": "job1::13",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 2,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 2,
+        "layer_or_block_id": 2,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "7"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::12"
+      ],
+      "duration": 0,
+      "id": "job1::18",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 3,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 3,
+        "layer_or_block_id": 3,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "12"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::13"
+      ],
+      "duration": 0,
+      "id": "job1::19",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 3,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 3,
+        "layer_or_block_id": 3,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "13"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::18"
+      ],
+      "duration": 0,
+      "id": "job1::28",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 4,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 4,
+        "layer_or_block_id": 4,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "18"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::19"
+      ],
+      "duration": 0,
+      "id": "job1::29",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 4,
+        "iteration": -1,
+        "job_id": "job1",
+        "layer_id": 4,
+        "layer_or_block_id": 4,
+        "microbatch_id": -1,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "19"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::28"
+      ],
+      "duration": 62056,
+      "id": "job1::38",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "28"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::29"
+      ],
+      "duration": 62056,
+      "id": "job1::39",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 1,
+        "simai_raw_dependencies": [
+          "29"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "job1::38"
+      ],
+      "duration": 839,
+      "id": "job1::40",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "38"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "job1::39"
+      ],
+      "duration": 839,
+      "id": "job1::41",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 0,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "39"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "job1::38",
+        "job1::41"
+      ],
+      "duration": 839,
+      "id": "job1::42",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 1,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "38",
+          "41"
+        ],
+        "size_bytes": 20971520,
+        "src": 0,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "job1::39",
+        "job1::40"
+      ],
+      "duration": 839,
+      "id": "job1::43",
+      "kind": "communication",
+      "metadata": {
+        "chunk_id": 1,
+        "collective_type": "tp_allreduce_ring",
+        "comm_type": "tp_allreduce_ring",
+        "dst": 0,
+        "item_id": 5,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 0,
+        "layer_or_block_id": 0,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": 2,
+        "parallelism_dimension": "tp",
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "simai_raw_dependencies": [
+          "39",
+          "40"
+        ],
+        "size_bytes": 20971520,
+        "src": 1,
+        "task_role": "TP"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "job1::38",
+        "job1::41",
+        "job1::43"
+      ],
+      "duration": 2591,
+      "id": "job1::48",
+      "kind": "compute",
+      "metadata": {
+        "chunk_id": null,
+        "item_id": 6,
+        "iteration": 0,
+        "job_id": "job1",
+        "layer_id": 1,
+        "layer_or_block_id": 1,
+        "microbatch_id": 0,
+        "multi_job_index": 1,
+        "num_chunks": null,
+        "phase": "forward",
+        "physical_stage_id": 0,
+        "pipeline_stage": 0,
+        "rank": 0,
+        "simai_raw_dependencies": [
+          "41",
+          "43"
+        ],
+        "task_role": "F"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "us"
+}

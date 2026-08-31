@@ -1,4 +1,4 @@
-"""Generate the llm_structure benchmark corpus from real AICB workloads.
+﻿"""Generate the llm_structure benchmark corpus from real AICB workloads.
 
 Inputs live in the SimAI checkout under ``inputs/aicb-workload/`` and
 ``inputs/topologies/``.  Every exported benchmark is a schema-v2 preemptive
@@ -34,15 +34,15 @@ import re
 from collections.abc import Callable
 
 from benchmark import Benchmark, write_benchmark
-from benchmark_generate.llm.catalog import canonical_routed_specs, scan_aicb_catalog
+from benchmark_generate.llm.common.catalog import canonical_routed_specs, scan_aicb_catalog
 from benchmark_generate.simai.bootstrap import SIMAI_ROOT
-from benchmark_generate.simai.export import (
+from benchmark_generate.simai.common_export import (
     AicbParser,
     build_workload,
     content_sha256,
     git_commit,
-    to_benchmark,
 )
+from benchmark_generate.simai.preemptive_export import to_preemptive_benchmark
 from benchmark_generate.simai.projection import example_cases
 
 AICB_ROOT = SIMAI_ROOT / "inputs" / "aicb-workload"
@@ -134,6 +134,7 @@ def export_case(
     spec: dict,
     *,
     benchmark_id: str,
+    renderer=to_preemptive_benchmark,
 ) -> Benchmark:
     ws = spec["ws"]
     tp, pp, ep = spec["tp"], spec["pp"], spec["ep"]
@@ -228,7 +229,7 @@ def export_case(
         suite = "R-S"
     else:
         topology_origin = "production"
-    benchmark = to_benchmark(
+    benchmark = renderer(
         built,
         benchmark_id,
         bandwidth_gbps=bandwidth,
@@ -682,7 +683,7 @@ def main(argv: list[str] | None = None) -> None:
     """Compatibility shim for the old entry point.
 
     It now delegates to the transactional workflow and therefore never removes
-    the active corpus. Use ``python -m benchmark_generate.llm.corpus`` directly
+    the active corpus. Use ``python -m benchmark_generate.llm.preemptive.corpus`` directly
     when selecting probe/publish options.
     """
 
@@ -697,7 +698,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--replace-active", action="store_true")
     parser.add_argument("--skip-reference", action="store_true", help="kept for CLI compatibility; references are a separate step")
     args = parser.parse_args(argv)
-    from benchmark_generate.llm.corpus import generate, probe, publish
+    from benchmark_generate.llm.preemptive.corpus import generate, probe, publish
     if args.mode == "generate":
         print(generate(args.output, run_id=args.run_id))
     elif args.mode == "probe":
@@ -709,3 +710,4 @@ def main(argv: list[str] | None = None) -> None:
 
 if __name__ == "__main__":
     main()
+

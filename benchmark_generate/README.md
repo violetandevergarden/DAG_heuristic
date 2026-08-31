@@ -113,9 +113,9 @@ sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算
 真实 LLM 语料不再使用“先删除正式目录、再生成和回放”的单一命令。请使用：
 
 ```powershell
-python -m benchmark_generate.llm.corpus --mode generate --output benchmark
-python -m benchmark_generate.llm.corpus --mode probe --output benchmark --fast
-python -m benchmark_generate.llm.corpus --mode publish --output benchmark
+python -m benchmark_generate.llm.preemptive.corpus --mode generate --output benchmark
+python -m benchmark_generate.llm.preemptive.corpus --mode probe --output benchmark --fast
+python -m benchmark_generate.llm.preemptive.corpus --mode publish --output benchmark
 ```
 
 `generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe`（兼容保留的 CLI mode）执行 contention audit，并为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 audit 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。audit 报告保存在 `benchmark/llm_structure/.artifacts/contention_audit/`，不属于 benchmark 输入，也不会进入公共 index。
@@ -134,12 +134,12 @@ SimAI 查找顺序为：
 git submodule update --init --recursive
 ```
 
-`simai/export.py` 会先调用指定 pipeline builder，再用对应 serializer 把 GPU compute 顺序加入 effective DAG。communication 时长按 `ceil(size_bytes / bandwidth)` 转成整数微秒。
+`simai/common_export.py` 只负责解析、建图、固定路由和时长换算；`preemptive_export.py` 与 `nonpreemptive_export.py` 分别写入各自的 Schema 和调度语义。communication 时长按 `ceil(size_bytes / bandwidth)` 转成整数微秒。
 
 导出单通道 benchmark：
 
 ```powershell
-python -m benchmark_generate.simai.export `
+python -m benchmark_generate.simai.preemptive_export `
   --aicb path/to/workload.txt `
   --mode zero_bubble `
   --id zb_example `
@@ -149,7 +149,7 @@ python -m benchmark_generate.simai.export `
 增加 `--topology` 后，导出器会通过 SimAI 的 BFS 路由把每条 flow 转成固定 directed-link 和 NIC resource set，并生成 `muti_channel` benchmark：
 
 ```powershell
-python -m benchmark_generate.simai.export `
+python -m benchmark_generate.simai.preemptive_export `
   --aicb path/to/workload.txt `
   --mode 1f1b `
   --topology path/to/topology.json `

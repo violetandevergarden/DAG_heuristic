@@ -13,7 +13,7 @@ class BenchmarkValidationError(ValueError):
 
 def validation_errors(benchmark: Benchmark) -> list[str]:
     errors: list[str] = []
-    if benchmark.schema_version not in {"1.0", "2.0"}:
+    if benchmark.schema_version not in {"1.0", "2.0", "3.0"}:
         errors.append(f"unsupported schema_version: {benchmark.schema_version}")
     if benchmark.objective != "makespan":
         errors.append(f"unsupported objective: {benchmark.objective}")
@@ -24,6 +24,8 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
         errors.append("historical schema v1 requires optional_idle=true")
     elif benchmark.schema_version == "2.0" and semantics.optional_idle:
         errors.append("preemptive schema v2 forbids voluntary idle")
+    elif benchmark.schema_version == "3.0" and not semantics.optional_idle:
+        errors.append("non-preemptive schema v3 requires optional_idle=true")
     if benchmark.schema_version == "1.0" and semantics.is_preemptive:
         errors.append("schema v1 does not support preemption")
     if semantics.preemption not in {"none", "communication_resume"}:
@@ -36,6 +38,8 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
         errors.append(f"unsupported resource model: {semantics.resource_model}")
     if semantics.preemption_cost < 0 or semantics.minimum_quantum < 0:
         errors.append("preemption cost and minimum quantum must be non-negative")
+    if benchmark.schema_version == "3.0" and semantics.is_preemptive:
+        errors.append("schema v3 forbids communication preemption")
     if semantics.is_preemptive:
         if benchmark.schema_version != "2.0":
             errors.append("preemptive benchmarks require schema v2")
@@ -49,6 +53,13 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
             )
     elif benchmark.schema_version == "2.0":
         errors.append("schema v2 is currently reserved for communication_resume benchmarks")
+    elif benchmark.schema_version == "3.0":
+        if semantics.preemption != "none":
+            errors.append("schema v3 forbids communication preemption")
+        if semantics.decision_epoch != "task_completion":
+            errors.append("schema v3 requires decision_epoch=task_completion")
+        if semantics.preemption_cost != 0 or semantics.minimum_quantum != 0:
+            errors.append("schema v3 requires zero preemption cost and minimum quantum")
     task_ids = [task.task_id for task in benchmark.tasks]
     resource_ids = [resource.resource_id for resource in benchmark.resources]
     if len(task_ids) != len(set(task_ids)):
@@ -83,6 +94,8 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
     if not errors:
         errors.extend(_cycle_errors(benchmark))
     if benchmark.scenario == "single_channel":
+        if benchmark.schema_version == "3.0" and semantics.resource_model != "exclusive":
+            errors.append("single_channel requires resource_model=exclusive")
         if resource_ids != ["channel:0"]:
             errors.append("single_channel must define exactly channel:0")
         for task in benchmark.tasks:
@@ -92,6 +105,12 @@ def validation_errors(benchmark: Benchmark) -> list[str]:
         errors.extend(_parallel_chain_errors(benchmark))
     if benchmark.scenario == "muti_channel" and benchmark.family != "complex_chain":
         errors.append("muti_channel requires family=complex_chain")
+    if (
+        benchmark.scenario == "muti_channel"
+        and benchmark.schema_version == "3.0"
+        and semantics.resource_model != "exclusive_fixed_set"
+    ):
+        errors.append("schema v3 muti_channel requires exclusive_fixed_set")
     return errors
 
 

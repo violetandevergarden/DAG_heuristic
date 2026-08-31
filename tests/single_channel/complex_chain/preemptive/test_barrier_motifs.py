@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from benchmark_generate.llm.barrier_motifs import single_channel_motifs
+from benchmark_generate.llm.preemptive.barrier_motifs import single_channel_motifs
 from core.execution.preemptive import Action, PreemptiveDAGModel
 from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.barrier import build_context, feature_snapshot

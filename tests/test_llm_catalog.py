@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from benchmark_generate.llm.catalog import canonical_routed_specs, scan_aicb_catalog
+from benchmark_generate.llm.common.catalog import canonical_routed_specs, scan_aicb_catalog
 from benchmark_generate.llm_structure import AICB_ROOT, TOPOLOGY_CAPACITIES
 
 

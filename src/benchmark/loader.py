@@ -12,8 +12,16 @@ from benchmark.validator import BenchmarkValidationError, validate_benchmark
 
 def benchmark_from_dict(payload: dict[str, Any]) -> Benchmark:
     required = {
-        "schema_version", "id", "scenario", "family", "category", "objective",
-        "time_unit", "semantics", "resources", "tasks",
+        "schema_version",
+        "id",
+        "scenario",
+        "family",
+        "category",
+        "objective",
+        "time_unit",
+        "semantics",
+        "resources",
+        "tasks",
     }
     missing = required - payload.keys()
     if missing:
@@ -72,7 +80,11 @@ def benchmark_to_dict(benchmark: Benchmark) -> dict[str, Any]:
         "time_unit": benchmark.time_unit,
         "semantics": _semantics_to_dict(benchmark),
         "resources": [
-            {"id": item.resource_id, "kind": item.kind, **({"metadata": item.metadata} if item.metadata else {})}
+            {
+                "id": item.resource_id,
+                "kind": item.kind,
+                **({"metadata": item.metadata} if item.metadata else {}),
+            }
             for item in benchmark.resources
         ],
         "tasks": [
@@ -105,7 +117,8 @@ def write_benchmark(benchmark: Benchmark, path: str | Path) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(
-        json.dumps(benchmark_to_dict(benchmark), ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        json.dumps(benchmark_to_dict(benchmark), ensure_ascii=False, indent=2, sort_keys=True)
+        + "\n",
         encoding="utf-8",
         newline="\n",
     )
@@ -123,14 +136,19 @@ def _parse_semantics(version: str, payload: dict[str, Any]) -> SchedulingSemanti
         if payload != expected:
             raise BenchmarkValidationError("unsupported v1 scheduling semantics")
         return SchedulingSemantics()
-    if version == "2.0":
+    if version in {"2.0", "3.0"}:
         expected_keys = {
-            "preemption", "decision_epoch", "optional_idle", "compute_model",
-            "resource_model", "preemption_cost", "minimum_quantum",
+            "preemption",
+            "decision_epoch",
+            "optional_idle",
+            "compute_model",
+            "resource_model",
+            "preemption_cost",
+            "minimum_quantum",
         }
         if set(payload) != expected_keys:
             raise BenchmarkValidationError(
-                f"invalid v2 semantics fields: expected {sorted(expected_keys)}"
+                f"invalid v{version[0]} semantics fields: expected {sorted(expected_keys)}"
             )
         if not isinstance(payload["optional_idle"], bool):
             raise BenchmarkValidationError("optional_idle must be boolean")
@@ -138,18 +156,19 @@ def _parse_semantics(version: str, payload: dict[str, Any]) -> SchedulingSemanti
             if not isinstance(payload[field], int) or isinstance(payload[field], bool):
                 raise BenchmarkValidationError(f"{field} must be an integer")
         try:
-            return SchedulingSemantics(
+            semantics = SchedulingSemantics(
                 preemption=payload["preemption"],
                 decision_epoch=payload["decision_epoch"],
                 # Early v2 snapshots incorrectly wrote optional_idle=true.
                 # The versioned loader accepts those files only as a migration
                 # input and normalizes them to the sole production contract.
-                optional_idle=False,
+                optional_idle=(False if version == "2.0" else payload["optional_idle"]),
                 compute_model=payload["compute_model"],
                 resource_model=payload["resource_model"],
                 preemption_cost=int(payload["preemption_cost"]),
                 minimum_quantum=int(payload["minimum_quantum"]),
             )
+            return semantics
         except (TypeError, ValueError) as error:
             raise BenchmarkValidationError(f"invalid v2 semantics: {error}") from error
     raise BenchmarkValidationError(f"unsupported schema_version: {version}")
@@ -167,7 +186,7 @@ def _semantics_to_dict(benchmark: Benchmark) -> dict[str, Any]:
             "compute_model": "unbounded_parallel",
             "resource_model": "exclusive",
         }
-    if benchmark.schema_version == "2.0":
+    if benchmark.schema_version in {"2.0", "3.0"}:
         return {
             "preemption": semantics.preemption,
             "decision_epoch": semantics.decision_epoch,
@@ -177,6 +196,4 @@ def _semantics_to_dict(benchmark: Benchmark) -> dict[str, Any]:
             "preemption_cost": semantics.preemption_cost,
             "minimum_quantum": semantics.minimum_quantum,
         }
-    raise BenchmarkValidationError(
-        f"unsupported schema_version: {benchmark.schema_version}"
-    )
+    raise BenchmarkValidationError(f"unsupported schema_version: {benchmark.schema_version}")

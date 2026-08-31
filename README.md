@@ -1,6 +1,6 @@
 # DAG scheduling benchmark and algorithms
 
-这个仓库研究大模型训练 DAG 的通信调度。通信可暂停恢复的 v2 是当前主线；不可抢占 v1 作为 maintenance baseline 保留。两种模型共享语言无关的 DAG benchmark 和依赖语义，但使用不同状态机、算法与结果校验，不能混用结论。
+这个仓库研究大模型训练 DAG 的通信调度，当前同时维护可抢占和不可抢占两条研究线。可抢占通信可在任务事件处暂停恢复；不可抢占通信一旦启动便连续运行到完成，并保留主动等待未来事件的研究合同。两种模型共享语言无关的 DAG、依赖和固定资源定义，但使用不同状态机、Exact、算法与结果校验，不能混用结论。
 
 Benchmark 使用普通 JSON，Python 和 C++ 都可以直接读取。算法代码不依赖 SimAI；只有从 AICB workload 导出真实 DAG 时才需要可选的 SimAI checkout。
 
@@ -29,6 +29,9 @@ src/
   cli.py                      # 统一运行入口
 tests/                        # 与上述结构对应的测试
 docs/                         # 研究记录、证明和实验总结
+  preemptive_docs/            # 可抢占正式计划、过程和结果
+  nonpreemptive_docs/         # 不可抢占 Stage 4 正式计划；过程和结果随后归档
+  old_docs/                   # 历史研究材料，不覆盖当前正式计划
 third_party/                  # 可选 SimAI submodule 位置
 ```
 
@@ -42,17 +45,27 @@ third_party/                  # 可选 SimAI submodule 位置
 | `single_channel/complex_chain` | 带 fork、join 和多层依赖的 DAG 共享一个 channel |
 | `muti_channel` | 一般 DAG 中的通信占用一个或多个固定 link/NIC 资源 |
 
-v1 不可抢占模型的限制：
+不可抢占模型的限制：
 
 - 任务不可抢占；
 - 依赖是 finish-to-start；
 - ready compute 自动开始，计算资源约束需要预先写成 DAG 边；
 - 通信在持续时间内独占其全部资源；
+- channel 空闲时可以选择合法通信，也可以主动等待到下一个真实 compute/job 事件；
 - 不在算法中重新选路，也不模拟按比例共享带宽；
 - 时间是整数，目标是最小化 makespan；
 - 精确 Oracle 面向小图，不适合作为大图在线调度器。
 
-v2 可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。存在 eligible communication 时必须推进通信；多资源动作必须是 inclusion-maximal compatible set，forced idle 由模拟器自动处理。当前抢占代价和最小时间片均为零。Stage 1 单通道 parallel-chain 提供定义冻结的 priority、Rollout、Beam 和 compact Exact；Monte Carlo 只保留为未注册的历史对照。多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
+可抢占模型中 compute 仍不可抢占；communication 可在任务事件处暂停、释放资源，并从剩余进度恢复。存在 eligible communication 时必须推进通信；多资源动作必须是 inclusion-maximal compatible set，forced idle 由模拟器自动处理。当前抢占代价和最小时间片均为零。Stage 1 单通道 parallel-chain 提供定义冻结的 priority、Rollout、Beam 和 compact Exact；Monte Carlo 只保留为未注册的历史对照。多资源提供 compatible packing、set rollout 和小图 Exact。路由与资源集合固定，不模拟真实 collective 的 chunk 同步或恢复开销。
+
+## 当前研究进度
+
+- 可抢占 Stage 1--3 已作为回归基线保留；Stage 4a 已建立 72 个真实 LLM 样例及转换、审计、基线和规模资产，4b--4f 按真实输入证据继续复核，不能据历史代码宣称已经形成最终算法。
+- 不可抢占 R0--R4 已完成语义、Exact、并行链、一般 DAG 和固定多资源研究，对应可抢占 Stage 1--3，无需重新迁移。旧 R5 是 LLM 结构预研，只作为候选和反例来源。
+- 不可抢占研究现在从 Stage 4a 开始：先发布真实不可抢占 LLM benchmark，再推进 4b 结构、4c 启动集合、4d selective rollout、4e barrier 和 4f multi-job。Stage 4g 尚未规划。
+- 两条线可以使用同源 DAG 做成对实验，但必须分别执行、验证和生成 reference result。不可抢占的 optional-idle 与 work-conserving 也必须分组报告。
+
+正式入口分别为 [可抢占 Stage 4 总纲](docs/preemptive_docs/plan_docs/stage4_LLM_search.md) 和 [不可抢占 Stage 4 总纲](docs/nonpreemptive_docs/plan_docs/stage4_LLM_search.md)。不可抢占 4a--4f 分纲位于同一目录。
 
 ## 使用
 
@@ -133,10 +146,7 @@ python -m benchmark_generate reference --output benchmark
 显式写入 LF。reference result 中的 SHA-256 是对 benchmark 原始字节计算的，因此
 不要用会擅自改写换行符的工具保存这些文件；遵守该规则后，不同平台上的哈希应保持一致。
 
-当前固定集合共 144 个问题：75 个既有不可抢占问题和 69 个 v2 可抢占问题。
-reference results 共 80 个，其中 33 个为不可抢占、47 个为可抢占；Stage 1
-额外覆盖了可解 random 与 structured/real-projection。Exact 超时的样例不生成
-最优标签。
+当前 `benchmark/index.jsonl` 固定集合共 243 个问题：75 个不可抢占问题和 168 个可抢占问题；其中不可抢占为 58 个单 channel、17 个固定多资源。`benchmark/reference_results/` 当前有 116 个结果文件。Exact 超时或未完成的样例不生成最优标签。`benchmark/llm_structure/nonpreemptive/` 当前尚无正式样例，这正是不可抢占 Stage 4a 的首要缺口。
 
 ## 测试
 

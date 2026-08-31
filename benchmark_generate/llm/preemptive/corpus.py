@@ -548,7 +548,7 @@ def generate(root: Path, *, run_id: str | None = None) -> Path:
     """Generate into a versioned staging directory without touching active data."""
 
     root = root.resolve()
-    from benchmark_generate.llm.catalog import scan_aicb_catalog, write_source_catalog
+    from benchmark_generate.llm.common.catalog import scan_aicb_catalog, write_source_catalog
     from benchmark_generate.llm_structure import AICB_ROOT, build_corpus
 
     llm_root = root / "llm_structure"

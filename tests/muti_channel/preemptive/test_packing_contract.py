@@ -2,7 +2,7 @@ import pytest
 
 from core.dag import BenchmarkDAG, BenchTask
 from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
-from benchmark_generate.llm.packing_motifs import packing_motifs
+from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
 from muti_channel.preemptive.constructors import enumerate_bounded, greedy, multi_seed, one_exchange
 from muti_channel.preemptive.packing import PackingBudget, build_conflict_graph, validate_maximal_action
 from muti_channel.preemptive.solver import (

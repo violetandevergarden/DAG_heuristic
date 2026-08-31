@@ -1,15 +1,12 @@
-"""Convert a SimAI pipeline workload into a standalone preemptive DAG benchmark.
+"""Shared SimAI parsing and graph conversion, independent of scheduling semantics.
 
-The exported benchmark is a schema-v2 fixed-resource preemptive instance:
-communication pause/resume with remaining-work conservation, task-event
-decision epochs, no voluntary idle, and exclusive fixed resource sets.  Callers
-must choose the public ``category`` explicitly; there is no silent default
-that decides between historical and current semantics.
+Semantic-specific modules provide an :class:`ExportContract` and expose the
+public renderer/CLI.  Keeping that choice outside this module prevents a
+conversion helper from silently selecting preemptive or non-preemptive rules.
 """
 
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import math
@@ -53,7 +50,6 @@ from benchmark import (
     Benchmark,
     Resource,
     SchedulingSemantics,
-    write_benchmark,
 )
 from benchmark import (
     Task as BenchmarkTask,
@@ -62,22 +58,18 @@ MODES = ("1f1b", "interleaved_1f1b", "zero_bubble", "bidirectional", "dualpipe")
 
 PUBLIC_CATEGORIES = ("random", "adversarial", "real")
 
-SEMANTIC_CONTRACT_VERSION = "llm-v1"
 CONVERTER_VERSION = "1.2.0"
 
 
-def preemptive_semantics() -> SchedulingSemantics:
-    """The sole production contract for Stage 4 exports (schema v2)."""
+@dataclass(frozen=True)
+class ExportContract:
+    """Schema and scheduling semantics selected by a public renderer."""
 
-    return SchedulingSemantics(
-        preemption="communication_resume",
-        decision_epoch="task_event",
-        optional_idle=False,
-        compute_model="unbounded_parallel",
-        resource_model="exclusive_fixed_set",
-        preemption_cost=0,
-        minimum_quantum=0,
-    )
+    schema_version: str
+    semantic_contract_version: str
+    semantics: SchedulingSemantics
+    converter_name: str
+    converter_version: str
 
 
 def content_sha256(path: Path) -> str:
@@ -261,7 +253,7 @@ def _effective_dependencies(built: BuiltWorkload) -> dict[int, set[int]]:
     return dependencies
 
 
-def to_benchmark(
+def export_graph(
     built: BuiltWorkload,
     benchmark_id: str,
     *,
@@ -279,8 +271,9 @@ def to_benchmark(
     source_dp: int | None = None,
     effective_world_size: int | None = None,
     dp_rewrite: bool = False,
+    contract: ExportContract,
 ) -> Benchmark:
-    """Project a SimAI workload into a schema-v2 preemptive fixed-resource benchmark.
+    """Project a built SimAI workload using an explicit semantic contract.
 
     ``category`` (one of :data:`PUBLIC_CATEGORIES`) is mandatory: the
     historical exporter silently produced non-preemptive ``category="real"``
@@ -416,7 +409,7 @@ def to_benchmark(
     provenance_record = dict(provenance or {})
     provenance_record.setdefault(
         "converter",
-        {"name": "benchmark_generate.simai.export", "version": CONVERTER_VERSION},
+        {"name": contract.converter_name, "version": contract.converter_version},
     )
     provenance_record.setdefault(
         "parameters",
@@ -426,7 +419,7 @@ def to_benchmark(
             "include_nic_resources": include_nic_resources,
         },
     )
-    provenance_record["semantic_contract_version"] = SEMANTIC_CONTRACT_VERSION
+    provenance_record["semantic_contract_version"] = contract.semantic_contract_version
     if suite is not None:
         provenance_record["suite"] = suite
     if workload_origin is not None:
@@ -447,8 +440,8 @@ def to_benchmark(
         category=category,
         tasks=tuple(tasks),
         resources=tuple(resources[name] for name in sorted(resources)),
-        semantics=preemptive_semantics(),
-        schema_version="2.0",
+        semantics=contract.semantics,
+        schema_version=contract.schema_version,
         time_unit="us",
         metadata={
             "source": "simai-flow-scheduler",
@@ -463,7 +456,7 @@ def to_benchmark(
                 "ep": parallelism.ep,
             },
             "gradient_accumulation": built.header.ga,
-            "semantic_contract_version": SEMANTIC_CONTRACT_VERSION,
+            "semantic_contract_version": contract.semantic_contract_version,
             "projection_relation": projection_relation,
             "projection_relations": [projection_relation],
             "suite": suite,
@@ -527,109 +520,3 @@ def raw_b_to_w_edges(built: BuiltWorkload) -> int:
     return count
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--aicb", type=Path, help="AICB workload; omit for a small synthetic input")
-    parser.add_argument("--mode", choices=MODES, default="1f1b")
-    parser.add_argument("--id", dest="benchmark_id", default="simai_pipeline")
-    parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--topology", type=Path, help="When set, emit fixed route resources")
-    parser.add_argument("--bandwidth-gbps", type=float, default=200.0)
-    parser.add_argument("--vpp", type=int, default=2)
-    parser.add_argument(
-        "--category",
-        choices=PUBLIC_CATEGORIES,
-        default=None,
-        help="Public coarse category; defaults to real for AICB input, random otherwise",
-    )
-    parser.add_argument(
-        "--projection-relation",
-        default=None,
-        help=(
-            "Projection relation: synthetic_motif, relaxation_unified_channel, "
-            "route_frozen_projection, or another documented contract"
-        ),
-    )
-    parser.add_argument("--manifest", type=Path, help="Optional collection manifest JSONL to append")
-    args = parser.parse_args()
-
-    source_kind = "aicb" if args.aicb else "synthetic_bootstrap"
-    category = args.category or ("real" if args.aicb else "random")
-    projection_relation = args.projection_relation or (
-        "synthetic_motif"
-        if not args.aicb
-        else ("route_frozen_projection" if args.topology else "relaxation_unified_channel")
-    )
-
-    source_provenance: dict = {"kind": source_kind}
-    if args.aicb:
-        source_provenance.update(
-            {"name": args.aicb.name, "content_hash": content_sha256(args.aicb)}
-        )
-    else:
-        source_provenance["name"] = "synthetic_bootstrap"
-    topology_provenance: dict | None = None
-    if args.topology:
-        topology_provenance = {
-            "name": args.topology.name,
-            "content_hash": content_sha256(args.topology),
-        }
-
-    if args.aicb:
-        header, items = AicbParser().parse(args.aicb)
-    else:
-        header, items = build_synthetic_input()
-    built = build_workload(args.mode, header, items, vpp=args.vpp)
-    transform_log = _build_transform_log(
-        built,
-        topology_path=args.topology,
-        bandwidth_gbps=args.bandwidth_gbps,
-        include_nic_resources=True,
-    )
-    provenance = {
-        "source": source_provenance,
-        "tool_version_or_commit": git_commit(Path(__file__).resolve().parents[2]),
-        "parameters": {
-            "mode": args.mode,
-            "vpp": args.vpp,
-            "bandwidth_gbps": args.bandwidth_gbps,
-        },
-    }
-    if topology_provenance is not None:
-        provenance["topology"] = topology_provenance
-    benchmark = to_benchmark(
-        built,
-        args.benchmark_id,
-        bandwidth_gbps=args.bandwidth_gbps,
-        topology_path=args.topology,
-        category=category,
-        projection_relation=projection_relation,
-        transform_log=transform_log,
-        provenance=provenance,
-    )
-    write_benchmark(benchmark, args.output)
-    print(f"wrote {benchmark.benchmark_id} with {len(benchmark.tasks)} tasks to {args.output}")
-
-    if args.manifest is not None:
-        args.manifest.parent.mkdir(parents=True, exist_ok=True)
-        entry = {
-            "path": str(args.output.resolve()),
-            "benchmark_id": benchmark.benchmark_id,
-            "category": category,
-            "scenario": benchmark.scenario,
-            "semantic_contract_version": SEMANTIC_CONTRACT_VERSION,
-            "projection_relation": projection_relation,
-            "converter_version": CONVERTER_VERSION,
-            "benchmark_content_hash": content_sha256(args.output),
-            "source": source_provenance,
-            "topology": topology_provenance,
-        }
-        with args.manifest.open("a", encoding="utf-8", newline="\n") as handle:
-            handle.write(
-                json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n"
-            )
-        print(f"appended manifest entry to {args.manifest}")
-
-
-if __name__ == "__main__":
-    main()

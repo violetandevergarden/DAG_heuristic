@@ -1,0 +1,40 @@
+{
+  "native_builder": {
+    "edge_count": 1282,
+    "task_count": 918
+  },
+  "native_event_pairing": {
+    "reason": "SimAI executor scheduling/resource sharing is not the project oracle; this report pairs task IR, dependencies, duration and fixed routes",
+    "status": "not_supported"
+  },
+  "nonpreemptive_export": {
+    "edge_count": 1646,
+    "missing_edges": [],
+    "task_count": 918,
+    "unexplained_edges": []
+  },
+  "paired_semantics": {
+    "only_contract_diff_expected": true,
+    "resources_equal": true,
+    "scenario_equal": true,
+    "tasks_equal": true
+  },
+  "schema_version": "stage4a-nonpreemptive-conversion-pairing-v1",
+  "serializer": {
+    "added_edge_count": 364,
+    "duplicate_edge_count": 1282,
+    "effective_edge_count": 1646
+  },
+  "source": "A100-gpt_13B_ws2_pp1-world_size2-tp2-pp1-ep1-gbs1-mbs1-seq4096-MOE-False-GEMM-False-flash_attn-True.txt",
+  "spec": {
+    "ep": 1,
+    "gbs": 1,
+    "mbs": 1,
+    "model": "gpt_13B",
+    "pp": 1,
+    "source_name": "A100-gpt_13B_ws2_pp1-world_size2-tp2-pp1-ep1-gbs1-mbs1-seq4096-MOE-False-GEMM-False-flash_attn-True.txt",
+    "tp": 2,
+    "ws": 2
+  },
+  "status": "matched"
+}

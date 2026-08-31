@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from benchmark_generate.llm.barrier_motifs import multi_resource_motifs
+from benchmark_generate.llm.preemptive.barrier_motifs import multi_resource_motifs
 from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
 from llm_structured.barrier import action_features, build_context, feature_snapshot
 from muti_channel.preemptive.solver import (
