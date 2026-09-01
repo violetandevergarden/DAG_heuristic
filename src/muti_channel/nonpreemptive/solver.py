@@ -173,6 +173,61 @@ class NonPreemptiveMultiResourceDAG:
             occupied.update(resources)
         return True
 
+    def startable_flows(self, state: ResourceState) -> tuple[str, ...]:
+        """Return ready flows individually compatible with active reservations."""
+        occupied = self.occupied_resources(state)
+        return tuple(
+            task_id
+            for task_id in self.ready_flows(state)
+            if not (occupied & self.resources[self.index[task_id]])
+        )
+
+    def has_future_event(self, state: ResourceState) -> bool:
+        """Whether WAIT can advance to a real running-task completion event."""
+        return self._has_active_task(state)
+
+    def is_maximal_start(
+        self, state: ResourceState, task_ids: Iterable[str]
+    ) -> bool:
+        """Check inclusion maximality without enumerating compatible subsets."""
+        selected = tuple(task_ids)
+        if not selected or len(selected) != len(set(selected)):
+            return False
+        startable = set(self.startable_flows(state))
+        if any(task_id not in startable for task_id in selected):
+            return False
+        if not self.compatible(state, selected):
+            return False
+        used = set(self.occupied_resources(state))
+        for task_id in selected:
+            used.update(self.resources[self.index[task_id]])
+        return all(
+            used & self.resources[self.index[task_id]]
+            for task_id in startable.difference(selected)
+        )
+
+    def validate_action(
+        self, state: ResourceState, action: ResourceAction, mode: OracleMode
+    ) -> None:
+        """Validate one action in linear time under the requested idle mode."""
+        if mode not in ("optional_idle", "work_conserving"):
+            raise ValueError(f"unknown oracle mode: {mode}")
+        startable = set(self.startable_flows(state))
+        if action.kind == "wait":
+            if not self.has_future_event(state):
+                raise ValueError("WAIT requires a real future event")
+            if mode == "work_conserving" and startable:
+                raise ValueError("work-conserving mode forbids WAIT when a flow is startable")
+            return
+        if len(action.starts) != len(set(action.starts)):
+            raise ValueError("START contains duplicate flow ids")
+        if any(task_id not in startable for task_id in action.starts):
+            raise ValueError("START contains a flow that is not startable")
+        if not self.compatible(state, action.starts):
+            raise ValueError("START contains conflicting routes")
+        if mode == "work_conserving" and not self.is_maximal_start(state, action.starts):
+            raise ValueError("work-conserving START must be inclusion-maximal")
+
     def start_subsets(
         self, state: ResourceState, *, maximal_only: bool
     ) -> tuple[tuple[str, ...], ...]:
