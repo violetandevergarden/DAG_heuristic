@@ -8,8 +8,7 @@ import random
 from dataclasses import asdict
 from time import perf_counter
 
-from .adapters import make_adapter
-from .baseline import longest_tail_action
+from llm_structured.nonpreemptive.runtime import longest_tail_action, make_adapter
 from .candidates import generate
 from .contracts import BudgetLedger, DecisionRecord, RolloutConfig, RolloutResult, TriggerDecision
 from .evaluator import BudgetExhausted, evaluate

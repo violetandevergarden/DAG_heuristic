@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from llm_structured.nonpreemptive.selective_rollout.baseline import complete
+from llm_structured.nonpreemptive.runtime import complete
 
 
 def compare(adapter, state, actions, mode, budget, config):

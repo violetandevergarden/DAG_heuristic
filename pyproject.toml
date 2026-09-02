@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dag-heuristic"
 version = "0.1.0"
-description = "Preemptive communication scheduling for LLM training DAGs"
+description = "Communication scheduling for LLM training DAGs"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []

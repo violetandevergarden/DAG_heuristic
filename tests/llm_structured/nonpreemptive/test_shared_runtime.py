@@ -1,0 +1,96 @@
+from pathlib import Path
+
+from benchmark import load_benchmark
+from experiments.llm_structure.nonpreemptive.foundation.runtime_diagnosis import run
+from llm_structured.nonpreemptive.runtime import replay
+
+ROOT = Path(__file__).resolve().parents[3]
+
+
+def test_stage4_compatibility_modules_reexport_the_only_baseline_implementation():
+    from llm_structured.nonpreemptive.runtime.policies import longest_tail_action as canonical
+    from llm_structured.nonpreemptive.selective_rollout.baseline import (
+        longest_tail_action as rollout,
+    )
+
+    assert rollout is canonical
+
+
+def test_thirty_real_small_graphs_match_frozen_result_makespan_and_trace_hash():
+    import json
+
+    result_path = (
+        ROOT / "docs/nonpreemptive_docs/result_docs/stage4a_baselines_20260831/results.jsonl"
+    )
+    expected = {
+        (row["benchmark_id"], row["rule"], row["mode"]): row
+        for row in (
+            json.loads(line) for line in result_path.read_text(encoding="utf-8").splitlines()
+        )
+        if row["status"] == "completed"
+    }
+    paths = sorted((ROOT / "benchmark/llm_structure/nonpreemptive").rglob("*.json"))[:30]
+    assert len(paths) >= 30
+    comparisons = 0
+    for path in paths:
+        benchmark = load_benchmark(path)
+        for rule in ("fifo", "fixed_order", "longest_tail"):
+            for mode in ("optional_idle", "work_conserving"):
+                frozen = expected.get((benchmark.benchmark_id, rule, mode))
+                if frozen is None:
+                    continue
+                current = replay(benchmark, rule, mode)
+                comparisons += 1
+                assert current["makespan"] == frozen["makespan"]
+                assert current["trace_hash"] == frozen["trace_hash"]
+    assert comparisons >= 30
+
+
+def test_foundation_replay_paths_have_distinct_responsibilities():
+    path = ROOT / (
+        "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/"
+        "longest_tail_counterexample.json"
+    )
+    bare = run(path, "longest_tail", "optional_idle", "bare")
+    validated = run(path, "longest_tail", "optional_idle", "validated")
+    instrumented = run(path, "longest_tail", "optional_idle", "instrumented")
+    assert {bare["makespan"], validated["makespan"], instrumented["makespan"]} == {bare["makespan"]}
+    assert bare["policy_loop_only"] and bare["trace_valid"] is None
+    assert validated["trace_valid"] and not validated["features_observed"]
+    assert instrumented["trace_valid"] and instrumented["features_observed"]
+    assert instrumented["peak_memory_bytes"] is not None
+
+
+def test_legacy_multi_replay_is_a_thin_compatible_forwarder():
+    from core.conversion import to_multi_resource_instance
+    from muti_channel.nonpreemptive.replay import replay_actions
+    from muti_channel.nonpreemptive.solver import (
+        NonPreemptiveMultiResourceDAG,
+        _replay,
+    )
+
+    benchmark = load_benchmark(
+        ROOT / "benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_start_np.json"
+    )
+    model = NonPreemptiveMultiResourceDAG(to_multi_resource_instance(benchmark))
+    state = model.initial_state()
+    actions = []
+    while not model.is_finished(state):
+        action = model.legal_actions(state, "work_conserving")[0]
+        actions.append(action)
+        state = model.step(state, action).after
+    public = replay_actions(model, actions, runtime_ms=0.0)
+    legacy = _replay(model, actions, runtime_ms=0.0)
+    assert public == legacy
+
+
+def test_corpus_only_imports_publication_ownership():
+    import ast
+
+    path = ROOT / "benchmark_generate/llm/nonpreemptive/corpus.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    definitions = {
+        node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.ClassDef))
+    }
+    assert "publish" not in definitions
+    assert "_validate_candidate" not in definitions

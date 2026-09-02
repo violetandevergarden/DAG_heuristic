@@ -5,8 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict
 from time import perf_counter
 
-from llm_structured.nonpreemptive.selective_rollout.adapters import make_adapter
-from llm_structured.nonpreemptive.selective_rollout.baseline import longest_tail_action
+from llm_structured.nonpreemptive.runtime import longest_tail_action, make_adapter, schedule_baseline
 
 from .contracts import BarrierBudget, BarrierConfig, BarrierDecision, BarrierResult
 from .counterfactual import compare
@@ -16,6 +15,18 @@ from .graph import BarrierGraph
 
 def schedule(benchmark, config: BarrierConfig | None = None) -> BarrierResult:
     config = BarrierConfig() if config is None else config
+    if config.method == "lt":
+        baseline = schedule_baseline(benchmark, "longest_tail", config.mode)
+        return BarrierResult(
+            "completed", baseline["makespan"], config.mode, config.method,
+            BarrierResult.config_dict(config), (), (),
+            {"decision_count": baseline["decisions"], "divergences_from_lt": 0,
+             "fallbacks": 0, "voluntary_waits": baseline["voluntary_waits"],
+             "voluntary_wait_time": baseline["voluntary_wait_time"],
+             "forced_waits": baseline["forced_waits"], "forced_wait_time": baseline["forced_wait_time"],
+             "barrier_count": 0, "graph_truncated": False,
+             "wall_time_s": baseline["runtime_ms"] / 1000}, True,
+        )
     started = perf_counter(); adapter = make_adapter(benchmark); graph = BarrierGraph.build(benchmark, max_barriers=config.max_tracked_barriers)
     state = adapter.initial_state(); actions = []; decisions = []; budget = BarrierBudget(); divergences = 0; fallbacks = 0
     try:

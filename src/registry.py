@@ -246,18 +246,14 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "resource_downstream_pack",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_interface.solve(
-                        *convert_multi(b), "resource_downstream_pack"
-                    ),
+                    lambda b: multi_interface.solve(*convert_multi(b), "resource_downstream_pack"),
                     "Resource-vector downstream-demand candidate; mean and worst must both be audited.",
                 ),
                 "union_downstream_set": Algorithm(
                     "union_downstream_set",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_interface.solve(
-                        *convert_multi(b), "union_downstream_set"
-                    ),
+                    lambda b: multi_interface.solve(*convert_multi(b), "union_downstream_set"),
                     "Whole-set candidate using the union of reachable downstream nodes.",
                 ),
                 "rollout_sets2d2": Algorithm(
@@ -553,15 +549,30 @@ def _active_v2(algorithms: dict[str, Algorithm]) -> dict[str, Algorithm]:
     }
 
 
+def _active_nonpreemptive(algorithms: dict[str, Algorithm]) -> dict[str, Algorithm]:
+    return {
+        name: replace(
+            algorithm,
+            semantics="communication_nonpreemptive",
+            development_status=(
+                "active"
+                if algorithm.development_status == "maintenance"
+                else algorithm.development_status
+            ),
+        )
+        for name, algorithm in algorithms.items()
+    }
+
+
 def algorithms_for(benchmark: Benchmark) -> dict[str, Algorithm]:
     if benchmark.semantics.is_preemptive:
         return _preemptive_registry(benchmark)
     if benchmark.scenario == "muti_channel":
-        return _muti_registry()
+        return _active_nonpreemptive(_muti_registry())
     if benchmark.family == "parallel_chain":
-        return _parallel_registry()
+        return _active_nonpreemptive(_parallel_registry())
     if benchmark.family == "complex_chain":
-        return _complex_registry()
+        return _active_nonpreemptive(_complex_registry())
     raise ValueError(f"unsupported benchmark family: {benchmark.family}")
 
 

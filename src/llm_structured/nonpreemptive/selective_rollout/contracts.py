@@ -5,15 +5,9 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Literal
 
-Mode = Literal["optional_idle", "work_conserving"]
+from llm_structured.nonpreemptive.runtime.contracts import ActionSignature, Mode
+
 TriggerKind = Literal["none", "full", "selective", "strict", "loose", "disagreement", "legacy", "random", "periodic"]
-
-
-@dataclass(frozen=True, order=True)
-class ActionSignature:
-    kind: Literal["flow", "start", "wait"]
-    task_ids: tuple[str, ...] = ()
-    next_event_time: int | None = None
 
 
 @dataclass(frozen=True)

@@ -8,13 +8,10 @@ import json
 import multiprocessing
 import os
 import queue
-import shutil
-import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from benchmark import load_benchmark, validate_benchmark, write_benchmark
-from benchmark_generate.export import build_index
+from benchmark import load_benchmark, write_benchmark
 from benchmark_generate.llm.nonpreemptive.catalog import (
     source_catalog,
     topology_catalog,
@@ -22,6 +19,13 @@ from benchmark_generate.llm.nonpreemptive.catalog import (
 )
 from benchmark_generate.llm.nonpreemptive.contention import contention_audit
 from benchmark_generate.llm.nonpreemptive.multi_job import compose_real_jobs
+from benchmark_generate.llm.nonpreemptive.publication import publish
+from benchmark_generate.llm.nonpreemptive.selection import (
+    benchmark_id as _benchmark_id,
+)
+from benchmark_generate.llm.nonpreemptive.selection import (
+    selected_specs as _selected_specs,
+)
 from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
 from benchmark_generate.llm_structure import (
     AICB_ROOT,
@@ -103,57 +107,6 @@ def _export_with_budget(
         raise RuntimeError(result["error"])
     os.replace(temporary, destination)
     return load_benchmark(destination)
-
-
-def _spec(source: dict, *, topology: str | None = None) -> dict:
-    return {
-        "source_name": Path(source["path"]).name,
-        "model": source["model"],
-        "ws": source["world_size"],
-        "tp": source["tp"],
-        "pp": source["pp"],
-        "ep": source["ep"],
-        "gbs": source["gbs"],
-        "mbs": source["mbs"],
-        **({"topology": topology} if topology else {}),
-    }
-
-
-def _selected_specs(rows: list[dict]) -> list[dict]:
-    available = [row for row in rows if row.get("status") == "available" and row["world_size"] > 1]
-    specs: list[dict] = []
-    models = sorted({row["model"] for row in available})
-    for model_index, model in enumerate(models):
-        candidates = [row for row in available if row["model"] == model]
-        smallest = min(
-            candidates, key=lambda row: (row["world_size"], row["gbs"], row["mbs"], row["path"])
-        )
-        specs.append(_spec(smallest))
-        pipeline = [row for row in candidates if row["pp"] >= 2]
-        if pipeline and model_index < 2:
-            paired = min(
-                pipeline, key=lambda row: (row["world_size"], row["gbs"], row["mbs"], row["path"])
-            )
-            if paired["path"] != smallest["path"]:
-                specs.append(_spec(paired))
-    # A bounded topology pair, never a source x topology product.
-    route_sources = sorted(available, key=lambda row: (row["world_size"], row["path"]))
-    for topology in sorted(TOPOLOGIES)[:2]:
-        if route_sources:
-            specs.append(_spec(route_sources[0], topology=topology))
-    unique = {_canonical_hash(item): item for item in specs}
-    return [unique[key] for key in sorted(unique)]
-
-
-def _benchmark_id(spec: dict) -> str:
-    model = "".join(ch.lower() for ch in str(spec["model"]) if ch.isalnum())
-    base = (
-        f"np_{model}_ws{spec['ws']}_tp{spec['tp']}_pp{spec['pp']}_"
-        f"ep{spec['ep']}_gbs{spec['gbs']}_mbs{spec['mbs']}"
-    )
-    if spec.get("topology"):
-        base += f"_route_{spec['topology']}"
-    return base
 
 
 def _tier(task_count: int) -> str:
@@ -421,86 +374,6 @@ def audit(
         processed += 1
         write_jsonl(manifest, rows)
     return manifest
-
-
-def _validate_candidate(staging: Path) -> list[dict]:
-    rows = [
-        row
-        for row in _read_jsonl(staging / "candidate_manifest.jsonl")
-        if row.get("publication_status") != "excluded"
-    ]
-    seen_ids: set[str] = set()
-    seen_paths: set[str] = set()
-    run_ids = {row.get("publication_run_id") for row in rows}
-    if len(run_ids) != 1 or None in run_ids:
-        raise ValueError("candidate sidecars do not share one publication_run_id")
-    for row in rows:
-        benchmark_id, relative = row.get("benchmark_id"), row.get("path")
-        if not benchmark_id or not relative or benchmark_id in seen_ids or relative in seen_paths:
-            raise ValueError("candidate contains empty or duplicate id/path")
-        seen_ids.add(benchmark_id)
-        seen_paths.add(relative)
-        path = staging / relative
-        benchmark = load_benchmark(path)
-        validate_benchmark(benchmark)
-        if benchmark.schema_version != "3.0" or benchmark.semantics.is_preemptive:
-            raise ValueError(f"not a v3 non-preemptive benchmark: {relative}")
-        if _sha256(path) != row.get("content_hash"):
-            raise ValueError(f"benchmark hash mismatch: {relative}")
-        report = row.get("contention_report")
-        if not report or _sha256(staging / report) != row.get("contention_report_hash"):
-            raise ValueError(f"contention report missing or mismatched: {relative}")
-    actual = {
-        path.relative_to(staging).as_posix() for path in (staging / "nonpreemptive").rglob("*.json")
-    }
-    expected = {row["path"] for row in rows}
-    if actual != expected:
-        raise ValueError("candidate manifest/file mismatch")
-    return rows
-
-
-def publish(root: Path, *, staging: Path) -> tuple[Path, int]:
-    root, staging = root.resolve(), staging.resolve()
-    rows = _validate_candidate(staging)
-    llm_root = root / "llm_structure"
-    active = llm_root / "nonpreemptive"
-    backup_root = root.parent / ".artifacts" / "nonpreemptive_publication_backup"
-    backup_root.mkdir(parents=True, exist_ok=True)
-    backup = backup_root / f"snapshot-{int(time.time())}"
-    sidecars = [
-        llm_root / "nonpreemptive_manifest.jsonl",
-        llm_root / "nonpreemptive_source_catalog.jsonl",
-        llm_root / "nonpreemptive_topology_catalog.jsonl",
-        llm_root / "nonpreemptive_run_metadata.jsonl",
-        root / "index.jsonl",
-    ]
-    saved = {path: path.read_bytes() if path.exists() else None for path in sidecars}
-    try:
-        if active.exists():
-            os.replace(active, backup)
-        os.replace(staging / "nonpreemptive", active)
-        for source_name, target in (
-            ("source_catalog.jsonl", sidecars[1]),
-            ("topology_catalog.jsonl", sidecars[2]),
-            ("run_metadata.jsonl", sidecars[3]),
-        ):
-            shutil.copy2(staging / source_name, target)
-        published = [{**row, "publication_status": "published"} for row in rows]
-        write_jsonl(sidecars[0], published)
-        count = len(build_index(root))
-    except Exception:
-        if active.exists():
-            shutil.rmtree(active)
-        if backup.exists():
-            os.replace(backup, active)
-        for path, content in saved.items():
-            if content is None:
-                path.unlink(missing_ok=True)
-            else:
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_bytes(content)
-        raise
-    return sidecars[0], count
 
 
 def main(argv: list[str] | None = None) -> None:

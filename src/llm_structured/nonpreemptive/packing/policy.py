@@ -6,7 +6,8 @@ from collections import Counter
 from dataclasses import replace
 from time import perf_counter
 
-from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, _complete, _replay
+from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, _complete
+from muti_channel.nonpreemptive.replay import replay_actions
 
 from .constructors import baseline_action, construct_candidates
 from .contracts import DecisionBudget, PackingConfig, PackingDecision, PackingScheduleResult
@@ -51,7 +52,7 @@ def schedule_packing(instance, config: PackingConfig | None = None) -> PackingSc
         decisions.append(decision); reasons.update(decision.fallback_reasons)
         actions.append(decision.selected); state = model.step(state, decision.selected).after
     elapsed = (perf_counter() - started) * 1000
-    replay = _replay(model, actions, runtime_ms=elapsed)
+    replay = replay_actions(model, actions, runtime_ms=elapsed)
     return PackingScheduleResult(
         replay.makespan, replay.actions, replay.intervals, elapsed, len(decisions),
         sum(len(x.candidates) for x in decisions), sum(x.completion_calls for x in decisions),

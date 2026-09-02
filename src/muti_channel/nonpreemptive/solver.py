@@ -9,24 +9,19 @@ executor.
 
 from __future__ import annotations
 
-import argparse
-from collections import defaultdict
-from dataclasses import dataclass, replace
-from functools import lru_cache
-import json
-from pathlib import Path
-import random
-from statistics import mean
 import sys
+from collections import defaultdict
+from collections.abc import Hashable, Iterable
+from dataclasses import dataclass, replace
+from functools import cache
+from pathlib import Path
 from time import perf_counter
-from typing import Hashable, Iterable, Literal
-
+from typing import Literal
 
 ROOT = Path(__file__).resolve().parents[1]
 
-from core.dag import BenchmarkDAG, _Builder
+from core.dag import BenchmarkDAG
 from core.resource import MultiResourceInstance
-
 
 Resource = Hashable
 Status = Literal["pending", "running", "completed"]
@@ -116,9 +111,7 @@ class NonPreemptiveMultiResourceDAG:
         self.order = tuple(order)
         self.tasks = tuple(tasks[task_id] for task_id in order)
         self.index = {task_id: index for index, task_id in enumerate(order)}
-        self.deps = tuple(
-            tuple(self.index[parent] for parent in task.deps) for task in self.tasks
-        )
+        self.deps = tuple(tuple(self.index[parent] for parent in task.deps) for task in self.tasks)
         children: list[list[int]] = [[] for _ in self.tasks]
         for child, parents in enumerate(self.deps):
             for parent in parents:
@@ -186,9 +179,7 @@ class NonPreemptiveMultiResourceDAG:
         """Whether WAIT can advance to a real running-task completion event."""
         return self._has_active_task(state)
 
-    def is_maximal_start(
-        self, state: ResourceState, task_ids: Iterable[str]
-    ) -> bool:
+    def is_maximal_start(self, state: ResourceState, task_ids: Iterable[str]) -> bool:
         """Check inclusion maximality without enumerating compatible subsets."""
         selected = tuple(task_ids)
         if not selected or len(selected) != len(set(selected)):
@@ -202,8 +193,7 @@ class NonPreemptiveMultiResourceDAG:
         for task_id in selected:
             used.update(self.resources[self.index[task_id]])
         return all(
-            used & self.resources[self.index[task_id]]
-            for task_id in startable.difference(selected)
+            used & self.resources[self.index[task_id]] for task_id in startable.difference(selected)
         )
 
     def validate_action(
@@ -260,9 +250,7 @@ class NonPreemptiveMultiResourceDAG:
             if not any(set(selected) < set(other) for other in unique)
         )
 
-    def legal_actions(
-        self, state: ResourceState, mode: OracleMode
-    ) -> tuple[ResourceAction, ...]:
+    def legal_actions(self, state: ResourceState, mode: OracleMode) -> tuple[ResourceAction, ...]:
         if mode == "work_conserving":
             starts = self.start_subsets(state, maximal_only=True)
             if starts:
@@ -277,9 +265,7 @@ class NonPreemptiveMultiResourceDAG:
             raise ValueError(f"unknown oracle mode: {mode}")
         return (ResourceAction.wait(),) if self._has_active_task(state) else ()
 
-    def step(
-        self, state: ResourceState, action: ResourceAction
-    ) -> ResourceTransition:
+    def step(self, state: ResourceState, action: ResourceAction) -> ResourceTransition:
         starts = action.starts
         if starts:
             if len(starts) != len(set(starts)):
@@ -295,15 +281,9 @@ class NonPreemptiveMultiResourceDAG:
         values = list(state.tasks)
         for task_id in starts:
             index = self.index[task_id]
-            values[index] = ResourceRuntime(
-                "running", self.tasks[index].duration, state.time, None
-            )
+            values[index] = ResourceRuntime("running", self.tasks[index].duration, state.time, None)
         working = ResourceState(state.time, tuple(values))
-        running = [
-            runtime.remaining
-            for runtime in working.tasks
-            if runtime.status == "running"
-        ]
+        running = [runtime.remaining for runtime in working.tasks if runtime.status == "running"]
         if not running:
             raise RuntimeError("action did not create a future event")
         delta = min(running)
@@ -316,13 +296,9 @@ class NonPreemptiveMultiResourceDAG:
                 continue
             remaining = runtime.remaining - delta
             if remaining:
-                values[index] = ResourceRuntime(
-                    "running", remaining, runtime.started_at, None
-                )
+                values[index] = ResourceRuntime("running", remaining, runtime.started_at, None)
                 continue
-            values[index] = ResourceRuntime(
-                "completed", 0, runtime.started_at, end
-            )
+            values[index] = ResourceRuntime("completed", 0, runtime.started_at, end)
             completed.append(self.tasks[index].task_id)
             assert runtime.started_at is not None
             intervals.append(
@@ -344,18 +320,14 @@ class NonPreemptiveMultiResourceDAG:
             tuple(intervals),
         )
 
-    def residual_features(
-        self, state: ResourceState
-    ) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    def residual_features(self, state: ResourceState) -> tuple[tuple[int, ...], tuple[int, ...]]:
         remaining = [self.remaining(state, index) for index in range(len(self.tasks))]
         path = [0] * len(self.tasks)
         tail = [0] * len(self.tasks)
         for index in reversed(range(len(self.tasks))):
             if not remaining[index]:
                 continue
-            tail[index] = max(
-                (path[child] for child in self.children[index]), default=0
-            )
+            tail[index] = max((path[child] for child in self.children[index]), default=0)
             path[index] = remaining[index] + tail[index]
         return tuple(path), tuple(tail)
 
@@ -381,22 +353,16 @@ class NonPreemptiveMultiResourceDAG:
                 if not self._deps_completed(values, index):
                     continue
                 if task.duration == 0:
-                    values[index] = ResourceRuntime(
-                        "completed", 0, state.time, state.time
-                    )
+                    values[index] = ResourceRuntime("completed", 0, state.time, state.time)
                     intervals.append(
                         ResourceInterval(task.task_id, "compute", state.time, state.time)
                     )
                 else:
-                    values[index] = ResourceRuntime(
-                        "running", task.duration, state.time, None
-                    )
+                    values[index] = ResourceRuntime("running", task.duration, state.time, None)
                 changed = True
         return ResourceState(state.time, tuple(values)), intervals
 
-    def _deps_completed(
-        self, runtimes: Iterable[ResourceRuntime], task_index: int
-    ) -> bool:
+    def _deps_completed(self, runtimes: Iterable[ResourceRuntime], task_index: int) -> bool:
         values = tuple(runtimes)
         return all(values[parent].status == "completed" for parent in self.deps[task_index])
 
@@ -438,9 +404,7 @@ def residual_resource_loads(
     return dict(loads)
 
 
-def lower_bounds(
-    model: NonPreemptiveMultiResourceDAG, state: ResourceState
-) -> dict[str, int]:
+def lower_bounds(model: NonPreemptiveMultiResourceDAG, state: ResourceState) -> dict[str, int]:
     path, _tail = model.residual_features(state)
     loads = residual_resource_loads(model, state)
     result = {
@@ -480,54 +444,16 @@ def _replay(
     lower: dict[str, int] | None = None,
     fallback: bool = False,
 ) -> ResourceSchedule:
-    state = model.initial_state()
-    path = tuple(actions)
-    intervals: list[ResourceInterval] = []
-    voluntary_waits = voluntary_wait_time = 0
-    forced_waits = forced_wait_time = 0
-    conflict_events = 0
-    for action in path:
-        if len(model.ready_flows(state)) >= 2:
-            resources = [
-                model.resources[model.index[task_id]]
-                for task_id in model.ready_flows(state)
-            ]
-            conflict_events += any(
-                resources[left] & resources[right]
-                for left in range(len(resources))
-                for right in range(left + 1, len(resources))
-            )
-        had_compatible = bool(model.start_subsets(state, maximal_only=False))
-        transition = model.step(state, action)
-        duration = transition.after.time - transition.before.time
-        if action.kind == "wait":
-            if had_compatible:
-                voluntary_waits += 1
-                voluntary_wait_time += duration
-            else:
-                forced_waits += 1
-                forced_wait_time += duration
-        intervals.extend(transition.intervals)
-        state = transition.after
-    if not model.is_finished(state):
-        raise AssertionError("schedule did not finish")
-    _assert_route_reservations(model, intervals)
-    return ResourceSchedule(
-        state.time,
-        path,
-        tuple(intervals),
-        runtime_ms,
-        explored_states,
-        voluntary_waits,
-        voluntary_wait_time,
-        forced_waits,
-        forced_wait_time,
-        sum(action.kind == "start" for action in path),
-        sum(len(action.starts) for action in path),
-        candidate_actions,
-        conflict_events,
-        lower,
-        fallback,
+    from .replay import replay_actions
+
+    return replay_actions(
+        model,
+        actions,
+        runtime_ms=runtime_ms,
+        explored_states=explored_states,
+        candidate_actions=candidate_actions,
+        lower=lower,
+        fallback=fallback,
     )
 
 
@@ -535,25 +461,9 @@ def _assert_route_reservations(
     model: NonPreemptiveMultiResourceDAG,
     intervals: Iterable[ResourceInterval],
 ) -> None:
-    comms = [interval for interval in intervals if interval.kind == "comm"]
-    by_task: dict[str, int] = defaultdict(int)
-    for interval in comms:
-        if interval.end <= interval.start:
-            raise AssertionError(f"invalid communication interval: {interval}")
-        by_task[interval.task_id] += 1
-    if any(count != 1 for count in by_task.values()):
-        raise AssertionError("a flow was split into multiple intervals")
-    for left, first in enumerate(comms):
-        for second in comms[left + 1 :]:
-            overlap = first.start < second.end and second.start < first.end
-            if not overlap:
-                continue
-            first_resources = model.resources[model.index[first.task_id]]
-            second_resources = model.resources[model.index[second.task_id]]
-            if first_resources & second_resources:
-                raise AssertionError(
-                    f"overlapping flows share route resources: {first}, {second}"
-                )
+    from .replay import assert_route_reservations
+
+    assert_route_reservations(model, intervals)
 
 
 def exact_oracle(
@@ -569,7 +479,7 @@ def exact_oracle(
     choices: dict[StateKey, ResourceAction] = {}
     explored = 0
 
-    @lru_cache(maxsize=None)
+    @cache
     def solve(key: StateKey) -> int:
         nonlocal explored
         explored += 1
@@ -758,9 +668,7 @@ def schedule_rollout(
             for action in candidates:
                 transition = model.step(state, action)
                 delta = transition.after.time - transition.before.time
-                value = delta + _complete(
-                    model, transition.after, "dynamic_tail"
-                )[0]
+                value = delta + _complete(model, transition.after, "dynamic_tail")[0]
                 scored.append(
                     (
                         value,
