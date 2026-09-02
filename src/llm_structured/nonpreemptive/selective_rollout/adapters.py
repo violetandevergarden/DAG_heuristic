@@ -9,7 +9,9 @@ from core.conversion import to_internal_dag, to_multi_resource_instance
 from core.execution.nonpreemptive import Action, NonPreemptiveDAGModel
 from core.trace.nonpreemptive import assert_nonpreemptive_trace
 from muti_channel.nonpreemptive.solver import (
-    NonPreemptiveMultiResourceDAG, ResourceAction, _replay,
+    NonPreemptiveMultiResourceDAG,
+    ResourceAction,
+    _replay,
 )
 
 from .contracts import ActionSignature, Mode
@@ -51,6 +53,11 @@ class SingleAdapter:
     def duration(self, state, action):
         if action.kind == "wait": return self.step(state, action).after.time - state.time
         return self.model.tasks[self.model.index[action.task_id]].duration
+    def next_event_distance(self, state):
+        return min((self.model.task_runtime(state, x).remaining for x in self.model.active_computes(state)), default=10**18)
+    def resources(self, action): return frozenset({"channel:0"}) if action.kind != "wait" else frozenset()
+    def resource_coverage(self, action): return len(self.resources(action))
+    def ready_flow_ids(self, state): return frozenset(self.model.ready_flows(state))
     def tail(self, state):
         children = [[] for _ in self.model.tasks]
         for child, parents in enumerate(self.model.deps):
@@ -94,6 +101,14 @@ class MultiAdapter:
         all_resources = {str(x) for group in self.model.resources for x in group}
         return self.model.active_flows(state), occupied, tuple(sorted(all_resources - set(occupied)))
     def duration(self, state, action): return self.step(state, action).after.time - state.time
+    def next_event_distance(self, state):
+        return min((r.remaining for r in state.tasks if r.status == "running"), default=10**18)
+    def resources(self, action):
+        if action.kind == "wait": return frozenset()
+        return frozenset(resource for item in action.starts for resource in self.model.resources[self.model.index[item]])
+    def resource_coverage(self, action): return len(self.resources(action))
+    def ready_flow_ids(self, state):
+        return frozenset(self.model.ready_flows(state))
     def tail(self, state):
         _path, values = self.model.residual_features(state)
         return {task.task_id: values[i] for i, task in enumerate(self.model.tasks)}
@@ -104,4 +119,3 @@ class MultiAdapter:
 
 def make_adapter(benchmark) -> Any:
     return SingleAdapter(benchmark) if benchmark.scenario == "single_channel" else MultiAdapter(benchmark)
-

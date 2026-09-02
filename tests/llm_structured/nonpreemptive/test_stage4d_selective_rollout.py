@@ -4,12 +4,12 @@ from pathlib import Path
 
 from benchmark import load_benchmark
 from llm_structured.nonpreemptive.selective_rollout import RolloutConfig, schedule
-from llm_structured.nonpreemptive.selective_rollout.contracts import ActionSignature
 from llm_structured.nonpreemptive.selective_rollout.adapters import make_adapter
 from llm_structured.nonpreemptive.selective_rollout.baseline import longest_tail_action
 from llm_structured.nonpreemptive.selective_rollout.candidates import generate
+from llm_structured.nonpreemptive.selective_rollout.cheap_policies import preferences
+from llm_structured.nonpreemptive.selective_rollout.contracts import ActionSignature
 from llm_structured.nonpreemptive.selective_rollout.exact import cost_to_go
-
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -95,3 +95,30 @@ def test_cost_to_go_accepts_simulator_residual_state() -> None:
     suffix = cost_to_go(adapter, transition.after, "optional_idle")
     assert suffix.status == "optimal"
     assert transition.after.time - initial.time + suffix.cost == result.cost
+
+
+def test_true_policy_disagreement_is_not_candidate_disagreement() -> None:
+    adapter = make_adapter(load_benchmark(ROOT / "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/combined_chain_14.json"))
+    state = adapter.initial_state()
+    state = adapter.step(state, longest_tail_action(adapter, state, "optional_idle")).after
+    mapping = preferences(adapter, state, "optional_idle")
+    signatures = {adapter.signature(state, action) for action in mapping.values()}
+    candidates, _, _ = generate(adapter, state, "optional_idle", 2)
+    assert len(candidates) == 2
+    assert len(signatures) == 1
+
+
+def test_policy_mapping_records_real_fifo_lt_spt_disagreement() -> None:
+    adapter = make_adapter(load_benchmark(ROOT / "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/combined_chain_14.json"))
+    state = adapter.initial_state(); mapping = preferences(adapter, state, "optional_idle")
+    signatures = {name: adapter.signature(state, action) for name, action in mapping.items()}
+    assert signatures["fifo"] == signatures["lt"]
+    assert signatures["spt"] != signatures["lt"]
+
+
+def test_feature_lookahead_is_counted_and_reused() -> None:
+    result = schedule(_single(), RolloutConfig(trigger="full", max_candidates_per_decision=2))
+    first = result.decisions[0]
+    assert result.metrics["feature_transitions"] >= len(first["generated"])
+    assert first["features"]["policy_actions"]
+    assert result.metrics["completion_calls"] == result.metrics["evaluated_candidates"]

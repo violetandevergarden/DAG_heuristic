@@ -1,0 +1,175 @@
+{
+  "aggregates": {
+    "optional_idle:C1_policy_disagreement": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 81,
+      "completion_calls": 24,
+      "feature_transitions": 76,
+      "wall_clock_ms": 102.1648000460118,
+      "fallback_decisions": 0
+    },
+    "optional_idle:C2_loose": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 81,
+      "completion_calls": 24,
+      "feature_transitions": 76,
+      "wall_clock_ms": 110.58290000073612,
+      "fallback_decisions": 0
+    },
+    "optional_idle:C3_strict": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 82,
+      "completion_calls": 6,
+      "feature_transitions": 77,
+      "wall_clock_ms": 82.18510006554425,
+      "fallback_decisions": 0
+    },
+    "optional_idle:H0_lt": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 82,
+      "completion_calls": 0,
+      "feature_transitions": 0,
+      "wall_clock_ms": 34.21459975652397,
+      "fallback_decisions": 0
+    },
+    "optional_idle:H1_full_w2_d1": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 81,
+      "completion_calls": 50,
+      "feature_transitions": 76,
+      "wall_clock_ms": 139.20399989001453,
+      "fallback_decisions": 0
+    },
+    "optional_idle:H2_legacy_failed_trigger_v1": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 81,
+      "completion_calls": 50,
+      "feature_transitions": 76,
+      "wall_clock_ms": 135.56740013882518,
+      "fallback_decisions": 0
+    },
+    "optional_idle:H4_random_matched": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 82,
+      "completion_calls": 12,
+      "feature_transitions": 77,
+      "wall_clock_ms": 89.89740023389459,
+      "fallback_decisions": 0
+    },
+    "optional_idle:H5_periodic_matched": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 81,
+      "completion_calls": 12,
+      "feature_transitions": 76,
+      "wall_clock_ms": 85.87630023248494,
+      "fallback_decisions": 0
+    },
+    "work_conserving:C1_policy_disagreement": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 85,
+      "completion_calls": 18,
+      "feature_transitions": 60,
+      "wall_clock_ms": 104.50429981574416,
+      "fallback_decisions": 0
+    },
+    "work_conserving:C2_loose": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 85,
+      "completion_calls": 18,
+      "feature_transitions": 60,
+      "wall_clock_ms": 96.63030016236007,
+      "fallback_decisions": 0
+    },
+    "work_conserving:C3_strict": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 86,
+      "completion_calls": 2,
+      "feature_transitions": 61,
+      "wall_clock_ms": 71.83649996295571,
+      "fallback_decisions": 0
+    },
+    "work_conserving:H0_lt": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 86,
+      "completion_calls": 0,
+      "feature_transitions": 0,
+      "wall_clock_ms": 32.345299841836095,
+      "fallback_decisions": 0
+    },
+    "work_conserving:H1_full_w2_d1": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 85,
+      "completion_calls": 18,
+      "feature_transitions": 60,
+      "wall_clock_ms": 94.87539995461702,
+      "fallback_decisions": 0
+    },
+    "work_conserving:H2_legacy_failed_trigger_v1": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 85,
+      "completion_calls": 18,
+      "feature_transitions": 60,
+      "wall_clock_ms": 91.36459976434708,
+      "fallback_decisions": 0
+    },
+    "work_conserving:H4_random_matched": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 86,
+      "completion_calls": 6,
+      "feature_transitions": 61,
+      "wall_clock_ms": 81.43940009176731,
+      "fallback_decisions": 0
+    },
+    "work_conserving:H5_periodic_matched": {
+      "rows": 7,
+      "completed": 7,
+      "timeout_or_failed": 0,
+      "makespan_sum": 85,
+      "completion_calls": 4,
+      "feature_transitions": 60,
+      "wall_clock_ms": 76.36169949546456,
+      "fallback_decisions": 0
+    }
+  },
+  "exact_trigger_note": "H7 is an offline decision-label upper bound only; LT-path labels cannot define a deployable divergent end-to-end policy.",
+  "exact_trigger_upper": {
+    "optional_idle": {
+      "known_positive_decisions": 2,
+      "total_lt_regret": null
+    },
+    "work_conserving": {
+      "known_positive_decisions": 2,
+      "total_lt_regret": null
+    }
+  }
+}

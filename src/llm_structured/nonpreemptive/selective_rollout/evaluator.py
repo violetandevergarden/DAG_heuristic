@@ -11,7 +11,7 @@ from .candidates import generate
 class BudgetExhausted(RuntimeError): pass
 
 
-def evaluate(adapter, state, candidates, depth, mode, ledger, config, cache, started):
+def evaluate(adapter, state, candidates, depth, mode, ledger, config, cache, started, precomputed=None):
     decision_started = perf_counter()
 
     def value(current, remaining_depth):
@@ -44,11 +44,10 @@ def evaluate(adapter, state, candidates, depth, mode, ledger, config, cache, sta
 
     scored = []
     for action in candidates:
-        transition = adapter.step(state, action)
+        transition = (precomputed or {}).get(adapter.signature(state, action)) or adapter.step(state, action)
         suffix, child_depth = value(transition.after, max(0, depth - 1))
         scored.append((transition.after.time - state.time + suffix, action, max(1, child_depth + 1)))
         ledger.evaluated_candidates += 1
     baseline = longest_tail_action(adapter, state, mode)
     scored.sort(key=lambda item: (item[0], item[1] != baseline, adapter.signature(state, item[1])))
     return scored[0][1], scored
-

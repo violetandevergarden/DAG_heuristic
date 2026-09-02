@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import random
 from dataclasses import asdict
-import hashlib, json, random
 from time import perf_counter
 
 from .adapters import make_adapter
@@ -15,21 +17,25 @@ from .features import compute
 from .triggers import decide
 
 
-def schedule(benchmark, config: RolloutConfig = RolloutConfig()) -> RolloutResult:
+def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
+    config = config or RolloutConfig()
     started = perf_counter(); adapter = make_adapter(benchmark); state = adapter.initial_state()
     ledger = BudgetLedger(); records = []; actions = []; cache = {}; rng = random.Random(config.random_seed)
     fallback_count = 0
     while not adapter.is_finished(state):
         base = longest_tail_action(adapter, state, config.mode)
-        candidates, generated_count, truncated = generate(adapter, state, config.mode, config.max_candidates_per_decision)
+        candidates, _generated_count, truncated = generate(adapter, state, config.mode, config.max_candidates_per_decision)
         if config.search_depth == 0 or config.max_candidates_per_decision < 2:
-            candidates, generated_count, truncated = (base,), 1, False
+            candidates, truncated = (base,), False
             features = {"choice_count": 1, "lt_margin": None, "lt_margin_ratio": None, "duration_spread_ratio": 0.0,
-                        "heuristic_disagreement": False, "crosses_event": False, "wait_available": base.kind == "wait", "resource_footprints": []}
+                        "true_policy_disagreement": False, "heuristic_disagreement": False, "crosses_event": False,
+                        "critical_release_crossed": False, "release_gain_spread": False, "wait_opportunity": False,
+                        "resource_conflict_spread": False, "wait_available": base.kind == "wait", "precomputed_transitions": {}}
         else:
             features = compute(adapter, state, candidates, ledger, config)
         trigger = decide(config.trigger, features, config, len(records), rng)
-        record = DecisionRecord(len(records), state.time, adapter.signature(state, base), len(adapter.legal_actions(state, config.mode)), tuple(adapter.signature(state, x) for x in candidates), trigger=trigger)
+        public_features = {k: v for k, v in features.items() if k not in {"precomputed_transitions", "release_metrics"}}
+        record = DecisionRecord(len(records), state.time, adapter.signature(state, base), len(adapter.legal_actions(state, config.mode)), tuple(adapter.signature(state, x) for x in candidates), trigger=trigger, features=public_features)
         action = base
         if config.search_depth == 0 or config.max_candidates_per_decision < 2:
             record.fallback_reason = "rollout_disabled"
@@ -38,7 +44,7 @@ def schedule(benchmark, config: RolloutConfig = RolloutConfig()) -> RolloutResul
                 record.trigger = TriggerDecision(False, trigger.reasons, trigger.score, True); record.fallback_reason = "trigger_budget"
             else:
                 try:
-                    selected, scored = evaluate(adapter, state, candidates, config.search_depth, config.mode, ledger, config, cache, started)
+                    selected, scored = evaluate(adapter, state, candidates, config.search_depth, config.mode, ledger, config, cache, started, features.get("precomputed_transitions"))
                     action = selected
                     record.evaluated = tuple(adapter.signature(state, x[1]) for x in scored)
                     record.values = {str(adapter.signature(state, x[1])): x[0] for x in scored}

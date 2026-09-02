@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 from typing import Literal
 
 Mode = Literal["optional_idle", "work_conserving"]
-TriggerKind = Literal["none", "full", "selective", "random", "periodic"]
+TriggerKind = Literal["none", "full", "selective", "strict", "loose", "disagreement", "legacy", "random", "periodic"]
 
 
 @dataclass(frozen=True, order=True)
@@ -34,8 +34,10 @@ class RolloutConfig:
     periodic_interval: int = 4
     small_margin_ratio: float = 0.15
     duration_spread_ratio: float = 0.5
-    feature_version: str = "np-stage4d-features-v1"
-    candidate_version: str = "np-stage4d-candidates-v1"
+    release_tail_advantage_ratio: float = 0.15
+    wait_ratio: float = 0.5
+    feature_version: str = "np-stage4d-features-v2"
+    candidate_version: str = "np-stage4d-candidates-v2"
     completion_version: str = "residual-lt-v1"
 
     def __post_init__(self) -> None:
@@ -95,6 +97,7 @@ class DecisionRecord:
     selected: ActionSignature | None = None
     fallback_reason: str | None = None
     actual_depth: int = 0
+    features: dict = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -113,4 +116,3 @@ class RolloutResult:
     @staticmethod
     def config_dict(config: RolloutConfig) -> dict:
         return asdict(config)
-

@@ -10,7 +10,6 @@ def generate(adapter, state, mode, max_candidates):
     base = longest_tail_action(adapter, state, mode)
     if max_candidates == 0:
         return (base,), len(legal), True
-    tails = adapter.tail(state)
     if adapter.resource_model == "single_channel":
         starts = [a for a in legal if a.kind != "wait"]
         fifo = min(starts, key=lambda a: adapter.model.index[a.task_id]) if starts else None
@@ -30,4 +29,3 @@ def generate(adapter, state, mode, max_candidates):
     if base not in limited:
         limited[-1] = base
     return tuple(limited), len(unique), len(limited) < len(unique)
-
