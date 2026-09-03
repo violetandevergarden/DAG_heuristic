@@ -13,7 +13,9 @@ def _problem_files() -> list[Path]:
     return [
         path
         for path in (ROOT / "benchmark").rglob("*.json")
-        if "schema" not in path.parts and "reference_results" not in path.parts
+        if "schema" not in path.parts
+        and "reference_results" not in path.parts
+        and ".staging" not in path.parts
     ]
 
 
@@ -41,7 +43,7 @@ def test_removed_compatibility_paths_do_not_reappear() -> None:
 
 def test_every_problem_path_explicitly_matches_json_semantics() -> None:
     files = _problem_files()
-    assert len(files) == 243
+    assert files
     for path in files:
         benchmark = load_benchmark(path)
         branch = "preemptive" if benchmark.semantics.is_preemptive else "nonpreemptive"
@@ -59,12 +61,39 @@ def test_preemptive_multi_channel_names_do_not_keep_nonpreemptive_suffix() -> No
 
 
 def test_index_and_path_manifest_are_complete_and_auditable() -> None:
-    rows = [json.loads(line) for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8-sig").splitlines()]
-    assert len(rows) == 243
+    rows = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8-sig").splitlines()
+    ]
+    indexed_paths = [row["path"] for row in rows]
+    problem_paths = [path.relative_to(ROOT / "benchmark").as_posix() for path in _problem_files()]
+    assert len(indexed_paths) == len(set(indexed_paths))
+    assert set(indexed_paths) == set(problem_paths)
     assert {row["layout_version"] for row in rows} == {"2"}
     assert {row["semantics"] for row in rows} == {"preemptive", "nonpreemptive"}
 
-    moves = [json.loads(line) for line in (ROOT / "benchmark/path_migration_v1_to_v2.jsonl").read_text(encoding="utf-8-sig").splitlines()]
+    published = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/llm_structure/nonpreemptive_manifest.jsonl")
+        .read_text(encoding="utf-8-sig")
+        .splitlines()
+    ]
+    published_paths = {
+        f"llm_structure/{row['path']}"
+        for row in published
+        if row["publication_status"] == "published"
+    }
+    indexed_nonpreemptive_stage4 = {
+        path for path in indexed_paths if path.startswith("llm_structure/nonpreemptive/")
+    }
+    assert indexed_nonpreemptive_stage4 == published_paths
+
+    moves = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/path_migration_v1_to_v2.jsonl")
+        .read_text(encoding="utf-8-sig")
+        .splitlines()
+    ]
     assert len(moves) == 205
     for move in moves:
         assert not (ROOT / "benchmark" / move["old_path"]).exists()

@@ -54,11 +54,14 @@ def test_foundation_replay_paths_have_distinct_responsibilities():
     bare = run(path, "longest_tail", "optional_idle", "bare")
     validated = run(path, "longest_tail", "optional_idle", "validated")
     instrumented = run(path, "longest_tail", "optional_idle", "instrumented")
+    profiled = run(path, "longest_tail", "optional_idle", "memory_profile", profile_target="bare")
     assert {bare["makespan"], validated["makespan"], instrumented["makespan"]} == {bare["makespan"]}
     assert bare["policy_loop_only"] and bare["trace_valid"] is None
+    assert bare["trace_hash"] == validated["trace_hash"] == instrumented["trace_hash"]
     assert validated["trace_valid"] and not validated["features_observed"]
     assert instrumented["trace_valid"] and instrumented["features_observed"]
-    assert instrumented["peak_memory_bytes"] is not None
+    assert instrumented["peak_memory_bytes"] is None
+    assert profiled["measurement_perturbed"] and profiled["peak_memory_bytes"] is not None
 
 
 def test_legacy_multi_replay_is_a_thin_compatible_forwarder():
@@ -94,3 +97,28 @@ def test_corpus_only_imports_publication_ownership():
     }
     assert "publish" not in definitions
     assert "_validate_candidate" not in definitions
+
+
+def test_decision_context_reuses_one_tail_for_all_policy_observations(monkeypatch):
+    from llm_structured.nonpreemptive.runtime import make_adapter
+    from llm_structured.nonpreemptive.runtime.policies import baseline_action
+
+    benchmark = load_benchmark(
+        ROOT
+        / "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/longest_tail_counterexample.json"
+    )
+    adapter = make_adapter(benchmark)
+    state = adapter.initial_state()
+    calls = 0
+    original = adapter.tail
+
+    def counted(current):
+        nonlocal calls
+        calls += 1
+        return original(current)
+
+    monkeypatch.setattr(adapter, "tail", counted)
+    context = adapter.decision_context(state, "optional_idle")
+    for policy in ("fifo", "fixed_order", "longest_tail", "spt", "lpt"):
+        baseline_action(adapter, state, "optional_idle", policy, context=context)
+    assert calls == 1

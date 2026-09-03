@@ -8,7 +8,7 @@ from core.trace.nonpreemptive import assert_nonpreemptive_trace
 from muti_channel.nonpreemptive.replay import replay_actions
 from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, ResourceAction
 
-from .contracts import ActionSignature, Mode, ReplaySummary
+from .contracts import ActionSignature, DecisionContext, Mode, ReplaySummary
 from .features import single_residual_tail
 
 
@@ -17,6 +17,11 @@ class SingleAdapter:
 
     def __init__(self, benchmark):
         self.model = NonPreemptiveDAGModel(to_internal_dag(benchmark))
+        children = [[] for _ in self.model.tasks]
+        for child, parents in enumerate(self.model.deps):
+            for parent in parents:
+                children[parent].append(child)
+        self.model.children = tuple(tuple(items) for items in children)
 
     def initial_state(self):
         return self.model.initial_state()
@@ -79,6 +84,28 @@ class SingleAdapter:
 
     def tail(self, state):
         return single_residual_tail(self.model, state)
+
+    def decision_context(self, state, mode: Mode) -> DecisionContext:
+        ready = self.model.ready_flows(state)
+        active = self.model.active_computes(state)
+        legal = self.model.legal_actions(state)
+        if mode == "work_conserving" and ready:
+            legal = tuple(action for action in legal if action.kind != "wait")
+        next_event = min(
+            (self.model.task_runtime(state, item).remaining for item in active), default=None
+        )
+        return DecisionContext(
+            state,
+            mode,
+            ready,
+            active,
+            (),
+            legal,
+            self.tail(state),
+            next_event,
+            (),
+            ("channel:0",),
+        )
 
     def replay(self, actions):
         trace = self.model.run(actions)
@@ -173,6 +200,33 @@ class MultiAdapter:
     def tail(self, state):
         _path, values = self.model.residual_features(state)
         return {task.task_id: values[index] for index, task in enumerate(self.model.tasks)}
+
+    def decision_context(self, state, mode: Mode) -> DecisionContext:
+        ready = self.model.ready_flows(state)
+        active_flows = self.model.active_flows(state)
+        active_computes = tuple(
+            task.task_id
+            for task, runtime in zip(self.model.tasks, state.tasks, strict=True)
+            if task.kind == "compute" and runtime.status == "running"
+        )
+        occupied = tuple(sorted(map(str, self.model.occupied_resources(state))))
+        universe = {str(item) for group in self.model.resources for item in group}
+        next_event = min(
+            (runtime.remaining for runtime in state.tasks if runtime.status == "running"),
+            default=None,
+        )
+        return DecisionContext(
+            state,
+            mode,
+            ready,
+            active_computes,
+            active_flows,
+            self.model.legal_actions(state, mode),
+            self.tail(state),
+            next_event,
+            occupied,
+            tuple(sorted(universe - set(occupied))),
+        )
 
     def replay(self, actions):
         result = replay_actions(self.model, actions, runtime_ms=0.0)

@@ -9,6 +9,7 @@ from dataclasses import asdict
 from time import perf_counter
 
 from llm_structured.nonpreemptive.runtime import longest_tail_action, make_adapter
+
 from .candidates import generate
 from .contracts import BudgetLedger, DecisionRecord, RolloutConfig, RolloutResult, TriggerDecision
 from .evaluator import BudgetExhausted, evaluate
@@ -18,40 +19,88 @@ from .triggers import decide
 
 def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
     config = config or RolloutConfig()
-    started = perf_counter(); adapter = make_adapter(benchmark); state = adapter.initial_state()
-    ledger = BudgetLedger(); records = []; actions = []; cache = {}; rng = random.Random(config.random_seed)
+    started = perf_counter()
+    adapter = make_adapter(benchmark)
+    state = adapter.initial_state()
+    ledger = BudgetLedger()
+    records = []
+    actions = []
+    cache = {}
+    rng = random.Random(config.random_seed)
     fallback_count = 0
     while not adapter.is_finished(state):
-        base = longest_tail_action(adapter, state, config.mode)
-        candidates, _generated_count, truncated = generate(adapter, state, config.mode, config.max_candidates_per_decision)
+        context = adapter.decision_context(state, config.mode)
+        base = longest_tail_action(adapter, state, config.mode, context)
         if config.search_depth == 0 or config.max_candidates_per_decision < 2:
             candidates, truncated = (base,), False
-            features = {"choice_count": 1, "lt_margin": None, "lt_margin_ratio": None, "duration_spread_ratio": 0.0,
-                        "true_policy_disagreement": False, "heuristic_disagreement": False, "crosses_event": False,
-                        "critical_release_crossed": False, "release_gain_spread": False, "wait_opportunity": False,
-                        "resource_conflict_spread": False, "wait_available": base.kind == "wait", "precomputed_transitions": {}}
+            features = {
+                "choice_count": 1,
+                "lt_margin": None,
+                "lt_margin_ratio": None,
+                "duration_spread_ratio": 0.0,
+                "true_policy_disagreement": False,
+                "heuristic_disagreement": False,
+                "crosses_event": False,
+                "critical_release_crossed": False,
+                "release_gain_spread": False,
+                "wait_opportunity": False,
+                "resource_conflict_spread": False,
+                "wait_available": base.kind == "wait",
+                "precomputed_transitions": {},
+            }
         else:
+            candidates, _generated_count, truncated = generate(
+                adapter, state, config.mode, config.max_candidates_per_decision
+            )
             features = compute(adapter, state, candidates, ledger, config)
         trigger = decide(config.trigger, features, config, len(records), rng)
-        public_features = {k: v for k, v in features.items() if k not in {"precomputed_transitions", "release_metrics"}}
-        record = DecisionRecord(len(records), state.time, adapter.signature(state, base), len(adapter.legal_actions(state, config.mode)), tuple(adapter.signature(state, x) for x in candidates), trigger=trigger, features=public_features)
+        public_features = {
+            k: v
+            for k, v in features.items()
+            if k not in {"precomputed_transitions", "release_metrics"}
+        }
+        record = DecisionRecord(
+            len(records),
+            state.time,
+            adapter.signature(state, base),
+            len(context.legal_actions),
+            tuple(adapter.signature(state, x) for x in candidates),
+            trigger=trigger,
+            features=public_features,
+        )
         action = base
         if config.search_depth == 0 or config.max_candidates_per_decision < 2:
             record.fallback_reason = "rollout_disabled"
         elif trigger.triggered:
             if not ledger.reserve("triggered_decisions", config.max_triggered_decisions):
-                record.trigger = TriggerDecision(False, trigger.reasons, trigger.score, True); record.fallback_reason = "trigger_budget"
+                record.trigger = TriggerDecision(False, trigger.reasons, trigger.score, True)
+                record.fallback_reason = "trigger_budget"
             else:
                 try:
-                    selected, scored = evaluate(adapter, state, candidates, config.search_depth, config.mode, ledger, config, cache, started, features.get("precomputed_transitions"))
+                    selected, scored = evaluate(
+                        adapter,
+                        state,
+                        candidates,
+                        config.search_depth,
+                        config.mode,
+                        ledger,
+                        config,
+                        cache,
+                        started,
+                        features.get("precomputed_transitions"),
+                    )
                     action = selected
                     record.evaluated = tuple(adapter.signature(state, x[1]) for x in scored)
                     record.values = {str(adapter.signature(state, x[1])): x[0] for x in scored}
                     record.actual_depth = max(x[2] for x in scored)
                 except BudgetExhausted as error:
-                    record.fallback_reason = str(error); fallback_count += 1
-        if truncated and record.fallback_reason is None: record.fallback_reason = "candidate_truncated"
-        record.selected = adapter.signature(state, action); records.append(record); actions.append(action)
+                    record.fallback_reason = str(error)
+                    fallback_count += 1
+        if truncated and record.fallback_reason is None:
+            record.fallback_reason = "candidate_truncated"
+        record.selected = adapter.signature(state, action)
+        records.append(record)
+        actions.append(action)
         state = adapter.step(state, action).after
     replay = adapter.replay(actions)
     signatures = tuple(record.selected for record in records if record.selected is not None)
@@ -61,7 +110,23 @@ def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
         else [(action.kind, action.starts) for action in actions]
     )
     trace_hash = hashlib.sha256(json.dumps(trace_payload, sort_keys=True).encode()).hexdigest()
-    metrics = {**asdict(ledger), "fallback_decisions": fallback_count, "wall_clock_ms": (perf_counter()-started)*1000,
-               "voluntary_waits": replay.voluntary_waits, "voluntary_wait_time": replay.voluntary_wait_time,
-               "forced_waits": replay.forced_waits, "forced_wait_time": replay.forced_wait_time}
-    return RolloutResult("completed", replay.makespan, config.mode, asdict(config), signatures, tuple(asdict(x) for x in records), metrics, trace_hash, replay.trace_valid)
+    metrics = {
+        **asdict(ledger),
+        "fallback_decisions": fallback_count,
+        "wall_clock_ms": (perf_counter() - started) * 1000,
+        "voluntary_waits": replay.voluntary_waits,
+        "voluntary_wait_time": replay.voluntary_wait_time,
+        "forced_waits": replay.forced_waits,
+        "forced_wait_time": replay.forced_wait_time,
+    }
+    return RolloutResult(
+        "completed",
+        replay.makespan,
+        config.mode,
+        asdict(config),
+        signatures,
+        tuple(asdict(x) for x in records),
+        metrics,
+        trace_hash,
+        replay.trace_valid,
+    )

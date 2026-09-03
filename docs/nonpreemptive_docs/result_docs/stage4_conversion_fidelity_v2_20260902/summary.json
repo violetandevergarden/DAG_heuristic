@@ -1,0 +1,13 @@
+{
+  "case_count": 13,
+  "conversion_bug_count": 0,
+  "coverage_complete": true,
+  "dynamic_event_pairing": "not_supported",
+  "native_multi_iteration": "not_supported",
+  "native_multi_job_timeline": "not_supported",
+  "status_counts": {
+    "matched": 8,
+    "not_supported": 3,
+    "unknown_timeout": 2
+  }
+}

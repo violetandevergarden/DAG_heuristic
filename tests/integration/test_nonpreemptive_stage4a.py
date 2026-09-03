@@ -1,14 +1,15 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import time
 from pathlib import Path
 
-from benchmark import validate_benchmark
+from benchmark import Benchmark, Resource, SchedulingSemantics, Task, validate_benchmark
 from benchmark_generate.llm.nonpreemptive.contention import (
     bounded_choice_search,
     contention_audit,
 )
 from benchmark_generate.llm.nonpreemptive.multi_job import compose_real_jobs
+from benchmark_generate.llm.nonpreemptive.selection import selected_specs
 from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
 from benchmark_generate.simai.common_export import build_synthetic_input, build_workload
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark
@@ -39,6 +40,8 @@ def test_single_channel_audit_replay_and_causal_slice() -> None:
     report = contention_audit(benchmark, max_decisions=8)
     assert report["evidence_level"] in {"sampled_prefix", "completed_replay"}
     assert report["decisions"]
+    assert set(report["conflict_counts"]) == {"action", "policy", "state", "quality"}
+    assert {"spt", "lpt", "random_seed_0"} <= set(report["decisions"][0]["policy_actions"])
 
     for mode in ("optional_idle", "work_conserving"):
         result = replay(benchmark, "longest_tail", mode)
@@ -100,3 +103,53 @@ def test_strict_process_budget_terminates_blocked_step() -> None:
     assert result["status"] == "timeout"
     assert result["termination_reason"] == "process_wall_timeout"
 
+
+def test_stratified_selection_keeps_ga_negative_control_and_overlap_layers() -> None:
+    rows = []
+    for ga in (1, 4, 8):
+        for pp in (1, 2, 4):
+            rows.append(
+                {
+                    "status": "available",
+                    "path": f"gpt-ga{ga}-pp{pp}.txt",
+                    "model": "gpt",
+                    "world_size": 8,
+                    "tp": 2,
+                    "pp": pp,
+                    "ep": 1,
+                    "gbs": ga,
+                    "mbs": 1,
+                }
+            )
+    specs = selected_specs(rows, max_sources=9)
+    assert {item["gbs"] // item["mbs"] for item in specs} == {1, 4, 8}
+    assert {item["pp"] for item in specs} == {1, 2, 4}
+
+
+def test_large_multi_resource_census_never_enumerates_subsets(monkeypatch) -> None:
+    from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG
+
+    resources = tuple(Resource(f"r{i}", "link") for i in range(11))
+    benchmark = Benchmark(
+        "many_startable",
+        "muti_channel",
+        "complex_chain",
+        "adversarial",
+        tuple(Task(f"f{i}", "communication", 1, resources=(f"r{i}",)) for i in range(11)),
+        resources,
+        semantics=SchedulingSemantics(
+            preemption="none",
+            decision_epoch="task_completion",
+            optional_idle=True,
+            resource_model="exclusive_fixed_set",
+        ),
+        schema_version="3.0",
+    )
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("large census enumerated start subsets")
+
+    monkeypatch.setattr(NonPreemptiveMultiResourceDAG, "start_subsets", forbidden)
+    report = contention_audit(benchmark, max_decisions=1, mode="work_conserving")
+    assert report["decisions"][0]["enumeration_skipped"] is True
+    assert len(report["decisions"][0]["policy_actions"]) == 8

@@ -1,0 +1,8 @@
+{
+  "commit": "524c7bffdf31e145bf95c4def1d3263690db2020",
+  "cpu_count": 24,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processes": 1,
+  "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+  "python": "3.14.6"
+}

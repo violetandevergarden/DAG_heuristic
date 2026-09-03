@@ -5,8 +5,8 @@ from __future__ import annotations
 from .contracts import Mode, PolicyName
 
 
-def _rank(adapter, state, actions, policy: PolicyName, first_seen=None):
-    tails = adapter.tail(state)
+def _rank(adapter, state, actions, policy: PolicyName, first_seen=None, tails=None):
+    tails = adapter.tail(state) if tails is None else tails
     first_seen = first_seen or {}
 
     def key(action):
@@ -33,14 +33,18 @@ def _rank(adapter, state, actions, policy: PolicyName, first_seen=None):
     return max(actions, key=key)
 
 
-def should_wait(adapter, state, selected, tails) -> bool:
-    active = adapter.model.active_computes(state)
+def should_wait(adapter, state, selected, tails, active=None, next_event=None) -> bool:
+    active = adapter.model.active_computes(state) if active is None else active
     if not active:
         return False
     next_event = (
-        min(adapter.model.task_runtime(state, item).remaining for item in active)
-        if adapter.resource_model == "single_channel"
-        else min(state.tasks[adapter.model.index[item]].remaining for item in active)
+        next_event
+        if next_event is not None
+        else (
+            min(adapter.model.task_runtime(state, item).remaining for item in active)
+            if adapter.resource_model == "single_channel"
+            else min(state.tasks[adapter.model.index[item]].remaining for item in active)
+        )
     )
     if adapter.resource_model != "single_channel":
         return next_event < min(
@@ -59,19 +63,32 @@ def should_wait(adapter, state, selected, tails) -> bool:
 
 
 def baseline_action(
-    adapter, state, mode: Mode, policy: PolicyName = "longest_tail", first_seen=None
+    adapter,
+    state,
+    mode: Mode,
+    policy: PolicyName = "longest_tail",
+    first_seen=None,
+    context=None,
 ):
-    legal = adapter.legal_actions(state, mode)
+    context = context or adapter.decision_context(state, mode)
+    legal = context.legal_actions
     if not legal:
         raise RuntimeError("unfinished state has no legal action")
     starts = [action for action in legal if action.kind != "wait"]
     if not starts:
         return legal[0]
-    selected = _rank(adapter, state, starts, policy, first_seen)
-    if mode == "optional_idle" and should_wait(adapter, state, selected, adapter.tail(state)):
+    selected = _rank(adapter, state, starts, policy, first_seen, context.tails)
+    if mode == "optional_idle" and should_wait(
+        adapter,
+        state,
+        selected,
+        context.tails,
+        context.active_computes,
+        context.next_event_distance,
+    ):
         return next(action for action in legal if action.kind == "wait")
     return selected
 
 
-def longest_tail_action(adapter, state, mode):
-    return baseline_action(adapter, state, mode, "longest_tail")
+def longest_tail_action(adapter, state, mode, context=None):
+    return baseline_action(adapter, state, mode, "longest_tail", context=context)

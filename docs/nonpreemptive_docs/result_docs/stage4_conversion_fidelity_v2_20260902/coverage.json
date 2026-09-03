@@ -1,0 +1,49 @@
+{
+  "complete": true,
+  "missing": {
+    "ga": [],
+    "mixtral_ep": [],
+    "models": [],
+    "pp": [],
+    "single_channel": [],
+    "topologies": [],
+    "tp_levels": []
+  },
+  "observed": {
+    "ga": [
+      1,
+      4,
+      8
+    ],
+    "mixtral_ep": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "models": [
+      "Mixtral_8x7B",
+      "gpt_13B",
+      "gpt_175B",
+      "gpt_22B",
+      "gpt_7B",
+      "llama_405B"
+    ],
+    "pp": [
+      1,
+      2,
+      4
+    ],
+    "single_channel": true,
+    "topologies": [
+      "alibaba_hpn_16g",
+      "cassini_24g"
+    ],
+    "tp": [
+      1,
+      2,
+      8,
+      16
+    ]
+  }
+}

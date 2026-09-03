@@ -20,7 +20,9 @@ def benchmark_files() -> list[Path]:
     return sorted(
         path
         for path in (ROOT / "benchmark").rglob("*.json")
-        if "schema" not in path.parts and "reference_results" not in path.parts
+        if "schema" not in path.parts
+        and "reference_results" not in path.parts
+        and ".staging" not in path.parts
     )
 
 

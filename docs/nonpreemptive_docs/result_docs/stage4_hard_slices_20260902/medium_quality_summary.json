@@ -1,0 +1,9 @@
+{
+  "status": "completed",
+  "case_count": 2,
+  "completed_count": 2,
+  "positive_value_spread_count": 0,
+  "positive_lt_regret_count": 0,
+  "all_completed_traces_valid": true,
+  "evidence_boundary": "Frozen LT completion compares first actions but does not prove global optimality."
+}

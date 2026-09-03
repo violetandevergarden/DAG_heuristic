@@ -1,0 +1,16 @@
+{
+  "status": "no_new_slice_admitted",
+  "source_label_path": "docs/nonpreemptive_docs/result_docs/stage4d_labels_20260831/real_small_labels.jsonl",
+  "existing_exact_label_count": 243,
+  "existing_benchmark_count": 28,
+  "positive_value_spread_label_count": 94,
+  "positive_value_spread_benchmark_count": 23,
+  "maximum_value_spread": 3636,
+  "positive_longest_tail_regret_count": 0,
+  "medium_quality_probe_case_count": 2,
+  "medium_quality_probe_positive_value_spread_count": 0,
+  "medium_quality_probe_positive_longest_tail_regret_count": 0,
+  "medium_quality_probe_all_traces_valid": true,
+  "residual_window_attempt_status": "rejected_before_publication",
+  "reason": "The current exact labels show nonzero action value spread but no Longest Tail regret. Two composed-medium policy-divergence states were evaluated with the same frozen Longest Tail completion for every legal first action; all traces were valid, but both value spreads and Longest Tail regrets were zero. Publishing a new hard slice would overstate the evidence."
+}

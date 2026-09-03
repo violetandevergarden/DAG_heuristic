@@ -24,3 +24,19 @@ class ReplaySummary:
     voluntary_wait_time: int
     forced_waits: int
     forced_wait_time: int
+
+
+@dataclass(frozen=True)
+class DecisionContext:
+    """Read-only observations for one immutable simulator decision state."""
+
+    state: object
+    mode: Mode
+    ready: tuple[str, ...]
+    active_computes: tuple[str, ...]
+    active_communications: tuple[str, ...]
+    legal_actions: tuple[object, ...]
+    tails: dict[str, int]
+    next_event_distance: int | None
+    occupied_resources: tuple[str, ...]
+    free_resources: tuple[str, ...]
