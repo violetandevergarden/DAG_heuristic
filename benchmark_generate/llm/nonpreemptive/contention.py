@@ -49,6 +49,10 @@ def _digest_state(state) -> str:
     return hashlib.sha256(json.dumps(state, sort_keys=True, default=str).encode()).hexdigest()
 
 
+def _job_id(task_id: str) -> str:
+    return task_id.split("::", 1)[0] if "::" in task_id else "job0"
+
+
 def _single_audit(
     benchmark: Benchmark, max_decisions: int, deadline: float | None, mode: str
 ) -> dict:
@@ -148,6 +152,8 @@ def _single_audit(
                     }
                 )
                 >= 2,
+                "cross_job_ready_conflict": len({_job_id(item) for item in ready}) >= 2,
+                "active_reservation_cross_job_block": False,
             }
         )
         if ready:
@@ -273,6 +279,19 @@ def _multi_audit(
             representative = (*representative, ResourceAction.wait())
         successor_keys = {_state_key(model.step(state, action).after) for action in representative}
         occupied = model.occupied_resources(state)
+        cross_job_ready_conflict = any(
+            _job_id(left) != _job_id(right)
+            and model.resources[model.index[left]] & model.resources[model.index[right]]
+            for position, left in enumerate(ready)
+            for right in ready[position + 1 :]
+        )
+        active_reservation_cross_job_block = any(
+            _job_id(blocked) != _job_id(running)
+            and model.resources[model.index[blocked]] & model.resources[model.index[running]]
+            for blocked in ready
+            if blocked not in startable
+            for running in active
+        )
         decisions.append(
             {
                 "time": state.time,
@@ -305,6 +324,8 @@ def _multi_audit(
                 "enumeration_truncated": False,
                 "policy_actions": policy_actions,
                 "policy_divergence": len(set(policy_actions.values())) >= 2,
+                "cross_job_ready_conflict": cross_job_ready_conflict,
+                "active_reservation_cross_job_block": active_reservation_cross_job_block,
             }
         )
         actions.append(chosen)
@@ -359,6 +380,12 @@ def contention_audit(
             ),
             "policy_divergence_observed": any(
                 item.get("policy_divergence", False) for item in decisions
+            ),
+            "cross_job_ready_conflict_count": sum(
+                item.get("cross_job_ready_conflict", False) for item in decisions
+            ),
+            "active_reservation_cross_job_block_count": sum(
+                item.get("active_reservation_cross_job_block", False) for item in decisions
             ),
             "conflict_counts": {
                 "action": choice_count,

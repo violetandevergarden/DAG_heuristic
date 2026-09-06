@@ -94,6 +94,7 @@ class SingleAdapter:
         next_event = min(
             (self.model.task_runtime(state, item).remaining for item in active), default=None
         )
+        tails = self.tail(state)
         return DecisionContext(
             state,
             mode,
@@ -101,7 +102,7 @@ class SingleAdapter:
             active,
             (),
             legal,
-            self.tail(state),
+            tails,
             next_event,
             (),
             ("channel:0",),
@@ -215,14 +216,28 @@ class MultiAdapter:
             (runtime.remaining for runtime in state.tasks if runtime.status == "running"),
             default=None,
         )
+        tails = self.tail(state)
+        startable = self.model.startable_flows(state)
+        ranked = sorted(startable, key=lambda item: (-tails[item], item))
+        used = set(occupied)
+        selected = []
+        for task_id in ranked:
+            resources = self.model.resources[self.model.index[task_id]]
+            if used & resources:
+                continue
+            selected.append(task_id)
+            used.update(resources)
+        legal = (ResourceAction.start(tuple(sorted(selected))),) if selected else ()
+        if self.model.has_future_event(state) and (mode == "optional_idle" or not selected):
+            legal = (*legal, ResourceAction.wait())
         return DecisionContext(
             state,
             mode,
             ready,
             active_computes,
             active_flows,
-            self.model.legal_actions(state, mode),
-            self.tail(state),
+            legal,
+            tails,
             next_event,
             occupied,
             tuple(sorted(universe - set(occupied))),

@@ -299,7 +299,12 @@ def build_index(root: Path) -> list[dict]:
     benchmark_root = root / "benchmark" if (root / "benchmark").is_dir() else root
     search_root = benchmark_root
     for target in sorted(search_root.rglob("*.json")):
-        if "schema" in target.parts or "reference_results" in target.parts:
+        if (
+            "schema" in target.parts
+            or "reference_results" in target.parts
+            or ".staging" in target.parts
+            or ".artifacts" in target.parts
+        ):
             continue
         relative = target.relative_to(benchmark_root).as_posix()
         benchmark = load_benchmark(target)

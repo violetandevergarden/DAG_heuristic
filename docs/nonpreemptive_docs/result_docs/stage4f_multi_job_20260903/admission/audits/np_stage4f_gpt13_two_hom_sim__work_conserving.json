@@ -1,0 +1,4913 @@
+{
+  "scenario": "single_channel",
+  "decisions": [
+    {
+      "time": 0,
+      "decision_index": 0,
+      "state_hash": "0c15bdb88a97637ffcebe3fa8390ce777c7ca207540141f9ba41e38714cf9d5f",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 62056,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 62056,
+      "decision_index": 1,
+      "state_hash": "58b8643c805ca87a164f10f70fd9a9b54f29e0a6c77ff3fe07c480a5f412b4a8",
+      "ready_communications": [
+        "job0::80",
+        "job0::81",
+        "job1::80",
+        "job1::81"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::80",
+        "fixed_order": "job0::80",
+        "residual_longest_tail": "job1::81",
+        "spt": "job0::80",
+        "lpt": "job1::81",
+        "random_seed_0": "job0::81"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 62895,
+      "decision_index": 2,
+      "state_hash": "fdc53414028b7e3ee4da4fa2b614b6804172917d3f1fd23cf12c2b4edc16097a",
+      "ready_communications": [
+        "job0::80",
+        "job0::81",
+        "job1::80",
+        "job1::82"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::80",
+        "fixed_order": "job0::80",
+        "residual_longest_tail": "job1::80",
+        "spt": "job0::80",
+        "lpt": "job1::82",
+        "random_seed_0": "job0::81"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 63734,
+      "decision_index": 3,
+      "state_hash": "1778e609db06f545220ffce10aff9740bcb96d2e3d6331ec5a5bcaaa9cd107c2",
+      "ready_communications": [
+        "job0::80",
+        "job0::81",
+        "job1::82",
+        "job1::83"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::80",
+        "fixed_order": "job0::80",
+        "residual_longest_tail": "job0::81",
+        "spt": "job0::80",
+        "lpt": "job1::83",
+        "random_seed_0": "job0::81"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 64573,
+      "decision_index": 4,
+      "state_hash": "f5bdde4a1163a84bd59716c8833512018c92179b6b8a90be73c90f31be38769e",
+      "ready_communications": [
+        "job0::80",
+        "job0::82",
+        "job1::82",
+        "job1::83"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::80",
+        "fixed_order": "job0::80",
+        "residual_longest_tail": "job0::80",
+        "spt": "job0::80",
+        "lpt": "job1::83",
+        "random_seed_0": "job0::82"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 65412,
+      "decision_index": 5,
+      "state_hash": "b91b97247dedcc646cee7a4d8b6639a902ab9eae56e40cf11a7741a74674e445",
+      "ready_communications": [
+        "job0::82",
+        "job0::83",
+        "job1::82",
+        "job1::83"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::82",
+        "fixed_order": "job0::82",
+        "residual_longest_tail": "job1::83",
+        "spt": "job0::82",
+        "lpt": "job1::83",
+        "random_seed_0": "job0::83"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 66251,
+      "decision_index": 6,
+      "state_hash": "19c001870e348f1e907d213d1dac8f1a302a78eac1d2782a47c2364216cc0552",
+      "ready_communications": [
+        "job0::82",
+        "job0::83",
+        "job1::82"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 68842,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::82",
+        "fixed_order": "job0::82",
+        "residual_longest_tail": "job1::82",
+        "spt": "job0::82",
+        "lpt": "job1::82",
+        "random_seed_0": "job0::83"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 67090,
+      "decision_index": 7,
+      "state_hash": "95ad0c54d9407ff5a054fe800f79b1080065f3e93fb50946e4e0e3a484d3ca9a",
+      "ready_communications": [
+        "job0::82",
+        "job0::83"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 68842,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::82",
+        "fixed_order": "job0::82",
+        "residual_longest_tail": "job0::83",
+        "spt": "job0::82",
+        "lpt": "job0::83",
+        "random_seed_0": "job0::83"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 67929,
+      "decision_index": 8,
+      "state_hash": "a67bc9f9d7dda6672e96c1315edcd6ff81c33c76bd2e6e5ff01b076b2b744178",
+      "ready_communications": [
+        "job0::82"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 68842,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::82",
+        "fixed_order": "job0::82",
+        "residual_longest_tail": "job0::82",
+        "spt": "job0::82",
+        "lpt": "job0::82",
+        "random_seed_0": "job0::82"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 68768,
+      "decision_index": 9,
+      "state_hash": "91fb37e3e286e90c46a72164b3657113d5cf8170353d3ba1e8a11573694f15db",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 68842,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 68842,
+      "decision_index": 10,
+      "state_hash": "3801dae106581d883028d175d5d6088222c77c9ebdabc52bdd4f83c46eee4df8",
+      "ready_communications": [
+        "job1::100"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 69681,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::100",
+        "fixed_order": "job1::100",
+        "residual_longest_tail": "job1::100",
+        "spt": "job1::100",
+        "lpt": "job1::100",
+        "random_seed_0": "job1::100"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 69681,
+      "decision_index": 11,
+      "state_hash": "a0e62c1f007105bfa5c2cf9034daab8ff64b3204c49a22e03d43180b4b0cd945",
+      "ready_communications": [
+        "job1::101",
+        "job1::103"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 70520,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::101",
+        "fixed_order": "job1::101",
+        "residual_longest_tail": "job1::101",
+        "spt": "job1::101",
+        "lpt": "job1::103",
+        "random_seed_0": "job1::103"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 70520,
+      "decision_index": 12,
+      "state_hash": "82d849afb8feaf9a6e952270a8f660fe5af9032f35f0df0cf38d0e2518d2912c",
+      "ready_communications": [
+        "job0::100",
+        "job1::102",
+        "job1::103"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 71359,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::103",
+        "fixed_order": "job0::100",
+        "residual_longest_tail": "job0::100",
+        "spt": "job0::100",
+        "lpt": "job1::103",
+        "random_seed_0": "job1::102"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 71359,
+      "decision_index": 13,
+      "state_hash": "3436df174f522539b4d40d13c11aa93640d8f778e20f0a34b1e7513955def864",
+      "ready_communications": [
+        "job0::101",
+        "job0::103",
+        "job1::102",
+        "job1::103"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::103",
+        "fixed_order": "job0::101",
+        "residual_longest_tail": "job0::101",
+        "spt": "job0::101",
+        "lpt": "job1::103",
+        "random_seed_0": "job0::103"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 72198,
+      "decision_index": 14,
+      "state_hash": "3d437272335ec1bf59ab26dd84cd4327248f8de65062e1ab8970a991a69d815c",
+      "ready_communications": [
+        "job0::102",
+        "job0::103",
+        "job1::102",
+        "job1::103"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::103",
+        "fixed_order": "job0::102",
+        "residual_longest_tail": "job1::103",
+        "spt": "job0::102",
+        "lpt": "job1::103",
+        "random_seed_0": "job0::103"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 73037,
+      "decision_index": 15,
+      "state_hash": "440f38100757da9e9083fbcef8b74d085674e07060eeaa41bee93127fe83f63c",
+      "ready_communications": [
+        "job0::102",
+        "job0::103",
+        "job1::102"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 76673,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::102",
+        "fixed_order": "job0::102",
+        "residual_longest_tail": "job1::102",
+        "spt": "job0::102",
+        "lpt": "job1::102",
+        "random_seed_0": "job0::103"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 73876,
+      "decision_index": 16,
+      "state_hash": "3114a44938365fba0bc3e4c8718da2e48882819854593b585059aa300dadca4b",
+      "ready_communications": [
+        "job0::102",
+        "job0::103"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 76673,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::103",
+        "fixed_order": "job0::102",
+        "residual_longest_tail": "job0::103",
+        "spt": "job0::102",
+        "lpt": "job0::103",
+        "random_seed_0": "job0::103"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 74715,
+      "decision_index": 17,
+      "state_hash": "05c08cd7450ef7fde507a40b4e57878e04b5a5ab0b4522bc2412326113571444",
+      "ready_communications": [
+        "job0::102"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 76673,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::102",
+        "fixed_order": "job0::102",
+        "residual_longest_tail": "job0::102",
+        "spt": "job0::102",
+        "lpt": "job0::102",
+        "random_seed_0": "job0::102"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 75554,
+      "decision_index": 18,
+      "state_hash": "cd48b651c63fbdc87a888805ba28baa6847977c0f51c76a1fb3213a93366c05b",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 76673,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 76673,
+      "decision_index": 19,
+      "state_hash": "d269dd8442c1ad3f3da360d2444e904d276c644566c6acd105f9ab45d4c0c96e",
+      "ready_communications": [
+        "job1::120"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 77512,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::120",
+        "fixed_order": "job1::120",
+        "residual_longest_tail": "job1::120",
+        "spt": "job1::120",
+        "lpt": "job1::120",
+        "random_seed_0": "job1::120"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 77512,
+      "decision_index": 20,
+      "state_hash": "f7ae65adcd72a2274830554c9c9bc029ab0b04c6682e08a3e4ef695002bec951",
+      "ready_communications": [
+        "job1::121",
+        "job1::123"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 78351,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::121",
+        "fixed_order": "job1::121",
+        "residual_longest_tail": "job1::121",
+        "spt": "job1::121",
+        "lpt": "job1::123",
+        "random_seed_0": "job1::121"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 78351,
+      "decision_index": 21,
+      "state_hash": "c540701d3a82f77645ed14f48dd53775be195c6cd11550dba69a700fe83ecaff",
+      "ready_communications": [
+        "job0::120",
+        "job1::122",
+        "job1::123"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 79190,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::123",
+        "fixed_order": "job0::120",
+        "residual_longest_tail": "job0::120",
+        "spt": "job0::120",
+        "lpt": "job1::123",
+        "random_seed_0": "job0::120"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 79190,
+      "decision_index": 22,
+      "state_hash": "866eec6be0a6d64df5409b67fd3a93baa56ce7c083249cdebdd6258fda85b160",
+      "ready_communications": [
+        "job0::121",
+        "job0::123",
+        "job1::122",
+        "job1::123"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::123",
+        "fixed_order": "job0::121",
+        "residual_longest_tail": "job0::121",
+        "spt": "job0::121",
+        "lpt": "job1::123",
+        "random_seed_0": "job1::123"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 80029,
+      "decision_index": 23,
+      "state_hash": "4923d094e5939b037c31aba381552e48d83e1331736a205d1ed46344689b46a5",
+      "ready_communications": [
+        "job0::122",
+        "job0::123",
+        "job1::122",
+        "job1::123"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::123",
+        "fixed_order": "job0::122",
+        "residual_longest_tail": "job1::123",
+        "spt": "job0::122",
+        "lpt": "job1::123",
+        "random_seed_0": "job0::122"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 80868,
+      "decision_index": 24,
+      "state_hash": "b38cfcca2adc086b594d826b4bbc464bf7e4a578eddbef52a0c82c5f9b32105c",
+      "ready_communications": [
+        "job0::122",
+        "job0::123",
+        "job1::122"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 83459,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::122",
+        "fixed_order": "job0::122",
+        "residual_longest_tail": "job1::122",
+        "spt": "job0::122",
+        "lpt": "job1::122",
+        "random_seed_0": "job0::122"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 81707,
+      "decision_index": 25,
+      "state_hash": "8efea0ce4e79446d9700a3160e5139975b96360940df4cf39c1be323dc2092c0",
+      "ready_communications": [
+        "job0::122",
+        "job0::123"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 83459,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::123",
+        "fixed_order": "job0::122",
+        "residual_longest_tail": "job0::123",
+        "spt": "job0::122",
+        "lpt": "job0::123",
+        "random_seed_0": "job0::122"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 82546,
+      "decision_index": 26,
+      "state_hash": "37b77726fd74dd3ea385f650e99f39bc65be718df0d8116a8d0a12f5e3fdd3f5",
+      "ready_communications": [
+        "job0::122"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 83459,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::122",
+        "fixed_order": "job0::122",
+        "residual_longest_tail": "job0::122",
+        "spt": "job0::122",
+        "lpt": "job0::122",
+        "random_seed_0": "job0::122"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 83385,
+      "decision_index": 27,
+      "state_hash": "688308c6a4592a1e5ef0a6068a5dde9951fb4330558cbbf4a19d9bf8d4b7c530",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 83459,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 83459,
+      "decision_index": 28,
+      "state_hash": "862cc3306855c346db16071f413a3d3cd1c1712b4f27b8f4f1b1601a5cf28881",
+      "ready_communications": [
+        "job1::140"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 84298,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::140",
+        "fixed_order": "job1::140",
+        "residual_longest_tail": "job1::140",
+        "spt": "job1::140",
+        "lpt": "job1::140",
+        "random_seed_0": "job1::140"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 84298,
+      "decision_index": 29,
+      "state_hash": "eab001fa3237f6564c6f5b7892b5acc0fe495cf8a70e82b4ba52452ac32d8179",
+      "ready_communications": [
+        "job1::141",
+        "job1::143"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 85137,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::141",
+        "fixed_order": "job1::141",
+        "residual_longest_tail": "job1::141",
+        "spt": "job1::141",
+        "lpt": "job1::143",
+        "random_seed_0": "job1::143"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 85137,
+      "decision_index": 30,
+      "state_hash": "4e48b23fdb5846f3b843230b6c5f29dd78137902dd6cc5c00a51fccd64c4ce5a",
+      "ready_communications": [
+        "job0::140",
+        "job1::142",
+        "job1::143"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 85976,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::143",
+        "fixed_order": "job0::140",
+        "residual_longest_tail": "job0::140",
+        "spt": "job0::140",
+        "lpt": "job1::143",
+        "random_seed_0": "job1::143"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 85976,
+      "decision_index": 31,
+      "state_hash": "9a5e28e87cf3ef8261c08f6e9a6904ffcb7400fa98632c2b6b986f0466b862a0",
+      "ready_communications": [
+        "job0::141",
+        "job0::143",
+        "job1::142",
+        "job1::143"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::143",
+        "fixed_order": "job0::141",
+        "residual_longest_tail": "job0::141",
+        "spt": "job0::141",
+        "lpt": "job1::143",
+        "random_seed_0": "job1::143"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 86815,
+      "decision_index": 32,
+      "state_hash": "7b4af06efde4f0d6eef3a0b23c1e71e7b10fd535a5469fdcb4643f2f87611791",
+      "ready_communications": [
+        "job0::142",
+        "job0::143",
+        "job1::142",
+        "job1::143"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::143",
+        "fixed_order": "job0::142",
+        "residual_longest_tail": "job1::143",
+        "spt": "job0::142",
+        "lpt": "job1::143",
+        "random_seed_0": "job1::143"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 87654,
+      "decision_index": 33,
+      "state_hash": "d49fa61f69f612e07599b45f4726d944df4722c851a8dbae580fb8cc3de9c396",
+      "ready_communications": [
+        "job0::142",
+        "job0::143",
+        "job1::142"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 91290,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::142",
+        "fixed_order": "job0::142",
+        "residual_longest_tail": "job1::142",
+        "spt": "job0::142",
+        "lpt": "job1::142",
+        "random_seed_0": "job0::142"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 88493,
+      "decision_index": 34,
+      "state_hash": "34052247ac9b676007c43e8af5c10e73e37701a51eaa4af67b40811c844a9292",
+      "ready_communications": [
+        "job0::142",
+        "job0::143"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 91290,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::143",
+        "fixed_order": "job0::142",
+        "residual_longest_tail": "job0::143",
+        "spt": "job0::142",
+        "lpt": "job0::143",
+        "random_seed_0": "job0::142"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 89332,
+      "decision_index": 35,
+      "state_hash": "95f0a41281e1809df4f0cdd268cdd7dfd1fafef4e2d6f44e27af50f6650ac51d",
+      "ready_communications": [
+        "job0::142"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 91290,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::142",
+        "fixed_order": "job0::142",
+        "residual_longest_tail": "job0::142",
+        "spt": "job0::142",
+        "lpt": "job0::142",
+        "random_seed_0": "job0::142"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 90171,
+      "decision_index": 36,
+      "state_hash": "358f9c2fdbc034f2a7078463ff2e097e1586d8c26318a0980df5df727b6c492c",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 91290,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 91290,
+      "decision_index": 37,
+      "state_hash": "8c69dca89039de01ea702d8eedb4af9491d17305588382665df6df158d9b2562",
+      "ready_communications": [
+        "job1::160"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 92129,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::160",
+        "fixed_order": "job1::160",
+        "residual_longest_tail": "job1::160",
+        "spt": "job1::160",
+        "lpt": "job1::160",
+        "random_seed_0": "job1::160"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 92129,
+      "decision_index": 38,
+      "state_hash": "0560d829460215d94f8642ee02aa125bf5a9fb636b95daab7dd04b3f50daa82e",
+      "ready_communications": [
+        "job1::161",
+        "job1::163"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 92968,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::161",
+        "fixed_order": "job1::161",
+        "residual_longest_tail": "job1::161",
+        "spt": "job1::161",
+        "lpt": "job1::163",
+        "random_seed_0": "job1::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 92968,
+      "decision_index": 39,
+      "state_hash": "03ed57d405de21f70bbcaa23929a375934076a446bc8c1a71eda80d9e47fe868",
+      "ready_communications": [
+        "job0::160",
+        "job1::162",
+        "job1::163"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 93807,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::163",
+        "fixed_order": "job0::160",
+        "residual_longest_tail": "job0::160",
+        "spt": "job0::160",
+        "lpt": "job1::163",
+        "random_seed_0": "job1::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 93807,
+      "decision_index": 40,
+      "state_hash": "f5ce2ab1750373ed7a79b4acbccb728e2ffd3d9016178b203238a7a22ff6df99",
+      "ready_communications": [
+        "job0::161",
+        "job0::163",
+        "job1::162",
+        "job1::163"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::163",
+        "fixed_order": "job0::161",
+        "residual_longest_tail": "job0::161",
+        "spt": "job0::161",
+        "lpt": "job1::163",
+        "random_seed_0": "job1::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 94646,
+      "decision_index": 41,
+      "state_hash": "04f0fac9f1638cd169aa47e102cc38da0eeceeff54c55566bdb697d3f512e2cd",
+      "ready_communications": [
+        "job0::162",
+        "job0::163",
+        "job1::162",
+        "job1::163"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::163",
+        "fixed_order": "job0::162",
+        "residual_longest_tail": "job1::163",
+        "spt": "job0::162",
+        "lpt": "job1::163",
+        "random_seed_0": "job1::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 95485,
+      "decision_index": 42,
+      "state_hash": "e0bbc6494d34e6a80c1cd6f2063ac259484b84eaddfa8a5ea2b1b402e14c3868",
+      "ready_communications": [
+        "job0::162",
+        "job0::163",
+        "job1::162"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 98076,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::162",
+        "fixed_order": "job0::162",
+        "residual_longest_tail": "job1::162",
+        "spt": "job0::162",
+        "lpt": "job1::162",
+        "random_seed_0": "job0::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 96324,
+      "decision_index": 43,
+      "state_hash": "dceca127d2b9fb78ab6e79320ced574209f30a65ab64d876f569a4089d2e7e89",
+      "ready_communications": [
+        "job0::162",
+        "job0::163"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 98076,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::163",
+        "fixed_order": "job0::162",
+        "residual_longest_tail": "job0::163",
+        "spt": "job0::162",
+        "lpt": "job0::163",
+        "random_seed_0": "job0::163"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 97163,
+      "decision_index": 44,
+      "state_hash": "d8105af0ada32d1f571a07f5993c31443bcfcae903ee55fcaa399e914513ccd6",
+      "ready_communications": [
+        "job0::162"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 98076,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::162",
+        "fixed_order": "job0::162",
+        "residual_longest_tail": "job0::162",
+        "spt": "job0::162",
+        "lpt": "job0::162",
+        "random_seed_0": "job0::162"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 98002,
+      "decision_index": 45,
+      "state_hash": "d5e93583fd8d0ae7e088bf4e2b796e7bb9d836298e1c9341e13c2e30b7d7122c",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 98076,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 98076,
+      "decision_index": 46,
+      "state_hash": "a347d62acede9ef58490d8eed095ccbb121e13c82cbb4fe4ef43a4d08144e777",
+      "ready_communications": [
+        "job1::180"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 98915,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::180",
+        "fixed_order": "job1::180",
+        "residual_longest_tail": "job1::180",
+        "spt": "job1::180",
+        "lpt": "job1::180",
+        "random_seed_0": "job1::180"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 98915,
+      "decision_index": 47,
+      "state_hash": "cbb02c05a4640cabc95f873e15e85f78485114d5e507ca76d5a422529a7fcb42",
+      "ready_communications": [
+        "job1::181",
+        "job1::183"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 99754,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::181",
+        "fixed_order": "job1::181",
+        "residual_longest_tail": "job1::181",
+        "spt": "job1::181",
+        "lpt": "job1::183",
+        "random_seed_0": "job1::183"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 99754,
+      "decision_index": 48,
+      "state_hash": "6887bd6d9d6fc358ea1a1d33936c1eb4a2c2d71b7253479e85a06cf400ee980b",
+      "ready_communications": [
+        "job0::180",
+        "job1::182",
+        "job1::183"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 100593,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::183",
+        "fixed_order": "job0::180",
+        "residual_longest_tail": "job0::180",
+        "spt": "job0::180",
+        "lpt": "job1::183",
+        "random_seed_0": "job0::180"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 100593,
+      "decision_index": 49,
+      "state_hash": "daf7041ed2750cb3e9b629fe673fb2ec7d0ab3cfcee6467c1303405c97721759",
+      "ready_communications": [
+        "job0::181",
+        "job0::183",
+        "job1::182",
+        "job1::183"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::183",
+        "fixed_order": "job0::181",
+        "residual_longest_tail": "job0::181",
+        "spt": "job0::181",
+        "lpt": "job1::183",
+        "random_seed_0": "job0::181"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 101432,
+      "decision_index": 50,
+      "state_hash": "02ed56988017ba8395fb189b5e34b99e1de0cab5490751311c851c7250aa77e3",
+      "ready_communications": [
+        "job0::182",
+        "job0::183",
+        "job1::182",
+        "job1::183"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::183",
+        "fixed_order": "job0::182",
+        "residual_longest_tail": "job1::183",
+        "spt": "job0::182",
+        "lpt": "job1::183",
+        "random_seed_0": "job0::182"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 102271,
+      "decision_index": 51,
+      "state_hash": "618744802dddc02b663d6083593edeb65532b8929a788ec02bfb7678b5581171",
+      "ready_communications": [
+        "job0::182",
+        "job0::183",
+        "job1::182"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 105907,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::182",
+        "fixed_order": "job0::182",
+        "residual_longest_tail": "job1::182",
+        "spt": "job0::182",
+        "lpt": "job1::182",
+        "random_seed_0": "job0::182"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 103110,
+      "decision_index": 52,
+      "state_hash": "e00c72f380122c5968bec8018308239e0733295ef8344a5d17d64715050db4d2",
+      "ready_communications": [
+        "job0::182",
+        "job0::183"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 105907,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::183",
+        "fixed_order": "job0::182",
+        "residual_longest_tail": "job0::183",
+        "spt": "job0::182",
+        "lpt": "job0::183",
+        "random_seed_0": "job0::182"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 103949,
+      "decision_index": 53,
+      "state_hash": "e51408dab7a0881bb7d75cda28af10734cf7d2f8b459b58235f7aa3aad590ddb",
+      "ready_communications": [
+        "job0::182"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 105907,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::182",
+        "fixed_order": "job0::182",
+        "residual_longest_tail": "job0::182",
+        "spt": "job0::182",
+        "lpt": "job0::182",
+        "random_seed_0": "job0::182"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 104788,
+      "decision_index": 54,
+      "state_hash": "8822e4976d087cb0e5d764cb707678f52735dbfe0e43b6f422f2323dbf465f0d",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 105907,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 105907,
+      "decision_index": 55,
+      "state_hash": "84d29dfccc7e56b5f1e80317b2cf511c4063ec676a665c5c87073989f6bdcc8a",
+      "ready_communications": [
+        "job1::200"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 106746,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::200",
+        "fixed_order": "job1::200",
+        "residual_longest_tail": "job1::200",
+        "spt": "job1::200",
+        "lpt": "job1::200",
+        "random_seed_0": "job1::200"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 106746,
+      "decision_index": 56,
+      "state_hash": "088b1917729bf697a1bc5033088f6a602d92a825ead1818dfe4f88010a53dc58",
+      "ready_communications": [
+        "job1::201",
+        "job1::203"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 107585,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::201",
+        "fixed_order": "job1::201",
+        "residual_longest_tail": "job1::201",
+        "spt": "job1::201",
+        "lpt": "job1::203",
+        "random_seed_0": "job1::201"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 107585,
+      "decision_index": 57,
+      "state_hash": "89fe54642da15ccf2a9c4c36a05b9dbedc56da3bbfeada4d85cbe4d139212cfd",
+      "ready_communications": [
+        "job0::200",
+        "job1::202",
+        "job1::203"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 108424,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::203",
+        "fixed_order": "job0::200",
+        "residual_longest_tail": "job0::200",
+        "spt": "job0::200",
+        "lpt": "job1::203",
+        "random_seed_0": "job1::203"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 108424,
+      "decision_index": 58,
+      "state_hash": "659593c9a132dac21845ea290b77e1c74ab4035315936a597b499d3f10d5b26e",
+      "ready_communications": [
+        "job0::201",
+        "job0::203",
+        "job1::202",
+        "job1::203"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::203",
+        "fixed_order": "job0::201",
+        "residual_longest_tail": "job0::201",
+        "spt": "job0::201",
+        "lpt": "job1::203",
+        "random_seed_0": "job0::203"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 109263,
+      "decision_index": 59,
+      "state_hash": "de7dbe9f1d39a06f4854d10bfb7b7c2bb45dfefe6c911130118eb0921b9eed51",
+      "ready_communications": [
+        "job0::202",
+        "job0::203",
+        "job1::202",
+        "job1::203"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::203",
+        "fixed_order": "job0::202",
+        "residual_longest_tail": "job1::203",
+        "spt": "job0::202",
+        "lpt": "job1::203",
+        "random_seed_0": "job0::203"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 110102,
+      "decision_index": 60,
+      "state_hash": "dcacf85f2a1f25ae4b8e40da5ed3479058a1f0f51487aeaec7f96329f1fee426",
+      "ready_communications": [
+        "job0::202",
+        "job0::203",
+        "job1::202"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 112693,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::202",
+        "fixed_order": "job0::202",
+        "residual_longest_tail": "job1::202",
+        "spt": "job0::202",
+        "lpt": "job1::202",
+        "random_seed_0": "job0::203"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 110941,
+      "decision_index": 61,
+      "state_hash": "c2fe42367426a22174e2d85385fb3eec74eecc564fcd35740a214841f848d537",
+      "ready_communications": [
+        "job0::202",
+        "job0::203"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 112693,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::203",
+        "fixed_order": "job0::202",
+        "residual_longest_tail": "job0::203",
+        "spt": "job0::202",
+        "lpt": "job0::203",
+        "random_seed_0": "job0::203"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 111780,
+      "decision_index": 62,
+      "state_hash": "e0c37556a045c5b0954c6b05ba0eba845162d5c0b13facab9fbe6275de2f499e",
+      "ready_communications": [
+        "job0::202"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 112693,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::202",
+        "fixed_order": "job0::202",
+        "residual_longest_tail": "job0::202",
+        "spt": "job0::202",
+        "lpt": "job0::202",
+        "random_seed_0": "job0::202"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 112619,
+      "decision_index": 63,
+      "state_hash": "ba4918447ece62c3a68eb9d7dc96e767ac457b984ac2da18ef5747a708e88d90",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 112693,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 112693,
+      "decision_index": 64,
+      "state_hash": "a86864f7bf54fe93695ebbd2058d7c0ea24a6e60bbef7a2654cfe4fab9ae8b0f",
+      "ready_communications": [
+        "job1::220"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 113532,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::220",
+        "fixed_order": "job1::220",
+        "residual_longest_tail": "job1::220",
+        "spt": "job1::220",
+        "lpt": "job1::220",
+        "random_seed_0": "job1::220"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 113532,
+      "decision_index": 65,
+      "state_hash": "6efbc084533fcc393ea0fc485b9f16db10010b9267c1ff9c89d4df133830b83c",
+      "ready_communications": [
+        "job1::221",
+        "job1::223"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 114371,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::221",
+        "fixed_order": "job1::221",
+        "residual_longest_tail": "job1::221",
+        "spt": "job1::221",
+        "lpt": "job1::223",
+        "random_seed_0": "job1::223"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 114371,
+      "decision_index": 66,
+      "state_hash": "adbef8caa403eb3814501c192e721cc089f4fe573e129ea8a469787a0c435d1c",
+      "ready_communications": [
+        "job0::220",
+        "job1::222",
+        "job1::223"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 115210,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::223",
+        "fixed_order": "job0::220",
+        "residual_longest_tail": "job0::220",
+        "spt": "job0::220",
+        "lpt": "job1::223",
+        "random_seed_0": "job1::223"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 115210,
+      "decision_index": 67,
+      "state_hash": "25c80d58e066c97f63b2241f13ef81457c09cd67148b6ad7aa8b0ccef8d90788",
+      "ready_communications": [
+        "job0::221",
+        "job0::223",
+        "job1::222",
+        "job1::223"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::223",
+        "fixed_order": "job0::221",
+        "residual_longest_tail": "job0::221",
+        "spt": "job0::221",
+        "lpt": "job1::223",
+        "random_seed_0": "job1::223"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 116049,
+      "decision_index": 68,
+      "state_hash": "88e7a914693d65115801a67e5585e5a8ed48c4dfdf2dcb1a05d9bfb2e71b29f5",
+      "ready_communications": [
+        "job0::222",
+        "job0::223",
+        "job1::222",
+        "job1::223"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::223",
+        "fixed_order": "job0::222",
+        "residual_longest_tail": "job1::223",
+        "spt": "job0::222",
+        "lpt": "job1::223",
+        "random_seed_0": "job0::222"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 116888,
+      "decision_index": 69,
+      "state_hash": "cdb7898c2b9a12ffba5bb56beda484bb67529eac4ab84b66dd8d62ed8f6450de",
+      "ready_communications": [
+        "job0::222",
+        "job0::223",
+        "job1::222"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 120524,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::222",
+        "fixed_order": "job0::222",
+        "residual_longest_tail": "job1::222",
+        "spt": "job0::222",
+        "lpt": "job1::222",
+        "random_seed_0": "job0::222"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 117727,
+      "decision_index": 70,
+      "state_hash": "f87a888fb58a360e0b1d63aa644e2e4a23900079b2dead5bb99f71f3d5f1b5fa",
+      "ready_communications": [
+        "job0::222",
+        "job0::223"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 120524,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::223",
+        "fixed_order": "job0::222",
+        "residual_longest_tail": "job0::223",
+        "spt": "job0::222",
+        "lpt": "job0::223",
+        "random_seed_0": "job0::222"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 118566,
+      "decision_index": 71,
+      "state_hash": "3cd6159d37ed283f96aafecee3592ebf77bf424104d77d34754467610d0a63d1",
+      "ready_communications": [
+        "job0::222"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 120524,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::222",
+        "fixed_order": "job0::222",
+        "residual_longest_tail": "job0::222",
+        "spt": "job0::222",
+        "lpt": "job0::222",
+        "random_seed_0": "job0::222"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 119405,
+      "decision_index": 72,
+      "state_hash": "63301ee65e88dbec54b93db1e14c86cbeeee1df578716bb2afd4c1a797cea2dd",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 120524,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 120524,
+      "decision_index": 73,
+      "state_hash": "93923462fda43ed94184cd3b3fdddd4ef7a8f6141110a4ba7a83ac351fff700e",
+      "ready_communications": [
+        "job1::240"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 121363,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::240",
+        "fixed_order": "job1::240",
+        "residual_longest_tail": "job1::240",
+        "spt": "job1::240",
+        "lpt": "job1::240",
+        "random_seed_0": "job1::240"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 121363,
+      "decision_index": 74,
+      "state_hash": "473b4d3cc7d95e435f442ce74cfd55aa7ec755794e2d606e205564c2e0d83ede",
+      "ready_communications": [
+        "job1::241",
+        "job1::243"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 122202,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::241",
+        "fixed_order": "job1::241",
+        "residual_longest_tail": "job1::241",
+        "spt": "job1::241",
+        "lpt": "job1::243",
+        "random_seed_0": "job1::241"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 122202,
+      "decision_index": 75,
+      "state_hash": "377ec66e2cb10cd6217694c7edc7910b8ff6ac9e3e96d3b98c18615b8479875f",
+      "ready_communications": [
+        "job0::240",
+        "job1::242",
+        "job1::243"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 123041,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::243",
+        "fixed_order": "job0::240",
+        "residual_longest_tail": "job0::240",
+        "spt": "job0::240",
+        "lpt": "job1::243",
+        "random_seed_0": "job1::242"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 123041,
+      "decision_index": 76,
+      "state_hash": "76f52a0331ddce0aac7a602cc1798c373af25187c8838cee553925cca5195807",
+      "ready_communications": [
+        "job0::241",
+        "job0::243",
+        "job1::242",
+        "job1::243"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::243",
+        "fixed_order": "job0::241",
+        "residual_longest_tail": "job0::241",
+        "spt": "job0::241",
+        "lpt": "job1::243",
+        "random_seed_0": "job0::243"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 123880,
+      "decision_index": 77,
+      "state_hash": "013e0facc5ad50dc55ec99454fe985a25eb6dc9cbfd25d91aa622a85858cb63d",
+      "ready_communications": [
+        "job0::242",
+        "job0::243",
+        "job1::242",
+        "job1::243"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::243",
+        "fixed_order": "job0::242",
+        "residual_longest_tail": "job1::243",
+        "spt": "job0::242",
+        "lpt": "job1::243",
+        "random_seed_0": "job0::243"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 124719,
+      "decision_index": 78,
+      "state_hash": "9f2e705ba5630843b590246e3fd51f88eddcdd862c9c262b4e8e5a69a9eb0c32",
+      "ready_communications": [
+        "job0::242",
+        "job0::243",
+        "job1::242"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 127310,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::242",
+        "fixed_order": "job0::242",
+        "residual_longest_tail": "job1::242",
+        "spt": "job0::242",
+        "lpt": "job1::242",
+        "random_seed_0": "job0::243"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 125558,
+      "decision_index": 79,
+      "state_hash": "189d6fa33f58effadb8e2d0693a4e57c5a6a5e1e10fcf3b1b339c36523bc4a7e",
+      "ready_communications": [
+        "job0::242",
+        "job0::243"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 127310,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::243",
+        "fixed_order": "job0::242",
+        "residual_longest_tail": "job0::243",
+        "spt": "job0::242",
+        "lpt": "job0::243",
+        "random_seed_0": "job0::243"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 126397,
+      "decision_index": 80,
+      "state_hash": "f44e14b718ff5da322556632cf316c5a9218692725452eecd38cedd1e128775d",
+      "ready_communications": [
+        "job0::242"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 127310,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::242",
+        "fixed_order": "job0::242",
+        "residual_longest_tail": "job0::242",
+        "spt": "job0::242",
+        "lpt": "job0::242",
+        "random_seed_0": "job0::242"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 127236,
+      "decision_index": 81,
+      "state_hash": "d21c868fe1ae3884be58f0a12179943fb24a3c750d31689ab21120fa84df6ec9",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 127310,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 127310,
+      "decision_index": 82,
+      "state_hash": "654aa0738c7da2ad717439fadbaf8339e4d50d08f62562e31df1604195091417",
+      "ready_communications": [
+        "job1::260"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 128149,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::260",
+        "fixed_order": "job1::260",
+        "residual_longest_tail": "job1::260",
+        "spt": "job1::260",
+        "lpt": "job1::260",
+        "random_seed_0": "job1::260"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 128149,
+      "decision_index": 83,
+      "state_hash": "dbc8efea95a3f61e9e86724aad25d7ebf0cbafaebf048e9a727cae31156659d1",
+      "ready_communications": [
+        "job1::261",
+        "job1::263"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 128988,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::261",
+        "fixed_order": "job1::261",
+        "residual_longest_tail": "job1::261",
+        "spt": "job1::261",
+        "lpt": "job1::263",
+        "random_seed_0": "job1::261"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 128988,
+      "decision_index": 84,
+      "state_hash": "fc2c9a275be673b9f2ca1c2c1f16bddf9b42959cb5daa8e4a63e6ccf66a0eebb",
+      "ready_communications": [
+        "job0::260",
+        "job1::262",
+        "job1::263"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 129827,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::263",
+        "fixed_order": "job0::260",
+        "residual_longest_tail": "job0::260",
+        "spt": "job0::260",
+        "lpt": "job1::263",
+        "random_seed_0": "job0::260"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 129827,
+      "decision_index": 85,
+      "state_hash": "5e08771ff167fa54bfa34527e3acd3c40439fe7428b187c4a8a3dbca6e59aaff",
+      "ready_communications": [
+        "job0::261",
+        "job0::263",
+        "job1::262",
+        "job1::263"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::263",
+        "fixed_order": "job0::261",
+        "residual_longest_tail": "job0::261",
+        "spt": "job0::261",
+        "lpt": "job1::263",
+        "random_seed_0": "job0::263"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 130666,
+      "decision_index": 86,
+      "state_hash": "61dc8fc474fd7a11264a8c83e30bc9ba7745a4187af6be335c85af767cafd0d7",
+      "ready_communications": [
+        "job0::262",
+        "job0::263",
+        "job1::262",
+        "job1::263"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::263",
+        "fixed_order": "job0::262",
+        "residual_longest_tail": "job1::263",
+        "spt": "job0::262",
+        "lpt": "job1::263",
+        "random_seed_0": "job0::263"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 131505,
+      "decision_index": 87,
+      "state_hash": "39126aeda2f3665cc6f2713a867ae94efefc961d35ca1cf048d8b63a489c3fde",
+      "ready_communications": [
+        "job0::262",
+        "job0::263",
+        "job1::262"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 135141,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::262",
+        "fixed_order": "job0::262",
+        "residual_longest_tail": "job1::262",
+        "spt": "job0::262",
+        "lpt": "job1::262",
+        "random_seed_0": "job0::263"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 132344,
+      "decision_index": 88,
+      "state_hash": "c1eeff9455552816cbda7feb0fa125fbb0e297fd4673738edcae65a6d0410e89",
+      "ready_communications": [
+        "job0::262",
+        "job0::263"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 135141,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::263",
+        "fixed_order": "job0::262",
+        "residual_longest_tail": "job0::263",
+        "spt": "job0::262",
+        "lpt": "job0::263",
+        "random_seed_0": "job0::263"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 133183,
+      "decision_index": 89,
+      "state_hash": "ea3a6031cb31d73180ceea22c76de45ff683a1f73d28dceb22442523ac2ea1af",
+      "ready_communications": [
+        "job0::262"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 135141,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::262",
+        "fixed_order": "job0::262",
+        "residual_longest_tail": "job0::262",
+        "spt": "job0::262",
+        "lpt": "job0::262",
+        "random_seed_0": "job0::262"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 134022,
+      "decision_index": 90,
+      "state_hash": "c48e39e0a36e965f63584fe35ce7515df7d37e8e460b5061ebd3e085f02916cb",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 135141,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 135141,
+      "decision_index": 91,
+      "state_hash": "4a84f9a9aab722998590d35df03973d30b85f37ea79d2fa3ad7bae8894f70935",
+      "ready_communications": [
+        "job1::280"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 135980,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::280",
+        "fixed_order": "job1::280",
+        "residual_longest_tail": "job1::280",
+        "spt": "job1::280",
+        "lpt": "job1::280",
+        "random_seed_0": "job1::280"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 135980,
+      "decision_index": 92,
+      "state_hash": "72683a695f5ea12fac6c5262c3c73222a657c16b669f12b5360e920794361e67",
+      "ready_communications": [
+        "job1::281",
+        "job1::283"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 136819,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::281",
+        "fixed_order": "job1::281",
+        "residual_longest_tail": "job1::281",
+        "spt": "job1::281",
+        "lpt": "job1::283",
+        "random_seed_0": "job1::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 136819,
+      "decision_index": 93,
+      "state_hash": "c5fbe54a799b82c3d3eaf3c7d82b0bf50231257253702d9d6c5897d0c79e4ef4",
+      "ready_communications": [
+        "job0::280",
+        "job1::282",
+        "job1::283"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 137658,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::283",
+        "fixed_order": "job0::280",
+        "residual_longest_tail": "job0::280",
+        "spt": "job0::280",
+        "lpt": "job1::283",
+        "random_seed_0": "job1::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 137658,
+      "decision_index": 94,
+      "state_hash": "8d3f26bd6a370f1ebff4dfc0711eb47aeefa04258aac435c0f960a442516eaf0",
+      "ready_communications": [
+        "job0::281",
+        "job0::283",
+        "job1::282",
+        "job1::283"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::283",
+        "fixed_order": "job0::281",
+        "residual_longest_tail": "job0::281",
+        "spt": "job0::281",
+        "lpt": "job1::283",
+        "random_seed_0": "job1::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 138497,
+      "decision_index": 95,
+      "state_hash": "b96b1231d43930b31ea1ee8eafe8eb1e8452e0c9d7e4f7ab95e4df30cc48b3b7",
+      "ready_communications": [
+        "job0::282",
+        "job0::283",
+        "job1::282",
+        "job1::283"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::283",
+        "fixed_order": "job0::282",
+        "residual_longest_tail": "job1::283",
+        "spt": "job0::282",
+        "lpt": "job1::283",
+        "random_seed_0": "job1::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 139336,
+      "decision_index": 96,
+      "state_hash": "e4e456af991c9f98c858848a166efa28ef2407473b95e1540f83e24434e395cc",
+      "ready_communications": [
+        "job0::282",
+        "job0::283",
+        "job1::282"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 141927,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::282",
+        "fixed_order": "job0::282",
+        "residual_longest_tail": "job1::282",
+        "spt": "job0::282",
+        "lpt": "job1::282",
+        "random_seed_0": "job0::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 140175,
+      "decision_index": 97,
+      "state_hash": "299950015b75c3092b78595b93db9ef3c436dbe70d3f9d600d8b3bf9093938cd",
+      "ready_communications": [
+        "job0::282",
+        "job0::283"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 141927,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::283",
+        "fixed_order": "job0::282",
+        "residual_longest_tail": "job0::283",
+        "spt": "job0::282",
+        "lpt": "job0::283",
+        "random_seed_0": "job0::283"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 141014,
+      "decision_index": 98,
+      "state_hash": "34ffce1ac0eb8d65fbb08547b1dc6fbee486188a9c100a18152f402eedae596d",
+      "ready_communications": [
+        "job0::282"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 141927,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::282",
+        "fixed_order": "job0::282",
+        "residual_longest_tail": "job0::282",
+        "spt": "job0::282",
+        "lpt": "job0::282",
+        "random_seed_0": "job0::282"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 141853,
+      "decision_index": 99,
+      "state_hash": "13344e81211440cd72e181d6e7e0f075944d31187763d5eb4123ec7ce95b3931",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 141927,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 141927,
+      "decision_index": 100,
+      "state_hash": "d9b6ce459d175d6009577aa4b2c6e024de123f1391e9e80239c83f19726fc998",
+      "ready_communications": [
+        "job1::300"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 142766,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::300",
+        "fixed_order": "job1::300",
+        "residual_longest_tail": "job1::300",
+        "spt": "job1::300",
+        "lpt": "job1::300",
+        "random_seed_0": "job1::300"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 142766,
+      "decision_index": 101,
+      "state_hash": "366b34f6434a12e5905455afcc6f74adb0d8002bff89fa3bb3113c839fb2f93a",
+      "ready_communications": [
+        "job1::301",
+        "job1::303"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 143605,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::301",
+        "fixed_order": "job1::301",
+        "residual_longest_tail": "job1::301",
+        "spt": "job1::301",
+        "lpt": "job1::303",
+        "random_seed_0": "job1::301"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 143605,
+      "decision_index": 102,
+      "state_hash": "91993eae89221de3d67171f38ce28a9ff11f90d70f7f19fccbc20bdeacc288ba",
+      "ready_communications": [
+        "job0::300",
+        "job1::302",
+        "job1::303"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 144444,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::303",
+        "fixed_order": "job0::300",
+        "residual_longest_tail": "job0::300",
+        "spt": "job0::300",
+        "lpt": "job1::303",
+        "random_seed_0": "job0::300"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 144444,
+      "decision_index": 103,
+      "state_hash": "c56a3bf9130eb3336b1c83b83a3fec48c9286ccfa07a3f655eda688e4dca5a55",
+      "ready_communications": [
+        "job0::301",
+        "job0::303",
+        "job1::302",
+        "job1::303"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::303",
+        "fixed_order": "job0::301",
+        "residual_longest_tail": "job0::301",
+        "spt": "job0::301",
+        "lpt": "job1::303",
+        "random_seed_0": "job0::301"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 145283,
+      "decision_index": 104,
+      "state_hash": "3fdba15103940c5a9e9d210c0b18caf7e5b6c79e37f1ad121b43641cd2244533",
+      "ready_communications": [
+        "job0::302",
+        "job0::303",
+        "job1::302",
+        "job1::303"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::303",
+        "fixed_order": "job0::302",
+        "residual_longest_tail": "job1::303",
+        "spt": "job0::302",
+        "lpt": "job1::303",
+        "random_seed_0": "job0::302"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 146122,
+      "decision_index": 105,
+      "state_hash": "511188c93a2c93db348ef2c9e9ed6004d078084960cc2c87ab60e6ae38fff688",
+      "ready_communications": [
+        "job0::302",
+        "job0::303",
+        "job1::302"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 149758,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::302",
+        "fixed_order": "job0::302",
+        "residual_longest_tail": "job1::302",
+        "spt": "job0::302",
+        "lpt": "job1::302",
+        "random_seed_0": "job0::302"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 146961,
+      "decision_index": 106,
+      "state_hash": "7ec7264c59610e7307773a6528fe9dfdbc6b4a2e4ed60bee173dcc325e74a446",
+      "ready_communications": [
+        "job0::302",
+        "job0::303"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 149758,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::303",
+        "fixed_order": "job0::302",
+        "residual_longest_tail": "job0::303",
+        "spt": "job0::302",
+        "lpt": "job0::303",
+        "random_seed_0": "job0::302"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 147800,
+      "decision_index": 107,
+      "state_hash": "613025c52f4179742c848ca52b60f5ecdf9f9ee05568a8445d7cdeb25885027a",
+      "ready_communications": [
+        "job0::302"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 149758,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::302",
+        "fixed_order": "job0::302",
+        "residual_longest_tail": "job0::302",
+        "spt": "job0::302",
+        "lpt": "job0::302",
+        "random_seed_0": "job0::302"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 148639,
+      "decision_index": 108,
+      "state_hash": "fb5d6b4a7185aab45eea4b5734798349bdd8f5302424b84e56b20294653cc55b",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 149758,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 149758,
+      "decision_index": 109,
+      "state_hash": "3f009641ea906d40a3daffafc362c9b73b4dd1ce251f6215175ccec24dd5c4d5",
+      "ready_communications": [
+        "job1::320"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 150597,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::320",
+        "fixed_order": "job1::320",
+        "residual_longest_tail": "job1::320",
+        "spt": "job1::320",
+        "lpt": "job1::320",
+        "random_seed_0": "job1::320"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 150597,
+      "decision_index": 110,
+      "state_hash": "db28336759f23c65929f56be9ab5f0d8139ca71ffca579871d263de25518ecf0",
+      "ready_communications": [
+        "job1::321",
+        "job1::323"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 151436,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::321",
+        "fixed_order": "job1::321",
+        "residual_longest_tail": "job1::321",
+        "spt": "job1::321",
+        "lpt": "job1::323",
+        "random_seed_0": "job1::323"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 151436,
+      "decision_index": 111,
+      "state_hash": "601ec17e12bf942c96f72f8dc188b15a10b5389ad53421bab4b6c3276148bddd",
+      "ready_communications": [
+        "job0::320",
+        "job1::322",
+        "job1::323"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 152275,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::323",
+        "fixed_order": "job0::320",
+        "residual_longest_tail": "job0::320",
+        "spt": "job0::320",
+        "lpt": "job1::323",
+        "random_seed_0": "job1::322"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 152275,
+      "decision_index": 112,
+      "state_hash": "a984d538ed923b1f411bb334a7f972446449eed315f5433d6239aac1a83e1780",
+      "ready_communications": [
+        "job0::321",
+        "job0::323",
+        "job1::322",
+        "job1::323"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::323",
+        "fixed_order": "job0::321",
+        "residual_longest_tail": "job0::321",
+        "spt": "job0::321",
+        "lpt": "job1::323",
+        "random_seed_0": "job1::322"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 153114,
+      "decision_index": 113,
+      "state_hash": "1c2c91a02c04faf2282e408e4c49a4367e67ab0fe7af5e45d3d9f4d526a8337e",
+      "ready_communications": [
+        "job0::322",
+        "job0::323",
+        "job1::322",
+        "job1::323"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::323",
+        "fixed_order": "job0::322",
+        "residual_longest_tail": "job1::323",
+        "spt": "job0::322",
+        "lpt": "job1::323",
+        "random_seed_0": "job0::322"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 153953,
+      "decision_index": 114,
+      "state_hash": "76c9a4ee5e04e0fa5a8604d9f675127cd0c4e036947e39100e77a0b02f2e1df6",
+      "ready_communications": [
+        "job0::322",
+        "job0::323",
+        "job1::322"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 156544,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::322",
+        "fixed_order": "job0::322",
+        "residual_longest_tail": "job1::322",
+        "spt": "job0::322",
+        "lpt": "job1::322",
+        "random_seed_0": "job0::322"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 154792,
+      "decision_index": 115,
+      "state_hash": "e070d9cd10822305e72139101e2fa215693b385650c4214408ee353165587700",
+      "ready_communications": [
+        "job0::322",
+        "job0::323"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 156544,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::323",
+        "fixed_order": "job0::322",
+        "residual_longest_tail": "job0::323",
+        "spt": "job0::322",
+        "lpt": "job0::323",
+        "random_seed_0": "job0::322"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 155631,
+      "decision_index": 116,
+      "state_hash": "837c391388cb545a733cbb18bc74935a646aee08c754e669076a63f8887c1359",
+      "ready_communications": [
+        "job0::322"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 156544,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::322",
+        "fixed_order": "job0::322",
+        "residual_longest_tail": "job0::322",
+        "spt": "job0::322",
+        "lpt": "job0::322",
+        "random_seed_0": "job0::322"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 156470,
+      "decision_index": 117,
+      "state_hash": "869ef39c98818b85062df892971d3117534fa8ed3f7cfb50d56d6625ff6dd719",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 156544,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 156544,
+      "decision_index": 118,
+      "state_hash": "aecfb90c44703151468cc6302a869ff083a9549bc292fab9e74f32cec144d000",
+      "ready_communications": [
+        "job1::340"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 157383,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::340",
+        "fixed_order": "job1::340",
+        "residual_longest_tail": "job1::340",
+        "spt": "job1::340",
+        "lpt": "job1::340",
+        "random_seed_0": "job1::340"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 157383,
+      "decision_index": 119,
+      "state_hash": "7393fbe3ec743c1df1aaa881afbd688d95d675062861e91070e661ef63d3f77c",
+      "ready_communications": [
+        "job1::341",
+        "job1::343"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 158222,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::341",
+        "fixed_order": "job1::341",
+        "residual_longest_tail": "job1::341",
+        "spt": "job1::341",
+        "lpt": "job1::343",
+        "random_seed_0": "job1::343"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 158222,
+      "decision_index": 120,
+      "state_hash": "dc2a853adf0bea9123acd7f35cadbff3dbb8bc21da45a28a995be04ec444dbe3",
+      "ready_communications": [
+        "job0::340",
+        "job1::342",
+        "job1::343"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 159061,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::343",
+        "fixed_order": "job0::340",
+        "residual_longest_tail": "job0::340",
+        "spt": "job0::340",
+        "lpt": "job1::343",
+        "random_seed_0": "job1::343"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 159061,
+      "decision_index": 121,
+      "state_hash": "0625f3d41e292692ea16d3812f7ef776d113b4660eb98adc1cebd9d87d68b1ee",
+      "ready_communications": [
+        "job0::341",
+        "job0::343",
+        "job1::342",
+        "job1::343"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::343",
+        "fixed_order": "job0::341",
+        "residual_longest_tail": "job0::341",
+        "spt": "job0::341",
+        "lpt": "job1::343",
+        "random_seed_0": "job0::343"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 159900,
+      "decision_index": 122,
+      "state_hash": "1e6f9b7f7741b195db10f74953f1dda9909310b54f433b11b104b981449098d5",
+      "ready_communications": [
+        "job0::342",
+        "job0::343",
+        "job1::342",
+        "job1::343"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::343",
+        "fixed_order": "job0::342",
+        "residual_longest_tail": "job1::343",
+        "spt": "job0::342",
+        "lpt": "job1::343",
+        "random_seed_0": "job0::342"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 160739,
+      "decision_index": 123,
+      "state_hash": "f577c7eb205479ec68c4b0b727b2572c016678a98d6323be3f0c30169b8636e2",
+      "ready_communications": [
+        "job0::342",
+        "job0::343",
+        "job1::342"
+      ],
+      "ready_communication_count": 3,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 3,
+      "work_conserving_maximal_set_count": 3,
+      "wait_legal": false,
+      "next_real_event": 164375,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job1::342",
+        "fixed_order": "job0::342",
+        "residual_longest_tail": "job1::342",
+        "spt": "job0::342",
+        "lpt": "job1::342",
+        "random_seed_0": "job0::342"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 161578,
+      "decision_index": 124,
+      "state_hash": "048a2ef76cb81db96561d029f73ca87c648b88bcff538c89c0357c79a4bcba65",
+      "ready_communications": [
+        "job0::342",
+        "job0::343"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 2,
+      "work_conserving_maximal_set_count": 2,
+      "wait_legal": false,
+      "next_real_event": 164375,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "policy_actions": {
+        "fifo": "job0::343",
+        "fixed_order": "job0::342",
+        "residual_longest_tail": "job0::343",
+        "spt": "job0::342",
+        "lpt": "job0::343",
+        "random_seed_0": "job0::342"
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 162417,
+      "decision_index": 125,
+      "state_hash": "0be58e90a96b599ba80ee8bda2ce497a2b7afa53377ebe942225c96fea9b17c6",
+      "ready_communications": [
+        "job0::342"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 164375,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job0::342",
+        "fixed_order": "job0::342",
+        "residual_longest_tail": "job0::342",
+        "spt": "job0::342",
+        "lpt": "job0::342",
+        "random_seed_0": "job0::342"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 163256,
+      "decision_index": 126,
+      "state_hash": "20a88eec50412d3706c9f964c48bffdc4e78cee8b06d892d8a9d159431ba72be",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": true,
+      "next_real_event": 164375,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": null,
+        "fixed_order": null,
+        "residual_longest_tail": null,
+        "spt": null,
+        "lpt": null,
+        "random_seed_0": null
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 164375,
+      "decision_index": 127,
+      "state_hash": "629fcfd25c6c7b1c6894cb815e153287fbd74acbd4274ae9fd6c9dcab5a8b815",
+      "ready_communications": [
+        "job1::360"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "free_resources": [
+        "channel:0"
+      ],
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 165214,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": true,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "policy_actions": {
+        "fifo": "job1::360",
+        "fixed_order": "job1::360",
+        "residual_longest_tail": "job1::360",
+        "spt": "job1::360",
+        "lpt": "job1::360",
+        "random_seed_0": "job1::360"
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    }
+  ],
+  "decision_count": 128,
+  "completed": false,
+  "partial_simulation_time": 165214,
+  "action_trace": [
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::81"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::80"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::81"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::80"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::83"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::82"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::83"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::82"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::100"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::101"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::100"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::101"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::103"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::102"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::103"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::102"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::120"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::121"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::120"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::121"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::123"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::122"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::123"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::122"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::140"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::141"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::140"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::141"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::143"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::142"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::143"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::142"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::160"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::161"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::160"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::161"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::163"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::162"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::163"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::162"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::180"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::181"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::180"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::181"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::183"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::182"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::183"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::182"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::200"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::201"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::200"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::201"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::203"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::202"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::203"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::202"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::220"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::221"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::220"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::221"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::223"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::222"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::223"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::222"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::240"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::241"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::240"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::241"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::243"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::242"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::243"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::242"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::260"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::261"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::260"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::261"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::263"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::262"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::263"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::262"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::280"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::281"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::280"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::281"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::283"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::282"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::283"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::282"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::300"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::301"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::300"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::301"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::303"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::302"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::303"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::302"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::320"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::321"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::320"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::321"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::323"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::322"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::323"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::322"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::340"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::341"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::340"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::341"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::343"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::342"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::343"
+    },
+    {
+      "kind": "flow",
+      "task_id": "job0::342"
+    },
+    {
+      "kind": "wait",
+      "task_id": null
+    },
+    {
+      "kind": "flow",
+      "task_id": "job1::360"
+    }
+  ],
+  "time_truncated": false,
+  "audit_schema_version": "nonpreemptive-contention-audit-v1",
+  "evidence_level": "sampled_prefix",
+  "termination_reason": "decision_limit",
+  "mode": "work_conserving",
+  "ordering_choice_observed": true,
+  "set_choice_observed": false,
+  "wait_choice_observed": true,
+  "non_equivalent_choice_observed": true,
+  "policy_divergence_observed": true,
+  "cross_job_ready_conflict_count": 58,
+  "active_reservation_cross_job_block_count": 0,
+  "conflict_counts": {
+    "action": 85,
+    "policy": 85,
+    "state": 85,
+    "quality": null
+  },
+  "quality_evidence": "not_run",
+  "choice_density": 0.6640625,
+  "policy_divergence_rate": 0.6640625,
+  "runtime_ms": 1210.481,
+  "time_limit_s": 30
+}

@@ -1,0 +1,5649 @@
+{
+  "scenario": "muti_channel",
+  "decisions": [
+    {
+      "time": 0,
+      "decision_index": 0,
+      "state_hash": "165dc67a0bb390dcdfa331e84691ba6b5260d5051bcca5cd0f1eb3732a70f168",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 542983,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 542983,
+      "decision_index": 1,
+      "state_hash": "32e77398ada633a1821a64531eaf5322fe21581856cbf82f789a04d0bd0a822a",
+      "ready_communications": [
+        "job0::30",
+        "job0::31",
+        "job1::30",
+        "job1::31"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 4,
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::30",
+        "job0::31",
+        "job1::30",
+        "job1::31"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::30",
+          "job0::31"
+        ],
+        "fixed_order": [
+          "job0::30",
+          "job0::31"
+        ],
+        "residual_longest_tail": [
+          "job0::30",
+          "job0::31"
+        ],
+        "spt": [
+          "job0::30",
+          "job0::31"
+        ],
+        "lpt": [
+          "job0::30",
+          "job0::31"
+        ],
+        "hotspot_avoidance": [
+          "job0::30",
+          "job0::31"
+        ],
+        "resource_complement": [
+          "job0::30",
+          "job0::31"
+        ],
+        "random_seed_0": [
+          "job0::30",
+          "job0::31"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 543319,
+      "decision_index": 2,
+      "state_hash": "403babc0f154b7087c09ccf03ee75e7b91e95d1ee0a0569d7095840001e1035c",
+      "ready_communications": [
+        "job0::32",
+        "job0::33",
+        "job1::30",
+        "job1::31"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 4,
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": true,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "residual_longest_tail_order": [
+        "job1::30",
+        "job1::31",
+        "job0::32",
+        "job0::33"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::30",
+          "job1::31"
+        ],
+        "fixed_order": [
+          "job0::32",
+          "job0::33"
+        ],
+        "residual_longest_tail": [
+          "job1::30",
+          "job1::31"
+        ],
+        "spt": [
+          "job0::32",
+          "job0::33"
+        ],
+        "lpt": [
+          "job0::32",
+          "job0::33"
+        ],
+        "hotspot_avoidance": [
+          "job0::32",
+          "job0::33"
+        ],
+        "resource_complement": [
+          "job1::30",
+          "job1::31"
+        ],
+        "random_seed_0": [
+          "job0::32",
+          "job0::33"
+        ]
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 543655,
+      "decision_index": 3,
+      "state_hash": "0fe6de2edb12d0de73fbada0acbb1a4a07875ca2753a259fda98f35d023d136e",
+      "ready_communications": [
+        "job0::32",
+        "job0::33",
+        "job1::32",
+        "job1::33"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 4,
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": true,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "residual_longest_tail_order": [
+        "job0::32",
+        "job0::33",
+        "job1::32",
+        "job1::33"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::32",
+          "job0::33"
+        ],
+        "fixed_order": [
+          "job0::32",
+          "job0::33"
+        ],
+        "residual_longest_tail": [
+          "job0::32",
+          "job0::33"
+        ],
+        "spt": [
+          "job0::32",
+          "job0::33"
+        ],
+        "lpt": [
+          "job0::32",
+          "job0::33"
+        ],
+        "hotspot_avoidance": [
+          "job0::32",
+          "job0::33"
+        ],
+        "resource_complement": [
+          "job0::32",
+          "job0::33"
+        ],
+        "random_seed_0": [
+          "job1::32",
+          "job1::33"
+        ]
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 543991,
+      "decision_index": 4,
+      "state_hash": "3410669bd0045c2bcdb09deaad5122e4da4ff1d2d3c1af8460c1d9fdef9f3f68",
+      "ready_communications": [
+        "job1::32",
+        "job1::33"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 545426,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::32",
+        "job1::33"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::32",
+          "job1::33"
+        ],
+        "fixed_order": [
+          "job1::32",
+          "job1::33"
+        ],
+        "residual_longest_tail": [
+          "job1::32",
+          "job1::33"
+        ],
+        "spt": [
+          "job1::32",
+          "job1::33"
+        ],
+        "lpt": [
+          "job1::32",
+          "job1::33"
+        ],
+        "hotspot_avoidance": [
+          "job1::32",
+          "job1::33"
+        ],
+        "resource_complement": [
+          "job1::32",
+          "job1::33"
+        ],
+        "random_seed_0": [
+          "job1::32",
+          "job1::33"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 544327,
+      "decision_index": 5,
+      "state_hash": "2edaf2347d0dd186bfae9025ef0dbdd53d11a36b05b7870fd0e0c695e7e1718c",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 545426,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 545426,
+      "decision_index": 6,
+      "state_hash": "65d65870320c8c82867e475fc42af7b26d884ef5e9852edf478a47d10d15a944",
+      "ready_communications": [
+        "job0::40",
+        "job0::41"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 545762,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::40",
+        "job0::41"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::40",
+          "job0::41"
+        ],
+        "fixed_order": [
+          "job0::40",
+          "job0::41"
+        ],
+        "residual_longest_tail": [
+          "job0::40",
+          "job0::41"
+        ],
+        "spt": [
+          "job0::40",
+          "job0::41"
+        ],
+        "lpt": [
+          "job0::40",
+          "job0::41"
+        ],
+        "hotspot_avoidance": [
+          "job0::40",
+          "job0::41"
+        ],
+        "resource_complement": [
+          "job0::40",
+          "job0::41"
+        ],
+        "random_seed_0": [
+          "job0::40",
+          "job0::41"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 545762,
+      "decision_index": 7,
+      "state_hash": "b363193168410cea73d51379c5d6ec192c4e2a4233519eb5e52534b4859bee45",
+      "ready_communications": [
+        "job1::40",
+        "job1::41"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 547197,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::40",
+        "job1::41"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::40",
+          "job1::41"
+        ],
+        "fixed_order": [
+          "job1::40",
+          "job1::41"
+        ],
+        "residual_longest_tail": [
+          "job1::40",
+          "job1::41"
+        ],
+        "spt": [
+          "job1::40",
+          "job1::41"
+        ],
+        "lpt": [
+          "job1::40",
+          "job1::41"
+        ],
+        "hotspot_avoidance": [
+          "job1::40",
+          "job1::41"
+        ],
+        "resource_complement": [
+          "job1::40",
+          "job1::41"
+        ],
+        "random_seed_0": [
+          "job1::40",
+          "job1::41"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 546098,
+      "decision_index": 8,
+      "state_hash": "c75e7396cc591769c665da4ed9d842dbaa754240487c797a1671d0d8031cc12c",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 547197,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 547197,
+      "decision_index": 9,
+      "state_hash": "351f82524ecbd1e6669f77b5965b17ad0a981f1e8fcd503d9334c202b59fab5a",
+      "ready_communications": [
+        "job0::50",
+        "job0::51"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 547533,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::50",
+        "job0::51"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::50",
+          "job0::51"
+        ],
+        "fixed_order": [
+          "job0::50",
+          "job0::51"
+        ],
+        "residual_longest_tail": [
+          "job0::50",
+          "job0::51"
+        ],
+        "spt": [
+          "job0::50",
+          "job0::51"
+        ],
+        "lpt": [
+          "job0::50",
+          "job0::51"
+        ],
+        "hotspot_avoidance": [
+          "job0::50",
+          "job0::51"
+        ],
+        "resource_complement": [
+          "job0::50",
+          "job0::51"
+        ],
+        "random_seed_0": [
+          "job0::50",
+          "job0::51"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 547533,
+      "decision_index": 10,
+      "state_hash": "d517f366566a2c4a021a6f594119aa986fdc6b2aab3704992e8181ba2ce1fa30",
+      "ready_communications": [
+        "job1::50",
+        "job1::51"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 551003,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::50",
+        "job1::51"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::50",
+          "job1::51"
+        ],
+        "fixed_order": [
+          "job1::50",
+          "job1::51"
+        ],
+        "residual_longest_tail": [
+          "job1::50",
+          "job1::51"
+        ],
+        "spt": [
+          "job1::50",
+          "job1::51"
+        ],
+        "lpt": [
+          "job1::50",
+          "job1::51"
+        ],
+        "hotspot_avoidance": [
+          "job1::50",
+          "job1::51"
+        ],
+        "resource_complement": [
+          "job1::50",
+          "job1::51"
+        ],
+        "random_seed_0": [
+          "job1::50",
+          "job1::51"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 547869,
+      "decision_index": 11,
+      "state_hash": "8ddbd521cf1a98c44d27dc40a8922a435ae9178c8f898f67acee4d75a20d9234",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 551003,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 551003,
+      "decision_index": 12,
+      "state_hash": "a51291edadb037476f0125f9c0489c6b94e4a13832cf399043bcf1ed07b48d56",
+      "ready_communications": [
+        "job0::60",
+        "job0::61"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 551339,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::60",
+        "job0::61"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::60",
+          "job0::61"
+        ],
+        "fixed_order": [
+          "job0::60",
+          "job0::61"
+        ],
+        "residual_longest_tail": [
+          "job0::60",
+          "job0::61"
+        ],
+        "spt": [
+          "job0::60",
+          "job0::61"
+        ],
+        "lpt": [
+          "job0::60",
+          "job0::61"
+        ],
+        "hotspot_avoidance": [
+          "job0::60",
+          "job0::61"
+        ],
+        "resource_complement": [
+          "job0::60",
+          "job0::61"
+        ],
+        "random_seed_0": [
+          "job0::60",
+          "job0::61"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 551004,
+      "decision_index": 13,
+      "state_hash": "96441641cd7cda3ee340a6b27bfaddb2cc07306029db8362622e600d7adbe5b5",
+      "ready_communications": [
+        "job0::74",
+        "job0::75"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 551339,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::74",
+        "job0::75"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::74",
+          "job0::75"
+        ],
+        "fixed_order": [
+          "job0::74",
+          "job0::75"
+        ],
+        "residual_longest_tail": [
+          "job0::74",
+          "job0::75"
+        ],
+        "spt": [
+          "job0::74",
+          "job0::75"
+        ],
+        "lpt": [
+          "job0::74",
+          "job0::75"
+        ],
+        "hotspot_avoidance": [
+          "job0::74",
+          "job0::75"
+        ],
+        "resource_complement": [
+          "job0::74",
+          "job0::75"
+        ],
+        "random_seed_0": [
+          "job0::74",
+          "job0::75"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 551339,
+      "decision_index": 14,
+      "state_hash": "8ef6374f3146643f49afee1f8fc09b2def725c10c2c7f355a338f94dc1303a5f",
+      "ready_communications": [
+        "job1::60",
+        "job1::61"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 2,
+      "active_communications": [
+        "job0::74",
+        "job0::75"
+      ],
+      "free_resources": [],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 551676,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": true
+    },
+    {
+      "time": 551676,
+      "decision_index": 15,
+      "state_hash": "646ec482af56c6fcb28ae63df2acfd9f1d0b26b9284f2469e8b7f250cd02b790",
+      "ready_communications": [
+        "job0::84",
+        "job0::85",
+        "job1::60",
+        "job1::61"
+      ],
+      "ready_communication_count": 4,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 4,
+      "legal_start_action_count": 4,
+      "work_conserving_maximal_set_count": 4,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": true,
+      "wait_choice": false,
+      "multiple_legal_actions": true,
+      "non_equivalent_immediate_successors": true,
+      "residual_longest_tail_order": [
+        "job0::84",
+        "job0::85",
+        "job1::60",
+        "job1::61"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::60",
+          "job1::61"
+        ],
+        "fixed_order": [
+          "job0::84",
+          "job0::85"
+        ],
+        "residual_longest_tail": [
+          "job0::84",
+          "job0::85"
+        ],
+        "spt": [
+          "job1::60",
+          "job1::61"
+        ],
+        "lpt": [
+          "job0::84",
+          "job0::85"
+        ],
+        "hotspot_avoidance": [
+          "job0::84",
+          "job0::85"
+        ],
+        "resource_complement": [
+          "job0::84",
+          "job0::85"
+        ],
+        "random_seed_0": [
+          "job1::60",
+          "job1::61"
+        ]
+      },
+      "policy_divergence": true,
+      "cross_job_ready_conflict": true,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 552348,
+      "decision_index": 16,
+      "state_hash": "c2312fef67b8213e2d6c2c58e9aebf7e520cde8fb8b80dc1a9c20d903c66fcf2",
+      "ready_communications": [
+        "job1::60",
+        "job1::61"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 553783,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::60",
+        "job1::61"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::60",
+          "job1::61"
+        ],
+        "fixed_order": [
+          "job1::60",
+          "job1::61"
+        ],
+        "residual_longest_tail": [
+          "job1::60",
+          "job1::61"
+        ],
+        "spt": [
+          "job1::60",
+          "job1::61"
+        ],
+        "lpt": [
+          "job1::60",
+          "job1::61"
+        ],
+        "hotspot_avoidance": [
+          "job1::60",
+          "job1::61"
+        ],
+        "resource_complement": [
+          "job1::60",
+          "job1::61"
+        ],
+        "random_seed_0": [
+          "job1::60",
+          "job1::61"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 552349,
+      "decision_index": 17,
+      "state_hash": "b006f882e2bfdb7af211aeda029b7ae05acdbce9666ace0ee107ac38f29a6ed1",
+      "ready_communications": [
+        "job1::74",
+        "job1::75"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 553783,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::74",
+        "job1::75"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::74",
+          "job1::75"
+        ],
+        "fixed_order": [
+          "job1::74",
+          "job1::75"
+        ],
+        "residual_longest_tail": [
+          "job1::74",
+          "job1::75"
+        ],
+        "spt": [
+          "job1::74",
+          "job1::75"
+        ],
+        "lpt": [
+          "job1::74",
+          "job1::75"
+        ],
+        "hotspot_avoidance": [
+          "job1::74",
+          "job1::75"
+        ],
+        "resource_complement": [
+          "job1::74",
+          "job1::75"
+        ],
+        "random_seed_0": [
+          "job1::74",
+          "job1::75"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 553021,
+      "decision_index": 18,
+      "state_hash": "0a64b7da0fee514cffaf5795973f6cc1a47118b17b818a42b4c5af3695918922",
+      "ready_communications": [
+        "job1::84",
+        "job1::85"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 553783,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::84",
+        "job1::85"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::84",
+          "job1::85"
+        ],
+        "fixed_order": [
+          "job1::84",
+          "job1::85"
+        ],
+        "residual_longest_tail": [
+          "job1::84",
+          "job1::85"
+        ],
+        "spt": [
+          "job1::84",
+          "job1::85"
+        ],
+        "lpt": [
+          "job1::84",
+          "job1::85"
+        ],
+        "hotspot_avoidance": [
+          "job1::84",
+          "job1::85"
+        ],
+        "resource_complement": [
+          "job1::84",
+          "job1::85"
+        ],
+        "random_seed_0": [
+          "job1::84",
+          "job1::85"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 553693,
+      "decision_index": 19,
+      "state_hash": "d8b497dc44810f26d2025127aa2a70c9f921fd1de0e992bd2494cb0cfcf48c14",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 553783,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 553783,
+      "decision_index": 20,
+      "state_hash": "154448da49bd6d06cfdedc9a82836b5df9814bddc412b5e86fc9a4e964ce362a",
+      "ready_communications": [
+        "job0::100",
+        "job0::101"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 555128,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::100",
+        "job0::101"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::100",
+          "job0::101"
+        ],
+        "fixed_order": [
+          "job0::100",
+          "job0::101"
+        ],
+        "residual_longest_tail": [
+          "job0::100",
+          "job0::101"
+        ],
+        "spt": [
+          "job0::100",
+          "job0::101"
+        ],
+        "lpt": [
+          "job0::100",
+          "job0::101"
+        ],
+        "hotspot_avoidance": [
+          "job0::100",
+          "job0::101"
+        ],
+        "resource_complement": [
+          "job0::100",
+          "job0::101"
+        ],
+        "random_seed_0": [
+          "job0::100",
+          "job0::101"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 554119,
+      "decision_index": 21,
+      "state_hash": "b470399aaf279842abdd089a4f69030b6cd827546bd865a9bd3fe7b7ffa98d59",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 555128,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 555128,
+      "decision_index": 22,
+      "state_hash": "ac363cbc51a91e74e5dfbc123e458685f1681c5e8fa254386fc2b2c9a8f2849e",
+      "ready_communications": [
+        "job1::100",
+        "job1::101"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 555554,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::100",
+        "job1::101"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::100",
+          "job1::101"
+        ],
+        "fixed_order": [
+          "job1::100",
+          "job1::101"
+        ],
+        "residual_longest_tail": [
+          "job1::100",
+          "job1::101"
+        ],
+        "spt": [
+          "job1::100",
+          "job1::101"
+        ],
+        "lpt": [
+          "job1::100",
+          "job1::101"
+        ],
+        "hotspot_avoidance": [
+          "job1::100",
+          "job1::101"
+        ],
+        "resource_complement": [
+          "job1::100",
+          "job1::101"
+        ],
+        "random_seed_0": [
+          "job1::100",
+          "job1::101"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 555464,
+      "decision_index": 23,
+      "state_hash": "3b4cc9c1adbe4ac1710f7f4e3ffb79764ed355fc8955b2b70d985433b34c68a7",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 555554,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 555554,
+      "decision_index": 24,
+      "state_hash": "97e2d3ddc88388bc1ce7ac60163b94b3f5cd4ba1be192f6cc88a419dc9a30170",
+      "ready_communications": [
+        "job0::110",
+        "job0::111"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 556899,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::110",
+        "job0::111"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::110",
+          "job0::111"
+        ],
+        "fixed_order": [
+          "job0::110",
+          "job0::111"
+        ],
+        "residual_longest_tail": [
+          "job0::110",
+          "job0::111"
+        ],
+        "spt": [
+          "job0::110",
+          "job0::111"
+        ],
+        "lpt": [
+          "job0::110",
+          "job0::111"
+        ],
+        "hotspot_avoidance": [
+          "job0::110",
+          "job0::111"
+        ],
+        "resource_complement": [
+          "job0::110",
+          "job0::111"
+        ],
+        "random_seed_0": [
+          "job0::110",
+          "job0::111"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 555890,
+      "decision_index": 25,
+      "state_hash": "3a362532ae2dde8f8c57f9ce647ebfe7bbc8cd2ae155cd04c39d45da08d1aec9",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 556899,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 556899,
+      "decision_index": 26,
+      "state_hash": "4311b3594aa1de5bdf92505fa07b7c926cadbc53f6a8b25ad254276df5f189d5",
+      "ready_communications": [
+        "job1::110",
+        "job1::111"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 559360,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::110",
+        "job1::111"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::110",
+          "job1::111"
+        ],
+        "fixed_order": [
+          "job1::110",
+          "job1::111"
+        ],
+        "residual_longest_tail": [
+          "job1::110",
+          "job1::111"
+        ],
+        "spt": [
+          "job1::110",
+          "job1::111"
+        ],
+        "lpt": [
+          "job1::110",
+          "job1::111"
+        ],
+        "hotspot_avoidance": [
+          "job1::110",
+          "job1::111"
+        ],
+        "resource_complement": [
+          "job1::110",
+          "job1::111"
+        ],
+        "random_seed_0": [
+          "job1::110",
+          "job1::111"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 557235,
+      "decision_index": 27,
+      "state_hash": "f3aea1735152c59dfbd0cc60d8109333d7e6fc40be0647e8ba0367e98d648c7a",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 559360,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 559360,
+      "decision_index": 28,
+      "state_hash": "ad4e57e7b144a0a7b086a910ce4a76802e42a8fb7b4555be6fbda1ef3cdc1b9f",
+      "ready_communications": [
+        "job0::120",
+        "job0::121"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 560705,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::120",
+        "job0::121"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::120",
+          "job0::121"
+        ],
+        "fixed_order": [
+          "job0::120",
+          "job0::121"
+        ],
+        "residual_longest_tail": [
+          "job0::120",
+          "job0::121"
+        ],
+        "spt": [
+          "job0::120",
+          "job0::121"
+        ],
+        "lpt": [
+          "job0::120",
+          "job0::121"
+        ],
+        "hotspot_avoidance": [
+          "job0::120",
+          "job0::121"
+        ],
+        "resource_complement": [
+          "job0::120",
+          "job0::121"
+        ],
+        "random_seed_0": [
+          "job0::120",
+          "job0::121"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 559361,
+      "decision_index": 29,
+      "state_hash": "21511b93d60ecf796d63f0628dd935838049ce2c0d5b7682fd57383d74347f5a",
+      "ready_communications": [
+        "job0::134",
+        "job0::135"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 560705,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::134",
+        "job0::135"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::134",
+          "job0::135"
+        ],
+        "fixed_order": [
+          "job0::134",
+          "job0::135"
+        ],
+        "residual_longest_tail": [
+          "job0::134",
+          "job0::135"
+        ],
+        "spt": [
+          "job0::134",
+          "job0::135"
+        ],
+        "lpt": [
+          "job0::134",
+          "job0::135"
+        ],
+        "hotspot_avoidance": [
+          "job0::134",
+          "job0::135"
+        ],
+        "resource_complement": [
+          "job0::134",
+          "job0::135"
+        ],
+        "random_seed_0": [
+          "job0::134",
+          "job0::135"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 560033,
+      "decision_index": 30,
+      "state_hash": "40d0b7bcdee6a491b205626123d58062c6744428bcba4dfc30f1d679251d5238",
+      "ready_communications": [
+        "job0::144",
+        "job0::145"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 560705,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::144",
+        "job0::145"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::144",
+          "job0::145"
+        ],
+        "fixed_order": [
+          "job0::144",
+          "job0::145"
+        ],
+        "residual_longest_tail": [
+          "job0::144",
+          "job0::145"
+        ],
+        "spt": [
+          "job0::144",
+          "job0::145"
+        ],
+        "lpt": [
+          "job0::144",
+          "job0::145"
+        ],
+        "hotspot_avoidance": [
+          "job0::144",
+          "job0::145"
+        ],
+        "resource_complement": [
+          "job0::144",
+          "job0::145"
+        ],
+        "random_seed_0": [
+          "job0::144",
+          "job0::145"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 560705,
+      "decision_index": 31,
+      "state_hash": "ada2fdad38fa22852e5b191c0d1c75f2a52a12aa9e890bb53eddfa6d1f75010c",
+      "ready_communications": [
+        "job1::120",
+        "job1::121"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 562140,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::120",
+        "job1::121"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::120",
+          "job1::121"
+        ],
+        "fixed_order": [
+          "job1::120",
+          "job1::121"
+        ],
+        "residual_longest_tail": [
+          "job1::120",
+          "job1::121"
+        ],
+        "spt": [
+          "job1::120",
+          "job1::121"
+        ],
+        "lpt": [
+          "job1::120",
+          "job1::121"
+        ],
+        "hotspot_avoidance": [
+          "job1::120",
+          "job1::121"
+        ],
+        "resource_complement": [
+          "job1::120",
+          "job1::121"
+        ],
+        "random_seed_0": [
+          "job1::120",
+          "job1::121"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 560706,
+      "decision_index": 32,
+      "state_hash": "a715bbd16b672d01f8703072a7b9c9d147e101a1421e33a7448b396fbda8d34f",
+      "ready_communications": [
+        "job1::134",
+        "job1::135"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 562140,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::134",
+        "job1::135"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::134",
+          "job1::135"
+        ],
+        "fixed_order": [
+          "job1::134",
+          "job1::135"
+        ],
+        "residual_longest_tail": [
+          "job1::134",
+          "job1::135"
+        ],
+        "spt": [
+          "job1::134",
+          "job1::135"
+        ],
+        "lpt": [
+          "job1::134",
+          "job1::135"
+        ],
+        "hotspot_avoidance": [
+          "job1::134",
+          "job1::135"
+        ],
+        "resource_complement": [
+          "job1::134",
+          "job1::135"
+        ],
+        "random_seed_0": [
+          "job1::134",
+          "job1::135"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 561378,
+      "decision_index": 33,
+      "state_hash": "90b93a7e0e50b06cb74ae2223391f9ff90314552b8b87f216245e13be1778b2c",
+      "ready_communications": [
+        "job1::144",
+        "job1::145"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 562140,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::144",
+        "job1::145"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::144",
+          "job1::145"
+        ],
+        "fixed_order": [
+          "job1::144",
+          "job1::145"
+        ],
+        "residual_longest_tail": [
+          "job1::144",
+          "job1::145"
+        ],
+        "spt": [
+          "job1::144",
+          "job1::145"
+        ],
+        "lpt": [
+          "job1::144",
+          "job1::145"
+        ],
+        "hotspot_avoidance": [
+          "job1::144",
+          "job1::145"
+        ],
+        "resource_complement": [
+          "job1::144",
+          "job1::145"
+        ],
+        "random_seed_0": [
+          "job1::144",
+          "job1::145"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 562050,
+      "decision_index": 34,
+      "state_hash": "4ffc78c038993b225a0914a0cda5024b5b881366c30c1af46c904782b9e8de64",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 562140,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 562140,
+      "decision_index": 35,
+      "state_hash": "52ab6fc17cb45107e8642416c4e18bd1bbb43d19756f0a5137ee3d191f3823bc",
+      "ready_communications": [
+        "job0::160",
+        "job0::161"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 563485,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::160",
+        "job0::161"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::160",
+          "job0::161"
+        ],
+        "fixed_order": [
+          "job0::160",
+          "job0::161"
+        ],
+        "residual_longest_tail": [
+          "job0::160",
+          "job0::161"
+        ],
+        "spt": [
+          "job0::160",
+          "job0::161"
+        ],
+        "lpt": [
+          "job0::160",
+          "job0::161"
+        ],
+        "hotspot_avoidance": [
+          "job0::160",
+          "job0::161"
+        ],
+        "resource_complement": [
+          "job0::160",
+          "job0::161"
+        ],
+        "random_seed_0": [
+          "job0::160",
+          "job0::161"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 562476,
+      "decision_index": 36,
+      "state_hash": "27ff8cbfc73963110ad25875fa57891a8aa517b23a879c05998294644bf8381a",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 563485,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 563485,
+      "decision_index": 37,
+      "state_hash": "72f210867c160ede7e0157b388cdc80dd0d7aea428b0778b66db040f27ba51ef",
+      "ready_communications": [
+        "job1::160",
+        "job1::161"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 563911,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::160",
+        "job1::161"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::160",
+          "job1::161"
+        ],
+        "fixed_order": [
+          "job1::160",
+          "job1::161"
+        ],
+        "residual_longest_tail": [
+          "job1::160",
+          "job1::161"
+        ],
+        "spt": [
+          "job1::160",
+          "job1::161"
+        ],
+        "lpt": [
+          "job1::160",
+          "job1::161"
+        ],
+        "hotspot_avoidance": [
+          "job1::160",
+          "job1::161"
+        ],
+        "resource_complement": [
+          "job1::160",
+          "job1::161"
+        ],
+        "random_seed_0": [
+          "job1::160",
+          "job1::161"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 563821,
+      "decision_index": 38,
+      "state_hash": "2c33252994581be2cd6fece859b07429a96d8fe7f2b485440af973a256614e3f",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 563911,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 563911,
+      "decision_index": 39,
+      "state_hash": "b13da85f7c00c7208be19d3afb6c7c3109b8e615a93e579b9ebd3ff61bfb6ac3",
+      "ready_communications": [
+        "job0::170",
+        "job0::171"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 565256,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::170",
+        "job0::171"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::170",
+          "job0::171"
+        ],
+        "fixed_order": [
+          "job0::170",
+          "job0::171"
+        ],
+        "residual_longest_tail": [
+          "job0::170",
+          "job0::171"
+        ],
+        "spt": [
+          "job0::170",
+          "job0::171"
+        ],
+        "lpt": [
+          "job0::170",
+          "job0::171"
+        ],
+        "hotspot_avoidance": [
+          "job0::170",
+          "job0::171"
+        ],
+        "resource_complement": [
+          "job0::170",
+          "job0::171"
+        ],
+        "random_seed_0": [
+          "job0::170",
+          "job0::171"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 564247,
+      "decision_index": 40,
+      "state_hash": "09c488501e690c8f3d86eceb3393500dd2be198a3ed95c436275517523c21047",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 565256,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 565256,
+      "decision_index": 41,
+      "state_hash": "967cf0de55134648718c3aa25896e859021799ff7cd11e67ef553b6de6bda611",
+      "ready_communications": [
+        "job1::170",
+        "job1::171"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 567717,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::170",
+        "job1::171"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::170",
+          "job1::171"
+        ],
+        "fixed_order": [
+          "job1::170",
+          "job1::171"
+        ],
+        "residual_longest_tail": [
+          "job1::170",
+          "job1::171"
+        ],
+        "spt": [
+          "job1::170",
+          "job1::171"
+        ],
+        "lpt": [
+          "job1::170",
+          "job1::171"
+        ],
+        "hotspot_avoidance": [
+          "job1::170",
+          "job1::171"
+        ],
+        "resource_complement": [
+          "job1::170",
+          "job1::171"
+        ],
+        "random_seed_0": [
+          "job1::170",
+          "job1::171"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 565592,
+      "decision_index": 42,
+      "state_hash": "ffb631e3f822934790c9d59440307b4ceedde1755b9d1bcdb8b4dfa8139d6f2f",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 567717,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 567717,
+      "decision_index": 43,
+      "state_hash": "2a7e1f5d5d3e5faf8d73e027d00ba0ce65ce1616d9857e629ac8143247b2a67f",
+      "ready_communications": [
+        "job0::180",
+        "job0::181"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 569062,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::180",
+        "job0::181"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::180",
+          "job0::181"
+        ],
+        "fixed_order": [
+          "job0::180",
+          "job0::181"
+        ],
+        "residual_longest_tail": [
+          "job0::180",
+          "job0::181"
+        ],
+        "spt": [
+          "job0::180",
+          "job0::181"
+        ],
+        "lpt": [
+          "job0::180",
+          "job0::181"
+        ],
+        "hotspot_avoidance": [
+          "job0::180",
+          "job0::181"
+        ],
+        "resource_complement": [
+          "job0::180",
+          "job0::181"
+        ],
+        "random_seed_0": [
+          "job0::180",
+          "job0::181"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 567718,
+      "decision_index": 44,
+      "state_hash": "5da5f520c4f42009bbf362c30814f3c7f85fea89ec8758d3a8e7d4b493a98030",
+      "ready_communications": [
+        "job0::194",
+        "job0::195"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 569062,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::194",
+        "job0::195"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::194",
+          "job0::195"
+        ],
+        "fixed_order": [
+          "job0::194",
+          "job0::195"
+        ],
+        "residual_longest_tail": [
+          "job0::194",
+          "job0::195"
+        ],
+        "spt": [
+          "job0::194",
+          "job0::195"
+        ],
+        "lpt": [
+          "job0::194",
+          "job0::195"
+        ],
+        "hotspot_avoidance": [
+          "job0::194",
+          "job0::195"
+        ],
+        "resource_complement": [
+          "job0::194",
+          "job0::195"
+        ],
+        "random_seed_0": [
+          "job0::194",
+          "job0::195"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 568390,
+      "decision_index": 45,
+      "state_hash": "e8c80079e3806bdeaf8b14b579115aecc30cd3232bdc9d605cae1549ca8e8210",
+      "ready_communications": [
+        "job0::204",
+        "job0::205"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 569062,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::204",
+        "job0::205"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::204",
+          "job0::205"
+        ],
+        "fixed_order": [
+          "job0::204",
+          "job0::205"
+        ],
+        "residual_longest_tail": [
+          "job0::204",
+          "job0::205"
+        ],
+        "spt": [
+          "job0::204",
+          "job0::205"
+        ],
+        "lpt": [
+          "job0::204",
+          "job0::205"
+        ],
+        "hotspot_avoidance": [
+          "job0::204",
+          "job0::205"
+        ],
+        "resource_complement": [
+          "job0::204",
+          "job0::205"
+        ],
+        "random_seed_0": [
+          "job0::204",
+          "job0::205"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 569062,
+      "decision_index": 46,
+      "state_hash": "4769e3c4d439ac41dae075414549b517b6c65569095f5af699ca6b6e34797c8e",
+      "ready_communications": [
+        "job1::180",
+        "job1::181"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 570497,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::180",
+        "job1::181"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::180",
+          "job1::181"
+        ],
+        "fixed_order": [
+          "job1::180",
+          "job1::181"
+        ],
+        "residual_longest_tail": [
+          "job1::180",
+          "job1::181"
+        ],
+        "spt": [
+          "job1::180",
+          "job1::181"
+        ],
+        "lpt": [
+          "job1::180",
+          "job1::181"
+        ],
+        "hotspot_avoidance": [
+          "job1::180",
+          "job1::181"
+        ],
+        "resource_complement": [
+          "job1::180",
+          "job1::181"
+        ],
+        "random_seed_0": [
+          "job1::180",
+          "job1::181"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 569063,
+      "decision_index": 47,
+      "state_hash": "8c5c384f466407ff800fbd16b85906fe6ac4219d82931a713125c9e28a401b84",
+      "ready_communications": [
+        "job1::194",
+        "job1::195"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 570497,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::194",
+        "job1::195"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::194",
+          "job1::195"
+        ],
+        "fixed_order": [
+          "job1::194",
+          "job1::195"
+        ],
+        "residual_longest_tail": [
+          "job1::194",
+          "job1::195"
+        ],
+        "spt": [
+          "job1::194",
+          "job1::195"
+        ],
+        "lpt": [
+          "job1::194",
+          "job1::195"
+        ],
+        "hotspot_avoidance": [
+          "job1::194",
+          "job1::195"
+        ],
+        "resource_complement": [
+          "job1::194",
+          "job1::195"
+        ],
+        "random_seed_0": [
+          "job1::194",
+          "job1::195"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 569735,
+      "decision_index": 48,
+      "state_hash": "97c69374ef3b7ec367c4d7d8d1c2e5f3fa51f13fdb5a3fbf66aaaca1bc33aba3",
+      "ready_communications": [
+        "job1::204",
+        "job1::205"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 570497,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::204",
+        "job1::205"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::204",
+          "job1::205"
+        ],
+        "fixed_order": [
+          "job1::204",
+          "job1::205"
+        ],
+        "residual_longest_tail": [
+          "job1::204",
+          "job1::205"
+        ],
+        "spt": [
+          "job1::204",
+          "job1::205"
+        ],
+        "lpt": [
+          "job1::204",
+          "job1::205"
+        ],
+        "hotspot_avoidance": [
+          "job1::204",
+          "job1::205"
+        ],
+        "resource_complement": [
+          "job1::204",
+          "job1::205"
+        ],
+        "random_seed_0": [
+          "job1::204",
+          "job1::205"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 570407,
+      "decision_index": 49,
+      "state_hash": "e9622769355974895d8c657b0905a9e72e8df3e752695be136232897a1e3272b",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 570497,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 570497,
+      "decision_index": 50,
+      "state_hash": "615a9c1ecc66f9fbd7cf03bc2c84e739c13f78b6dcb820166e1df3d165633033",
+      "ready_communications": [
+        "job0::220",
+        "job0::221"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 571842,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::220",
+        "job0::221"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::220",
+          "job0::221"
+        ],
+        "fixed_order": [
+          "job0::220",
+          "job0::221"
+        ],
+        "residual_longest_tail": [
+          "job0::220",
+          "job0::221"
+        ],
+        "spt": [
+          "job0::220",
+          "job0::221"
+        ],
+        "lpt": [
+          "job0::220",
+          "job0::221"
+        ],
+        "hotspot_avoidance": [
+          "job0::220",
+          "job0::221"
+        ],
+        "resource_complement": [
+          "job0::220",
+          "job0::221"
+        ],
+        "random_seed_0": [
+          "job0::220",
+          "job0::221"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 570833,
+      "decision_index": 51,
+      "state_hash": "718c6891031e798bce70c6e54e0690696b3a403199e3352c3da0ffeb13dac9f5",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 571842,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 571842,
+      "decision_index": 52,
+      "state_hash": "874c98821a9e48b2d05284b4fea0ab0f72b512c09b16e1281507dbfe80c14e84",
+      "ready_communications": [
+        "job1::220",
+        "job1::221"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 572268,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::220",
+        "job1::221"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::220",
+          "job1::221"
+        ],
+        "fixed_order": [
+          "job1::220",
+          "job1::221"
+        ],
+        "residual_longest_tail": [
+          "job1::220",
+          "job1::221"
+        ],
+        "spt": [
+          "job1::220",
+          "job1::221"
+        ],
+        "lpt": [
+          "job1::220",
+          "job1::221"
+        ],
+        "hotspot_avoidance": [
+          "job1::220",
+          "job1::221"
+        ],
+        "resource_complement": [
+          "job1::220",
+          "job1::221"
+        ],
+        "random_seed_0": [
+          "job1::220",
+          "job1::221"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 572178,
+      "decision_index": 53,
+      "state_hash": "fe8be247420b78c5393cd822fd57f98d83d0b15e22920d3f714268f5dfcca55b",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 572268,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 572268,
+      "decision_index": 54,
+      "state_hash": "d27d53071a12d47bc6a8daaf1397a28b0a95953ce0222986c9128a95ddfde21c",
+      "ready_communications": [
+        "job0::230",
+        "job0::231"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 573613,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::230",
+        "job0::231"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::230",
+          "job0::231"
+        ],
+        "fixed_order": [
+          "job0::230",
+          "job0::231"
+        ],
+        "residual_longest_tail": [
+          "job0::230",
+          "job0::231"
+        ],
+        "spt": [
+          "job0::230",
+          "job0::231"
+        ],
+        "lpt": [
+          "job0::230",
+          "job0::231"
+        ],
+        "hotspot_avoidance": [
+          "job0::230",
+          "job0::231"
+        ],
+        "resource_complement": [
+          "job0::230",
+          "job0::231"
+        ],
+        "random_seed_0": [
+          "job0::230",
+          "job0::231"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 572604,
+      "decision_index": 55,
+      "state_hash": "c415f0326657ecac85bb9806a541030b7f22ecb356b950a69322981da441bb70",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 573613,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 573613,
+      "decision_index": 56,
+      "state_hash": "e43a0ff4237c87707f753d0443c664904f23393461ec1a1fa46ebd2aea27433a",
+      "ready_communications": [
+        "job1::230",
+        "job1::231"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 576074,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::230",
+        "job1::231"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::230",
+          "job1::231"
+        ],
+        "fixed_order": [
+          "job1::230",
+          "job1::231"
+        ],
+        "residual_longest_tail": [
+          "job1::230",
+          "job1::231"
+        ],
+        "spt": [
+          "job1::230",
+          "job1::231"
+        ],
+        "lpt": [
+          "job1::230",
+          "job1::231"
+        ],
+        "hotspot_avoidance": [
+          "job1::230",
+          "job1::231"
+        ],
+        "resource_complement": [
+          "job1::230",
+          "job1::231"
+        ],
+        "random_seed_0": [
+          "job1::230",
+          "job1::231"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 573949,
+      "decision_index": 57,
+      "state_hash": "8e052e669c71cc001b9301a9414b05f037770213f544929d65a4a4a8e39f0be4",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 576074,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 576074,
+      "decision_index": 58,
+      "state_hash": "90a76985e51c0ba379201c9f4ca02970144c08683a91dffe6026511bd5e39cc0",
+      "ready_communications": [
+        "job0::240",
+        "job0::241"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 577419,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::240",
+        "job0::241"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::240",
+          "job0::241"
+        ],
+        "fixed_order": [
+          "job0::240",
+          "job0::241"
+        ],
+        "residual_longest_tail": [
+          "job0::240",
+          "job0::241"
+        ],
+        "spt": [
+          "job0::240",
+          "job0::241"
+        ],
+        "lpt": [
+          "job0::240",
+          "job0::241"
+        ],
+        "hotspot_avoidance": [
+          "job0::240",
+          "job0::241"
+        ],
+        "resource_complement": [
+          "job0::240",
+          "job0::241"
+        ],
+        "random_seed_0": [
+          "job0::240",
+          "job0::241"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 576075,
+      "decision_index": 59,
+      "state_hash": "bff505405da182f86e8fb886e6a4b25565546a7d3ea1857cd0523442d11b2577",
+      "ready_communications": [
+        "job0::254",
+        "job0::255"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 577419,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::254",
+        "job0::255"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::254",
+          "job0::255"
+        ],
+        "fixed_order": [
+          "job0::254",
+          "job0::255"
+        ],
+        "residual_longest_tail": [
+          "job0::254",
+          "job0::255"
+        ],
+        "spt": [
+          "job0::254",
+          "job0::255"
+        ],
+        "lpt": [
+          "job0::254",
+          "job0::255"
+        ],
+        "hotspot_avoidance": [
+          "job0::254",
+          "job0::255"
+        ],
+        "resource_complement": [
+          "job0::254",
+          "job0::255"
+        ],
+        "random_seed_0": [
+          "job0::254",
+          "job0::255"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 576747,
+      "decision_index": 60,
+      "state_hash": "506cf4bd968888a4a46c938eb897cab1a321d2c015499f5dbf92373c3acf59db",
+      "ready_communications": [
+        "job0::264",
+        "job0::265"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 577419,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::264",
+        "job0::265"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::264",
+          "job0::265"
+        ],
+        "fixed_order": [
+          "job0::264",
+          "job0::265"
+        ],
+        "residual_longest_tail": [
+          "job0::264",
+          "job0::265"
+        ],
+        "spt": [
+          "job0::264",
+          "job0::265"
+        ],
+        "lpt": [
+          "job0::264",
+          "job0::265"
+        ],
+        "hotspot_avoidance": [
+          "job0::264",
+          "job0::265"
+        ],
+        "resource_complement": [
+          "job0::264",
+          "job0::265"
+        ],
+        "random_seed_0": [
+          "job0::264",
+          "job0::265"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 577419,
+      "decision_index": 61,
+      "state_hash": "b9c13a6d64df16af3019c417251af0556f921e1fbefcff7a3931c36c3e92c9a4",
+      "ready_communications": [
+        "job1::240",
+        "job1::241"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 578854,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::240",
+        "job1::241"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::240",
+          "job1::241"
+        ],
+        "fixed_order": [
+          "job1::240",
+          "job1::241"
+        ],
+        "residual_longest_tail": [
+          "job1::240",
+          "job1::241"
+        ],
+        "spt": [
+          "job1::240",
+          "job1::241"
+        ],
+        "lpt": [
+          "job1::240",
+          "job1::241"
+        ],
+        "hotspot_avoidance": [
+          "job1::240",
+          "job1::241"
+        ],
+        "resource_complement": [
+          "job1::240",
+          "job1::241"
+        ],
+        "random_seed_0": [
+          "job1::240",
+          "job1::241"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 577420,
+      "decision_index": 62,
+      "state_hash": "af3a26694cacfded066b2c5fec762a9c96be2e46e106a4edd7a96ab34ff71819",
+      "ready_communications": [
+        "job1::254",
+        "job1::255"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 578854,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::254",
+        "job1::255"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::254",
+          "job1::255"
+        ],
+        "fixed_order": [
+          "job1::254",
+          "job1::255"
+        ],
+        "residual_longest_tail": [
+          "job1::254",
+          "job1::255"
+        ],
+        "spt": [
+          "job1::254",
+          "job1::255"
+        ],
+        "lpt": [
+          "job1::254",
+          "job1::255"
+        ],
+        "hotspot_avoidance": [
+          "job1::254",
+          "job1::255"
+        ],
+        "resource_complement": [
+          "job1::254",
+          "job1::255"
+        ],
+        "random_seed_0": [
+          "job1::254",
+          "job1::255"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 578092,
+      "decision_index": 63,
+      "state_hash": "364ad6a1aa0b25dd31f6b11132d1618d97ebaf71ac0c38346077eecef42def30",
+      "ready_communications": [
+        "job1::264",
+        "job1::265"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 578854,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::264",
+        "job1::265"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::264",
+          "job1::265"
+        ],
+        "fixed_order": [
+          "job1::264",
+          "job1::265"
+        ],
+        "residual_longest_tail": [
+          "job1::264",
+          "job1::265"
+        ],
+        "spt": [
+          "job1::264",
+          "job1::265"
+        ],
+        "lpt": [
+          "job1::264",
+          "job1::265"
+        ],
+        "hotspot_avoidance": [
+          "job1::264",
+          "job1::265"
+        ],
+        "resource_complement": [
+          "job1::264",
+          "job1::265"
+        ],
+        "random_seed_0": [
+          "job1::264",
+          "job1::265"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 578764,
+      "decision_index": 64,
+      "state_hash": "ad116057ec2de8f8d9fd7d706f152f5540f124ec289f40a6fefa76ab5d4d1f87",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 578854,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 578854,
+      "decision_index": 65,
+      "state_hash": "7a31f5f0eb83268dadd7de45dcab6a9ade7273d9ec15ba2ff7759906a1de2095",
+      "ready_communications": [
+        "job0::280",
+        "job0::281"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 580199,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::280",
+        "job0::281"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::280",
+          "job0::281"
+        ],
+        "fixed_order": [
+          "job0::280",
+          "job0::281"
+        ],
+        "residual_longest_tail": [
+          "job0::280",
+          "job0::281"
+        ],
+        "spt": [
+          "job0::280",
+          "job0::281"
+        ],
+        "lpt": [
+          "job0::280",
+          "job0::281"
+        ],
+        "hotspot_avoidance": [
+          "job0::280",
+          "job0::281"
+        ],
+        "resource_complement": [
+          "job0::280",
+          "job0::281"
+        ],
+        "random_seed_0": [
+          "job0::280",
+          "job0::281"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 579190,
+      "decision_index": 66,
+      "state_hash": "4d07a2048f55b866e4915a46fd1c461fc4a7b4735ac045ef21a7dabe27eb63cb",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 580199,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 580199,
+      "decision_index": 67,
+      "state_hash": "31f63d9b8b2c34a4aece32d5a973c65501ce0ec51c26bcfdd4014d6c69801e0a",
+      "ready_communications": [
+        "job1::280",
+        "job1::281"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 580625,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::280",
+        "job1::281"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::280",
+          "job1::281"
+        ],
+        "fixed_order": [
+          "job1::280",
+          "job1::281"
+        ],
+        "residual_longest_tail": [
+          "job1::280",
+          "job1::281"
+        ],
+        "spt": [
+          "job1::280",
+          "job1::281"
+        ],
+        "lpt": [
+          "job1::280",
+          "job1::281"
+        ],
+        "hotspot_avoidance": [
+          "job1::280",
+          "job1::281"
+        ],
+        "resource_complement": [
+          "job1::280",
+          "job1::281"
+        ],
+        "random_seed_0": [
+          "job1::280",
+          "job1::281"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 580535,
+      "decision_index": 68,
+      "state_hash": "c2d2138277bcf637ac5354f4a415f88e0f4b11608ae3685a361847ab8e00cbe7",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 580625,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 580625,
+      "decision_index": 69,
+      "state_hash": "21e67403435c77927b6615106fd3a955895d29f735236ea5d311c56a378ce422",
+      "ready_communications": [
+        "job0::290",
+        "job0::291"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 581970,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::290",
+        "job0::291"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::290",
+          "job0::291"
+        ],
+        "fixed_order": [
+          "job0::290",
+          "job0::291"
+        ],
+        "residual_longest_tail": [
+          "job0::290",
+          "job0::291"
+        ],
+        "spt": [
+          "job0::290",
+          "job0::291"
+        ],
+        "lpt": [
+          "job0::290",
+          "job0::291"
+        ],
+        "hotspot_avoidance": [
+          "job0::290",
+          "job0::291"
+        ],
+        "resource_complement": [
+          "job0::290",
+          "job0::291"
+        ],
+        "random_seed_0": [
+          "job0::290",
+          "job0::291"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 580961,
+      "decision_index": 70,
+      "state_hash": "bf2567b2cb10981cfbd05e54f01f2195f9d010f0407e256ec273fcb323a639b1",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 581970,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 581970,
+      "decision_index": 71,
+      "state_hash": "ba3135714ae82114a287ffd4c1599ffaa79f7d5d71984f96d986df897c13d41b",
+      "ready_communications": [
+        "job1::290",
+        "job1::291"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 584431,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::290",
+        "job1::291"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::290",
+          "job1::291"
+        ],
+        "fixed_order": [
+          "job1::290",
+          "job1::291"
+        ],
+        "residual_longest_tail": [
+          "job1::290",
+          "job1::291"
+        ],
+        "spt": [
+          "job1::290",
+          "job1::291"
+        ],
+        "lpt": [
+          "job1::290",
+          "job1::291"
+        ],
+        "hotspot_avoidance": [
+          "job1::290",
+          "job1::291"
+        ],
+        "resource_complement": [
+          "job1::290",
+          "job1::291"
+        ],
+        "random_seed_0": [
+          "job1::290",
+          "job1::291"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 582306,
+      "decision_index": 72,
+      "state_hash": "b556028561f95a66d8170f4ed402d9acc2ae7959d178fdb68ca3b8ce3d1c8225",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 584431,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 584431,
+      "decision_index": 73,
+      "state_hash": "59f89ee4a0f601faaa9f1af4a051a86cbbafc24a2980b28ba9183146ba3b2579",
+      "ready_communications": [
+        "job0::300",
+        "job0::301"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 585776,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::300",
+        "job0::301"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::300",
+          "job0::301"
+        ],
+        "fixed_order": [
+          "job0::300",
+          "job0::301"
+        ],
+        "residual_longest_tail": [
+          "job0::300",
+          "job0::301"
+        ],
+        "spt": [
+          "job0::300",
+          "job0::301"
+        ],
+        "lpt": [
+          "job0::300",
+          "job0::301"
+        ],
+        "hotspot_avoidance": [
+          "job0::300",
+          "job0::301"
+        ],
+        "resource_complement": [
+          "job0::300",
+          "job0::301"
+        ],
+        "random_seed_0": [
+          "job0::300",
+          "job0::301"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 584432,
+      "decision_index": 74,
+      "state_hash": "75bce4383b3813d66e1fd084286347b318918fe91637ac70fbc44b2557196ace",
+      "ready_communications": [
+        "job0::314"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 1,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": 585776,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job0::314"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job0::314"
+        ],
+        "fixed_order": [
+          "job0::314"
+        ],
+        "residual_longest_tail": [
+          "job0::314"
+        ],
+        "spt": [
+          "job0::314"
+        ],
+        "lpt": [
+          "job0::314"
+        ],
+        "hotspot_avoidance": [
+          "job0::314"
+        ],
+        "resource_complement": [
+          "job0::314"
+        ],
+        "random_seed_0": [
+          "job0::314"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 585104,
+      "decision_index": 75,
+      "state_hash": "e5cbd104e78653d30aca3cd18667fe0bd7ecab2262cd5a2919607d3c81943d51",
+      "ready_communications": [],
+      "ready_communication_count": 0,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 0,
+      "legal_start_action_count": 0,
+      "work_conserving_maximal_set_count": 0,
+      "wait_legal": false,
+      "next_real_event": 585776,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [],
+        "fixed_order": [],
+        "residual_longest_tail": [],
+        "spt": [],
+        "lpt": [],
+        "hotspot_avoidance": [],
+        "resource_complement": [],
+        "random_seed_0": []
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 585776,
+      "decision_index": 76,
+      "state_hash": "d92ee57514a924ac20cf3789d83147912daec76f8482685939db2089904411a4",
+      "ready_communications": [
+        "job1::300",
+        "job1::301"
+      ],
+      "ready_communication_count": 2,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 2,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": true,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::300",
+        "job1::301"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::300",
+          "job1::301"
+        ],
+        "fixed_order": [
+          "job1::300",
+          "job1::301"
+        ],
+        "residual_longest_tail": [
+          "job1::300",
+          "job1::301"
+        ],
+        "spt": [
+          "job1::300",
+          "job1::301"
+        ],
+        "lpt": [
+          "job1::300",
+          "job1::301"
+        ],
+        "hotspot_avoidance": [
+          "job1::300",
+          "job1::301"
+        ],
+        "resource_complement": [
+          "job1::300",
+          "job1::301"
+        ],
+        "random_seed_0": [
+          "job1::300",
+          "job1::301"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    },
+    {
+      "time": 585777,
+      "decision_index": 77,
+      "state_hash": "40043c90d79bd4841d236993182e37b2b1beb374c5a97d8afeebdcc05cc63b4f",
+      "ready_communications": [
+        "job1::314"
+      ],
+      "ready_communication_count": 1,
+      "active_communication_count": 0,
+      "active_communications": [],
+      "free_resources": [
+        "link:0->24",
+        "link:1->24",
+        "link:24->0",
+        "link:24->1",
+        "nic_rx:0",
+        "nic_rx:1",
+        "nic_tx:0",
+        "nic_tx:1"
+      ],
+      "startable_count": 1,
+      "legal_start_action_count": 1,
+      "work_conserving_maximal_set_count": 1,
+      "wait_legal": false,
+      "next_real_event": null,
+      "ordering_choice": false,
+      "set_choice": false,
+      "wait_choice": false,
+      "multiple_legal_actions": false,
+      "non_equivalent_immediate_successors": false,
+      "residual_longest_tail_order": [
+        "job1::314"
+      ],
+      "conflict_resources": [],
+      "enumeration_skipped": false,
+      "enumeration_truncated": false,
+      "policy_actions": {
+        "fifo": [
+          "job1::314"
+        ],
+        "fixed_order": [
+          "job1::314"
+        ],
+        "residual_longest_tail": [
+          "job1::314"
+        ],
+        "spt": [
+          "job1::314"
+        ],
+        "lpt": [
+          "job1::314"
+        ],
+        "hotspot_avoidance": [
+          "job1::314"
+        ],
+        "resource_complement": [
+          "job1::314"
+        ],
+        "random_seed_0": [
+          "job1::314"
+        ]
+      },
+      "policy_divergence": false,
+      "cross_job_ready_conflict": false,
+      "active_reservation_cross_job_block": false
+    }
+  ],
+  "decision_count": 78,
+  "completed": true,
+  "partial_simulation_time": 586449,
+  "action_trace": [
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::30",
+        "job0::31"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::30",
+        "job1::31"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::32",
+        "job0::33"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::32",
+        "job1::33"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::40",
+        "job0::41"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::40",
+        "job1::41"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::50",
+        "job0::51"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::50",
+        "job1::51"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::60",
+        "job0::61"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::74",
+        "job0::75"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::84",
+        "job0::85"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::60",
+        "job1::61"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::74",
+        "job1::75"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::84",
+        "job1::85"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::100",
+        "job0::101"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::100",
+        "job1::101"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::110",
+        "job0::111"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::110",
+        "job1::111"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::120",
+        "job0::121"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::134",
+        "job0::135"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::144",
+        "job0::145"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::120",
+        "job1::121"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::134",
+        "job1::135"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::144",
+        "job1::145"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::160",
+        "job0::161"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::160",
+        "job1::161"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::170",
+        "job0::171"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::170",
+        "job1::171"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::180",
+        "job0::181"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::194",
+        "job0::195"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::204",
+        "job0::205"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::180",
+        "job1::181"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::194",
+        "job1::195"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::204",
+        "job1::205"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::220",
+        "job0::221"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::220",
+        "job1::221"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::230",
+        "job0::231"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::230",
+        "job1::231"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::240",
+        "job0::241"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::254",
+        "job0::255"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::264",
+        "job0::265"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::240",
+        "job1::241"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::254",
+        "job1::255"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::264",
+        "job1::265"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::280",
+        "job0::281"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::280",
+        "job1::281"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::290",
+        "job0::291"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::290",
+        "job1::291"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::300",
+        "job0::301"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job0::314"
+      ]
+    },
+    {
+      "kind": "wait",
+      "starts": []
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::300",
+        "job1::301"
+      ]
+    },
+    {
+      "kind": "start",
+      "starts": [
+        "job1::314"
+      ]
+    }
+  ],
+  "time_truncated": false,
+  "audit_schema_version": "nonpreemptive-contention-audit-v1",
+  "evidence_level": "completed_replay",
+  "termination_reason": "completed",
+  "mode": "work_conserving",
+  "ordering_choice_observed": true,
+  "set_choice_observed": true,
+  "wait_choice_observed": false,
+  "non_equivalent_choice_observed": true,
+  "policy_divergence_observed": true,
+  "cross_job_ready_conflict_count": 4,
+  "active_reservation_cross_job_block_count": 1,
+  "conflict_counts": {
+    "action": 3,
+    "policy": 3,
+    "state": 3,
+    "quality": null
+  },
+  "quality_evidence": "not_run",
+  "choice_density": 0.038461538461538464,
+  "policy_divergence_rate": 0.038461538461538464,
+  "runtime_ms": 219.09,
+  "time_limit_s": 30
+}

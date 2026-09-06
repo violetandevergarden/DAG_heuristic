@@ -1,0 +1,16 @@
+{
+  "status": "completed",
+  "created_at": "2026-09-03T11:09:47.0151675+08:00",
+  "workflow_version": "nonpreemptive-stage4f-multi-job-v1",
+  "publication_status": "published_selection_and_cleaned",
+  "candidate_count": 25,
+  "task_count": 26964,
+  "cassini_count": 4,
+  "public_index_updated": false,
+  "staging": "benchmark/llm_structure/.staging/np-stage4f-candidates-20260903",
+  "provenance": {
+    "commit": "bba97fd1beb623f96229bc46f5e4eb2f5f66c4b4",
+    "dirty": true,
+    "diff_hash": "eea774d6acf1244a6510bb42e7c68b43dff9b5bda857b85d73b75eaa60e89a4f"
+  }
+}

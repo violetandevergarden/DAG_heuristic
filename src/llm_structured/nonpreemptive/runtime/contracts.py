@@ -6,7 +6,19 @@ from dataclasses import dataclass
 from typing import Literal
 
 Mode = Literal["optional_idle", "work_conserving"]
-PolicyName = Literal["fifo", "fixed_order", "longest_tail", "spt", "lpt"]
+PolicyName = Literal[
+    "fifo",
+    "fixed_order",
+    "longest_tail",
+    "spt",
+    "lpt",
+    "job_fixed_order",
+    "job_round_robin",
+    "job_age",
+    "shortest_remaining_job",
+    "job_aware_longest_tail",
+    "starvation_safeguard",
+]
 
 
 @dataclass(frozen=True, order=True)

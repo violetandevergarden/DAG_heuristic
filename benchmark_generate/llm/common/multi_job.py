@@ -9,7 +9,6 @@ as a release compute node exactly like ``llm_structured.multi_job.compose_jobs``
 from __future__ import annotations
 
 import hashlib
-from dataclasses import replace
 from pathlib import Path
 
 from benchmark import Benchmark, Resource, Task, validate_benchmark
@@ -28,6 +27,8 @@ def compose_real_jobs(
     """Merge ``(job_id, benchmark, arrival)`` entries into one multi-job DAG."""
     if not jobs:
         raise ValueError("at least one job is required")
+    if len(source_paths) not in {0, len(jobs)}:
+        raise ValueError("source_paths must be empty or contain one path per job")
     scenario = jobs[0][1].scenario
     semantics = jobs[0][1].semantics
     categories = {job.scenario for _job_id, job, _arrival in jobs}
@@ -35,6 +36,16 @@ def compose_real_jobs(
         raise ValueError("all jobs must share the same scenario")
     if scenario not in {"single_channel", "muti_channel"}:
         raise ValueError(f"unsupported scenario: {scenario}")
+    if any(job.semantics != semantics for _job_id, job, _arrival in jobs):
+        raise ValueError("all jobs must share identical scheduling semantics")
+    time_unit = jobs[0][1].time_unit
+    if any(job.time_unit != time_unit for _job_id, job, _arrival in jobs):
+        raise ValueError("all jobs must share the same time unit")
+    schema_version = jobs[0][1].schema_version
+    if any(job.schema_version != schema_version for _job_id, job, _arrival in jobs):
+        raise ValueError("all jobs must share the same schema version")
+    if any(arrival < 0 for _job_id, _job, arrival in jobs):
+        raise ValueError("job arrivals must be non-negative")
 
     tasks: list[Task] = []
     resources: dict[str, Resource] = {}
@@ -114,8 +125,8 @@ def compose_real_jobs(
         tasks=tuple(tasks),
         resources=tuple(sorted(resources.values(), key=lambda item: item.resource_id)),
         semantics=semantics,
-        schema_version=jobs[0][1].schema_version,
-        time_unit=jobs[0][1].time_unit,
+        schema_version=schema_version,
+        time_unit=time_unit,
         metadata=metadata,
     )
     validate_benchmark(composed)

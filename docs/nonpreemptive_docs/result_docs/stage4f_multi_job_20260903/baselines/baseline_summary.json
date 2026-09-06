@@ -1,0 +1,28 @@
+{
+  "status": "completed",
+  "case_count": 9,
+  "run_count": 144,
+  "completed_count": 144,
+  "timeout_count": 0,
+  "trace_valid_count": 144,
+  "rules": [
+    "fifo",
+    "longest_tail",
+    "job_fixed_order",
+    "job_round_robin",
+    "job_age",
+    "shortest_remaining_job",
+    "job_aware_longest_tail",
+    "starvation_safeguard"
+  ],
+  "modes": [
+    "optional_idle",
+    "work_conserving"
+  ],
+  "time_limit_s": 90.0,
+  "provenance": {
+    "commit": "bba97fd1beb623f96229bc46f5e4eb2f5f66c4b4",
+    "dirty": true,
+    "diff_hash": "96214680f6e10048c8e37b7ae66e5bcdd061a3b3a603bc45aa71724dee6447fc"
+  }
+}

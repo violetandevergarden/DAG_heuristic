@@ -1,0 +1,21 @@
+{
+  "status": "completed",
+  "case_mode_count": 28,
+  "quality_informative_case_count": 6,
+  "quality_informative_ids": [
+    "np_stage4f_alibaba_slice_heter_1pct",
+    "np_stage4f_cassini_slice_heter_1pct",
+    "np_stage4f_gpt13_gpt7_1pct",
+    "np_stage4f_gpt13_gpt7_2pct",
+    "np_stage4f_gpt13_gpt7_sim",
+    "np_stage4f_gpt22_two_hom_1pct"
+  ],
+  "all_completed_traces_valid": true,
+  "completion_policy": "residual_longest_tail",
+  "evidence_boundary": "Representative first-action values are conditional on the frozen LT suffix, not global optima.",
+  "provenance": {
+    "commit": "bba97fd1beb623f96229bc46f5e4eb2f5f66c4b4",
+    "dirty": true,
+    "diff_hash": "96214680f6e10048c8e37b7ae66e5bcdd061a3b3a603bc45aa71724dee6447fc"
+  }
+}

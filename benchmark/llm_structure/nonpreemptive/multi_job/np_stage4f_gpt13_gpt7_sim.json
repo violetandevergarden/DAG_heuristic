@@ -1,32 +1,32 @@
 {
   "category": "real",
   "family": "complex_chain",
-  "id": "np_real_composed_two_heterogeneous_25pct",
+  "id": "np_stage4f_gpt13_gpt7_sim",
   "metadata": {
-    "arrival_basis": "frozen single-job validated LT makespan",
-    "arrival_ratios": [
-      0.0,
-      0.25000018041019506
-    ],
-    "category_detail": "real_composed_stress",
+    "case_class": "quality",
     "multi_job": [
       {
         "arrival": 0,
+        "arrival_ratio": 0.0,
+        "isolated_makespan": 1356832,
         "job_id": "job0",
         "source_benchmark_id": "np_gpt13b_ws4_tp2_pp2_ep1_gbs1_mbs1",
-        "source_content_hash": "758d7f409a57371420cf712e1b6e07bac71565425a6b59560205c0bb83b6f659"
+        "source_content_hash": "758d7f409a57371420cf712e1b6e07bac71565425a6b59560205c0bb83b6f659",
+        "source_path": "benchmark/llm_structure/nonpreemptive/single_channel/np_gpt13b_ws4_tp2_pp2_ep1_gbs1_mbs1.json",
+        "weight": 1.0
       },
       {
-        "arrival": 346433,
+        "arrival": 0,
+        "arrival_ratio": 0.0,
+        "isolated_makespan": 1385731,
         "job_id": "job1",
         "source_benchmark_id": "np_gpt7b_ws2_tp2_pp1_ep1_gbs1_mbs1",
-        "source_content_hash": "1d49e81814517777db17fd58783c86a9bf37f208b7c1ce5ed434f0fa81a5cfcb"
+        "source_content_hash": "1d49e81814517777db17fd58783c86a9bf37f208b7c1ce5ed434f0fa81a5cfcb",
+        "source_path": "benchmark/llm_structure/nonpreemptive/single_channel/np_gpt7b_ws2_tp2_pp1_ep1_gbs1_mbs1.json",
+        "weight": 1.0
       }
     ],
-    "parent_content_hashes": [
-      "758d7f409a57371420cf712e1b6e07bac71565425a6b59560205c0bb83b6f659",
-      "1d49e81814517777db17fd58783c86a9bf37f208b7c1ce5ed434f0fa81a5cfcb"
-    ],
+    "paired_case_id": null,
     "projection_relation": "real_multi_job_composition",
     "provenance": {
       "converter": {
@@ -46,7 +46,7 @@
           "source_content_hash": "758d7f409a57371420cf712e1b6e07bac71565425a6b59560205c0bb83b6f659"
         },
         {
-          "arrival": 346433,
+          "arrival": 0,
           "job_id": "job1",
           "source": {
             "content_hash": "e0c5a2888de04c9620509e4fb3f5e8115f041d246fda496f00a97cd05bd3658f",
@@ -58,14 +58,21 @@
         }
       ]
     },
-    "publication_status": "staging_only",
     "semantic_contract_version": "llm-nonpreemptive-v1",
     "source": "real AICB multi-job composition",
+    "source_group": "gpt13_gpt7",
+    "source_workload_hashes": [
+      "5551dc6d3a79186f988a397239f9f0ee97a45a442c1ae6eac586103bf2c1c10d",
+      "e0c5a2888de04c9620509e4fb3f5e8115f041d246fda496f00a97cd05bd3658f"
+    ],
+    "split": "development",
+    "topology_role": "single_channel",
     "transform_log": [
       "jobs merged into one DAG with {job_id}:: prefixed task ids and per-task job_id labels",
       "no cross-job precedence edges; jobs share only the fixed resource universe",
       "arrival encoded as a release compute node per job"
-    ]
+    ],
+    "workflow_version": "nonpreemptive-stage4f-multi-job-v1"
   },
   "objective": "makespan",
   "resources": [
@@ -20484,7 +20491,7 @@
     },
     {
       "dependencies": [],
-      "duration": 346433,
+      "duration": 0,
       "id": "job1::__arrival__",
       "kind": "compute",
       "metadata": {

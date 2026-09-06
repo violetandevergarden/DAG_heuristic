@@ -27,6 +27,7 @@ def to_internal_dag(benchmark: Benchmark) -> BenchmarkDAG:
         "layer_or_block_id",
         "repetition_group",
         "task_role",
+        "job_id",
     )
 
     def extract_labels(metadata: dict) -> tuple[tuple[str, str], ...]:
