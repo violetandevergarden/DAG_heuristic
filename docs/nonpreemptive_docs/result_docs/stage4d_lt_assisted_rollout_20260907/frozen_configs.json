@@ -1,0 +1,12 @@
+[
+  {"name":"D0_LT","mode":"both","trigger":"none","search_depth":0,"max_candidates_per_decision":1},
+  {"name":"D1a_g005","mode":"both","trigger":"selective","candidate_mode":"lt_top_two","small_margin_ratio":0.05,"search_depth":1,"max_candidates_per_decision":2,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"D1a_g015","mode":"both","trigger":"selective","candidate_mode":"lt_top_two","small_margin_ratio":0.15,"search_depth":1,"max_candidates_per_decision":2,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"D1a_g020","mode":"both","trigger":"selective","candidate_mode":"lt_top_two","small_margin_ratio":0.20,"search_depth":1,"max_candidates_per_decision":2,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"D1a_g015_r2","mode":"both","trigger":"selective","candidate_mode":"lt_top_two","small_margin_ratio":0.15,"min_duration_ratio":2.0,"search_depth":1,"max_candidates_per_decision":2,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"D1b_cross_job","mode":"both","trigger":"selective","candidate_mode":"full_cross_job","small_margin_ratio":0.15,"search_depth":1,"max_candidates_per_decision":3,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"D1c_depth2","mode":"both","trigger":"selective","candidate_mode":"full_cross_job","small_margin_ratio":0.15,"search_depth":2,"max_candidates_per_decision":3,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"full_depth1","mode":"both","trigger":"full","candidate_mode":"full_cross_job","search_depth":1,"max_candidates_per_decision":3,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"periodic4_depth1","mode":"both","trigger":"periodic","candidate_mode":"full_cross_job","search_depth":1,"max_candidates_per_decision":3,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0},
+  {"name":"random25_depth1","mode":"both","trigger":"random","random_seed":20260907,"random_probability":0.25,"candidate_mode":"full_cross_job","search_depth":1,"max_candidates_per_decision":3,"per_decision_soft_time_s":0.5,"per_instance_soft_time_s":3.0}
+]

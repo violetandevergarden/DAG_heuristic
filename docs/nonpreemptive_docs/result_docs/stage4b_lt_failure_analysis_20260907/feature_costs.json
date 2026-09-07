@@ -1,0 +1,28 @@
+{
+  "schema_version": "np-stage4b-lt-failure-analysis-v1",
+  "status": "completed",
+  "case_mode_count": 18,
+  "state_count": 576,
+  "label_counts": {
+    "unknown": 219,
+    "conditional_worse": 57,
+    "conditional_improvement": 23,
+    "conditional_tie": 277
+  },
+  "feature_scan_s": 114.72560369886924,
+  "conditional_completion_s": 1897.7761029998655,
+  "max_state_elapsed_s": 53.30797139997594,
+  "pre_call_budget_exhausted_state_count": 0,
+  "post_completion_budget_overrun_count": 12,
+  "error_challenger_count": 0,
+  "trace_valid_challenger_count": 712,
+  "completion_policy_sensitivity_count": 10,
+  "completion_policy_ranking_agreement_count": 10,
+  "state_time_limit_s": 30.0,
+  "state_limit_per_case_mode": 32,
+  "provenance": {
+    "commit": "f377126a70777a304793100777bb4aaffc3f755e",
+    "dirty": true,
+    "diff_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

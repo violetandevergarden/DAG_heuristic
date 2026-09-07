@@ -31,7 +31,13 @@ def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
     while not adapter.is_finished(state):
         context = adapter.decision_context(state, config.mode)
         base = longest_tail_action(adapter, state, config.mode, context)
-        if config.search_depth == 0 or config.max_candidates_per_decision < 2:
+        instance_budget_expired = perf_counter() >= started + config.per_instance_soft_time_s
+        rollout_disabled = (
+            config.search_depth == 0
+            or config.max_candidates_per_decision < 2
+            or instance_budget_expired
+        )
+        if rollout_disabled:
             candidates, truncated = (base,), False
             features = {
                 "choice_count": 1,
@@ -50,7 +56,11 @@ def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
             }
         else:
             candidates, _generated_count, truncated = generate(
-                adapter, state, config.mode, config.max_candidates_per_decision
+                adapter,
+                state,
+                config.mode,
+                config.max_candidates_per_decision,
+                config.candidate_mode,
             )
             features = compute(adapter, state, candidates, ledger, config)
         trigger = decide(config.trigger, features, config, len(records), rng)
@@ -69,8 +79,10 @@ def schedule(benchmark, config: RolloutConfig | None = None) -> RolloutResult:
             features=public_features,
         )
         action = base
-        if config.search_depth == 0 or config.max_candidates_per_decision < 2:
-            record.fallback_reason = "rollout_disabled"
+        if rollout_disabled:
+            record.fallback_reason = (
+                "instance_deadline" if instance_budget_expired else "rollout_disabled"
+            )
         elif trigger.triggered:
             if not ledger.reserve("triggered_decisions", config.max_triggered_decisions):
                 record.trigger = TriggerDecision(False, trigger.reasons, trigger.score, True)

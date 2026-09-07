@@ -7,7 +7,9 @@ from typing import Literal
 
 from llm_structured.nonpreemptive.runtime.contracts import ActionSignature, Mode
 
-TriggerKind = Literal["none", "full", "selective", "strict", "loose", "disagreement", "legacy", "random", "periodic"]
+TriggerKind = Literal[
+    "none", "full", "selective", "strict", "loose", "disagreement", "legacy", "random", "periodic"
+]
 
 
 @dataclass(frozen=True)
@@ -16,6 +18,7 @@ class RolloutConfig:
     trigger: TriggerKind = "selective"
     search_depth: int = 1
     max_candidates_per_decision: int = 2
+    candidate_mode: Literal["lt_top_two", "full_cross_job"] = "full_cross_job"
     max_triggered_decisions: int = 64
     max_completion_calls: int = 256
     max_expanded_decision_states: int = 1024
@@ -27,6 +30,7 @@ class RolloutConfig:
     random_probability: float = 0.25
     periodic_interval: int = 4
     small_margin_ratio: float = 0.15
+    min_duration_ratio: float | None = None
     duration_spread_ratio: float = 0.5
     release_tail_advantage_ratio: float = 0.15
     wait_ratio: float = 0.5
@@ -38,8 +42,10 @@ class RolloutConfig:
         if self.search_depth < 0 or self.max_candidates_per_decision < 0:
             raise ValueError("depth and candidate width must be non-negative")
         for name in (
-            "max_triggered_decisions", "max_completion_calls",
-            "max_expanded_decision_states", "max_feature_transitions",
+            "max_triggered_decisions",
+            "max_completion_calls",
+            "max_expanded_decision_states",
+            "max_feature_transitions",
             "max_cache_entries",
         ):
             if getattr(self, name) < 0:
@@ -48,6 +54,8 @@ class RolloutConfig:
             raise ValueError("periodic_interval must be positive")
         if not 0 <= self.random_probability <= 1:
             raise ValueError("random_probability must be in [0, 1]")
+        if self.min_duration_ratio is not None and self.min_duration_ratio < 1:
+            raise ValueError("min_duration_ratio must be at least one")
 
 
 @dataclass

@@ -1,0 +1,7 @@
+{"benchmark_id":"np_stage4f_gpt13_two_hom_50pct","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_gpt13_two_hom_50pct.json","split":"design_exposed","source_group":"gpt13_pp2"}
+{"benchmark_id":"np_stage4f_gpt13_gpt7_sim","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_gpt13_gpt7_sim.json","split":"design_exposed","source_group":"gpt13_gpt7"}
+{"benchmark_id":"np_stage4f_gpt13_gpt7_1pct","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_gpt13_gpt7_1pct.json","split":"design_exposed","source_group":"gpt13_gpt7"}
+{"benchmark_id":"np_stage4f_gpt13_gpt7_2pct","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_gpt13_gpt7_2pct.json","split":"design_exposed","source_group":"gpt13_gpt7"}
+{"benchmark_id":"np_stage4f_micro_eight_burst","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_micro_eight_burst.json","split":"design_exposed","source_group":"mixtral_micro"}
+{"benchmark_id":"np_stage4f_micro_four_burst","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_micro_four_burst.json","split":"design_exposed","source_group":"mixtral_micro"}
+{"benchmark_id":"np_stage4f_gpt22_two_hom_1pct","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_gpt22_two_hom_1pct.json","split":"design_exposed","source_group":"gpt22"}
