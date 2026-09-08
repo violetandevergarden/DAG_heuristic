@@ -6,7 +6,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 
 from .solver import (
-    NonPreemptiveMultiResourceDAG,
+    NonPreeMultiModel,
     ResourceAction,
     ResourceInterval,
     ResourceSchedule,
@@ -14,7 +14,7 @@ from .solver import (
 
 
 def assert_route_reservations(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     intervals: Iterable[ResourceInterval],
 ) -> None:
     communications = [interval for interval in intervals if interval.kind == "comm"]
@@ -37,7 +37,7 @@ def assert_route_reservations(
 
 
 def replay_actions(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     actions: Iterable[ResourceAction],
     *,
     runtime_ms: float,

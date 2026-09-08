@@ -1,7 +1,7 @@
 from time import perf_counter
 
-from core.dag import BenchTask, BenchmarkDAG
-from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.dag import Task, DAG
+from core.execution.preemptive import Action, PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, RolloutBudget,
@@ -16,15 +16,7 @@ from single_channel.complex_chain.preemptive.solver import (
 
 
 def _dag():
-    return BenchmarkDAG(
-        "selective", "adversarial",
-        (
-            BenchTask("a", "comm", 4),
-            BenchTask("a_tail", "compute", 7, ("a",)),
-            BenchTask("b", "comm", 1),
-            BenchTask("b_tail", "compute", 2, ("b",)),
-        ),
-    )
+    return DAG('selective', (Task('a', 'comm', 4), Task('a_tail', 'compute', 7, ('a',)), Task('b', 'comm', 1), Task('b_tail', 'compute', 2, ('b',))), context=(('category', 'adversarial'),))
 
 
 def _actions(result):
@@ -32,7 +24,7 @@ def _actions(result):
 
 
 def test_choice_gate_and_features_use_residual_state():
-    model = PreemptiveDAGModel(_dag())
+    model = PreeSingleModel(_dag())
     state = model.initial_state()
     assert summarize_choice(model, state).kind == "candidate_choice"
     features = cheap_features(model, state)
@@ -42,13 +34,8 @@ def test_choice_gate_and_features_use_residual_state():
 
 
 def test_candidate_width_zero_one_two_and_four_is_real():
-    dag = BenchmarkDAG(
-        "width", "adversarial",
-        tuple(BenchTask(name, "comm", duration) for name, duration in (
-            ("a", 4), ("b", 3), ("c", 2), ("d", 1)
-        )),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('width', tuple((Task(name, 'comm', duration) for name, duration in (('a', 4), ('b', 3), ('c', 2), ('d', 1)))), context=(('category', 'adversarial'),))
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     assert generate_candidates(model, state, 0).retained_count == 0
     assert generate_candidates(model, state, 1).retained_count == 1
@@ -77,7 +64,7 @@ def test_zero_trigger_and_zero_completion_budget_are_exact_lt_fallbacks():
         result = schedule_selective_rollout(_dag(), budget=budget)
         assert result.makespan == baseline.makespan
         assert _actions(result) == _actions(baseline)
-        assert_preemptive_trace(PreemptiveDAGModel(_dag()), result.trace)
+        assert_preemptive_trace(PreeSingleModel(_dag()), result.trace)
 
 
 def test_depth_two_branches_and_records_real_depth():
@@ -98,7 +85,7 @@ def test_depth_two_branches_and_records_real_depth():
     assert depth1.max_actual_depth == 1
     assert depth2.max_actual_depth == 2
     assert depth2.expanded_nodes >= depth1.expanded_nodes
-    assert_preemptive_trace(PreemptiveDAGModel(_dag()), depth2.trace)
+    assert_preemptive_trace(PreeSingleModel(_dag()), depth2.trace)
 
 
 def test_expansion_limit_never_overruns_and_fallback_trace_matches_lt():
@@ -116,14 +103,8 @@ def test_expansion_limit_never_overruns_and_fallback_trace_matches_lt():
 
 
 def test_third_candidate_cannot_pollute_compared_release_features():
-    dag = BenchmarkDAG(
-        "pollution", "adversarial",
-        (
-            BenchTask("a", "comm", 3), BenchTask("b", "comm", 2),
-            BenchTask("c", "comm", 1), BenchTask("c_tail", "compute", 5, ("c",)),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('pollution', (Task('a', 'comm', 3), Task('b', 'comm', 2), Task('c', 'comm', 1), Task('c_tail', 'compute', 5, ('c',))), context=(('category', 'adversarial'),))
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     candidates = CandidateSummary(
         "a", ("a", "b"), (("a", ("test",)), ("b", ("test",))),
@@ -136,16 +117,13 @@ def test_third_candidate_cannot_pollute_compared_release_features():
 
 
 def test_cache_key_isolates_previous_eligible_history():
-    state = PreemptiveDAGModel(_dag()).initial_state()
+    state = PreeSingleModel(_dag()).initial_state()
     assert feature_cache_key(state, {"a"}) != feature_cache_key(state, {"b"})
 
 
 def test_equal_candidate_values_keep_lt_stably():
-    dag = BenchmarkDAG(
-        "tie", "adversarial",
-        (BenchTask("a", "comm", 1), BenchTask("b", "comm", 1)),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('tie', (Task('a', 'comm', 1), Task('b', 'comm', 1)), context=(('category', 'adversarial'),))
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     candidates = CandidateSummary(
         "a", ("a", "b"), (("a", ("lt",)), ("b", ("fifo",))),
@@ -167,11 +145,11 @@ def test_forced_idle_wait_is_never_selected_when_communication_is_eligible():
     result = schedule_selective_rollout(_dag())
     for transition in result.trace.transitions:
         if transition.action == Action.wait():
-            assert not PreemptiveDAGModel(_dag()).eligible_communications(transition.before)
+            assert not PreeSingleModel(_dag()).eligible_communications(transition.before)
 
 
 def test_every_first_action_gets_an_uncompressed_exact_suffix_value():
-    model = PreemptiveDAGModel(_dag())
+    model = PreeSingleModel(_dag())
     state = model.initial_state()
     values = {}
     for action in model.legal_actions(state):

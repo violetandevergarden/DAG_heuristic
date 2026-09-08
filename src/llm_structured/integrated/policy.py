@@ -5,9 +5,9 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from time import perf_counter
 
-from core.dag import BenchmarkDAG
-from core.execution.multi_resource import PreemptiveMultiResourceModel
-from core.execution.preemptive import Action, PreemptiveDAGModel, PreemptiveScheduleResult
+from core.dag import DAG
+from core.execution.preemptive import PreeMultiModel
+from core.execution.preemptive import Action, PreeSingleModel, PreemptiveScheduleResult
 from llm_structured.integrated.config import IntegratedConfig
 from llm_structured.integrated.decision import ComponentCost, IntegratedDecision
 from llm_structured.integrated.safeguards import require_maximal, state_fingerprint
@@ -42,12 +42,12 @@ def _check_deployment_config(config: IntegratedConfig, expected: str) -> None:
         raise ValueError("experimental components must be invoked by the experiment layer")
 
 
-def schedule_single(dag: BenchmarkDAG, config: IntegratedConfig) -> IntegratedSingleResult:
+def schedule_single(dag: DAG, config: IntegratedConfig) -> IntegratedSingleResult:
     """Run the frozen single-channel integrated policy (residual LT)."""
 
     _check_deployment_config(config, "single")
     single_solver.validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     audit_enabled = config.detailed_audit and len(dag.tasks) <= config.large_graph_safe_threshold
     degraded = config.detailed_audit and not audit_enabled
     state = model.initial_state()
@@ -99,8 +99,7 @@ def schedule_single(dag: BenchmarkDAG, config: IntegratedConfig) -> IntegratedSi
                 )
         actions.append(action)
         state = model.step(state, action).after
-    result = replace(
-        single_solver._result(model, actions),
+    result = single_solver._result(model, actions).with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
     )
     return IntegratedSingleResult(
@@ -114,14 +113,14 @@ def schedule_single(dag: BenchmarkDAG, config: IntegratedConfig) -> IntegratedSi
 
 
 def schedule_multi(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     config: IntegratedConfig,
 ) -> IntegratedMultiResult:
     """Run residual-LT greedy maximal packing on the public simulator."""
 
     _check_deployment_config(config, "fixed_multi")
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     audit_enabled = config.detailed_audit and len(dag.tasks) <= config.large_graph_safe_threshold
     degraded = config.detailed_audit and not audit_enabled
     state = model.initial_state()

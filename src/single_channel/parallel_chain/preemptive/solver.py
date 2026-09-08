@@ -1,6 +1,6 @@
 """Stage 1 policies and compact Exact for preemptive parallel chains.
 
-All time advancement is delegated to :class:`PreemptiveDAGModel`.  This module
+All time advancement is delegated to :class:`PreeSingleModel`.  This module
 only validates the family contract, chooses legal communications, and searches
 states produced by that public transition system.
 """
@@ -12,10 +12,10 @@ from dataclasses import replace
 from functools import cache
 from time import perf_counter
 
-from core.dag import BenchmarkDAG, topological_order
+from core.dag import DAG
 from core.execution.preemptive import (
     Action,
-    PreemptiveDAGModel,
+    PreeSingleModel,
     PreemptiveScheduleResult,
     ScheduleState,
     result_from_trace,
@@ -27,14 +27,14 @@ from single_channel.parallel_chain.model import (
 )
 
 
-def schedule_longest_tail(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
+def schedule_longest_tail(dag: DAG) -> PreemptiveScheduleResult:
     """Choose the largest residual tail after the candidate communication."""
 
     return schedule_priority(dag, "longest_tail")
 
 
 def schedule_priority(
-    dag: BenchmarkDAG,
+    dag: DAG,
     priority: str = "longest_tail",
 ) -> PreemptiveScheduleResult:
     """Run a deterministic Stage 1 work-conserving priority.
@@ -47,7 +47,7 @@ def schedule_priority(
     """
 
     instance = parse_parallel_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     arrivals: dict[str, int] = {}
     actions: list[Action] = []
@@ -79,7 +79,7 @@ def schedule_priority(
 
 
 def schedule_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     top_k: int = 2,
     candidate_mode: str = "longest_tail",
@@ -99,7 +99,7 @@ def schedule_rollout(
     if depth <= 0:
         raise ValueError("depth must be positive")
     instance = parse_parallel_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     while not model.is_finished(state):
@@ -138,7 +138,7 @@ def schedule_rollout(
     return _validated_result(model, tuple(actions))
 
 
-def beam_search(dag: BenchmarkDAG, *, width: int = 8) -> PreemptiveScheduleResult:
+def beam_search(dag: DAG, *, width: int = 8) -> PreemptiveScheduleResult:
     """Deterministic event-state beam with a Longest-tail incumbent.
 
     For an identical ordered frontier key, future residual cost is identical.
@@ -151,7 +151,7 @@ def beam_search(dag: BenchmarkDAG, *, width: int = 8) -> PreemptiveScheduleResul
     if width <= 0:
         raise ValueError("width must be positive")
     instance = parse_parallel_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     initial = model.initial_state()
     frontier: list[tuple[ScheduleState, tuple[Action, ...]]] = [(initial, ())]
     incumbent = schedule_longest_tail(dag)
@@ -200,7 +200,7 @@ def beam_search(dag: BenchmarkDAG, *, width: int = 8) -> PreemptiveScheduleResul
 
 
 def exact_oracle(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     max_states: int = 500_000,
     time_limit_s: float | None = None,
@@ -221,7 +221,7 @@ def exact_oracle(
     if max_states <= 0:
         raise ValueError("max_states must be positive")
     instance = parse_parallel_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     initial = model.initial_state()
     started = perf_counter()
     states = 0
@@ -291,8 +291,7 @@ def exact_oracle(
         actions.append(action)
 
     result = _validated_result(model, tuple(actions))
-    return replace(
-        result,
+    return result.with_stats(
         explored_states=states,
         deduplicated_states=duplicates,
         pruned_states=pruned,
@@ -303,7 +302,7 @@ def exact_oracle(
 
 
 def monte_carlo(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     samples: int = 64,
     seed: int = 0,
@@ -311,7 +310,7 @@ def monte_carlo(
     """Historical reproducible baseline; intentionally absent from registry."""
 
     parse_parallel_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     rng = random.Random(seed)
     candidates = [schedule_longest_tail(dag)]
     for _ in range(samples):
@@ -326,10 +325,10 @@ def monte_carlo(
     return min(candidates, key=lambda item: (item.makespan, item.dispatches))
 
 
-def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, int]:
+def residual_tail(model: PreeSingleModel, state: ScheduleState) -> dict[str, int]:
     """Return the residual longest path including each task's own remainder."""
 
-    order = topological_order(model.dag)
+    order = model.dag.topological_order()
     tasks = model.task_map
     children: dict[str, list[str]] = {task_id: [] for task_id in order}
     for task in tasks.values():
@@ -350,7 +349,7 @@ def residual_tail(model: PreemptiveDAGModel, state: ScheduleState) -> dict[str, 
 
 def _priority_key(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
     priority: str,
@@ -382,7 +381,7 @@ def _priority_key(
 
 def _immediate_compute_delay(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -400,7 +399,7 @@ def _immediate_compute_delay(
 
 def _rank_candidates(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     eligible: tuple[str, ...],
     top_k: int,
@@ -439,7 +438,7 @@ def _rank_candidates(
 
 def _rollout_remaining_cost(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     depth: int,
     top_k: int,
@@ -506,7 +505,7 @@ def _rollout_remaining_cost(
 
 def _complete_actions(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
 ) -> tuple[Action, ...]:
     actions: list[Action] = []
@@ -541,7 +540,7 @@ def _uses_tail(priority: str) -> bool:
 
 def _chain_type_groups(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
 ) -> tuple[tuple[int, ...], ...]:
     """Group chains whose complete kind/duration sequences are isomorphic."""
 
@@ -555,7 +554,7 @@ def _chain_type_groups(
 
 def _compact_key(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     symmetry_groups: tuple[tuple[int, ...], ...] | None = None,
 ) -> tuple:
@@ -580,7 +579,7 @@ def _compact_key(
 
 def _remaining_lower_bound(
     instance: ParallelChainInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
 ) -> int:
     tasks = model.task_map
@@ -606,7 +605,7 @@ def _remaining_lower_bound(
 
 
 def _apply_actions(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     actions: tuple[Action, ...],
 ) -> ScheduleState:
@@ -616,7 +615,7 @@ def _apply_actions(
 
 
 def _validated_result(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     actions: tuple[Action, ...],
 ) -> PreemptiveScheduleResult:
     trace = model.run(actions)

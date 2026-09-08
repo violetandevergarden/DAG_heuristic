@@ -1,4 +1,4 @@
-﻿"""Generate the llm_structure benchmark corpus from real AICB workloads.
+"""Generate the llm_structure benchmark corpus from real AICB workloads.
 
 Inputs live in the SimAI checkout under ``inputs/aicb-workload/`` and
 ``inputs/topologies/``.  Every exported benchmark is a schema-v2 preemptive
@@ -371,11 +371,11 @@ def repeat_iterations(benchmark: Benchmark, iterations: int) -> Benchmark:
 def competition_report(benchmark: Benchmark) -> dict:
     """Drive the public simulator and measure scheduling contention."""
 
-    from core.conversion import to_internal_dag, to_multi_resource_instance
-    from core.execution.multi_resource import PreemptiveMultiResourceModel
+    from core.conversion import to_dag, to_muti_resourse
+    from core.execution.preemptive import PreeMultiModel
     from core.execution.preemptive import (
         Action,
-        PreemptiveDAGModel,
+        PreeSingleModel,
         ScheduleTrace,
     )
     from core.trace.preemptive import assert_preemptive_trace
@@ -386,7 +386,7 @@ def competition_report(benchmark: Benchmark) -> dict:
     max_eligible = 0
     conflict_pairs = 0
     if benchmark.scenario == "single_channel":
-        model = PreemptiveDAGModel(to_internal_dag(benchmark))
+        model = PreeSingleModel(to_dag(benchmark))
         state = model.initial_state()
         transitions = []
         events = list(model.initial_events(state))
@@ -419,7 +419,7 @@ def competition_report(benchmark: Benchmark) -> dict:
         assert_preemptive_trace(model, trace)
         makespan = trace.makespan
     else:
-        from core.execution.multi_resource import (
+        from core.execution.preemptive import (
             ExecutionInterval,
             MultiResourceDecision,
             MultiResourceTrace,
@@ -428,12 +428,12 @@ def competition_report(benchmark: Benchmark) -> dict:
             _merge_intervals,
         )
 
-        instance = to_multi_resource_instance(benchmark)
+        instance = to_muti_resourse(benchmark)
         resources = {
             task_id: frozenset(str(resource) for resource in values)
             for task_id, values in instance.resources.items()
         }
-        model = PreemptiveMultiResourceModel(instance.dag, resources)
+        model = PreeMultiModel(instance.dag, resources)
         state = model.initial_state()
         trace_decisions = []
         raw_intervals: list[ExecutionInterval] = []
@@ -488,7 +488,7 @@ def competition_report(benchmark: Benchmark) -> dict:
         intervals = _complete_zero_compute_intervals(
             model, _merge_intervals(raw_intervals)
         )
-        from core.trace.common import ResourceInterval
+        from core.trace.contracts import ResourceInterval
 
         resource_intervals = tuple(
             ResourceInterval(resource, interval.task_id, interval.start, interval.end)

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from pathlib import Path
 
@@ -84,4 +84,3 @@ def test_paired_semantic_exports_share_the_same_graph() -> None:
     assert nonpreemptive.tasks == preemptive.tasks
     assert nonpreemptive.resources == preemptive.resources
     assert nonpreemptive.scenario == preemptive.scenario
-

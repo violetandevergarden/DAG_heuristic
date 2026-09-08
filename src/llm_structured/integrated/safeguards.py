@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import hashlib
 
-from core.execution.multi_resource import (
+from core.execution.preemptive import (
     MultiResourceAction,
     MultiResourceState,
-    PreemptiveMultiResourceModel,
+    PreeMultiModel,
 )
 from core.execution.preemptive import ScheduleState
 from muti_channel.preemptive.packing import validate_maximal_action
@@ -19,7 +19,7 @@ def state_fingerprint(state: ScheduleState | MultiResourceState) -> str:
 
 
 def require_maximal(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiResourceState,
     action: MultiResourceAction,
 ) -> None:

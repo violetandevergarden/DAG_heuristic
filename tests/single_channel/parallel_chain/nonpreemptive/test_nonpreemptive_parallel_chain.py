@@ -148,5 +148,3 @@ def test_bounded_searches_fall_back_to_dynamic_incumbent() -> None:
     assert beam.makespan == dynamic.makespan
     verify_schedule(chains, rollout)
     verify_schedule(chains, beam)
-
-

@@ -1,6 +1,6 @@
 """Independent replay validator for single-channel preemptive traces.
 
-This module deliberately does not import or call ``PreemptiveDAGModel``.  It
+This module deliberately does not import or call ``PreeSingleModel``.  It
 derives timing, completion, precedence, event and action legality from the
 immutable DAG and serialized trace fields.
 """
@@ -10,8 +10,8 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from typing import TYPE_CHECKING
 
-from core.dag import BenchmarkDAG, topological_order
-from core.trace.common import ReplaySummary
+from core.dag import DAG
+from core.trace.contracts import ReplaySummary
 
 if TYPE_CHECKING:
     from core.execution.preemptive import ExecutionInterval, ScheduleTrace, TimelineEvent
@@ -37,12 +37,12 @@ def _interval_key(interval: ExecutionInterval) -> tuple[str, str, int, int]:
     return (interval.task_id, interval.kind, interval.start, interval.end)
 
 
-def replay_preemptive_trace(dag: BenchmarkDAG, trace: ScheduleTrace) -> ReplaySummary:
+def replay_preemptive_trace(dag: DAG, trace: ScheduleTrace) -> ReplaySummary:
     errors = dag.validate()
     if errors:
         raise AssertionError(f"cannot replay invalid DAG {dag.name}: {errors}")
     task_map = dag.task_map()
-    expected_ids = tuple(topological_order(dag))
+    expected_ids = tuple(dag.topological_order())
     if tuple(trace.task_ids) != expected_ids:
         raise AssertionError(f"trace task order mismatch: {trace.task_ids} != {expected_ids}")
     if trace.final_state.time < 0:
@@ -200,7 +200,7 @@ def replay_preemptive_trace(dag: BenchmarkDAG, trace: ScheduleTrace) -> ReplaySu
 def assert_preemptive_trace(model_or_dag, trace: ScheduleTrace) -> None:
     """Compatibility assertion accepting either a DAG or model with ``dag``."""
 
-    dag = model_or_dag if isinstance(model_or_dag, BenchmarkDAG) else model_or_dag.dag
+    dag = model_or_dag if isinstance(model_or_dag, DAG) else model_or_dag.dag
     replay_preemptive_trace(dag, trace)
 
 

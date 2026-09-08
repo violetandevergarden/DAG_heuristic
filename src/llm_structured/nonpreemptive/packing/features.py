@@ -48,4 +48,3 @@ def union_score(features: SetFeatures) -> tuple:
         -features.reachable_union_size,
         len(features.left_idle_resources),
     )
-

@@ -25,10 +25,42 @@ from typing import Literal
 
 ROOT = Path(__file__).resolve().parents[2]
 
-from core.dag import _Builder  # noqa: E402
+
+def chains_from_dag(dag):
+    """Build the compact chain input from a validated internal DAG."""
+
+    from single_channel.parallel_chain.model import parse_parallel_chain
+
+    instance = parse_parallel_chain(dag)
+    tasks = dag.task_map()
+    chains: list[ParallelChain] = []
+    for task_ids in instance.chains:
+        sequence = [tasks[task_id] for task_id in task_ids]
+        position = 0
+        initial_delay = 0
+        if sequence[0].kind == "compute":
+            initial_delay = sequence[0].duration
+            position = 1
+        comm: list[int] = []
+        compute: list[int] = []
+        while position < len(sequence):
+            if sequence[position].kind != "comm":
+                raise ValueError(f"expected communication at {sequence[position].task_id}")
+            comm.append(sequence[position].duration)
+            position += 1
+            if position >= len(sequence) or sequence[position].kind != "compute":
+                raise ValueError("each parallel-chain communication must have a compute tail")
+            compute.append(sequence[position].duration)
+            position += 1
+        if not comm:
+            raise ValueError("parallel-chain component has no communication")
+        chains.append(ParallelChain(tuple(comm), tuple(compute), initial_delay))
+    return tuple(chains)
+
+from core.dag import DAGBuilder  # noqa: E402
 from core.execution.nonpreemptive import (  # noqa: E402
     Action as DAGAction,
-    NonPreemptiveDAGModel,
+    NonPreeSingleModel,
 )
 from core.trace.nonpreemptive import assert_nonpreemptive_trace  # noqa: E402
 
@@ -592,9 +624,7 @@ def monte_carlo_best(
 
 
 def to_benchmark_dag(chains: tuple[ParallelChain, ...]):
-    builder = _Builder(
-        "nonpreemptive_parallel_chains", "r2_chain", "Compact-chain replay DAG."
-    )
+    builder = DAGBuilder("nonpreemptive_parallel_chains", context=(("category", "r2_chain"), ("description", "Compact-chain replay DAG.")))
     flow_ids: dict[tuple[int, int], str] = {}
     for chain_index, chain in enumerate(chains):
         previous = None
@@ -625,7 +655,7 @@ def verify_schedule(
     chains: tuple[ParallelChain, ...], schedule: ChainSchedule | ChainSearchResult
 ) -> None:
     dag, flow_ids = to_benchmark_dag(chains)
-    model = NonPreemptiveDAGModel(dag)
+    model = NonPreeSingleModel(dag)
     compact_state = initial_state(chains)
     dag_actions: list[DAGAction] = []
     for action in schedule.actions:
@@ -641,4 +671,4 @@ def verify_schedule(
         raise AssertionError(
             f"compact/R0 replay mismatch: {schedule.makespan} vs {trace.makespan}"
         )
-    assert_nonpreemptive_trace(trace)
+    assert_nonpreemptive_trace(dag, trace, mode="optional_idle")

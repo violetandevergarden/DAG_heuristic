@@ -418,7 +418,7 @@ def _twin_groups(
 def _formal_labels(task: Task) -> tuple[tuple[str, str], ...]:
     """Return labels visible to Stage 4 algorithms in canonical order.
 
-    ``Benchmark`` tasks predate the dedicated ``BenchTask.labels`` field, so
+    ``Benchmark`` tasks predate the dedicated ``Task.labels`` field, so
     the public JSON metadata is the compatibility source here.  Keeping this
     list explicit prevents an answer-hinting metadata field from silently
     becoming part of the automorphism certificate.

@@ -1,7 +1,7 @@
 import pytest
 
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
+from core.dag import DAG, Task
+from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
 from muti_channel.preemptive.constructors import enumerate_bounded, greedy, multi_seed, one_exchange
 from muti_channel.preemptive.packing import PackingBudget, build_conflict_graph, validate_maximal_action
@@ -12,12 +12,8 @@ from muti_channel.preemptive.solver import (
 
 
 def _case():
-    dag = BenchmarkDAG("packing", "test", (
-        BenchTask("wide", "comm", 2),
-        BenchTask("left", "comm", 3),
-        BenchTask("right", "comm", 3),
-    ))
-    model = PreemptiveMultiResourceModel(dag, {
+    dag = DAG('packing', (Task('wide', 'comm', 2), Task('left', 'comm', 3), Task('right', 'comm', 3)), context=(('category', 'test'),))
+    model = PreeMultiModel(dag, {
         "wide": frozenset({"r0", "r1"}),
         "left": frozenset({"r0"}),
         "right": frozenset({"r1"}),
@@ -71,7 +67,7 @@ def test_streaming_enumeration_obeys_set_and_operation_budgets_without_full_acti
 
 def test_explicit_selector_executes_selected_nonbaseline_action_and_eval_budget_is_hard():
     motif = next(item for item in packing_motifs() if item.name == "star_wide_vs_pair")
-    model = PreemptiveMultiResourceModel(motif.dag, motif.resources)
+    model = PreeMultiModel(motif.dag, motif.resources)
     state = model.initial_state()
     result = schedule_bounded_packing(
         model.dag, model.resources, constructor="enumeration", selector="set_score",

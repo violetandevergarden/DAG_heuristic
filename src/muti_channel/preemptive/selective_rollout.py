@@ -6,9 +6,9 @@ from collections import Counter
 from dataclasses import replace
 from time import perf_counter
 
-from core.dag import BenchmarkDAG
-from core.execution.multi_resource import (
-    MultiResourceAction, MultiResourceState, PreemptiveMultiResourceModel,
+from core.dag import DAG
+from core.execution.preemptive import (
+    MultiResourceAction, MultiResourceState, PreeMultiModel,
 )
 from llm_structured.selective_rollout import (
     BudgetAccount, RolloutBudget, Trigger, TriggerDecision, TriggerFeatures,
@@ -28,7 +28,7 @@ def _signature(action: MultiResourceAction) -> str:
 
 
 def generate_candidates(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiResourceState,
     limit: int,
 ) -> tuple[MultiResourceAction, ...]:
@@ -54,7 +54,7 @@ def generate_candidates(
 
 
 def _features(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiResourceState,
     candidates: tuple[MultiResourceAction, ...],
 ) -> TriggerFeatures:
@@ -85,7 +85,7 @@ def _features(
 
 
 def _terminal_completion(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiResourceState,
     account: BudgetAccount,
     decision_started: float,
@@ -113,7 +113,7 @@ def _terminal_completion(
 
 
 def _tree_value(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiResourceState,
     depth: int,
     account: BudgetAccount,
@@ -151,7 +151,7 @@ def _tree_value(
 
 
 def schedule_selective_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     budget: RolloutBudget | None = None,
@@ -163,7 +163,7 @@ def schedule_selective_rollout(
     if budget.search_depth == 0 or budget.max_candidates < 2:
         from muti_channel.preemptive.solver import schedule_pack
         return schedule_pack(dag, resources, "longest_tail")
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiResourceAction] = []
     account = BudgetAccount(budget)

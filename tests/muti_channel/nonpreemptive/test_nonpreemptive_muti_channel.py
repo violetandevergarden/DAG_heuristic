@@ -5,14 +5,14 @@ from pathlib import Path
 
 from benchmark_generate.cases import multi_resource_motifs, random_multi_resource_instance
 from muti_channel.nonpreemptive.solver import (
-    NonPreemptiveMultiResourceDAG,
+    NonPreeMultiModel,
     ResourceAction,
     exact_oracle,
     schedule_greedy,
     schedule_rollout,
 )
 from benchmark import load_benchmark
-from core.conversion import to_multi_resource_instance
+from core.conversion import to_muti_resourse
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -50,17 +50,17 @@ def test_nonmaximal_start_and_wait_can_beat_every_maximal_start() -> None:
     assert optional.makespan == 8
     assert work_conserving.makespan == 12
     assert optional.actions[0].starts == ("a",)
-    assert ("a",) not in NonPreemptiveMultiResourceDAG(
+    assert ("a",) not in NonPreeMultiModel(
         instance
     ).start_subsets(
-        NonPreemptiveMultiResourceDAG(instance).initial_state(),
+        NonPreeMultiModel(instance).initial_state(),
         maximal_only=True,
     )
 
 
 def test_active_flow_keeps_route_reserved_at_intermediate_event() -> None:
     instance = multi_resource_motifs()[3]
-    model = NonPreemptiveMultiResourceDAG(instance)
+    model = NonPreeMultiModel(instance)
     state = model.initial_state()
     state = model.step(state, ResourceAction.start(("a", "b"))).after
 
@@ -85,9 +85,9 @@ def test_optional_set_rollout_repairs_nonmaximal_motif() -> None:
 
 def test_real_route_snapshots_preserve_resource_conflicts() -> None:
     root = ROOT / "benchmark/muti_channel/nonpreemptive/real"
-    single = to_multi_resource_instance(load_benchmark(root / "manual_route_single_switch_np.json"))
-    two_rack = to_multi_resource_instance(load_benchmark(root / "manual_route_two_rack_np.json"))
-    four_rack = to_multi_resource_instance(load_benchmark(root / "manual_route_four_rack_core_np.json"))
+    single = to_muti_resourse(load_benchmark(root / "manual_route_single_switch_np.json"))
+    two_rack = to_muti_resourse(load_benchmark(root / "manual_route_two_rack_np.json"))
+    four_rack = to_muti_resourse(load_benchmark(root / "manual_route_four_rack_core_np.json"))
 
     assert not (single.resources["f1"] & single.resources["f2"])
     assert "link:8->9" in two_rack.resources["f1"] & two_rack.resources["f2"]

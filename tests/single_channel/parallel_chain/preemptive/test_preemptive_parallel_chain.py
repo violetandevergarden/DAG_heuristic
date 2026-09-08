@@ -14,8 +14,8 @@ from benchmark import (
     write_benchmark,
 )
 from benchmark.validator import BenchmarkValidationError
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.preemptive import PreemptiveDAGModel
+from core.dag import DAG, Task as DAGTask
+from core.execution.preemptive import PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from experiments.preemptive.stage1_parallel_chain import run_stage1
 from single_channel.complex_chain.preemptive.solver import exact_oracle as generic_exact
@@ -64,15 +64,7 @@ def _v2(tasks: tuple[Task, ...]) -> Benchmark:
 
 
 def test_preemptive_parallel_chain_has_an_explicit_family_entry() -> None:
-    dag = BenchmarkDAG(
-        "parallel_preemptive_smoke",
-        "test",
-        (
-            BenchTask("a", "comm", 2),
-            BenchTask("a_tail", "compute", 1, ("a",)),
-            BenchTask("b", "comm", 1),
-        ),
-    )
+    dag = DAG('parallel_preemptive_smoke', (DAGTask('a', 'comm', 2), DAGTask('a_tail', 'compute', 1, ('a',)), DAGTask('b', 'comm', 1)), context=(('category', 'test'),))
 
     assert solve(dag, "exact").makespan == 3
 
@@ -80,44 +72,44 @@ def test_preemptive_parallel_chain_has_an_explicit_family_entry() -> None:
 @pytest.mark.parametrize(
     "tasks",
     [
-        (BenchTask("c", "compute", 0),),
-        (BenchTask("m", "comm", 1),),
-        (BenchTask("c", "compute", 1), BenchTask("m", "comm", 1, ("c",))),
-        (BenchTask("m", "comm", 1), BenchTask("c", "compute", 0, ("m",))),
+        (DAGTask("c", "compute", 0),),
+        (DAGTask("m", "comm", 1),),
+        (DAGTask("c", "compute", 1), DAGTask("m", "comm", 1, ("c",))),
+        (DAGTask("m", "comm", 1), DAGTask("c", "compute", 0, ("m",))),
     ],
 )
 def test_contract_accepts_both_start_and_end_types_and_zero_compute(tasks) -> None:
-    dag = BenchmarkDAG("valid", "test", tasks)
+    dag = DAG('valid', tasks, context=(('category', 'test'),))
     validate_parallel_chain(dag)
     result = exact_oracle(dag)
-    assert_preemptive_trace(PreemptiveDAGModel(dag), result.trace)
+    assert_preemptive_trace(PreeSingleModel(dag), result.trace)
 
 
 @pytest.mark.parametrize(
     ("tasks", "message"),
     [
         (
-            (BenchTask("a", "comm", 1), BenchTask("b", "comm", 1, ("a",))),
+            (DAGTask("a", "comm", 1), DAGTask("b", "comm", 1, ("a",))),
             "strictly alternate",
         ),
         (
-            (BenchTask("a", "compute", 1), BenchTask("b", "compute", 1, ("a",))),
+            (DAGTask("a", "compute", 1), DAGTask("b", "compute", 1, ("a",))),
             "strictly alternate",
         ),
         (
             (
-                BenchTask("a", "comm", 1),
-                BenchTask("b", "compute", 1, ("a",)),
-                BenchTask("c", "compute", 1, ("a",)),
+                DAGTask("a", "comm", 1),
+                DAGTask("b", "compute", 1, ("a",)),
+                DAGTask("c", "compute", 1, ("a",)),
             ),
             "fork/join",
         ),
-        ((BenchTask("a", "comm", 0),), "positive work"),
+        ((DAGTask("a", "comm", 0),), "positive work"),
     ],
 )
 def test_contract_rejects_non_stage1_shapes(tasks, message) -> None:
     with pytest.raises(ValueError, match=message):
-        validate_parallel_chain(BenchmarkDAG("invalid", "test", tasks))
+        validate_parallel_chain(DAG('invalid', tasks, context=(('category', 'test'),)))
 
 
 def test_public_benchmark_validator_enforces_the_same_alternation() -> None:
@@ -138,16 +130,7 @@ def test_public_benchmark_validator_enforces_the_same_alternation() -> None:
 
 
 def test_fifo_uses_first_eligibility_and_keeps_arrival_after_pause() -> None:
-    dag = BenchmarkDAG(
-        "fifo_arrival",
-        "test",
-        (
-            BenchTask("release_z", "compute", 1),
-            BenchTask("z", "comm", 20, ("release_z",)),
-            BenchTask("release_a", "compute", 10),
-            BenchTask("a", "comm", 2, ("release_a",)),
-        ),
-    )
+    dag = DAG('fifo_arrival', (DAGTask('release_z', 'compute', 1), DAGTask('z', 'comm', 20, ('release_z',)), DAGTask('release_a', 'compute', 10), DAGTask('a', 'comm', 2, ('release_a',))), context=(('category', 'test'),))
     result = schedule_priority(dag, "fifo")
     decisions = [
         (transition.before.time, transition.action.task_id)
@@ -158,48 +141,17 @@ def test_fifo_uses_first_eligibility_and_keeps_arrival_after_pause() -> None:
 
 
 def test_delay_tail_and_lrpt_have_distinct_definitions() -> None:
-    delay_vs_tail = BenchmarkDAG(
-        "delay_vs_tail",
-        "test",
-        (
-            BenchTask("a", "comm", 1),
-            BenchTask("a_delay", "compute", 5, ("a",)),
-            BenchTask("b", "comm", 10),
-            BenchTask("b_delay", "compute", 1, ("b",)),
-            BenchTask("b_second", "comm", 10, ("b_delay",)),
-            BenchTask("b_tail", "compute", 1, ("b_second",)),
-        ),
-    )
+    delay_vs_tail = DAG('delay_vs_tail', (DAGTask('a', 'comm', 1), DAGTask('a_delay', 'compute', 5, ('a',)), DAGTask('b', 'comm', 10), DAGTask('b_delay', 'compute', 1, ('b',)), DAGTask('b_second', 'comm', 10, ('b_delay',)), DAGTask('b_tail', 'compute', 1, ('b_second',))), context=(('category', 'test'),))
     assert _first_run(schedule_priority(delay_vs_tail, "longest_delay")) == "a"
     assert _first_run(schedule_priority(delay_vs_tail, "longest_tail")) == "b"
 
-    tail_vs_lrpt = BenchmarkDAG(
-        "tail_vs_lrpt",
-        "test",
-        (
-            BenchTask("a", "comm", 10),
-            BenchTask("a_tail", "compute", 5, ("a",)),
-            BenchTask("b", "comm", 1),
-            BenchTask("b_tail", "compute", 6, ("b",)),
-        ),
-    )
+    tail_vs_lrpt = DAG('tail_vs_lrpt', (DAGTask('a', 'comm', 10), DAGTask('a_tail', 'compute', 5, ('a',)), DAGTask('b', 'comm', 1), DAGTask('b_tail', 'compute', 6, ('b',))), context=(('category', 'test'),))
     assert _first_run(schedule_priority(tail_vs_lrpt, "longest_tail")) == "b"
     assert _first_run(schedule_priority(tail_vs_lrpt, "lrpt")) == "a"
 
 
 def test_rollout_candidate_mode_is_explicit_and_deterministic() -> None:
-    dag = BenchmarkDAG(
-        "rollout_modes",
-        "test",
-        (
-            BenchTask("a", "comm", 8),
-            BenchTask("a_tail", "compute", 2, ("a",)),
-            BenchTask("b", "comm", 1),
-            BenchTask("b_tail", "compute", 7, ("b",)),
-            BenchTask("c", "comm", 2),
-            BenchTask("c_tail", "compute", 6, ("c",)),
-        ),
-    )
+    dag = DAG('rollout_modes', (DAGTask('a', 'comm', 8), DAGTask('a_tail', 'compute', 2, ('a',)), DAGTask('b', 'comm', 1), DAGTask('b_tail', 'compute', 7, ('b',)), DAGTask('c', 'comm', 2), DAGTask('c_tail', 'compute', 6, ('c',))), context=(('category', 'test'),))
     for mode in ("longest_tail", "lrpt"):
         first = schedule_rollout(dag, top_k=2, candidate_mode=mode)
         second = schedule_rollout(dag, top_k=2, candidate_mode=mode)
@@ -209,18 +161,7 @@ def test_rollout_candidate_mode_is_explicit_and_deterministic() -> None:
 
 
 def test_residual_tail_is_computed_once_per_priority_decision(monkeypatch) -> None:
-    dag = BenchmarkDAG(
-        "tail_snapshot",
-        "test",
-        tuple(
-            task
-            for index in range(8)
-            for task in (
-                BenchTask(f"c{index}", "comm", index + 1),
-                BenchTask(f"p{index}", "compute", 8 - index, (f"c{index}",)),
-            )
-        ),
-    )
+    dag = DAG('tail_snapshot', tuple((task for index in range(8) for task in (DAGTask(f'c{index}', 'comm', index + 1), DAGTask(f'p{index}', 'compute', 8 - index, (f'c{index}',))))), context=(('category', 'test'),))
     original = stage1_solver.residual_tail
     calls = 0
 
@@ -240,19 +181,7 @@ def test_residual_tail_is_computed_once_per_priority_decision(monkeypatch) -> No
 
 
 def test_rollout_depth_is_explicit_and_depth_one_is_backward_stable() -> None:
-    dag = BenchmarkDAG(
-        "rollout_depth",
-        "test",
-        (
-            BenchTask("a", "comm", 4),
-            BenchTask("a_tail", "compute", 5, ("a",)),
-            BenchTask("b", "comm", 1),
-            BenchTask("b_tail", "compute", 2, ("b",)),
-            BenchTask("b_second", "comm", 3, ("b_tail",)),
-            BenchTask("c", "comm", 2),
-            BenchTask("c_tail", "compute", 4, ("c",)),
-        ),
-    )
+    dag = DAG('rollout_depth', (DAGTask('a', 'comm', 4), DAGTask('a_tail', 'compute', 5, ('a',)), DAGTask('b', 'comm', 1), DAGTask('b_tail', 'compute', 2, ('b',)), DAGTask('b_second', 'comm', 3, ('b_tail',)), DAGTask('c', 'comm', 2), DAGTask('c_tail', 'compute', 4, ('c',))), context=(('category', 'test'),))
     legacy = schedule_rollout(dag, top_k=2)
     explicit = schedule_rollout(dag, top_k=2, depth=1)
     depth_two = schedule_rollout(dag, top_k=2, depth=2)
@@ -284,7 +213,7 @@ def test_identical_chain_symmetry_reduction_preserves_optimum_and_replay() -> No
 
     assert symmetric.makespan == ordered.makespan == tiny_tick_optimum(dag)
     assert symmetric.explored_states < ordered.explored_states
-    assert_preemptive_trace(PreemptiveDAGModel(dag), symmetric.trace)
+    assert_preemptive_trace(PreeSingleModel(dag), symmetric.trace)
 
 
 def test_compact_exact_matches_tick_and_generic_oracles_for_fixed_random_suite() -> None:
@@ -304,18 +233,11 @@ def test_compact_exact_matches_tick_and_generic_oracles_for_fixed_random_suite()
         assert compact.makespan == generic_exact(dag).makespan, index
         assert compact.status == "optimal"
         assert compact.lower_bound <= compact.makespan
-        assert_preemptive_trace(PreemptiveDAGModel(dag), compact.trace)
+        assert_preemptive_trace(PreeSingleModel(dag), compact.trace)
 
 
 def test_parser_preserves_user_task_identity_without_normalization() -> None:
-    dag = BenchmarkDAG(
-        "identity",
-        "test",
-        (
-            BenchTask("start_compute", "compute", 0),
-            BenchTask("end_comm", "comm", 2, ("start_compute",)),
-        ),
-    )
+    dag = DAG('identity', (DAGTask('start_compute', 'compute', 0), DAGTask('end_comm', 'comm', 2, ('start_compute',))), context=(('category', 'test'),))
     assert parse_parallel_chain(dag).chains == (("start_compute", "end_comm"),)
 
 

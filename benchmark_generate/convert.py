@@ -48,7 +48,7 @@ def dag_to_benchmark(
             duration=int(task.duration),
             dependencies=tuple(task.deps),
             resources=("channel:0",) if task.kind == "comm" else (),
-            metadata={key: value for key, value in {"role": task.role, "cut": task.cut}.items() if value},
+            metadata={key: value for key, value in {"role": task.label_map().get("task_role", ""), "cut": task.label_map().get("cut", "")}.items() if value},
         )
         for task in dag.tasks
     )
@@ -69,14 +69,14 @@ def dag_to_benchmark(
 
 
 def multi_resource_to_benchmark(
-    instance: object,
+    dag: object,
     category: str,
     *,
     metadata: dict | None = None,
 ) -> Benchmark:
     resource_names = {
         value: _resource_id(value)
-        for values in instance.resources.values()
+        for values in dag.resources.values()
         for value in values
     }
     resources = tuple(
@@ -90,22 +90,22 @@ def multi_resource_to_benchmark(
             duration=int(task.duration),
             dependencies=tuple(task.deps),
             resources=tuple(
-                sorted(resource_names[value] for value in instance.resources.get(task.task_id, ()))
+                sorted(resource_names[value] for value in dag.resources.get(task.task_id, ()))
             ),
-            metadata={key: value for key, value in {"role": task.role, "cut": task.cut}.items() if value},
+            metadata={key: value for key, value in {"role": task.label_map().get("task_role", ""), "cut": task.label_map().get("cut", "")}.items() if value},
         )
-        for task in instance.dag.tasks
+        for task in dag.tasks
     )
     return Benchmark(
-        benchmark_id=instance.dag.name,
+        benchmark_id=dag.name,
         scenario="muti_channel",
         family="complex_chain",
         category=_category(category),
         tasks=tasks,
         resources=resources,
         metadata={
-            "description": instance.dag.description,
-            "parameters": dict(instance.dag.parameters),
+            "description": dag.context_map().get("description", ""),
+            "parameters": dict(dag.parameters),
             **(metadata or {}),
         },
     )

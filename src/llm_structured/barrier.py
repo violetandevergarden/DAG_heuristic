@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from core.dag import BenchTask
+from core.dag import Task
 
 
 @dataclass(frozen=True)
@@ -95,7 +95,7 @@ class BarrierAnalysisContext:
 
     model: Any
     state: Any
-    tasks: dict[str, BenchTask]
+    tasks: dict[str, Task]
     order: tuple[str, ...]
     children: dict[str, tuple[str, ...]]
     completed: frozenset[str]
@@ -311,7 +311,7 @@ def _runtime(model: Any, state: Any, task_id: str) -> Any:
     return model.task_runtime(state, task_id) if hasattr(model, "task_runtime") else state.tasks[model.index[task_id]]
 
 
-def _own_remaining(model: Any, state: Any, task_id: str, task: BenchTask) -> int:
+def _own_remaining(model: Any, state: Any, task_id: str, task: Task) -> int:
     runtime = _runtime(model, state, task_id)
     return 0 if runtime.status == "completed" else runtime.remaining or task.duration
 

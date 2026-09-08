@@ -29,7 +29,7 @@ def test_complex_chain_methods_replay_as_nonpreemptive_traces() -> None:
         beam_search(dag, width=8),
     )
     for schedule in schedules:
-        assert_nonpreemptive_trace(schedule.trace)
+        assert_nonpreemptive_trace(dag, schedule.trace, mode="optional_idle")
 
 
 def test_rollout_and_beam_keep_dynamic_incumbent() -> None:

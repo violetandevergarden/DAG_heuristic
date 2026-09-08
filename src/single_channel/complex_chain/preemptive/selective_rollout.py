@@ -2,7 +2,7 @@
 
 The implementation separates the LT baseline, bounded candidate generation,
 triggering, and evaluation.  Search depth is a real branching decision depth;
-every branch uses :class:`PreemptiveDAGModel` for state transitions.
+every branch uses :class:`PreeSingleModel` for state transitions.
 """
 
 from __future__ import annotations
@@ -11,8 +11,8 @@ from collections import Counter
 from dataclasses import dataclass, replace
 from time import perf_counter
 
-from core.dag import BenchmarkDAG
-from core.execution.preemptive import Action, PreemptiveDAGModel, ScheduleState
+from core.dag import DAG
+from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, ChoiceSummary, EvaluationOutcome,
     RolloutBudget, Trigger, TriggerFeatures, choice_only,
@@ -41,7 +41,7 @@ def feature_cache_key(
     )
 
 
-def summarize_choice(model: PreemptiveDAGModel, state: ScheduleState) -> ChoiceSummary:
+def summarize_choice(model: PreeSingleModel, state: ScheduleState) -> ChoiceSummary:
     eligible = model.eligible_communications(state)
     if len(eligible) <= 1:
         kind = "no_choice"
@@ -54,7 +54,7 @@ def summarize_choice(model: PreemptiveDAGModel, state: ScheduleState) -> ChoiceS
     return ChoiceSummary(kind, len(eligible), len(eligible), tuple(eligible))
 
 
-def _ranked(model: PreemptiveDAGModel, state: ScheduleState, mode: str) -> tuple[str, ...]:
+def _ranked(model: PreeSingleModel, state: ScheduleState, mode: str) -> tuple[str, ...]:
     eligible = model.eligible_communications(state)
     tails = solver.residual_tail(model, state, eligible)
     return tuple(sorted(
@@ -64,7 +64,7 @@ def _ranked(model: PreemptiveDAGModel, state: ScheduleState, mode: str) -> tuple
 
 
 def generate_candidates(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     limit: int,
 ) -> CandidateSummary:
@@ -107,7 +107,7 @@ def generate_candidates(
 
 
 def cheap_features(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     *,
     candidates: CandidateSummary | None = None,
@@ -168,7 +168,7 @@ def cheap_features(
 
 
 def _forced_idle(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     account: BudgetAccount,
     decision_started: float,
@@ -183,7 +183,7 @@ def _forced_idle(
 
 
 def _terminal_lt_completion(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     account: BudgetAccount,
     decision_started: float,
@@ -206,7 +206,7 @@ def _terminal_lt_completion(
 
 
 def _tree_value(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     remaining_depth: int,
     account: BudgetAccount,
@@ -243,7 +243,7 @@ def _tree_value(
 
 
 def evaluate_rollout(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     candidates: CandidateSummary,
     account: BudgetAccount,
@@ -314,7 +314,7 @@ def evaluate_rollout(
 
 
 def schedule_selective_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     budget: RolloutBudget | None = None,
     trigger: Trigger = choice_only,
@@ -324,7 +324,7 @@ def schedule_selective_rollout(
     budget = budget or RolloutBudget()
     if budget.search_depth == 0 or budget.max_candidates < 2:
         return solver.schedule_longest_tail(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     account = BudgetAccount(budget)
@@ -394,8 +394,7 @@ def schedule_selective_rollout(
         actions.append(action)
         state = model.step(state, action).after
     result = solver._result(model, actions)
-    return replace(
-        result,
+    return result.with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
         expanded_nodes=account.expansions,
         evaluated_candidates=account.evaluated_candidates,

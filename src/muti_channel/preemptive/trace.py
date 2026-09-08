@@ -5,10 +5,10 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from itertools import pairwise
 
-from core.dag import BenchmarkDAG, topological_order
-from core.execution.multi_resource import MultiResourceTrace
+from core.dag import DAG
+from core.execution.preemptive import MultiResourceTrace
 from core.execution.preemptive import ExecutionInterval, TimelineEvent
-from core.trace.common import ReplaySummary, ResourceInterval
+from core.trace.contracts import ReplaySummary, ResourceInterval
 
 _EVENT_ORDER = {
     "compute_completed": 0,
@@ -21,7 +21,7 @@ _EVENT_ORDER = {
 
 
 def assert_multi_resource_trace(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     trace: MultiResourceTrace,
 ) -> ReplaySummary:
@@ -29,7 +29,7 @@ def assert_multi_resource_trace(
     if errors:
         raise AssertionError(f"cannot replay invalid DAG {dag.name}: {errors}")
     task_map = dag.task_map()
-    expected_ids = tuple(topological_order(dag))
+    expected_ids = tuple(dag.topological_order())
     if trace.task_ids != expected_ids:
         raise AssertionError("trace task order mismatch")
     comm_ids = {task.task_id for task in dag.tasks if task.kind == "comm"}

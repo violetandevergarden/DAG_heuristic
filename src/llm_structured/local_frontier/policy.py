@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 
-from core.dag import BenchmarkDAG
-from core.execution.preemptive import Action, PreemptiveDAGModel, PreemptiveScheduleResult
+from core.dag import DAG
+from core.execution.preemptive import Action, PreeSingleModel, PreemptiveScheduleResult
 from single_channel.complex_chain.preemptive import solver
 
 from .accounting import FrontierBudget
@@ -30,12 +30,12 @@ class LocalFrontierResult:
 
 
 def schedule_local_frontier(
-    dag: BenchmarkDAG,
+    dag: DAG,
     config: LocalFrontierConfig | None = None,
 ) -> LocalFrontierResult:
     config = config or diagnostic_config()
     solver.validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     audits: list[LocalSearchDecision] = []

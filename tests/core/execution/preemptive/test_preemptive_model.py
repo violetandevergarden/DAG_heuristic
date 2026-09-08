@@ -1,25 +1,16 @@
 """Regressions for communication pause/resume semantics."""
 
 from benchmark import benchmark_from_dict, benchmark_to_dict
-from core.conversion import to_internal_dag
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.conversion import to_dag
+from core.dag import DAG, Task
+from core.execution.preemptive import Action, PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from registry import algorithms_for, solve
 from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
 
-def _release_dag() -> BenchmarkDAG:
-    return BenchmarkDAG(
-        "preemption_unlock",
-        "test",
-        (
-            BenchTask("release_b", "compute", 3),
-            BenchTask("A", "comm", 10),
-            BenchTask("B", "comm", 2, ("release_b",)),
-            BenchTask("tail_b", "compute", 10, ("B",)),
-        ),
-    )
+def _release_dag() -> DAG:
+    return DAG('preemption_unlock', (Task('release_b', 'compute', 3), Task('A', 'comm', 10), Task('B', 'comm', 2, ('release_b',)), Task('tail_b', 'compute', 10, ('B',))), context=(('category', 'test'),))
 
 
 def _payload() -> dict:
@@ -51,7 +42,7 @@ def _payload() -> dict:
 
 
 def test_dispatch_stops_at_compute_event_and_preserves_progress() -> None:
-    model = PreemptiveDAGModel(_release_dag())
+    model = PreeSingleModel(_release_dag())
     first = model.step(model.initial_state(), Action.run("A"))
 
     assert first.after.time == 3
@@ -67,7 +58,7 @@ def test_dispatch_stops_at_compute_event_and_preserves_progress() -> None:
 
 
 def test_trace_allows_multiple_segments_but_conserves_work() -> None:
-    model = PreemptiveDAGModel(_release_dag())
+    model = PreeSingleModel(_release_dag())
     trace = model.run(
         [Action.run("A"), Action.run("B"), Action.run("A"), Action.wait()]
     )
@@ -77,6 +68,25 @@ def test_trace_allows_multiple_segments_but_conserves_work() -> None:
         for span in trace.intervals
         if span.kind == "comm"
     ] == [("A", 0, 3), ("B", 3, 5), ("A", 5, 12)]
+
+
+def test_zero_duration_compute_chain_closes_in_topological_order() -> None:
+    dag = DAG(
+        "zero_compute_chain",
+        (
+            Task("first", "compute", 0),
+            Task("second", "compute", 0, ("first",)),
+            Task("third", "compute", 0, ("second",)),
+            Task("flow", "comm", 1, ("third",)),
+        ),
+        context=(("category", "test"),),
+    )
+    model = PreeSingleModel(dag)
+
+    state = model.initial_state()
+
+    assert all(model.task_runtime(state, task_id).completed_at == 0 for task_id in ("first", "second", "third"))
+    assert model.eligible_communications(state) == ("flow",)
 
 
 def test_v2_loader_registry_and_longest_tail_form_a_runnable_loop() -> None:
@@ -97,21 +107,11 @@ def test_v2_loader_registry_and_longest_tail_form_a_runnable_loop() -> None:
     result = solve(benchmark, "longest_tail")
     assert result.makespan == 15
     assert result.preemptions == 1
-    assert_preemptive_trace(PreemptiveDAGModel(to_internal_dag(benchmark)), result.trace)
+    assert_preemptive_trace(PreeSingleModel(to_dag(benchmark)), result.trace)
 
 
 def test_longest_tail_accepts_parallel_chain_shape_too() -> None:
-    dag = BenchmarkDAG(
-        "two_chains",
-        "test",
-        (
-            BenchTask("release", "compute", 1),
-            BenchTask("a", "comm", 4),
-            BenchTask("a_tail", "compute", 2, ("a",)),
-            BenchTask("b", "comm", 1, ("release",)),
-            BenchTask("b_tail", "compute", 5, ("b",)),
-        ),
-    )
+    dag = DAG('two_chains', (Task('release', 'compute', 1), Task('a', 'comm', 4), Task('a_tail', 'compute', 2, ('a',)), Task('b', 'comm', 1, ('release',)), Task('b_tail', 'compute', 5, ('b',))), context=(('category', 'test'),))
     result = schedule_longest_tail(dag)
     assert result.makespan == 7
-    assert_preemptive_trace(PreemptiveDAGModel(dag), result.trace)
+    assert_preemptive_trace(PreeSingleModel(dag), result.trace)

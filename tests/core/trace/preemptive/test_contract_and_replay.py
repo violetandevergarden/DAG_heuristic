@@ -8,12 +8,12 @@ from dataclasses import replace
 import pytest
 
 from benchmark import benchmark_from_dict, benchmark_to_dict
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.preemptive import Action, ExecutionInterval, PreemptiveDAGModel
+from core.dag import DAG, Task
+from core.execution.preemptive import Action, ExecutionInterval, PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from muti_channel.preemptive.solver import (
     MultiAction,
-    PreemptiveMultiResourceModel,
+    PreeMultiModel,
 )
 from muti_channel.preemptive.solver import (
     exact_oracle as multi_exact,
@@ -30,21 +30,12 @@ from single_channel.parallel_chain.preemptive.interface import validate_parallel
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 
 
-def _release_dag() -> BenchmarkDAG:
-    return BenchmarkDAG(
-        "release",
-        "test",
-        (
-            BenchTask("release_b", "compute", 2),
-            BenchTask("a", "comm", 4),
-            BenchTask("b", "comm", 1, ("release_b",)),
-            BenchTask("tail", "compute", 4, ("b",)),
-        ),
-    )
+def _release_dag() -> DAG:
+    return DAG('release', (Task('release_b', 'compute', 2), Task('a', 'comm', 4), Task('b', 'comm', 1, ('release_b',)), Task('tail', 'compute', 4, ('b',))), context=(('category', 'test'),))
 
 
 def test_single_channel_rejects_voluntary_wait_and_allows_forced_idle() -> None:
-    model = PreemptiveDAGModel(_release_dag())
+    model = PreeSingleModel(_release_dag())
     state = model.initial_state()
     assert Action.wait() not in model.legal_actions(state)
     with pytest.raises(ValueError, match="voluntary WAIT"):
@@ -57,7 +48,7 @@ def test_single_channel_rejects_voluntary_wait_and_allows_forced_idle() -> None:
 
 
 def test_independent_single_trace_rejects_missing_events_and_transitions() -> None:
-    model = PreemptiveDAGModel(_release_dag())
+    model = PreeSingleModel(_release_dag())
     trace = model.run(
         (Action.run("a"), Action.run("b"), Action.run("a"), Action.wait())
     )
@@ -68,7 +59,7 @@ def test_independent_single_trace_rejects_missing_events_and_transitions() -> No
 
 
 def test_independent_single_trace_rejects_interval_corruption() -> None:
-    model = PreemptiveDAGModel(_release_dag())
+    model = PreeSingleModel(_release_dag())
     trace = model.run(
         (Action.run("a"), Action.run("b"), Action.run("a"), Action.wait())
     )
@@ -122,13 +113,9 @@ def test_independent_single_trace_rejects_interval_corruption() -> None:
 
 
 def test_multi_resource_rejects_nonmaximal_wait_duplicate_and_zero_duration() -> None:
-    dag = BenchmarkDAG(
-        "two_resources",
-        "test",
-        (BenchTask("a", "comm", 2), BenchTask("b", "comm", 2)),
-    )
+    dag = DAG('two_resources', (Task('a', 'comm', 2), Task('b', 'comm', 2)), context=(('category', 'test'),))
     resources = {"a": frozenset({"left"}), "b": frozenset({"right"})}
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     assert model.legal_actions(state) == (MultiAction(("a", "b")),)
     with pytest.raises(ValueError, match="not inclusion-maximal"):
@@ -138,22 +125,13 @@ def test_multi_resource_rejects_nonmaximal_wait_duplicate_and_zero_duration() ->
     with pytest.raises(ValueError, match="duplicate"):
         model.step(state, MultiAction(("a", "a")))
 
-    zero = BenchmarkDAG("zero", "test", (BenchTask("z", "comm", 0),))
+    zero = DAG('zero', (Task('z', 'comm', 0),), context=(('category', 'test'),))
     with pytest.raises(ValueError, match="positive communication"):
-        PreemptiveMultiResourceModel(zero, {"z": frozenset({"r"})})
+        PreeMultiModel(zero, {"z": frozenset({"r"})})
 
 
 def test_multi_resource_trace_audits_resources_and_maximal_decisions() -> None:
-    dag = BenchmarkDAG(
-        "multi_trace",
-        "test",
-        (
-            BenchTask("release", "compute", 1),
-            BenchTask("a", "comm", 3),
-            BenchTask("b", "comm", 2, ("release",)),
-            BenchTask("tail", "compute", 2, ("b",)),
-        ),
-    )
+    dag = DAG('multi_trace', (Task('release', 'compute', 1), Task('a', 'comm', 3), Task('b', 'comm', 2, ('release',)), Task('tail', 'compute', 2, ('b',))), context=(('category', 'test'),))
     resources = {"a": frozenset({"r"}), "b": frozenset({"r"})}
     result = multi_exact(dag, resources)
     assert result.trace is not None
@@ -165,11 +143,7 @@ def test_multi_resource_trace_audits_resources_and_maximal_decisions() -> None:
 
 
 def test_multi_replay_rejects_nonmaximal_recorded_decision() -> None:
-    dag = BenchmarkDAG(
-        "multi_nonmax_trace",
-        "test",
-        (BenchTask("a", "comm", 2), BenchTask("b", "comm", 2)),
-    )
+    dag = DAG('multi_nonmax_trace', (Task('a', 'comm', 2), Task('b', 'comm', 2)), context=(('category', 'test'),))
     resources = {"a": frozenset({"left"}), "b": frozenset({"right"})}
     result = multi_exact(dag, resources)
     assert result.trace is not None
@@ -216,8 +190,8 @@ def test_v2_loader_normalizes_historical_optional_idle_contract() -> None:
     assert benchmark_to_dict(benchmark)["semantics"]["optional_idle"] is False
 
 
-def _random_tiny_dag(rng: random.Random, index: int) -> BenchmarkDAG:
-    tasks: list[BenchTask] = []
+def _random_tiny_dag(rng: random.Random, index: int) -> DAG:
+    tasks: list[Task] = []
     for node in range(rng.randint(2, 6)):
         kind = "comm" if rng.random() < 0.55 else "compute"
         duration = rng.randint(1, 3) if kind == "comm" else rng.randint(0, 3)
@@ -226,10 +200,10 @@ def _random_tiny_dag(rng: random.Random, index: int) -> BenchmarkDAG:
             for parent in range(node)
             if rng.random() < 0.22
         )
-        tasks.append(BenchTask(f"t{node}", kind, duration, parents))
+        tasks.append(Task(f"t{node}", kind, duration, parents))
     if not any(task.kind == "comm" for task in tasks):
-        tasks[0] = BenchTask(tasks[0].task_id, "comm", max(1, tasks[0].duration))
-    return BenchmarkDAG(f"tiny_{index}", "random_test", tuple(tasks))
+        tasks[0] = Task(tasks[0].task_id, "comm", max(1, tasks[0].duration))
+    return DAG(f'tiny_{index}', tuple(tasks), context=(('category', 'random_test'),))
 
 
 def test_event_exact_matches_independent_tiny_tick_oracle() -> None:
@@ -240,15 +214,7 @@ def test_event_exact_matches_independent_tiny_tick_oracle() -> None:
 
 
 def test_parallel_chain_entry_rejects_general_dag_and_task_order_is_irrelevant() -> None:
-    fork = BenchmarkDAG(
-        "fork",
-        "test",
-        (
-            BenchTask("a", "comm", 1),
-            BenchTask("b", "compute", 1, ("a",)),
-            BenchTask("c", "compute", 1, ("a",)),
-        ),
-    )
+    fork = DAG('fork', (Task('a', 'comm', 1), Task('b', 'compute', 1, ('a',)), Task('c', 'compute', 1, ('a',))), context=(('category', 'test'),))
     with pytest.raises(ValueError, match="fork/join"):
         validate_parallel_chain(fork)
 
@@ -272,7 +238,7 @@ def test_multi_event_exact_matches_independent_tiny_tick_oracle() -> None:
         tick = tiny_tick_optimum(dag, resources)
         normalized = multi_exact(dag, resources)
         audit = multi_audit_exact(dag, resources)
-        model = PreemptiveMultiResourceModel(dag, resources)
+        model = PreeMultiModel(dag, resources)
         assert normalized.status == audit.status == "optimal"
         assert normalized.makespan == audit.makespan == tick
         assert multi_remaining_lower_bound(model, model.initial_state()) <= tick

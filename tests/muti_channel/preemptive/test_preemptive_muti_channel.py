@@ -4,10 +4,10 @@ from pathlib import Path
 import pytest
 
 from benchmark import load_benchmark
-from core.dag import BenchmarkDAG, BenchTask
+from core.dag import DAG, Task
 from muti_channel.preemptive.solver import (
     MultiAction,
-    PreemptiveMultiResourceModel,
+    PreeMultiModel,
     exact_oracle,
     exact_oracle_uncompressed,
     greedy_fill_from_task_scores,
@@ -27,11 +27,7 @@ ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_preemptive_multi_channel_has_an_explicit_family_entry() -> None:
-    dag = BenchmarkDAG(
-        "multi_preemptive_smoke",
-        "test",
-        (BenchTask("left", "comm", 2), BenchTask("right", "comm", 3)),
-    )
+    dag = DAG('multi_preemptive_smoke', (Task('left', 'comm', 2), Task('right', 'comm', 3)), context=(('category', 'test'),))
     resources = {
         "left": frozenset({"left"}),
         "right": frozenset({"right"}),
@@ -62,17 +58,7 @@ def test_stage3_registry_exposes_one_stable_surface() -> None:
 
 
 def _multi_instance():
-    dag = BenchmarkDAG(
-        "multi_overlap",
-        "test",
-        (
-            BenchTask("a", "comm", 4),
-            BenchTask("a_tail", "compute", 3, ("a",)),
-            BenchTask("b", "comm", 4),
-            BenchTask("b_tail", "compute", 3, ("b",)),
-            BenchTask("c", "comm", 2),
-        ),
-    )
+    dag = DAG('multi_overlap', (Task('a', 'comm', 4), Task('a_tail', 'compute', 3, ('a',)), Task('b', 'comm', 4), Task('b_tail', 'compute', 3, ('b',)), Task('c', 'comm', 2)), context=(('category', 'test'),))
     resources = {
         "a": frozenset({"left"}),
         "b": frozenset({"right"}),
@@ -83,7 +69,7 @@ def _multi_instance():
 
 def test_multi_resource_model_runs_disjoint_flows_concurrently() -> None:
     dag, resources = _multi_instance()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     actions = model.maximal_actions(model.initial_state())
 
     assert {action.communications for action in actions} == {("a", "b"), ("c",)}
@@ -94,21 +80,13 @@ def test_multi_resource_model_runs_disjoint_flows_concurrently() -> None:
 
 
 def test_maximal_set_oracle_matches_single_resource_serial_work() -> None:
-    dag = BenchmarkDAG(
-        "shared",
-        "test",
-        (BenchTask("a", "comm", 2), BenchTask("b", "comm", 3)),
-    )
+    dag = DAG('shared', (Task('a', 'comm', 2), Task('b', 'comm', 3)), context=(('category', 'test'),))
     resources = {"a": frozenset({"r"}), "b": frozenset({"r"})}
     assert exact_oracle(dag, resources).makespan == 5
 
 
 def test_forced_idle_is_simulator_owned_and_not_a_decision() -> None:
-    dag = BenchmarkDAG(
-        "forced_idle",
-        "test",
-        (BenchTask("release", "compute", 2), BenchTask("flow", "comm", 1, ("release",))),
-    )
+    dag = DAG('forced_idle', (Task('release', 'compute', 2), Task('flow', 'comm', 1, ('release',))), context=(('category', 'test'),))
     resources = {"flow": frozenset({"r"})}
     result = schedule_pack(dag, resources)
     assert result.trace is not None
@@ -122,20 +100,12 @@ def test_forced_idle_is_simulator_owned_and_not_a_decision() -> None:
 
 
 def test_atomic_multi_resource_pause_release_and_resume() -> None:
-    dag = BenchmarkDAG(
-        "atomic_resume",
-        "test",
-        (
-            BenchTask("release", "compute", 1),
-            BenchTask("wide", "comm", 3),
-            BenchTask("urgent", "comm", 1, ("release",)),
-        ),
-    )
+    dag = DAG('atomic_resume', (Task('release', 'compute', 1), Task('wide', 'comm', 3), Task('urgent', 'comm', 1, ('release',))), context=(('category', 'test'),))
     resources = {
         "wide": frozenset({"r0", "r1"}),
         "urgent": frozenset({"r0"}),
     }
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     trace = model.run(
         (MultiAction(("wide",)), MultiAction(("urgent",)), MultiAction(("wide",)))
     )
@@ -163,22 +133,13 @@ def test_atomic_multi_resource_pause_release_and_resume() -> None:
 
 
 def test_same_time_completion_batch_produces_one_followup_decision() -> None:
-    dag = BenchmarkDAG(
-        "same_time",
-        "test",
-        (
-            BenchTask("release", "compute", 2),
-            BenchTask("a", "comm", 2),
-            BenchTask("b", "comm", 2),
-            BenchTask("c", "comm", 1, ("release", "a", "b")),
-        ),
-    )
+    dag = DAG('same_time', (Task('release', 'compute', 2), Task('a', 'comm', 2), Task('b', 'comm', 2), Task('c', 'comm', 1, ('release', 'a', 'b'))), context=(('category', 'test'),))
     resources = {
         "a": frozenset({"r0"}),
         "b": frozenset({"r1"}),
         "c": frozenset({"r0", "r1"}),
     }
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     trace = model.run((MultiAction(("a", "b")), MultiAction(("c",))))
     assert tuple(item.start for item in trace.decisions) == (0, 2)
     assert sum(item.time == 2 and item.kind.endswith("completed") for item in trace.events) == 3
@@ -188,7 +149,7 @@ def test_exact_contract_bound_and_uncompressed_audit_agree() -> None:
     dag, resources = _multi_instance()
     normalized = exact_oracle(dag, resources)
     audit = exact_oracle_uncompressed(dag, resources)
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     assert normalized.status == audit.status == "optimal"
     assert normalized.makespan == audit.makespan
     assert normalized.lower_bound == remaining_lower_bound(model, model.initial_state())
@@ -200,7 +161,7 @@ def test_exact_contract_bound_and_uncompressed_audit_agree() -> None:
 
 def test_uncompressed_key_reads_real_allocation_fields_and_stable_model_rejects_them() -> None:
     dag, resources = _multi_instance()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     occupied = replace(
         state,
@@ -214,7 +175,7 @@ def test_uncompressed_key_reads_real_allocation_fields_and_stable_model_rejects_
 
 def test_task_scoring_and_set_construction_are_independent_axes() -> None:
     dag, resources = _multi_instance()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     legal = model.maximal_actions(state)
 

@@ -6,8 +6,8 @@ import pytest
 
 from benchmark import benchmark_from_dict
 from benchmark_generate.cases import stage2_structural_adversarial_cases
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.dag import DAG, Task
+from core.execution.preemptive import Action, PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from registry import algorithms_for
 from single_channel.complex_chain.preemptive.interface import validate_complex_chain
@@ -30,21 +30,8 @@ def _first_communication(result) -> str:
     return next(span.task_id for span in result.trace.intervals if span.kind == "comm")
 
 
-def _parallel_counterexample() -> BenchmarkDAG:
-    return BenchmarkDAG(
-        "tail_counterexample",
-        "test",
-        (
-            BenchTask("a1", "comm", 2),
-            BenchTask("a_gap", "compute", 3, ("a1",)),
-            BenchTask("a2", "comm", 1, ("a_gap",)),
-            BenchTask("a_tail", "compute", 1, ("a2",)),
-            BenchTask("b1", "comm", 1),
-            BenchTask("b_gap", "compute", 2, ("b1",)),
-            BenchTask("b2", "comm", 2, ("b_gap",)),
-            BenchTask("b_tail", "compute", 1, ("b2",)),
-        ),
-    )
+def _parallel_counterexample() -> DAG:
+    return DAG('tail_counterexample', (Task('a1', 'comm', 2), Task('a_gap', 'compute', 3, ('a1',)), Task('a2', 'comm', 1, ('a_gap',)), Task('a_tail', 'compute', 1, ('a2',)), Task('b1', 'comm', 1), Task('b_gap', 'compute', 2, ('b1',)), Task('b2', 'comm', 2, ('b_gap',)), Task('b_tail', 'compute', 1, ('b2',))), context=(('category', 'test'),))
 
 
 def test_stage2_searches_are_feasible_and_keep_baseline_incumbent() -> None:
@@ -61,34 +48,17 @@ def test_stage2_searches_are_feasible_and_keep_baseline_incumbent() -> None:
 
 
 def test_raw_general_dag_contract_accepts_same_kind_edges_and_components() -> None:
-    raw = BenchmarkDAG(
-        "raw",
-        "test",
-        (
-            BenchTask("c0", "compute", 1),
-            BenchTask("c1", "compute", 1, ("c0",)),
-            BenchTask("x", "comm", 1),
-        ),
-    )
+    raw = DAG('raw', (Task('c0', 'compute', 1), Task('c1', 'compute', 1, ('c0',)), Task('x', 'comm', 1)), context=(('category', 'test'),))
     validate_complex_chain(raw)
     assert exact_oracle(raw).status == "optimal"
 
     with pytest.raises(ValueError, match="communication work must be positive"):
-        validate_complex_chain(BenchmarkDAG("zero", "test", (BenchTask("z", "comm", 0),)))
+        validate_complex_chain(DAG('zero', (Task('z', 'comm', 0),), context=(('category', 'test'),)))
 
 
 def test_fork_zero_compute_closure_and_preemption_are_atomic() -> None:
-    dag = BenchmarkDAG(
-        "fork_atomic",
-        "test",
-        (
-            BenchTask("root", "comm", 1),
-            BenchTask("slow", "compute", 3, ("root",)),
-            BenchTask("zero", "compute", 0, ("root",)),
-            BenchTask("released", "comm", 1, ("zero",)),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('fork_atomic', (Task('root', 'comm', 1), Task('slow', 'compute', 3, ('root',)), Task('zero', 'compute', 0, ('root',)), Task('released', 'comm', 1, ('zero',))), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     transition = model.step(model.initial_state(), Action.run("root"))
     assert model.active_computes(transition.after) == ("slow",)
     assert model.eligible_communications(transition.after) == ("released",)
@@ -99,16 +69,8 @@ def test_fork_zero_compute_closure_and_preemption_are_atomic() -> None:
         ("compute_started", "zero"),
     ]
 
-    preempt = BenchmarkDAG(
-        "pause_at_compute",
-        "test",
-        (
-            BenchTask("release", "compute", 2),
-            BenchTask("long", "comm", 4),
-            BenchTask("new", "comm", 1, ("release",)),
-        ),
-    )
-    model = PreemptiveDAGModel(preempt)
+    preempt = DAG('pause_at_compute', (Task('release', 'compute', 2), Task('long', 'comm', 4), Task('new', 'comm', 1, ('release',))), context=(('category', 'test'),))
+    model = PreeSingleModel(preempt)
     transition = model.step(model.initial_state(), Action.run("long"))
     assert transition.after.time == 2
     assert model.task_runtime(transition.after, "long").remaining == 2
@@ -116,16 +78,8 @@ def test_fork_zero_compute_closure_and_preemption_are_atomic() -> None:
 
 
 def test_join_requires_all_simultaneous_predecessors() -> None:
-    dag = BenchmarkDAG(
-        "simultaneous_join",
-        "test",
-        (
-            BenchTask("left", "compute", 2),
-            BenchTask("right", "compute", 2),
-            BenchTask("barrier", "comm", 1, ("left", "right")),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('simultaneous_join', (Task('left', 'compute', 2), Task('right', 'compute', 2), Task('barrier', 'comm', 1, ('left', 'right'))), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     transition = model.step(model.initial_state(), Action.wait())
     completed = [
         event.task_id for event in transition.events if event.kind == "compute_completed"
@@ -135,56 +89,21 @@ def test_join_requires_all_simultaneous_predecessors() -> None:
 
 
 def test_priority_definitions_choose_distinct_first_actions() -> None:
-    dag = BenchmarkDAG(
-        "three_scores",
-        "test",
-        (
-            BenchTask("release", "comm", 1),
-            BenchTask("release_left", "compute", 3, ("release",)),
-            BenchTask("release_right", "compute", 3, ("release",)),
-            BenchTask("tail", "comm", 1),
-            BenchTask("tail_compute", "compute", 1, ("tail",)),
-            BenchTask("tail_second", "comm", 8, ("tail_compute",)),
-            BenchTask("tail_sink", "compute", 1, ("tail_second",)),
-            BenchTask("inclusive", "comm", 12),
-            BenchTask("inclusive_compute", "compute", 2, ("inclusive",)),
-        ),
-    )
+    dag = DAG('three_scores', (Task('release', 'comm', 1), Task('release_left', 'compute', 3, ('release',)), Task('release_right', 'compute', 3, ('release',)), Task('tail', 'comm', 1), Task('tail_compute', 'compute', 1, ('tail',)), Task('tail_second', 'comm', 8, ('tail_compute',)), Task('tail_sink', 'compute', 1, ('tail_second',)), Task('inclusive', 'comm', 12), Task('inclusive_compute', 'compute', 2, ('inclusive',))), context=(('category', 'test'),))
     assert _first_communication(schedule_priority(dag, "longest_delay")) == "release"
     assert _first_communication(schedule_priority(dag, "longest_tail")) == "tail"
     assert _first_communication(schedule_priority(dag, "lrpt")) == "inclusive"
 
 
 def test_longest_delay_is_not_total_release_gain() -> None:
-    dag = BenchmarkDAG(
-        "delay_vs_release_gain",
-        "test",
-        (
-            BenchTask("breadth", "comm", 1),
-            BenchTask("breadth_a", "compute", 3, ("breadth",)),
-            BenchTask("breadth_b", "compute", 3, ("breadth",)),
-            BenchTask("delay", "comm", 1),
-            BenchTask("delay_compute", "compute", 5, ("delay",)),
-        ),
-    )
+    dag = DAG('delay_vs_release_gain', (Task('breadth', 'comm', 1), Task('breadth_a', 'compute', 3, ('breadth',)), Task('breadth_b', 'compute', 3, ('breadth',)), Task('delay', 'comm', 1), Task('delay_compute', 'compute', 5, ('delay',))), context=(('category', 'test'),))
     assert _first_communication(schedule_priority(dag, "longest_delay")) == "delay"
     assert _first_communication(schedule_priority(dag, "release_gain")) == "breadth"
 
 
 def test_structural_features_deduplicate_shared_nodes_and_score_barriers() -> None:
-    dag = BenchmarkDAG(
-        "shared_feature",
-        "test",
-        (
-            BenchTask("candidate", "comm", 1),
-            BenchTask("left", "compute", 1, ("candidate",)),
-            BenchTask("right", "compute", 1, ("candidate",)),
-            BenchTask("shared_comm", "comm", 4, ("left", "right")),
-            BenchTask("shared_sink", "compute", 2, ("shared_comm",)),
-            BenchTask("other", "comm", 1),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('shared_feature', (Task('candidate', 'comm', 1), Task('left', 'compute', 1, ('candidate',)), Task('right', 'compute', 1, ('candidate',)), Task('shared_comm', 'comm', 4, ('left', 'right')), Task('shared_sink', 'compute', 2, ('shared_comm',)), Task('other', 'comm', 1)), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     assert downstream_communication_demand(model, state, "candidate") == 4
     assert unique_downstream_work(model, state, "candidate") == 8
@@ -192,48 +111,30 @@ def test_structural_features_deduplicate_shared_nodes_and_score_barriers() -> No
 
 
 def test_fifo_retains_first_eligible_time_across_pause() -> None:
-    dag = BenchmarkDAG(
-        "fifo_arrival",
-        "test",
-        (
-            BenchTask("release", "compute", 1),
-            BenchTask("z_old", "comm", 3),
-            BenchTask("a_new", "comm", 1, ("release",)),
-        ),
-    )
+    dag = DAG('fifo_arrival', (Task('release', 'compute', 1), Task('z_old', 'comm', 3), Task('a_new', 'comm', 1, ('release',))), context=(('category', 'test'),))
     result = schedule_priority(dag, "fifo")
     comms = [span.task_id for span in result.trace.intervals if span.kind == "comm"]
     assert comms[:2] == ["z_old", "z_old"]
 
 
 def test_direct_join_feature_is_independently_observable() -> None:
-    dag = BenchmarkDAG(
-        "join_feature",
-        "test",
-        (
-            BenchTask("done", "compute", 0),
-            BenchTask("join_candidate", "comm", 1),
-            BenchTask("barrier_tail", "compute", 6, ("done", "join_candidate")),
-            BenchTask("path_candidate", "comm", 1),
-            BenchTask("path_tail", "compute", 8, ("path_candidate",)),
-        ),
-    )
+    dag = DAG('join_feature', (Task('done', 'compute', 0), Task('join_candidate', 'comm', 1), Task('barrier_tail', 'compute', 6, ('done', 'join_candidate')), Task('path_candidate', 'comm', 1), Task('path_tail', 'compute', 8, ('path_candidate',))), context=(('category', 'test'),))
     assert _first_communication(schedule_priority(dag, "longest_tail")) == "path_candidate"
     assert _first_communication(schedule_priority(dag, "join_aware")) == "join_candidate"
 
 
-def _random_tiny_general_dag(rng: random.Random, index: int) -> BenchmarkDAG:
-    tasks: list[BenchTask] = []
+def _random_tiny_general_dag(rng: random.Random, index: int) -> DAG:
+    tasks: list[Task] = []
     for node in range(rng.randint(2, 6)):
         kind = "comm" if rng.random() < 0.55 else "compute"
         duration = rng.randint(1, 3) if kind == "comm" else rng.randint(0, 3)
         parents = tuple(
             tasks[parent].task_id for parent in range(node) if rng.random() < 0.3
         )
-        tasks.append(BenchTask(f"t{node}", kind, duration, parents))
+        tasks.append(Task(f"t{node}", kind, duration, parents))
     if not any(task.kind == "comm" for task in tasks):
-        tasks[0] = BenchTask(tasks[0].task_id, "comm", max(1, tasks[0].duration))
-    return BenchmarkDAG(f"stage2_tiny_{index}", "test", tuple(tasks))
+        tasks[0] = Task(tasks[0].task_id, "comm", max(1, tasks[0].duration))
+    return DAG(f'stage2_tiny_{index}', tuple(tasks), context=(('category', 'test'),))
 
 
 def test_normalized_audit_and_tick_oracles_match_on_fixed_suite() -> None:
@@ -290,11 +191,7 @@ def test_depth_two_closes_fixed_stage2_rollout_counterexample() -> None:
 
 
 def test_rollout_normalized_memo_preserves_result_and_hits_transposition() -> None:
-    dag = BenchmarkDAG(
-        "rollout_transposition",
-        "test",
-        tuple(BenchTask(f"c{index}", "comm", index + 1) for index in range(4)),
-    )
+    dag = DAG('rollout_transposition', tuple((Task(f'c{index}', 'comm', index + 1) for index in range(4))), context=(('category', 'test'),))
     memoized = schedule_rollout(dag, top_k=4, depth=3)
     tree = schedule_rollout(dag, top_k=4, depth=3, use_memo=False)
     assert memoized.makespan == tree.makespan == 10
@@ -347,18 +244,7 @@ def test_stage2_registry_excludes_historical_monte_carlo() -> None:
 
 
 def test_stage2_traces_replay_for_priorities_rollout_beam_and_exact() -> None:
-    dag = BenchmarkDAG(
-        "diamond",
-        "test",
-        (
-            BenchTask("fork", "comm", 1),
-            BenchTask("left", "compute", 2, ("fork",)),
-            BenchTask("right", "compute", 3, ("fork",)),
-            BenchTask("left_comm", "comm", 2, ("left",)),
-            BenchTask("right_comm", "comm", 1, ("right",)),
-            BenchTask("join", "compute", 2, ("left_comm", "right_comm")),
-        ),
-    )
+    dag = DAG('diamond', (Task('fork', 'comm', 1), Task('left', 'compute', 2, ('fork',)), Task('right', 'compute', 3, ('fork',)), Task('left_comm', 'comm', 2, ('left',)), Task('right_comm', 'comm', 1, ('right',)), Task('join', 'compute', 2, ('left_comm', 'right_comm'))), context=(('category', 'test'),))
     results = [
         schedule_priority(dag, "longest_tail"),
         schedule_priority(dag, "join_aware"),
@@ -372,27 +258,10 @@ def test_stage2_traces_replay_for_priorities_rollout_beam_and_exact() -> None:
 
 
 def test_remaining_lower_bound_is_defined_on_reachable_preempted_state() -> None:
-    dag = BenchmarkDAG(
-        "bound_state",
-        "test",
-        (
-            BenchTask("release", "compute", 2),
-            BenchTask("long", "comm", 4),
-            BenchTask("short", "comm", 1, ("release",)),
-            BenchTask("tail", "compute", 3, ("short",)),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('bound_state', (Task('release', 'compute', 2), Task('long', 'comm', 4), Task('short', 'comm', 1, ('release',)), Task('tail', 'compute', 3, ('short',))), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     state = model.step(model.initial_state(), Action.run("long")).after
     optimum_remainder = exact_oracle(
-        BenchmarkDAG(
-            "equivalent_root_check",
-            "test",
-            (
-                BenchTask("long", "comm", 2),
-                BenchTask("short", "comm", 1),
-                BenchTask("tail", "compute", 3, ("short",)),
-            ),
-        )
+        DAG('equivalent_root_check', (Task('long', 'comm', 2), Task('short', 'comm', 1), Task('tail', 'compute', 3, ('short',))), context=(('category', 'test'),))
     ).makespan
     assert remaining_lower_bound(model, state) <= optimum_remainder

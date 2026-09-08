@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from core.resource import MultiResourceInstance
+from core.dag import DAG
 
 
 class Result(Protocol):
@@ -12,4 +12,4 @@ class Result(Protocol):
 
 
 class Algorithm(Protocol):
-    def __call__(self, instance: MultiResourceInstance) -> Result: ...
+    def __call__(self, instance: DAG) -> Result: ...

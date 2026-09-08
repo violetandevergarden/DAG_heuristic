@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 
-from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, ResourceState
+from muti_channel.nonpreemptive.solver import NonPreeMultiModel, ResourceState
 
 from .contracts import ConflictGraphSnapshot, DecisionBudget
 
 
-def build_conflict_graph(model: NonPreemptiveMultiResourceDAG, state: ResourceState,
+def build_conflict_graph(model: NonPreeMultiModel, state: ResourceState,
                          budget: DecisionBudget | None = None) -> ConflictGraphSnapshot:
     occupied = model.occupied_resources(state)
     ready = model.ready_flows(state)
@@ -57,4 +57,3 @@ def build_conflict_graph(model: NonPreemptiveMultiResourceDAG, state: ResourceSt
         len(edges) / possible if possible else 0.0,
         max(degree.values(), default=0), components, truncated,
     )
-

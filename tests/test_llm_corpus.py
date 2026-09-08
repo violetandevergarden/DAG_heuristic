@@ -43,12 +43,12 @@ def _parallel_multi_resource() -> Benchmark:
 
 
 def test_fast_probe_truncates_maximal_set_enumeration(monkeypatch: pytest.MonkeyPatch) -> None:
-    from core.execution.multi_resource import PreemptiveMultiResourceModel
+    from core.execution.preemptive import PreeMultiModel
 
     def forbidden(*_args, **_kwargs):
         raise AssertionError("fast probe enumerated maximal sets")
 
-    monkeypatch.setattr(PreemptiveMultiResourceModel, "legal_actions", forbidden)
+    monkeypatch.setattr(PreeMultiModel, "legal_actions", forbidden)
     monkeypatch.setattr(
         "benchmark_generate.llm.preemptive.corpus._certified_reachable_choice",
         lambda *_args, **_kwargs: {

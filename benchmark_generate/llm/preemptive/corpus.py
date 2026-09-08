@@ -364,9 +364,9 @@ def _fast_contention_audit(
 ) -> dict[str, Any]:
     """Sample a bounded public-simulator prefix without claiming full replay."""
 
-    from core.conversion import to_internal_dag, to_multi_resource_instance
-    from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
-    from core.execution.preemptive import Action, PreemptiveDAGModel
+    from core.conversion import to_dag, to_muti_resourse
+    from core.execution.preemptive import MultiResourceAction, PreeMultiModel
+    from core.execution.preemptive import Action, PreeSingleModel
 
     decisions = 0
     contended = 0
@@ -375,7 +375,7 @@ def _fast_contention_audit(
     enumeration_truncated = False
     started = time.perf_counter()
     if benchmark.scenario == "single_channel":
-        model = PreemptiveDAGModel(to_internal_dag(benchmark))
+        model = PreeSingleModel(to_dag(benchmark))
         state = model.initial_state()
         while not model.is_finished(state) and decisions < horizon:
             if time_limit_s is not None and time.perf_counter() - started >= time_limit_s:
@@ -393,9 +393,9 @@ def _fast_contention_audit(
             state = model.step(state, Action.run(min(eligible))).after
         rule = "first_eligible"
     else:
-        instance = to_multi_resource_instance(benchmark)
+        instance = to_muti_resourse(benchmark)
         resources = {task_id: frozenset(values) for task_id, values in instance.resources.items()}
-        model = PreemptiveMultiResourceModel(instance.dag, resources)
+        model = PreeMultiModel(instance.dag, resources)
         state = model.initial_state()
         while not model.finished(state) and decisions < horizon:
             if time_limit_s is not None and time.perf_counter() - started >= time_limit_s:
@@ -479,12 +479,12 @@ def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[s
 
     from collections import deque
 
-    from core.conversion import to_internal_dag, to_multi_resource_instance
-    from core.execution.multi_resource import PreemptiveMultiResourceModel
-    from core.execution.preemptive import PreemptiveDAGModel
+    from core.conversion import to_dag, to_muti_resourse
+    from core.execution.preemptive import PreeMultiModel
+    from core.execution.preemptive import PreeSingleModel
 
     if benchmark.scenario == "single_channel":
-        model = PreemptiveDAGModel(to_internal_dag(benchmark))
+        model = PreeSingleModel(to_dag(benchmark))
         initial = model.initial_state()
         def key(state): return state
         def legal(state): return model.legal_actions(state)
@@ -495,9 +495,9 @@ def _certified_reachable_choice(benchmark, *, max_states: int = 2_000) -> dict[s
         # becomes eligible; the BFS below never treats it as a choice.
         def eligible(state): return model.eligible_communications(state)
     else:
-        instance = to_multi_resource_instance(benchmark)
+        instance = to_muti_resourse(benchmark)
         resources = {task_id: frozenset(values) for task_id, values in instance.resources.items()}
-        model = PreemptiveMultiResourceModel(instance.dag, resources)
+        model = PreeMultiModel(instance.dag, resources)
         initial = model.initial_state()
         def key(state): return state
         def legal(state): return model.legal_actions(state)

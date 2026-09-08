@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from core.conversion import to_internal_dag, to_multi_resource_instance
-from core.execution.nonpreemptive import Action, NonPreemptiveDAGModel
+from core.conversion import to_dag, to_muti_resourse
+from core.execution.nonpreemptive import Action, NonPreeSingleModel
 from core.trace.nonpreemptive import assert_nonpreemptive_trace
 from muti_channel.nonpreemptive.replay import replay_actions
-from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, ResourceAction
+from muti_channel.nonpreemptive.solver import NonPreeMultiModel, ResourceAction
 
 from .contracts import ActionSignature, DecisionContext, Mode, ReplaySummary
 from .features import single_residual_tail
@@ -16,7 +16,7 @@ class SingleAdapter:
     resource_model = "single_channel"
 
     def __init__(self, benchmark):
-        self.model = NonPreemptiveDAGModel(to_internal_dag(benchmark))
+        self.model = NonPreeSingleModel(to_dag(benchmark))
         children = [[] for _ in self.model.tasks]
         for child, parents in enumerate(self.model.deps):
             for parent in parents:
@@ -108,10 +108,10 @@ class SingleAdapter:
             ("channel:0",),
         )
 
-    def replay(self, actions):
+    def replay(self, actions, mode: Mode = "optional_idle"):
         trace = self.model.run(actions)
         assert self.model.is_finished(trace.final_state)
-        assert_nonpreemptive_trace(trace)
+        assert_nonpreemptive_trace(self.model.dag, trace, mode=mode)
         vw = vwt = fw = fwt = 0
         for transition in trace.transitions:
             if transition.action.kind != "wait":
@@ -130,7 +130,7 @@ class MultiAdapter:
     resource_model = "fixed_multi_resource"
 
     def __init__(self, benchmark):
-        self.model = NonPreemptiveMultiResourceDAG(to_multi_resource_instance(benchmark))
+        self.model = NonPreeMultiModel(to_muti_resourse(benchmark))
 
     def initial_state(self):
         return self.model.initial_state()

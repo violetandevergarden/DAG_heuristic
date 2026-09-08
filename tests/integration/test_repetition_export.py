@@ -1,4 +1,4 @@
-﻿"""Optional SimAI-backed repetition and Zero Bubble integration checks."""
+"""Optional SimAI-backed repetition and Zero Bubble integration checks."""
 
 from benchmark_generate.simai.preemptive_export import (
     build_synthetic_input,
@@ -33,4 +33,3 @@ def test_zero_bubble_separates_data_fork_from_compute_order() -> None:
 
     assert _raw_b_to_w_edges(built) == 0
     assert scan_repetition(benchmark).direct_b_to_w_edges > 0
-

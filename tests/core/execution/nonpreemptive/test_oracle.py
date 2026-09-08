@@ -3,8 +3,8 @@
 import random
 
 from core.dag import (
-    BenchmarkDAG,
-    BenchTask,
+    DAG,
+    Task,
 )
 from benchmark_generate.cases import complex_adversarial_cases, llm_motif_cases
 from core.trace.nonpreemptive import assert_nonpreemptive_trace
@@ -16,17 +16,8 @@ from core.oracle import (
 from benchmark_generate.cases import random_join_dag
 
 
-def _waiting_counterexample(magnitude: int = 10) -> BenchmarkDAG:
-    return BenchmarkDAG(
-        "waiting_is_necessary",
-        "r1_oracle",
-        (
-            BenchTask("release_b", "compute", 1),
-            BenchTask("A", "comm", magnitude),
-            BenchTask("B", "comm", 1, ("release_b",)),
-            BenchTask("tail_b", "compute", magnitude, ("B",)),
-        ),
-    )
+def _waiting_counterexample(magnitude: int = 10) -> DAG:
+    return DAG('waiting_is_necessary', (Task('release_b', 'compute', 1), Task('A', 'comm', magnitude), Task('B', 'comm', 1, ('release_b',)), Task('tail_b', 'compute', magnitude, ('B',))), context=(('category', 'r1_oracle'),))
 
 
 def test_optional_idle_and_work_conserving_values_are_separated() -> None:
@@ -40,8 +31,8 @@ def test_optional_idle_and_work_conserving_values_are_separated() -> None:
     assert comparison.optional_idle.voluntary_wait_time == 1
     assert comparison.work_conserving.voluntary_waits == 0
     assert comparison.optional_idle.actions[0].kind == "wait"
-    assert_nonpreemptive_trace(comparison.optional_idle.trace)
-    assert_nonpreemptive_trace(comparison.work_conserving.trace)
+    assert_nonpreemptive_trace(dag, comparison.optional_idle.trace, mode="optional_idle")
+    assert_nonpreemptive_trace(dag, comparison.work_conserving.trace, mode="work_conserving")
 
 
 def test_memoized_dp_and_branch_and_bound_agree_on_catalog() -> None:
@@ -55,8 +46,8 @@ def test_memoized_dp_and_branch_and_bound_agree_on_catalog() -> None:
             assert dynamic_programming.lower_bounds["combined"] <= (
                 dynamic_programming.makespan
             )
-            assert_nonpreemptive_trace(dynamic_programming.trace)
-            assert_nonpreemptive_trace(branch_and_bound.trace)
+            assert_nonpreemptive_trace(dag, dynamic_programming.trace, mode=mode)
+            assert_nonpreemptive_trace(dag, branch_and_bound.trace, mode=mode)
 
 
 def test_group_meeting_counterexample_remains_eight_nonpreemptively() -> None:
@@ -80,15 +71,7 @@ def test_fixed_seed_random_fork_join_cross_validation() -> None:
 
 
 def test_oracle_key_must_distinguish_active_compute_remaining_time() -> None:
-    dag = BenchmarkDAG(
-        "remaining_time_matters",
-        "r1_oracle",
-        (
-            BenchTask("trigger", "comm", 1),
-            BenchTask("tail", "compute", 5, ("trigger",)),
-            BenchTask("side", "comm", 3),
-        ),
-    )
+    dag = DAG('remaining_time_matters', (Task('trigger', 'comm', 1), Task('tail', 'compute', 5, ('trigger',)), Task('side', 'comm', 3)), context=(('category', 'r1_oracle'),))
 
     result = exact_oracle(dag)
     assert result.makespan == 6

@@ -1,7 +1,7 @@
 """Stage 3 policies and search for fixed-resource preemptive scheduling.
 
 All time advancement and action legality live in
-``core.execution.multi_resource``.  This module only scores communications or
+``core.execution.preemptive``.  This module only scores communications or
 compatible sets and searches over the simulator's legal actions.
 """
 
@@ -13,13 +13,13 @@ from statistics import mean
 from time import perf_counter
 from typing import Literal
 
-from core.dag import BenchmarkDAG, topological_order
-from core.execution.multi_resource import (
+from core.dag import DAG
+from core.execution.preemptive import (
     MultiResourceAction,
     MultiResourceState,
     MultiResourceTrace,
     MultiRuntimeTask,
-    PreemptiveMultiResourceModel,
+    PreeMultiModel,
 )
 from llm_structured.barrier import (
     action_features,
@@ -123,7 +123,7 @@ def uncompressed_state_key(state: MultiState) -> tuple:
 
 
 def remaining_lower_bound(
-    model: PreemptiveMultiResourceModel, state: MultiState
+    model: PreeMultiModel, state: MultiState
 ) -> int:
     """Safe ``max(precedence path, per-resource residual load)`` bound."""
 
@@ -136,7 +136,7 @@ def remaining_lower_bound(
 
 
 def schedule_pack(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     mode: str = "longest_tail",
     *,
@@ -145,7 +145,7 @@ def schedule_pack(
     """Greedy-fill a maximal set using one communication priority."""
 
     started = perf_counter()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
     while not model.finished(state):
@@ -170,14 +170,14 @@ def schedule_pack(
 
 
 def schedule_set_policy(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     mode: str = "union_downstream",
 ) -> MultiResult:
     """Rank whole maximal sets, de-duplicating shared downstream nodes."""
 
     started = perf_counter()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
     generated = 0
@@ -207,7 +207,7 @@ def schedule_set_policy(
 
 
 def schedule_bounded_packing(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     constructor: str = "multi_seed",
@@ -246,7 +246,7 @@ def schedule_bounded_packing(
     }
     if constructor not in builders:
         raise ValueError(f"unknown packing constructor: {constructor}")
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
     evaluated = generated = fallbacks = calls = improvements = triggered = max_calls = 0
@@ -304,7 +304,7 @@ def schedule_bounded_packing(
 
 
 def offline_best_of_lt_and_barrier(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
 ) -> OfflineBarrierUpperBound:
     """Return an explicitly offline best-of comparison of two complete runs."""
@@ -323,7 +323,7 @@ def offline_best_of_lt_and_barrier(
 
 
 def schedule_selective_barrier_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     max_triggers: int = 8,
@@ -336,7 +336,7 @@ def schedule_selective_barrier_rollout(
     if time_limit_s is not None and time_limit_s < 0:
         raise ValueError("time_limit_s must be non-negative or None")
     started = perf_counter()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
     decisions = triggered = improvements = completion_calls = fallback_count = 0
@@ -403,7 +403,7 @@ def schedule_selective_barrier_rollout(
 
 
 def rollout_sets(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     top_k: int = 2,
@@ -422,7 +422,7 @@ def rollout_sets(
     if top_k < 1 or depth < 1 or node_budget < 1 or set_budget < 1:
         raise ValueError("rollout budgets, top_k and depth must be positive")
     started = perf_counter()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     state = model.initial_state()
     actions: list[MultiAction] = []
     memo: dict[tuple[int, tuple[tuple[str, int], ...]], int] = {}
@@ -524,7 +524,7 @@ def rollout_sets(
 
 
 def exact_oracle(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     max_states: int = 300_000,
@@ -534,7 +534,7 @@ def exact_oracle(
 
 
 def exact_oracle_uncompressed(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     *,
     max_states: int = 100_000,
@@ -544,7 +544,7 @@ def exact_oracle_uncompressed(
 
 
 def exact_completion_from_state_uncompressed(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiState,
     *,
     max_states: int = 100_000,
@@ -624,7 +624,7 @@ def exact_completion_from_state_uncompressed(
 
 
 def _exact(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     max_states: int,
     time_limit_s: float | None,
@@ -634,7 +634,7 @@ def _exact(
     if max_states < 1:
         raise ValueError("max_states must be positive")
     started = perf_counter()
-    model = PreemptiveMultiResourceModel(dag, resources)
+    model = PreeMultiModel(dag, resources)
     raw_initial = model.initial_state()
     initial, _idle = model.normalize_decision_state(raw_initial)
     baseline_state, baseline_actions = _complete_pack(model, initial)
@@ -724,7 +724,7 @@ def _exact(
 
 
 def resource_downstream_demand(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiState,
     task_id: str,
 ) -> dict[str, int]:
@@ -775,7 +775,7 @@ def multi_resource_statistics(
 
 
 def _result(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     actions: list[MultiAction] | tuple[MultiAction, ...],
     **values: object,
 ) -> MultiResult:
@@ -801,7 +801,7 @@ def _result(
 
 
 def _complete_pack(
-    model: PreemptiveMultiResourceModel, state: MultiState
+    model: PreeMultiModel, state: MultiState
 ) -> tuple[MultiState, tuple[MultiAction, ...]]:
     actions: list[MultiAction] = []
     while not model.finished(state):
@@ -817,7 +817,7 @@ def _complete_pack(
 
 
 def score_tasks(
-    model: PreemptiveMultiResourceModel, state: MultiState, mode: str
+    model: PreeMultiModel, state: MultiState, mode: str
 ) -> dict[str, tuple]:
     """Score eligible communications without constructing a set."""
 
@@ -864,7 +864,7 @@ def score_tasks(
 
 
 def greedy_fill_from_task_scores(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiState,
     scores: dict[str, tuple],
 ) -> MultiAction:
@@ -881,7 +881,7 @@ def greedy_fill_from_task_scores(
 
 
 def score_sets(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiState,
     actions: tuple[MultiAction, ...] | list[MultiAction],
     mode: str,
@@ -939,7 +939,7 @@ def select_best_scored_set(scores: dict[MultiAction, tuple]) -> MultiAction:
 
 
 def _union_downstream_set_score(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     state: MultiState,
     action: MultiAction,
     tails: dict[str, int],
@@ -967,7 +967,7 @@ def _union_downstream_set_score(
 
 
 def _reachable(
-    model: PreemptiveMultiResourceModel, roots: tuple[str, ...]
+    model: PreeMultiModel, roots: tuple[str, ...]
 ) -> frozenset[str]:
     children = {item: [] for item in model.task_ids}
     for task in model.tasks:
@@ -985,9 +985,9 @@ def _reachable(
 
 
 def _residual_tail(
-    model: PreemptiveMultiResourceModel, state: MultiState
+    model: PreeMultiModel, state: MultiState
 ) -> dict[str, int]:
-    order = topological_order(model.dag)
+    order = model.dag.topological_order()
     tasks = model.task_map
     children = {item: [] for item in order}
     for task in tasks.values():
@@ -1004,7 +1004,7 @@ def _residual_tail(
 
 
 def _resource_load(
-    model: PreemptiveMultiResourceModel, state: MultiState
+    model: PreeMultiModel, state: MultiState
 ) -> dict[str, int]:
     load: dict[str, int] = {}
     for task_id, resources in model.resources.items():
@@ -1018,7 +1018,7 @@ def _resource_load(
 
 
 def _count_set_preemptions(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     actions: tuple[MultiAction, ...],
 ) -> int:
     count = 0

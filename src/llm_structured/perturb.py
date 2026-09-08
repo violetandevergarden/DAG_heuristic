@@ -5,15 +5,15 @@ from __future__ import annotations
 import random
 from dataclasses import replace
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 
 
 def perturb_durations(
-    dag: BenchmarkDAG,
+    dag: DAG,
     magnitude: float,
     seed: int,
-) -> BenchmarkDAG:
-    """Return a copy with each positive duration jittered by ``±magnitude``.
+) -> DAG:
+    """Return a copy with each positive duration jittered by ``卤magnitude``.
 
     Zero-duration structural nodes (release/backbone markers) are kept
     unchanged, and every result is rounded to a positive integer so the

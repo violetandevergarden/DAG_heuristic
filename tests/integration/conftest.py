@@ -1,7 +1,7 @@
 """Gate optional SimAI integration tests with explicit, auditable visibility.
 
 When the optional dependencies (``jsonschema`` plus a SimAI checkout) are
-missing, the integration directory is excluded from collection — but the
+missing, the integration directory is excluded from collection 鈥?but the
 exclusion is now announced through a visible pytest warning and a dedicated
 skip in ``tests/test_integration_coverage.py`` instead of silently showing up
 as an ordinary all-green run.

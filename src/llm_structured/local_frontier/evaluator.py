@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from time import perf_counter
 
-from core.execution.preemptive import Action, PreemptiveDAGModel, ScheduleState
+from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
 from single_channel.complex_chain.preemptive import solver
 
 from .accounting import FrontierBudget
@@ -43,7 +43,7 @@ class PairEvaluation:
 
 
 def _advance(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     *,
     depth: int,
@@ -86,7 +86,7 @@ def _advance(
 
 
 def evaluate_pair(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     region: LocalRegion,
     *,

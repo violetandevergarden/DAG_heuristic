@@ -1,4 +1,4 @@
-"""Trace structures shared by single- and multi-resource execution."""
+"""Trace contracts shared by single- and multi-resource execution."""
 
 from __future__ import annotations
 

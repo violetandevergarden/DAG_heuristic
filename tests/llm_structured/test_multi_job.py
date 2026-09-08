@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core.dag import BenchmarkDAG, BenchTask
+from core.dag import DAG, Task
 from llm_structured.multi_job import (
     JobSpec,
     build_multi_resource_top1_counterexample,
@@ -17,15 +17,8 @@ from llm_structured.multi_job import (
 from single_channel.complex_chain.preemptive.solver import exact_oracle
 
 
-def _one_flow_job(name: str, duration: int, tail: int) -> BenchmarkDAG:
-    return BenchmarkDAG(
-        name,
-        "test",
-        (
-            BenchTask("flow", "comm", duration, role="PP"),
-            BenchTask("tail", "compute", tail, ("flow",), role="OPT"),
-        ),
-    )
+def _one_flow_job(name: str, duration: int, tail: int) -> DAG:
+    return DAG(name, (Task('flow', 'comm', duration, labels=(('task_role', 'PP'),)), Task('tail', 'compute', tail, ('flow',), labels=(('task_role', 'OPT'),))), context=(('category', 'test'),))
 
 
 def test_composition_encodes_arrival_without_cross_job_dependencies() -> None:
@@ -101,8 +94,8 @@ def test_multi_resource_candidate_width_cannot_leave_compatible_flow_idle() -> N
 
 
 def test_weighted_jct_exact_can_choose_a_different_order() -> None:
-    long_job = BenchmarkDAG("long", "test", (BenchTask("flow", "comm", 10),))
-    short_job = BenchmarkDAG("short", "test", (BenchTask("flow", "comm", 1),))
+    long_job = DAG('long', (Task('flow', 'comm', 10),), context=(('category', 'test'),))
+    short_job = DAG('short', (Task('flow', 'comm', 1),), context=(('category', 'test'),))
     instance = compose_jobs((JobSpec("A", long_job), JobSpec("B", short_job)))
 
     makespan = exact_hierarchical(

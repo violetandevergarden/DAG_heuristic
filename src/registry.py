@@ -7,9 +7,8 @@ from dataclasses import dataclass, replace
 
 from benchmark import Benchmark
 from core.conversion import (
-    to_internal_dag,
-    to_multi_resource_instance,
-    to_parallel_chains,
+    to_dag,
+    to_muti_resourse,
 )
 
 
@@ -29,7 +28,7 @@ class Algorithm:
 def _parallel_registry() -> dict[str, Algorithm]:
     from single_channel.parallel_chain.nonpreemptive import solver
 
-    convert = to_parallel_chains
+    convert = lambda benchmark: solver.chains_from_dag(to_dag(benchmark))
     return {
         "longest_tail": Algorithm(
             "longest_tail",
@@ -85,7 +84,7 @@ def _complex_registry() -> dict[str, Algorithm]:
     from core.oracle import exact_oracle
     from single_channel.complex_chain.nonpreemptive import solver
 
-    convert = to_internal_dag
+    convert = to_dag
     return {
         "longest_tail": Algorithm(
             "longest_tail",
@@ -149,7 +148,7 @@ def _complex_registry() -> dict[str, Algorithm]:
 def _muti_registry() -> dict[str, Algorithm]:
     from muti_channel.nonpreemptive import solver
 
-    convert = to_multi_resource_instance
+    convert = to_muti_resourse
     return {
         "longest_tail_pack": Algorithm(
             "longest_tail_pack",
@@ -205,7 +204,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
         from muti_channel.preemptive import solver as multi_solver
 
         def convert_multi(item: Benchmark):
-            instance = to_multi_resource_instance(item)
+            instance = to_muti_resourse(item)
             resources = {
                 task_id: frozenset(str(resource) for resource in values)
                 for task_id, values in instance.resources.items()
@@ -290,7 +289,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
     if benchmark.family == "parallel_chain":
         from single_channel.parallel_chain.preemptive import solver
 
-        convert = to_internal_dag
+        convert = to_dag
         return _active_v2(
             {
                 "fifo": Algorithm(
@@ -393,7 +392,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
     else:
         raise ValueError(f"unsupported preemptive family: {benchmark.family}")
 
-    convert = to_internal_dag
+    convert = to_dag
     return _active_v2(
         {
             "fifo": Algorithm(
@@ -449,7 +448,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "longest_tail",
                 "single_channel",
                 benchmark.family,
-                lambda b: solver.schedule_longest_tail(to_internal_dag(b)),
+                lambda b: solver.schedule_longest_tail(to_dag(b)),
                 "Event-driven residual longest-tail with communication pause/resume.",
             ),
             "integrated_v0": Algorithm(

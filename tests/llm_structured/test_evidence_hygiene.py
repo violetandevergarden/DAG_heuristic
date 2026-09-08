@@ -3,20 +3,13 @@
 from __future__ import annotations
 
 from benchmark import Benchmark, SchedulingSemantics, Task
-from core.dag import BenchmarkDAG, BenchTask
+from core.dag import DAG
 from llm_structured.perturb import perturb_durations
 from llm_structured.signatures import classify_repetition_evidence
 
 
 def test_duration_perturbation_preserves_scale_and_zero_markers() -> None:
-    dag = BenchmarkDAG(
-        "jitter",
-        "synthetic",
-        (
-            BenchTask("compute", "compute", 10),
-            BenchTask("marker", "compute", 0),
-        ),
-    )
+    dag = DAG('jitter', (Task('compute', 'compute', 10), Task('marker', 'compute', 0)), context=(('category', 'synthetic'),))
     perturbed = perturb_durations(dag, 0.0, seed=7)
     assert [task.duration for task in perturbed.tasks] == [10, 0]
 

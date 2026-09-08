@@ -1,5 +1,5 @@
 from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
-from core.execution.multi_resource import PreemptiveMultiResourceModel
+from core.execution.preemptive import PreeMultiModel
 from llm_structured.selective_rollout import RolloutBudget
 from muti_channel.preemptive.selective_rollout import (
     generate_candidates, schedule_selective_rollout,
@@ -14,7 +14,7 @@ def _motif(name="star_wide_vs_pair"):
 
 def test_multi_resource_candidates_are_legal_maximal_sets():
     motif = _motif()
-    model = PreemptiveMultiResourceModel(motif.dag, motif.resources)
+    model = PreeMultiModel(motif.dag, motif.resources)
     state, _ = model.normalize_decision_state(model.initial_state())
     candidates = generate_candidates(model, state, 4)
     assert candidates

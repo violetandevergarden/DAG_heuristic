@@ -2,18 +2,18 @@
 
 from __future__ import annotations
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 from core.execution.preemptive import PreemptiveScheduleResult
 from single_channel.parallel_chain.model import parse_parallel_chain
 from single_channel.parallel_chain.preemptive import solver
 
 
-def validate_parallel_chain(dag: BenchmarkDAG) -> None:
+def validate_parallel_chain(dag: DAG) -> None:
     parse_parallel_chain(dag)
 
 
 def solve(
-    dag: BenchmarkDAG,
+    dag: DAG,
     algorithm: str = "longest_tail",
     **options: object,
 ) -> PreemptiveScheduleResult:

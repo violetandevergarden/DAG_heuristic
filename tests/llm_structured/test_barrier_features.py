@@ -7,9 +7,9 @@ from benchmark_generate.llm.preemptive.barrier_motifs import (
     multi_resource_motifs,
     single_channel_motifs,
 )
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
-from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.dag import DAG, Task
+from core.execution.preemptive import MultiResourceAction, PreeMultiModel
+from core.execution.preemptive import Action, PreeSingleModel
 from llm_structured.barrier import (
     action_features,
     build_context,
@@ -23,23 +23,12 @@ from muti_channel.preemptive.trace import assert_multi_resource_trace
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 
 
-def _join_dag() -> BenchmarkDAG:
-    return BenchmarkDAG(
-        "barrier_feature_test",
-        "test",
-        (
-            BenchTask("release", "compute", 1),
-            BenchTask("candidate", "comm", 2, ("release",)),
-            BenchTask("other", "compute", 0),
-            BenchTask("join", "compute", 3, ("candidate", "other")),
-            BenchTask("sink", "compute", 2, ("join",)),
-            BenchTask("independent", "comm", 1),
-        ),
-    )
+def _join_dag() -> DAG:
+    return DAG('barrier_feature_test', (Task('release', 'compute', 1), Task('candidate', 'comm', 2, ('release',)), Task('other', 'compute', 0), Task('join', 'compute', 3, ('candidate', 'other')), Task('sink', 'compute', 2, ('join',)), Task('independent', 'comm', 1)), context=(('category', 'test'),))
 
 
 def test_barrier_snapshot_uses_residual_state_and_deduplicates_downstream() -> None:
-    model = PreemptiveDAGModel(_join_dag())
+    model = PreeSingleModel(_join_dag())
     state = model.step(model.initial_state(), Action.run("independent")).after
     context = build_context(model, state)
     snapshot = feature_snapshot(context, "candidate")
@@ -57,26 +46,24 @@ def test_barrier_snapshot_uses_residual_state_and_deduplicates_downstream() -> N
 
 def test_barrier_label_does_not_change_structural_feature() -> None:
     dag = _join_dag()
-    labelled = BenchmarkDAG(
+    labelled = DAG(
         dag.name,
-        dag.category,
         tuple(
-            BenchTask(
+            Task(
                 task.task_id,
                 task.kind,
                 task.duration,
                 task.deps,
-                task.role,
-                task.cut,
-                (("collective_type", "allreduce"),),
+                labels=tuple((*task.labels, ("collective_type", "allreduce"))),
             )
             if task.task_id == "candidate"
             else task
             for task in dag.tasks
         ),
+        context=dag.context,
     )
-    first = PreemptiveDAGModel(dag)
-    second = PreemptiveDAGModel(labelled)
+    first = PreeSingleModel(dag)
+    second = PreeSingleModel(labelled)
     first_state = first.step(first.initial_state(), Action.run("independent")).after
     second_state = second.step(second.initial_state(), Action.run("independent")).after
     first_snapshot = feature_snapshot(build_context(first, first_state), "candidate")
@@ -85,18 +72,8 @@ def test_barrier_label_does_not_change_structural_feature() -> None:
 
 
 def test_action_features_count_shared_downstream_once() -> None:
-    dag = BenchmarkDAG(
-        "shared_action_features",
-        "test",
-        (
-            BenchTask("a", "comm", 1),
-            BenchTask("b", "comm", 1),
-            BenchTask("left", "compute", 2, ("a",)),
-            BenchTask("right", "compute", 2, ("b",)),
-            BenchTask("join", "compute", 3, ("left", "right")),
-        ),
-    )
-    model = PreemptiveMultiResourceModel(
+    dag = DAG('shared_action_features', (Task('a', 'comm', 1), Task('b', 'comm', 1), Task('left', 'compute', 2, ('a',)), Task('right', 'compute', 2, ('b',)), Task('join', 'compute', 3, ('left', 'right'))), context=(('category', 'test'),))
+    model = PreeMultiModel(
         dag, {"a": frozenset({"r1"}), "b": frozenset({"r2"})}
     )
     state = model.initial_state()
@@ -111,16 +88,8 @@ def test_action_features_count_shared_downstream_once() -> None:
 
 
 def test_newly_ready_does_not_count_reachable_compute_before_its_other_predecessor() -> None:
-    dag = BenchmarkDAG(
-        "reachable_is_not_release",
-        "test",
-        (
-            BenchTask("candidate", "comm", 1),
-            BenchTask("blocked", "comm", 1),
-            BenchTask("join", "compute", 9, ("candidate", "blocked")),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('reachable_is_not_release', (Task('candidate', 'comm', 1), Task('blocked', 'comm', 1), Task('join', 'compute', 9, ('candidate', 'blocked'))), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     snapshot = feature_snapshot(build_context(model, model.initial_state()), "candidate")
     assert snapshot.newly_ready_compute_work == 0
     assert snapshot.newly_ready_compute_ids == ()
@@ -128,23 +97,15 @@ def test_newly_ready_does_not_count_reachable_compute_before_its_other_predecess
 
 
 def test_zero_duration_compute_closure_is_processed_once_before_new_release() -> None:
-    dag = BenchmarkDAG(
-        "zero_closure_release",
-        "test",
-        (
-            BenchTask("candidate", "comm", 1),
-            BenchTask("zero", "compute", 0, ("candidate",)),
-            BenchTask("released", "compute", 5, ("zero",)),
-        ),
-    )
-    model = PreemptiveDAGModel(dag)
+    dag = DAG('zero_closure_release', (Task('candidate', 'comm', 1), Task('zero', 'compute', 0, ('candidate',)), Task('released', 'compute', 5, ('zero',))), context=(('category', 'test'),))
+    model = PreeSingleModel(dag)
     snapshot = feature_snapshot(build_context(model, model.initial_state()), "candidate")
     assert snapshot.newly_ready_compute_ids == ("released",)
     assert snapshot.newly_ready_compute_work == 5
 
 
 def test_direct_only_prescreen_keeps_lt_and_all_candidates() -> None:
-    model = PreemptiveDAGModel(_join_dag())
+    model = PreeSingleModel(_join_dag())
     state = model.initial_state()
     context = build_context(model, state)
     eligible = model.eligible_communications(state)
@@ -152,7 +113,7 @@ def test_direct_only_prescreen_keeps_lt_and_all_candidates() -> None:
 
 
 def test_score_modes_are_deterministic_and_reject_unknown() -> None:
-    model = PreemptiveDAGModel(_join_dag())
+    model = PreeSingleModel(_join_dag())
     state = model.initial_state()
     snapshot = feature_snapshot(build_context(model, state), "independent")
     assert score_snapshot(snapshot, "barrier_only") == score_snapshot(snapshot, "barrier_only")

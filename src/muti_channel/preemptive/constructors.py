@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from time import perf_counter
 
-from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
+from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from muti_channel.preemptive.packing import (
     DecisionBudget, PackingBudget, PackingResult, PackingStats, complete_maximal,
     iter_maximal_actions, validate_maximal_action,
@@ -38,13 +38,13 @@ def _prepare(model, state, scores, budget, ledger=None):
     return ordered, baseline, ledger
 
 
-def greedy(model: PreemptiveMultiResourceModel, state, scores: dict[str, tuple], ledger=None) -> PackingResult:
+def greedy(model: PreeMultiModel, state, scores: dict[str, tuple], ledger=None) -> PackingResult:
     ordered, baseline, ledger = _prepare(model, state, scores, PackingBudget(), ledger)
     ledger.operations = len(ordered)
     return _result(model, state, baseline, (), "greedy", ledger)
 
 
-def multi_seed(model: PreemptiveMultiResourceModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def multi_seed(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
     ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
     candidates: list[MultiResourceAction] = []
     seeds = 0
@@ -62,7 +62,7 @@ def multi_seed(model: PreemptiveMultiResourceModel, state, scores: dict[str, tup
     return _result(model, state, baseline, candidates, "multi_seed", ledger, seeds=seeds, truncated=ledger.fallback_reason is not None)
 
 
-def one_exchange(model: PreemptiveMultiResourceModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def one_exchange(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
     ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
     candidates: list[MultiResourceAction] = []
     exchanges = 0
@@ -86,7 +86,7 @@ def one_exchange(model: PreemptiveMultiResourceModel, state, scores: dict[str, t
     return _result(model, state, baseline, candidates, "one_exchange", ledger, exchanges=exchanges, truncated=ledger.fallback_reason is not None)
 
 
-def enumerate_bounded(model: PreemptiveMultiResourceModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def enumerate_bounded(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
     _ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
     candidates: list[MultiResourceAction] = []
     if budget.max_sets == 0:

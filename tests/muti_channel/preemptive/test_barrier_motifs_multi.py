@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from benchmark_generate.llm.preemptive.barrier_motifs import multi_resource_motifs
-from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
+from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from llm_structured.barrier import action_features, build_context, feature_snapshot
 from muti_channel.preemptive.solver import (
     offline_best_of_lt_and_barrier,
@@ -13,7 +13,7 @@ from muti_channel.preemptive.solver import (
 
 def test_multi_barrier_motif_uses_maximal_actions_and_union_features() -> None:
     motif = multi_resource_motifs()[0]
-    model = PreemptiveMultiResourceModel(motif.dag, motif.resources or {})
+    model = PreeMultiModel(motif.dag, motif.resources or {})
     scripted = model.step(model.initial_state(), MultiResourceAction(("R", "side")))
     assert {"R", "N", "side"} <= set(model.eligible(scripted))
     actions = model.maximal_actions(scripted)

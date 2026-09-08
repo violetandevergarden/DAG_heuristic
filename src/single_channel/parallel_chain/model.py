@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.dag import BenchmarkDAG, _Builder
+from core.dag import DAG, DAGBuilder
 
 
 @dataclass(frozen=True)
@@ -26,10 +26,10 @@ class ParallelChain:
 
 def to_benchmark_dag(
     chains: tuple[ParallelChain, ...],
-) -> tuple[BenchmarkDAG, dict[tuple[int, int], str]]:
+) -> tuple[DAG, dict[tuple[int, int], str]]:
     """Build a neutral internal DAG for generator and cross-Oracle use."""
 
-    builder = _Builder("parallel_chains", "parallel_chain", "Compact-chain replay DAG.")
+    builder = DAGBuilder("parallel_chains", context=(("category", "parallel_chain"), ("description", "Compact-chain replay DAG.")))
     flow_ids: dict[tuple[int, int], str] = {}
     for chain_index, chain in enumerate(chains):
         previous = None
@@ -61,7 +61,7 @@ class ParallelChainInstance:
     chain.  Communication work must be positive; compute duration may be zero.
     """
 
-    dag: BenchmarkDAG
+    dag: DAG
     chains: tuple[tuple[str, ...], ...]
 
     @property
@@ -73,7 +73,7 @@ class ParallelChainInstance:
         }
 
 
-def parse_parallel_chain(dag: BenchmarkDAG) -> ParallelChainInstance:
+def parse_parallel_chain(dag: DAG) -> ParallelChainInstance:
     """Validate and return the strict Stage 1 representation.
 
     Path-shaped but non-alternating input is rejected instead of being

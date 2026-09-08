@@ -12,10 +12,10 @@ from dataclasses import replace
 from functools import cache
 from time import perf_counter
 
-from core.dag import BenchmarkDAG, BenchTask
+from core.dag import DAG, Task
 from core.execution.preemptive import (
     Action,
-    PreemptiveDAGModel,
+    PreeSingleModel,
     PreemptiveScheduleResult,
     ScheduleState,
     result_from_trace,
@@ -31,7 +31,7 @@ def build_pp_dp_repetition(
     dp_work: int = 1,
     release_gap: int = 1,
     dp_tail: int = 1,
-) -> BenchmarkDAG:
+) -> DAG:
     """Build a repeated PP-backbone plus deferred-DP-side-work fixture.
 
     In one isolated period, DP first is strictly optimal with the defaults.
@@ -44,43 +44,41 @@ def build_pp_dp_repetition(
         raise ValueError("period counts and durations must be non-negative")
     if pp_work == 0 or dp_work == 0:
         raise ValueError("communication work must be positive")
-    tasks: list[BenchTask] = []
+    tasks: list[Task] = []
     previous_backbone: str | None = None
     for period in range(periods):
         release = f"release_{period}"
-        tasks.append(BenchTask(
+        tasks.append(Task(
             release,
             "compute",
             0 if period == 0 else release_gap,
-            () if previous_backbone is None else (previous_backbone,),
-            role="RELEASE",
+            () if previous_backbone is None else (previous_backbone,), labels=(("task_role", "RELEASE"),),
         ))
         pp = f"pp_{period}"
         dp = f"dp_{period}"
         backbone = f"backbone_{period}"
         tasks.extend((
-            BenchTask(pp, "comm", pp_work, (release,), role="PP"),
-            BenchTask(dp, "comm", dp_work, (release,), role="DP"),
-            BenchTask(backbone, "compute", 0, (pp,), role="BACKBONE"),
-            BenchTask(f"dp_tail_{period}", "compute", dp_tail, (dp,), role="DP_TAIL"),
+            Task(pp, "comm", pp_work, (release,), labels=(("task_role", "PP"),)),
+            Task(dp, "comm", dp_work, (release,), labels=(("task_role", "DP"),)),
+            Task(backbone, "compute", 0, (pp,), labels=(("task_role", "BACKBONE"),)),
+            Task(f"dp_tail_{period}", "compute", dp_tail, (dp,), labels=(("task_role", "DP_TAIL"),)),
         ))
         previous_backbone = backbone
-    return BenchmarkDAG(
+    return DAG(
         f"pp_dp_repeat_{periods}",
-        "adversarial",
         tuple(tasks),
-        "Repeated PP release backbone with deferred DP side work.",
-        (("periods", str(periods)),),
+        context=(("category", "adversarial"), ("description", "Repeated PP release backbone with deferred DP side work.")),
+        parameters=(("periods", str(periods)),),
     )
 
 
 def schedule_role_copy(
-    dag: BenchmarkDAG,
+    dag: DAG,
     first_role: str,
 ) -> PreemptiveScheduleResult:
     """Copy one fixed local role preference at every repeated unit."""
 
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     task_map = dag.task_map()
     state = model.initial_state()
     actions: list[Action] = []
@@ -92,7 +90,7 @@ def schedule_role_copy(
             action = Action.run(min(
                 eligible,
                 key=lambda task_id: (
-                    task_map[task_id].role != first_role,
+                    task_map[task_id].label_map().get("task_role", "") != first_role,
                     task_id,
                 ),
             ))
@@ -103,7 +101,7 @@ def schedule_role_copy(
     return result_from_trace(trace)
 
 
-def schedule_coupling_aware(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
+def schedule_coupling_aware(dag: DAG) -> PreemptiveScheduleResult:
     """Use the repeat boundary while it matters, then fall back to tail.
 
     PP communication is advanced when it unlocks another not-yet-released PP
@@ -112,7 +110,7 @@ def schedule_coupling_aware(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
     timetable, and duration perturbations cannot make its schedule infeasible.
     """
 
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     task_map = dag.task_map()
     state = model.initial_state()
     actions: list[Action] = []
@@ -123,13 +121,13 @@ def schedule_coupling_aware(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
         else:
             unfinished_pp = sum(
                 task.kind == "comm"
-                and task.role.startswith("PP")
+                and task.label_map().get("task_role", "").startswith("PP")
                 and model.task_runtime(state, task.task_id).status != "completed"
                 for task in model.tasks
             )
             eligible_pp = [
                 task_id for task_id in eligible
-                if task_map[task_id].role.startswith("PP")
+                if task_map[task_id].label_map().get("task_role", "").startswith("PP")
             ]
             if unfinished_pp > 1 and eligible_pp:
                 selected = min(eligible_pp)
@@ -144,12 +142,12 @@ def schedule_coupling_aware(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
     return result_from_trace(trace)
 
 
-def build_exchangeable_replicas(replicas: int) -> tuple[BenchmarkDAG, tuple[tuple[str, ...], ...]]:
+def build_exchangeable_replicas(replicas: int) -> tuple[DAG, tuple[tuple[str, ...], ...]]:
     """Create identical, independent replica components sharing one channel."""
 
     if replicas < 1:
         raise ValueError("replicas must be positive")
-    tasks: list[BenchTask] = []
+    tasks: list[Task] = []
     components: list[tuple[str, ...]] = []
     for replica in range(replicas):
         prefix = f"rep{replica}"
@@ -161,26 +159,25 @@ def build_exchangeable_replicas(replicas: int) -> tuple[BenchmarkDAG, tuple[tupl
             f"{prefix}_tail",
         )
         tasks.extend((
-            BenchTask(ids[0], "compute", 1, (), role="RELEASE"),
-            BenchTask(ids[1], "comm", 2, (ids[0],), role="DP_RS"),
-            BenchTask(ids[2], "compute", 2, (ids[1],), role="B"),
-            BenchTask(ids[3], "comm", 1, (ids[2],), role="DP_AG"),
-            BenchTask(ids[4], "compute", 1, (ids[3],), role="OPT"),
+            Task(ids[0], "compute", 1, (), labels=(("task_role", "RELEASE"),)),
+            Task(ids[1], "comm", 2, (ids[0],), labels=(("task_role", "DP_RS"),)),
+            Task(ids[2], "compute", 2, (ids[1],), labels=(("task_role", "B"),)),
+            Task(ids[3], "comm", 1, (ids[2],), labels=(("task_role", "DP_AG"),)),
+            Task(ids[4], "compute", 1, (ids[3],), labels=(("task_role", "OPT"),)),
         ))
         components.append(ids)
     return (
-        BenchmarkDAG(
+        DAG(
             f"exchangeable_replicas_{replicas}",
-            "synthetic",
             tuple(tasks),
-            "Identical DP replica motifs for exact symmetry compression.",
+            context=(("category", "synthetic"), ("description", "Identical DP replica motifs for exact symmetry compression.")),
         ),
         tuple(components),
     )
 
 
 def exact_oracle_paired(
-    dag: BenchmarkDAG,
+    dag: DAG,
     components: Sequence[Sequence[str]],
     *,
     quotient: bool,
@@ -199,7 +196,7 @@ def exact_oracle_paired(
     comparing two different exact implementations.
     """
 
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     aligned = _validate_exchangeable_components(model, components, resources)
     covered = {index for component in aligned for index in component}
     fixed = tuple(index for index in range(len(model.tasks)) if index not in covered)
@@ -275,8 +272,7 @@ def exact_oracle_paired(
         actions.append(action)
     trace = model.run(actions)
     assert_preemptive_trace(model, trace)
-    return replace(
-        result_from_trace(trace),
+    return result_from_trace(trace).with_stats(
         explored_states=explored,
         generated_transitions=generated_transitions,
         deduplicated_states=value.cache_info().hits,
@@ -287,7 +283,7 @@ def exact_oracle_paired(
 
 
 def exact_oracle_component_symmetry(
-    dag: BenchmarkDAG,
+    dag: DAG,
     components: Sequence[Sequence[str]],
     *,
     max_states: int = 500_000,
@@ -309,7 +305,7 @@ def exact_oracle_component_symmetry(
     )
 
 
-def adversarial_packing_trap() -> BenchmarkDAG:
+def adversarial_packing_trap() -> DAG:
     """Wide communication A owns both resources; B and C own one each.
 
     A longest-remaining-flow-first seed (A, 8) serializes B and C and yields
@@ -318,27 +314,11 @@ def adversarial_packing_trap() -> BenchmarkDAG:
     semantics itself.
     """
 
-    return BenchmarkDAG(
-        "packing_trap",
-        "adversarial",
-        (
-            BenchTask("a", "comm", 8, (), role="WIDE",
-                      labels=(("parallelism_dimension", "wide"),)),
-            BenchTask("a1", "compute", 1, ("a",), role="TAIL"),
-            BenchTask("b", "comm", 4, (), role="NARROW",
-                      labels=(("parallelism_dimension", "b"),)),
-            BenchTask("b1", "compute", 6, ("b",), role="TAIL"),
-            BenchTask("c", "comm", 4, (), role="NARROW",
-                      labels=(("parallelism_dimension", "c"),)),
-            BenchTask("c1", "compute", 6, ("c",), role="TAIL"),
-        ),
-        "Packing trap: flow-size-first seed gives 18; parallel {b, c} seed gives 13.",
-        (("structure", "packing_trap"),),
-    )
+    return DAG('packing_trap', (Task('a', 'comm', 8, (), labels=(('task_role', 'WIDE'), ('parallelism_dimension', 'wide'))), Task('a1', 'compute', 1, ('a',), labels=(('task_role', 'TAIL'),)), Task('b', 'comm', 4, (), labels=(('task_role', 'NARROW'), ('parallelism_dimension', 'b'))), Task('b1', 'compute', 6, ('b',), labels=(('task_role', 'TAIL'),)), Task('c', 'comm', 4, (), labels=(('task_role', 'NARROW'), ('parallelism_dimension', 'c'))), Task('c1', 'compute', 6, ('c',), labels=(('task_role', 'TAIL'),))), context=(('category', 'adversarial'), ('description', 'Packing trap: flow-size-first seed gives 18; parallel {b, c} seed gives 13.')), parameters=(('structure', 'packing_trap'),))
 
 
 def _validate_exchangeable_components(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     components: Sequence[Sequence[str]],
     resources: dict[str, frozenset] | None = None,
 ) -> tuple[tuple[int, ...], ...]:
@@ -374,10 +354,10 @@ def _validate_exchangeable_components(
         for position, index in enumerate(component):
             task = model.tasks[index]
             expected = model.tasks[reference[position]]
-            if (task.kind, task.duration, task.role, task.labels) != (
+            if (task.kind, task.duration, task.label_map().get("task_role", ""), task.labels) != (
                 expected.kind,
                 expected.duration,
-                expected.role,
+                expected.label_map().get("task_role", ""),
                 expected.labels,
             ):
                 raise ValueError("component task labels are not identical")

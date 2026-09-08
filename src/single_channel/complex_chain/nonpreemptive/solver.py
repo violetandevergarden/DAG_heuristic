@@ -22,10 +22,10 @@ from typing import Iterable, Literal
 
 ROOT = Path(__file__).resolve().parents[2]
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 from core.execution.nonpreemptive import (
     Action,
-    NonPreemptiveDAGModel,
+    NonPreeSingleModel,
     ScheduleState,
     ScheduleTrace,
 )
@@ -67,8 +67,8 @@ class GeneralSchedule:
 class ResidualGeneralDAG:
     """Residual critical paths and candidate generators for an R0 model."""
 
-    def __init__(self, dag: BenchmarkDAG):
-        self.model = NonPreemptiveDAGModel(dag)
+    def __init__(self, dag: DAG):
+        self.model = NonPreeSingleModel(dag)
         children: list[list[int]] = [[] for _ in self.model.tasks]
         for child, parents in enumerate(self.model.deps):
             for parent in parents:
@@ -271,7 +271,7 @@ def _result(
     path = tuple(actions)
     trace = graph.model.run(path)
     assert graph.model.is_finished(trace.final_state)
-    assert_nonpreemptive_trace(trace)
+    assert_nonpreemptive_trace(graph.model.dag, trace, mode="optional_idle")
     voluntary_waits = voluntary_wait_time = 0
     forced_waits = forced_wait_time = 0
     for transition in trace.transitions:
@@ -297,7 +297,7 @@ def _result(
     )
 
 
-def schedule_priority(dag: BenchmarkDAG, policy: str = "dynamic") -> GeneralSchedule:
+def schedule_priority(dag: DAG, policy: str = "dynamic") -> GeneralSchedule:
     started = perf_counter()
     graph = ResidualGeneralDAG(dag)
     _elapsed, actions = _complete(graph, graph.model.initial_state(), policy)
@@ -340,7 +340,7 @@ def _lookahead_value(
 
 
 def schedule_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     top_k: int = 2,
     allow_wait: bool,
@@ -402,7 +402,7 @@ def schedule_rollout(
 
 
 def beam_search(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     width: int = 8,
     allow_wait: bool = True,

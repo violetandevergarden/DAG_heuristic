@@ -18,66 +18,16 @@ from pathlib import Path
 from time import perf_counter
 from typing import Literal
 
-ROOT = Path(__file__).resolve().parents[1]
-
-from core.dag import BenchmarkDAG
-from core.resource import MultiResourceInstance
-
-Resource = Hashable
-Status = Literal["pending", "running", "completed"]
-OracleMode = Literal["optional_idle", "work_conserving"]
-
-
-@dataclass(frozen=True)
-class ResourceRuntime:
-    status: Status = "pending"
-    remaining: int = 0
-    started_at: int | None = None
-    completed_at: int | None = None
-
-
-@dataclass(frozen=True)
-class ResourceState:
-    time: int
-    tasks: tuple[ResourceRuntime, ...]
-
-
-@dataclass(frozen=True)
-class ResourceAction:
-    starts: tuple[str, ...] = ()
-
-    @property
-    def kind(self) -> str:
-        return "start" if self.starts else "wait"
-
-    @classmethod
-    def start(cls, task_ids: Iterable[str]) -> ResourceAction:
-        values = tuple(sorted(task_ids))
-        if not values:
-            raise ValueError("START action requires at least one flow")
-        return cls(values)
-
-    @classmethod
-    def wait(cls) -> ResourceAction:
-        return cls(())
-
-
-@dataclass(frozen=True)
-class ResourceInterval:
-    task_id: str
-    kind: str
-    start: int
-    end: int
-
-
-@dataclass(frozen=True)
-class ResourceTransition:
-    action: ResourceAction
-    before: ResourceState
-    after: ResourceState
-    completed: tuple[str, ...]
-    intervals: tuple[ResourceInterval, ...]
-
+from core.execution.nonpreemptive import (
+    NonPreeMultiModel,
+    OracleMode,
+    Resource,
+    ResourceAction,
+    ResourceInterval,
+    ResourceRuntime,
+    ResourceState,
+    ResourceTransition,
+)
 
 @dataclass(frozen=True)
 class ResourceSchedule:
@@ -97,303 +47,8 @@ class ResourceSchedule:
     lower_bounds: dict[str, int] | None = None
     fallback: bool = False
 
-
-class NonPreemptiveMultiResourceDAG:
-    """Event-driven state machine with persistent route reservations."""
-
-    def __init__(self, instance: MultiResourceInstance):
-        errors = instance.validate()
-        if errors:
-            raise ValueError(errors)
-        tasks = instance.dag.task_map()
-        order = _topological_order(instance.dag)
-        self.instance = instance
-        self.order = tuple(order)
-        self.tasks = tuple(tasks[task_id] for task_id in order)
-        self.index = {task_id: index for index, task_id in enumerate(order)}
-        self.deps = tuple(tuple(self.index[parent] for parent in task.deps) for task in self.tasks)
-        children: list[list[int]] = [[] for _ in self.tasks]
-        for child, parents in enumerate(self.deps):
-            for parent in parents:
-                children[parent].append(child)
-        self.children = tuple(tuple(items) for items in children)
-        self.resources = tuple(
-            instance.resources.get(task.task_id, frozenset()) for task in self.tasks
-        )
-
-    def initial_state(self) -> ResourceState:
-        state = ResourceState(0, tuple(ResourceRuntime() for _ in self.tasks))
-        return self._start_ready_computes(state)[0]
-
-    def is_finished(self, state: ResourceState) -> bool:
-        return all(runtime.status == "completed" for runtime in state.tasks)
-
-    def ready_flows(self, state: ResourceState) -> tuple[str, ...]:
-        return tuple(
-            task.task_id
-            for index, task in enumerate(self.tasks)
-            if task.kind == "comm"
-            and state.tasks[index].status == "pending"
-            and self._deps_completed(state.tasks, index)
-        )
-
-    def active_flows(self, state: ResourceState) -> tuple[str, ...]:
-        return tuple(
-            task.task_id
-            for index, task in enumerate(self.tasks)
-            if task.kind == "comm" and state.tasks[index].status == "running"
-        )
-
-    def active_computes(self, state: ResourceState) -> tuple[str, ...]:
-        return tuple(
-            task.task_id
-            for index, task in enumerate(self.tasks)
-            if task.kind == "compute" and state.tasks[index].status == "running"
-        )
-
-    def occupied_resources(self, state: ResourceState) -> frozenset[Resource]:
-        occupied: set[Resource] = set()
-        for task_id in self.active_flows(state):
-            occupied.update(self.resources[self.index[task_id]])
-        return frozenset(occupied)
-
-    def compatible(self, state: ResourceState, task_ids: Iterable[str]) -> bool:
-        occupied = set(self.occupied_resources(state))
-        for task_id in task_ids:
-            resources = self.resources[self.index[task_id]]
-            if occupied & resources:
-                return False
-            occupied.update(resources)
-        return True
-
-    def startable_flows(self, state: ResourceState) -> tuple[str, ...]:
-        """Return ready flows individually compatible with active reservations."""
-        occupied = self.occupied_resources(state)
-        return tuple(
-            task_id
-            for task_id in self.ready_flows(state)
-            if not (occupied & self.resources[self.index[task_id]])
-        )
-
-    def has_future_event(self, state: ResourceState) -> bool:
-        """Whether WAIT can advance to a real running-task completion event."""
-        return self._has_active_task(state)
-
-    def is_maximal_start(self, state: ResourceState, task_ids: Iterable[str]) -> bool:
-        """Check inclusion maximality without enumerating compatible subsets."""
-        selected = tuple(task_ids)
-        if not selected or len(selected) != len(set(selected)):
-            return False
-        startable = set(self.startable_flows(state))
-        if any(task_id not in startable for task_id in selected):
-            return False
-        if not self.compatible(state, selected):
-            return False
-        used = set(self.occupied_resources(state))
-        for task_id in selected:
-            used.update(self.resources[self.index[task_id]])
-        return all(
-            used & self.resources[self.index[task_id]] for task_id in startable.difference(selected)
-        )
-
-    def validate_action(
-        self, state: ResourceState, action: ResourceAction, mode: OracleMode
-    ) -> None:
-        """Validate one action in linear time under the requested idle mode."""
-        if mode not in ("optional_idle", "work_conserving"):
-            raise ValueError(f"unknown oracle mode: {mode}")
-        startable = set(self.startable_flows(state))
-        if action.kind == "wait":
-            if not self.has_future_event(state):
-                raise ValueError("WAIT requires a real future event")
-            if mode == "work_conserving" and startable:
-                raise ValueError("work-conserving mode forbids WAIT when a flow is startable")
-            return
-        if len(action.starts) != len(set(action.starts)):
-            raise ValueError("START contains duplicate flow ids")
-        if any(task_id not in startable for task_id in action.starts):
-            raise ValueError("START contains a flow that is not startable")
-        if not self.compatible(state, action.starts):
-            raise ValueError("START contains conflicting routes")
-        if mode == "work_conserving" and not self.is_maximal_start(state, action.starts):
-            raise ValueError("work-conserving START must be inclusion-maximal")
-
-    def start_subsets(
-        self, state: ResourceState, *, maximal_only: bool
-    ) -> tuple[tuple[str, ...], ...]:
-        ready = tuple(sorted(self.ready_flows(state)))
-        occupied = self.occupied_resources(state)
-        subsets: list[tuple[str, ...]] = []
-
-        def visit(
-            position: int,
-            chosen: tuple[str, ...],
-            used: frozenset[Resource],
-        ) -> None:
-            if position == len(ready):
-                if chosen:
-                    subsets.append(chosen)
-                return
-            task_id = ready[position]
-            visit(position + 1, chosen, used)
-            resources = self.resources[self.index[task_id]]
-            if not (used & resources):
-                visit(position + 1, (*chosen, task_id), used | resources)
-
-        visit(0, (), occupied)
-        unique = sorted(set(subsets))
-        if not maximal_only:
-            return tuple(unique)
-        return tuple(
-            selected
-            for selected in unique
-            if not any(set(selected) < set(other) for other in unique)
-        )
-
-    def legal_actions(self, state: ResourceState, mode: OracleMode) -> tuple[ResourceAction, ...]:
-        if mode == "work_conserving":
-            starts = self.start_subsets(state, maximal_only=True)
-            if starts:
-                return tuple(ResourceAction.start(items) for items in starts)
-        elif mode == "optional_idle":
-            starts = self.start_subsets(state, maximal_only=False)
-            actions = [ResourceAction.start(items) for items in starts]
-            if self._has_active_task(state):
-                actions.append(ResourceAction.wait())
-            return tuple(actions)
-        else:
-            raise ValueError(f"unknown oracle mode: {mode}")
-        return (ResourceAction.wait(),) if self._has_active_task(state) else ()
-
-    def step(self, state: ResourceState, action: ResourceAction) -> ResourceTransition:
-        starts = action.starts
-        if starts:
-            if len(starts) != len(set(starts)):
-                raise ValueError("START contains duplicate flow ids")
-            ready = set(self.ready_flows(state))
-            if any(task_id not in ready for task_id in starts):
-                raise ValueError("START contains a flow that is not ready")
-            if not self.compatible(state, starts):
-                raise ValueError("START conflicts with active or newly started routes")
-        elif not self._has_active_task(state):
-            raise ValueError("WAIT requires an active completion event")
-
-        values = list(state.tasks)
-        for task_id in starts:
-            index = self.index[task_id]
-            values[index] = ResourceRuntime("running", self.tasks[index].duration, state.time, None)
-        working = ResourceState(state.time, tuple(values))
-        running = [runtime.remaining for runtime in working.tasks if runtime.status == "running"]
-        if not running:
-            raise RuntimeError("action did not create a future event")
-        delta = min(running)
-        end = state.time + delta
-        completed: list[str] = []
-        intervals: list[ResourceInterval] = []
-        values = list(working.tasks)
-        for index, runtime in enumerate(working.tasks):
-            if runtime.status != "running":
-                continue
-            remaining = runtime.remaining - delta
-            if remaining:
-                values[index] = ResourceRuntime("running", remaining, runtime.started_at, None)
-                continue
-            values[index] = ResourceRuntime("completed", 0, runtime.started_at, end)
-            completed.append(self.tasks[index].task_id)
-            assert runtime.started_at is not None
-            intervals.append(
-                ResourceInterval(
-                    self.tasks[index].task_id,
-                    self.tasks[index].kind,
-                    runtime.started_at,
-                    end,
-                )
-            )
-        after = ResourceState(end, tuple(values))
-        after, compute_intervals = self._start_ready_computes(after)
-        intervals.extend(compute_intervals)
-        return ResourceTransition(
-            action,
-            state,
-            after,
-            tuple(sorted(completed)),
-            tuple(intervals),
-        )
-
-    def residual_features(self, state: ResourceState) -> tuple[tuple[int, ...], tuple[int, ...]]:
-        remaining = [self.remaining(state, index) for index in range(len(self.tasks))]
-        path = [0] * len(self.tasks)
-        tail = [0] * len(self.tasks)
-        for index in reversed(range(len(self.tasks))):
-            if not remaining[index]:
-                continue
-            tail[index] = max((path[child] for child in self.children[index]), default=0)
-            path[index] = remaining[index] + tail[index]
-        return tuple(path), tuple(tail)
-
-    def remaining(self, state: ResourceState, index: int) -> int:
-        runtime = state.tasks[index]
-        if runtime.status == "completed":
-            return 0
-        if runtime.status == "running":
-            return runtime.remaining
-        return self.tasks[index].duration
-
-    def _start_ready_computes(
-        self, state: ResourceState
-    ) -> tuple[ResourceState, list[ResourceInterval]]:
-        values = list(state.tasks)
-        intervals: list[ResourceInterval] = []
-        changed = True
-        while changed:
-            changed = False
-            for index, task in enumerate(self.tasks):
-                if task.kind != "compute" or values[index].status != "pending":
-                    continue
-                if not self._deps_completed(values, index):
-                    continue
-                if task.duration == 0:
-                    values[index] = ResourceRuntime("completed", 0, state.time, state.time)
-                    intervals.append(
-                        ResourceInterval(task.task_id, "compute", state.time, state.time)
-                    )
-                else:
-                    values[index] = ResourceRuntime("running", task.duration, state.time, None)
-                changed = True
-        return ResourceState(state.time, tuple(values)), intervals
-
-    def _deps_completed(self, runtimes: Iterable[ResourceRuntime], task_index: int) -> bool:
-        values = tuple(runtimes)
-        return all(values[parent].status == "completed" for parent in self.deps[task_index])
-
-    def _has_active_task(self, state: ResourceState) -> bool:
-        return any(runtime.status == "running" for runtime in state.tasks)
-
-
-def _topological_order(dag: BenchmarkDAG) -> list[str]:
-    tasks = dag.task_map()
-    degree = {task_id: len(task.deps) for task_id, task in tasks.items()}
-    children: dict[str, list[str]] = defaultdict(list)
-    for task in tasks.values():
-        for parent in task.deps:
-            children[parent].append(task.task_id)
-    ready = sorted(task_id for task_id, value in degree.items() if value == 0)
-    order = []
-    while ready:
-        task_id = ready.pop(0)
-        order.append(task_id)
-        for child in children[task_id]:
-            degree[child] -= 1
-            if degree[child] == 0:
-                ready.append(child)
-        ready.sort()
-    if len(order) != len(tasks):
-        raise ValueError("DAG contains a cycle")
-    return order
-
-
 def residual_resource_loads(
-    model: NonPreemptiveMultiResourceDAG, state: ResourceState
+    model: NonPreeMultiModel, state: ResourceState
 ) -> dict[Resource, int]:
     loads: dict[Resource, int] = defaultdict(int)
     for index, task in enumerate(model.tasks):
@@ -404,7 +59,7 @@ def residual_resource_loads(
     return dict(loads)
 
 
-def lower_bounds(model: NonPreemptiveMultiResourceDAG, state: ResourceState) -> dict[str, int]:
+def lower_bounds(model: NonPreeMultiModel, state: ResourceState) -> dict[str, int]:
     path, _tail = model.residual_features(state)
     loads = residual_resource_loads(model, state)
     result = {
@@ -435,7 +90,7 @@ def _state_from_key(key: StateKey) -> ResourceState:
 
 
 def _replay(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     actions: Iterable[ResourceAction],
     *,
     runtime_ms: float,
@@ -458,7 +113,7 @@ def _replay(
 
 
 def _assert_route_reservations(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     intervals: Iterable[ResourceInterval],
 ) -> None:
     from .replay import assert_route_reservations
@@ -467,14 +122,14 @@ def _assert_route_reservations(
 
 
 def exact_oracle(
-    instance: MultiResourceInstance,
+    instance: DAG,
     *,
     mode: OracleMode = "optional_idle",
     max_states: int = 1_000_000,
     time_limit_s: float = 30.0,
 ) -> ResourceSchedule:
     started = perf_counter()
-    model = NonPreemptiveMultiResourceDAG(instance)
+    model = NonPreeMultiModel(instance)
     initial = model.initial_state()
     choices: dict[StateKey, ResourceAction] = {}
     explored = 0
@@ -535,7 +190,7 @@ def exact_oracle(
 
 
 def _ranked_ready(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
 ) -> list[str]:
@@ -566,7 +221,7 @@ def _ranked_ready(
 
 
 def greedy_action(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
 ) -> ResourceAction:
@@ -582,7 +237,7 @@ def greedy_action(
 
 
 def _complete(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
 ) -> tuple[int, tuple[ResourceAction, ...]]:
@@ -596,17 +251,17 @@ def _complete(
 
 
 def schedule_greedy(
-    instance: MultiResourceInstance,
+    instance: DAG,
     policy: str = "dynamic_tail",
 ) -> ResourceSchedule:
     started = perf_counter()
-    model = NonPreemptiveMultiResourceDAG(instance)
+    model = NonPreeMultiModel(instance)
     _elapsed, actions = _complete(model, model.initial_state(), policy)
     return _replay(model, actions, runtime_ms=(perf_counter() - started) * 1000)
 
 
 def _rollout_candidates(
-    model: NonPreemptiveMultiResourceDAG,
+    model: NonPreeMultiModel,
     state: ResourceState,
     *,
     top_k: int,
@@ -636,14 +291,14 @@ def _rollout_candidates(
 
 
 def schedule_rollout(
-    instance: MultiResourceInstance,
+    instance: DAG,
     *,
     top_k: int = 2,
     optional_actions: bool,
     time_limit_s: float = 2.0,
 ) -> ResourceSchedule:
     started = perf_counter()
-    model = NonPreemptiveMultiResourceDAG(instance)
+    model = NonPreeMultiModel(instance)
     baseline = schedule_greedy(instance)
     state = model.initial_state()
     actions = []

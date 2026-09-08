@@ -5,11 +5,11 @@ from __future__ import annotations
 from functools import lru_cache
 from itertools import combinations
 
-from core.dag import BenchmarkDAG, topological_order
+from core.dag import DAG
 
 
 def tiny_tick_optimum(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]] | None = None,
 ) -> int:
     """Return the v2 work-conserving optimum without using event transitions."""
@@ -17,7 +17,7 @@ def tiny_tick_optimum(
     errors = dag.validate()
     if errors:
         raise ValueError(errors)
-    order = tuple(topological_order(dag))
+    order = tuple(dag.topological_order())
     tasks = dag.task_map()
     index = {task_id: position for position, task_id in enumerate(order)}
     deps = tuple(tuple(index[parent] for parent in tasks[item].deps) for item in order)

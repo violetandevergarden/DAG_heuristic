@@ -65,17 +65,17 @@ def test_foundation_replay_paths_have_distinct_responsibilities():
 
 
 def test_legacy_multi_replay_is_a_thin_compatible_forwarder():
-    from core.conversion import to_multi_resource_instance
+    from core.conversion import to_muti_resourse
     from muti_channel.nonpreemptive.replay import replay_actions
     from muti_channel.nonpreemptive.solver import (
-        NonPreemptiveMultiResourceDAG,
+        NonPreeMultiModel,
         _replay,
     )
 
     benchmark = load_benchmark(
         ROOT / "benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_start_np.json"
     )
-    model = NonPreemptiveMultiResourceDAG(to_multi_resource_instance(benchmark))
+    model = NonPreeMultiModel(to_muti_resourse(benchmark))
     state = model.initial_state()
     actions = []
     while not model.is_finished(state):

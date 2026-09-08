@@ -9,10 +9,10 @@ from collections import deque
 from dataclasses import asdict
 
 from benchmark import Benchmark
-from core.conversion import to_internal_dag, to_multi_resource_instance
-from core.execution.nonpreemptive import Action, NonPreemptiveDAGModel
+from core.conversion import to_dag, to_muti_resourse
+from core.execution.nonpreemptive import Action, NonPreeSingleModel
 from muti_channel.nonpreemptive.solver import (
-    NonPreemptiveMultiResourceDAG,
+    NonPreeMultiModel,
     ResourceAction,
 )
 
@@ -56,7 +56,7 @@ def _job_id(task_id: str) -> str:
 def _single_audit(
     benchmark: Benchmark, max_decisions: int, deadline: float | None, mode: str
 ) -> dict:
-    model = NonPreemptiveDAGModel(to_internal_dag(benchmark))
+    model = NonPreeSingleModel(to_dag(benchmark))
     state = model.initial_state()
     first_seen: dict[str, tuple[int, int]] = {}
     decisions = []
@@ -194,7 +194,7 @@ def _multi_audit(
     deadline: float | None,
     mode: str,
 ) -> dict:
-    model = NonPreemptiveMultiResourceDAG(to_multi_resource_instance(benchmark))
+    model = NonPreeMultiModel(to_muti_resourse(benchmark))
     state = model.initial_state()
     resource_universe = {item.resource_id for item in benchmark.resources}
     decisions = []
@@ -414,9 +414,9 @@ def bounded_choice_search(
 
     multi = benchmark.scenario == "muti_channel"
     model = (
-        NonPreemptiveMultiResourceDAG(to_multi_resource_instance(benchmark))
+        NonPreeMultiModel(to_muti_resourse(benchmark))
         if multi
-        else NonPreemptiveDAGModel(to_internal_dag(benchmark))
+        else NonPreeSingleModel(to_dag(benchmark))
     )
     initial = model.initial_state()
     queue = deque([initial])

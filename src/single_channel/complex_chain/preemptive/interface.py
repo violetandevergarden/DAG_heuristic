@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 from core.execution.preemptive import PreemptiveScheduleResult
 from single_channel.complex_chain.preemptive import solver
 
 
-def validate_complex_chain(dag: BenchmarkDAG) -> None:
+def validate_complex_chain(dag: DAG) -> None:
     """Apply the raw-general-DAG Stage 2 family contract."""
 
     solver.validate_complex_chain(dag)
 
 
 def solve(
-    dag: BenchmarkDAG,
+    dag: DAG,
     algorithm: str = "longest_tail",
     **options: object,
 ) -> PreemptiveScheduleResult:

@@ -6,7 +6,7 @@ from collections import Counter
 from dataclasses import replace
 from time import perf_counter
 
-from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG, _complete
+from muti_channel.nonpreemptive.solver import NonPreeMultiModel, _complete
 from muti_channel.nonpreemptive.replay import replay_actions
 
 from .constructors import baseline_action, construct_candidates
@@ -45,7 +45,7 @@ def choose_action(model, state, config: PackingConfig) -> PackingDecision:
 
 def schedule_packing(instance, config: PackingConfig | None = None) -> PackingScheduleResult:
     config = config or PackingConfig()
-    started = perf_counter(); model = NonPreemptiveMultiResourceDAG(instance)
+    started = perf_counter(); model = NonPreeMultiModel(instance)
     state = model.initial_state(); actions = []; decisions = []; reasons = Counter()
     while not model.is_finished(state):
         decision = choose_action(model, state, config)

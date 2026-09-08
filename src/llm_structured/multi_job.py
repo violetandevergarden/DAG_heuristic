@@ -13,10 +13,10 @@ from statistics import mean
 from time import perf_counter
 from typing import Literal, Mapping, Sequence
 
-from core.dag import BenchmarkDAG, BenchTask
+from core.dag import DAG, Task
 from core.execution.preemptive import (
     Action,
-    PreemptiveDAGModel,
+    PreeSingleModel,
     PreemptiveScheduleResult,
     ScheduleState,
     result_from_trace,
@@ -26,7 +26,7 @@ from single_channel.complex_chain.preemptive.solver import exact_oracle, residua
 from muti_channel.preemptive.solver import (
     MultiAction,
     MultiResult,
-    PreemptiveMultiResourceModel,
+    PreeMultiModel,
 )
 
 
@@ -38,7 +38,7 @@ ExactObjective = Literal["makespan", "weighted_jct"]
 @dataclass(frozen=True)
 class JobSpec:
     job_id: str
-    dag: BenchmarkDAG
+    dag: DAG
     arrival: int = 0
     weight: float = 1.0
 
@@ -53,7 +53,7 @@ class JobSpec:
 
 @dataclass(frozen=True)
 class MultiJobInstance:
-    dag: BenchmarkDAG
+    dag: DAG
     jobs: tuple[JobSpec, ...]
     task_job: Mapping[str, str]
     original_task: Mapping[str, str]
@@ -117,7 +117,7 @@ def compose_jobs(specs: Sequence[JobSpec]) -> MultiJobInstance:
         raise ValueError("at least one job is required")
     if len({job.job_id for job in jobs}) != len(jobs):
         raise ValueError("job IDs must be unique")
-    tasks: list[BenchTask] = []
+    tasks: list[Task] = []
     task_job: dict[str, str] = {}
     original_task: dict[str, str] = {}
     for job in jobs:
@@ -125,7 +125,7 @@ def compose_jobs(specs: Sequence[JobSpec]) -> MultiJobInstance:
         if errors:
             raise ValueError(f"invalid job DAG {job.job_id}: {errors}")
         release = f"{job.job_id}::__arrival__"
-        tasks.append(BenchTask(release, "compute", job.arrival, role="JOB_ARRIVAL"))
+        tasks.append(Task(release, "compute", job.arrival, labels=(("task_role", "JOB_ARRIVAL"),)))
         task_job[release] = job.job_id
         original_task[release] = "__arrival__"
         for task in job.dag.tasks:
@@ -133,22 +133,20 @@ def compose_jobs(specs: Sequence[JobSpec]) -> MultiJobInstance:
             dependencies = tuple(_prefixed(job.job_id, dep) for dep in task.deps)
             if not task.deps:
                 dependencies = (release,)
-            tasks.append(BenchTask(
+            tasks.append(Task(
                 task_id,
                 task.kind,
                 task.duration,
                 dependencies,
-                role=task.role,
-                cut=task.cut,
+                labels=task.labels,
             ))
             task_job[task_id] = job.job_id
             original_task[task_id] = task.task_id
-    dag = BenchmarkDAG(
+    dag = DAG(
         "multi_job__" + "__".join(job.job_id for job in jobs),
-        "multi_job",
         tuple(tasks),
-        "Disjoint job DAGs coupled only by the shared communication channel.",
-        tuple((f"arrival:{job.job_id}", str(job.arrival)) for job in jobs),
+        context=(("category", "multi_job"), ("description", "Disjoint job DAGs coupled only by the shared communication channel.")),
+        parameters=tuple((f"arrival:{job.job_id}", str(job.arrival)) for job in jobs),
     )
     errors = dag.validate()
     if errors:
@@ -166,7 +164,7 @@ def evaluate_schedule(
 ) -> MultiJobResult:
     """Compute per-job completion, JCT, weighted JCT, and slowdown."""
 
-    model = PreemptiveDAGModel(instance.dag)
+    model = PreeSingleModel(instance.dag)
     outcomes: list[JobOutcome] = []
     by_id = {job.job_id: job for job in instance.jobs}
     for job_id, job in by_id.items():
@@ -233,7 +231,7 @@ def exact_hierarchical(
         raise ValueError("candidate_width must be positive or None")
     if objective not in {"makespan", "weighted_jct"}:
         raise ValueError(f"unknown exact objective: {objective}")
-    model = PreemptiveDAGModel(instance.dag)
+    model = PreeSingleModel(instance.dag)
     initial = model.initial_state()
     representatives: dict[tuple, ScheduleState] = {}
     started = perf_counter()
@@ -330,7 +328,7 @@ def exact_hierarchical(
         actions.append(action)
     trace = model.run(actions)
     assert_preemptive_trace(model, trace)
-    result = replace(result_from_trace(trace), explored_states=explored)
+    result = result_from_trace(trace).with_stats(explored_states=explored)
     return evaluate_schedule(
         instance,
         result,
@@ -357,7 +355,7 @@ def schedule_hierarchical(
 
     if candidate_width is not None and candidate_width < 1:
         raise ValueError("candidate_width must be positive or None")
-    model = PreemptiveDAGModel(instance.dag)
+    model = PreeSingleModel(instance.dag)
     state = model.initial_state()
     actions: list[Action] = []
     candidate_counts: list[int] = []
@@ -484,7 +482,7 @@ def teacher_candidate_recall(
 
     hits = {width: 0 for width in widths}
     decisions = 0
-    model = PreemptiveDAGModel(instance.dag)
+    model = PreeSingleModel(instance.dag)
     state = model.initial_state()
     for transition in teacher.trace.transitions:
         action = transition.action
@@ -517,7 +515,7 @@ def teacher_candidate_recall(
 
 def job_summaries(
     instance: MultiJobInstance,
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     *,
     attained_service: Mapping[str, int] | None = None,
@@ -680,7 +678,7 @@ def schedule_multi_resource_hierarchical(
 
     if candidate_width is not None and candidate_width < 1:
         raise ValueError("candidate_width must be positive or None")
-    model = PreemptiveMultiResourceModel(instance.dag, dict(resources))
+    model = PreeMultiModel(instance.dag, dict(resources))
     state = model.initial_state()
     actions: list[MultiAction] = []
     while not model.finished(state):
@@ -784,7 +782,7 @@ def schedule_multi_resource_policy(
 ) -> MultiResourceJobResult:
     """Choose a job-aware ordering, then maximal-complete across every job."""
 
-    model = PreemptiveMultiResourceModel(instance.dag, dict(resources))
+    model = PreeMultiModel(instance.dag, dict(resources))
     state = model.initial_state()
     actions: list[MultiAction] = []
     attained = {job.job_id: 0 for job in instance.jobs}
@@ -844,23 +842,21 @@ def build_multi_resource_top1_counterexample(
 ) -> tuple[MultiJobInstance, dict[str, frozenset[str]]]:
     """K=1 hides a private-link flow and leaves that link idle."""
 
-    job_a = BenchmarkDAG(
+    job_a = DAG(
         "resource_job_a",
-        "multi_job_fixture",
         (
-            BenchTask("shared", "comm", 4, role="PP"),
-            BenchTask("shared_tail", "compute", 10, ("shared",), role="PP_TAIL"),
-            BenchTask("private", "comm", 8, role="DP"),
-            BenchTask("private_tail", "compute", 9, ("private",), role="DP_TAIL"),
-        ),
+            Task("shared", "comm", 4, labels=(("task_role", "PP"),)),
+            Task("shared_tail", "compute", 10, ("shared",), labels=(("task_role", "PP_TAIL"),)),
+            Task("private", "comm", 8, labels=(("task_role", "DP"),)),
+            Task("private_tail", "compute", 9, ("private",), labels=(("task_role", "DP_TAIL"),)),
+        ), context=(("category", "multi_job_fixture"),),
     )
-    job_b = BenchmarkDAG(
+    job_b = DAG(
         "resource_job_b",
-        "multi_job_fixture",
         (
-            BenchTask("shared", "comm", 4, role="PP"),
-            BenchTask("shared_tail", "compute", 11, ("shared",), role="PP_TAIL"),
-        ),
+            Task("shared", "comm", 4, labels=(("task_role", "PP"),)),
+            Task("shared_tail", "compute", 11, ("shared",), labels=(("task_role", "PP_TAIL"),)),
+        ), context=(("category", "multi_job_fixture"),),
     )
     instance = compose_jobs((JobSpec("A", job_a), JobSpec("B", job_b)))
     resources = {
@@ -872,7 +868,7 @@ def build_multi_resource_top1_counterexample(
 
 
 def _nominate(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     instance: MultiJobInstance,
     task_ids: Sequence[str],
@@ -908,7 +904,7 @@ def _nominate(
         add(continuation[0])
     by_role: dict[str, str] = {}
     for task_id in tail_ranked:
-        role = model.task_map[task_id].role or "OTHER"
+        role = model.task_map[task_id].label_map().get("task_role", "") or "OTHER"
         by_role.setdefault(role, task_id)
     for _role, task_id in sorted(
         by_role.items(),
@@ -921,7 +917,7 @@ def _nominate(
 
 
 def _tail_score(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     tail: Mapping[str, int],
     task_id: str,
@@ -932,7 +928,7 @@ def _tail_score(
 
 
 def _global_priority_key(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     instance: MultiJobInstance,
     tail: Mapping[str, int],
@@ -951,7 +947,7 @@ def _global_priority_key(
 
 
 def _complete_flat_longest_tail(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
 ) -> ScheduleState:
     while not model.is_finished(state):
@@ -1013,7 +1009,7 @@ def _multi_tail_score(model, state, tail: Mapping[str, int], task_id: str) -> in
 
 
 def _count_multi_preemptions(
-    model: PreemptiveMultiResourceModel,
+    model: PreeMultiModel,
     actions: Sequence[MultiAction],
 ) -> int:
     count = 0
@@ -1035,32 +1031,30 @@ def _count_multi_preemptions(
 def build_parallel_chain_job(
     name: str,
     chains: Sequence[tuple[int, Sequence[int], Sequence[int]]],
-) -> BenchmarkDAG:
-    tasks: list[BenchTask] = []
+) -> DAG:
+    tasks: list[Task] = []
     for chain_index, (release, communications, computes) in enumerate(chains):
         if len(communications) != len(computes):
             raise ValueError("communication and compute sequences must align")
         previous: str | None = None
         if release:
             previous = f"c{chain_index}_release"
-            tasks.append(BenchTask(previous, "compute", release, role="RELEASE"))
+            tasks.append(Task(previous, "compute", release, labels=(("task_role", "RELEASE"),)))
         for operation, (communication, compute) in enumerate(
             zip(communications, computes, strict=True)
         ):
             flow = f"c{chain_index}_flow{operation}"
-            tasks.append(BenchTask(
+            tasks.append(Task(
                 flow,
                 "comm",
                 communication,
-                () if previous is None else (previous,),
-                role=f"CHAIN_{chain_index}_COMM",
+                () if previous is None else (previous,), labels=(("task_role", f"CHAIN_{chain_index}_COMM"),),
             ))
             previous = f"c{chain_index}_compute{operation}"
-            tasks.append(BenchTask(
+            tasks.append(Task(
                 previous,
                 "compute",
                 compute,
-                (flow,),
-                role=f"CHAIN_{chain_index}_COMPUTE",
+                (flow,), labels=(("task_role", f"CHAIN_{chain_index}_COMPUTE"),),
             ))
-    return BenchmarkDAG(name, "multi_job_fixture", tuple(tasks))
+    return DAG(name, tuple(tasks), context=(('category', 'multi_job_fixture'),))

@@ -127,7 +127,7 @@ def test_stratified_selection_keeps_ga_negative_control_and_overlap_layers() -> 
 
 
 def test_large_multi_resource_census_never_enumerates_subsets(monkeypatch) -> None:
-    from muti_channel.nonpreemptive.solver import NonPreemptiveMultiResourceDAG
+    from muti_channel.nonpreemptive.solver import NonPreeMultiModel
 
     resources = tuple(Resource(f"r{i}", "link") for i in range(11))
     benchmark = Benchmark(
@@ -149,7 +149,7 @@ def test_large_multi_resource_census_never_enumerates_subsets(monkeypatch) -> No
     def forbidden(*_args, **_kwargs):
         raise AssertionError("large census enumerated start subsets")
 
-    monkeypatch.setattr(NonPreemptiveMultiResourceDAG, "start_subsets", forbidden)
+    monkeypatch.setattr(NonPreeMultiModel, "start_subsets", forbidden)
     report = contention_audit(benchmark, max_decisions=1, mode="work_conserving")
     assert report["decisions"][0]["enumeration_skipped"] is True
     assert len(report["decisions"][0]["policy_actions"]) == 8

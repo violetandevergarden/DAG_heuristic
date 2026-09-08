@@ -6,11 +6,11 @@ from dataclasses import replace
 
 import pytest
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 from llm_structured.repetition import build_exchangeable_replicas, exact_oracle_paired
 
 
-def _cross_edge_dag(replicas: int) -> tuple[BenchmarkDAG, tuple[tuple[str, ...], ...]]:
+def _cross_edge_dag(replicas: int) -> tuple[DAG, tuple[tuple[str, ...], ...]]:
     """Same replicas fixture with one cross-component edge injected."""
 
     dag, components = build_exchangeable_replicas(replicas)

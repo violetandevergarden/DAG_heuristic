@@ -5,7 +5,7 @@ from __future__ import annotations
 import random
 
 from muti_channel.nonpreemptive.solver import (
-    NonPreemptiveMultiResourceDAG,
+    NonPreeMultiModel,
     ResourceAction,
     ResourceState,
 )
@@ -56,7 +56,7 @@ def baseline_action(model, state, policy="lt"):
     return greedy_fill(model, state, _orders(model, state, 17)[policy], budget)
 
 
-def construct_candidates(model: NonPreemptiveMultiResourceDAG, state: ResourceState,
+def construct_candidates(model: NonPreeMultiModel, state: ResourceState,
                          config: PackingConfig, budget: DecisionBudget) -> tuple[PackingCandidate, ...]:
     orders = _orders(model, state, config.random_seed)
     candidates: dict[tuple[str, ...], PackingCandidate] = {}

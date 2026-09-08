@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 from time import perf_counter
 
-from core.execution.preemptive import Action, PreemptiveDAGModel, ScheduleState
+from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
 from single_channel.complex_chain.preemptive import solver
 
 
@@ -33,7 +33,7 @@ def _fingerprint(state: ScheduleState) -> str:
 
 
 def build_local_region(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     baseline: str,
     challenger: str,

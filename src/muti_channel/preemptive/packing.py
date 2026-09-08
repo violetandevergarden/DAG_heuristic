@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from time import perf_counter
 from typing import Iterator, Literal
 
-from core.execution.multi_resource import MultiResourceAction, MultiResourceState, PreemptiveMultiResourceModel
+from core.execution.preemptive import MultiResourceAction, MultiResourceState, PreeMultiModel
 
 FallbackReason = Literal["pack_budget", "seed_budget", "set_budget", "eval_budget", "time_limit", "no_alternative", "selector_baseline"]
 
@@ -122,14 +122,14 @@ class PackingResult:
     stats: PackingStats
 
 
-def build_conflict_graph(model: PreemptiveMultiResourceModel, state: MultiResourceState) -> ConflictGraph:
+def build_conflict_graph(model: PreeMultiModel, state: MultiResourceState) -> ConflictGraph:
     vertices = tuple(sorted(model.eligible(state)))
     edges = tuple((left, right) for index, left in enumerate(vertices) for right in vertices[index + 1 :] if model.resources[left] & model.resources[right])
     footprints = tuple((item, tuple(sorted(model.resources[item]))) for item in vertices)
     return ConflictGraph(vertices, edges, footprints)
 
 
-def validate_maximal_action(model: PreemptiveMultiResourceModel, state: MultiResourceState, action: MultiResourceAction) -> None:
+def validate_maximal_action(model: PreeMultiModel, state: MultiResourceState, action: MultiResourceAction) -> None:
     selected = action.communications
     eligible = set(model.eligible(state))
     if not selected:
@@ -145,7 +145,7 @@ def validate_maximal_action(model: PreemptiveMultiResourceModel, state: MultiRes
         raise ValueError("packing action is not inclusion-maximal")
 
 
-def complete_maximal(model: PreemptiveMultiResourceModel, state: MultiResourceState, ordered: tuple[str, ...], *, seed: tuple[str, ...] = ()) -> MultiResourceAction:
+def complete_maximal(model: PreeMultiModel, state: MultiResourceState, ordered: tuple[str, ...], *, seed: tuple[str, ...] = ()) -> MultiResourceAction:
     selected = list(seed)
     for item in ordered:
         if item not in selected and model.compatible((*selected, item)):
@@ -155,7 +155,7 @@ def complete_maximal(model: PreemptiveMultiResourceModel, state: MultiResourceSt
     return action
 
 
-def iter_maximal_actions(model: PreemptiveMultiResourceModel, state: MultiResourceState, ledger: DecisionBudget) -> Iterator[MultiResourceAction]:
+def iter_maximal_actions(model: PreeMultiModel, state: MultiResourceState, ledger: DecisionBudget) -> Iterator[MultiResourceAction]:
     """Stream maximal actions, consuming construction budget at each tree node."""
     vertices = tuple(sorted(model.eligible(state)))
     seen: set[MultiResourceAction] = set()

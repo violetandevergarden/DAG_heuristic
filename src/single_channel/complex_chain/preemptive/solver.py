@@ -1,7 +1,7 @@
 """Stage 2 algorithms for single-channel communication-preemptive DAGs.
 
 Every policy and search routine delegates event progression to
-``PreemptiveDAGModel.step``.  This module only ranks legal communications or
+``PreeSingleModel.step``.  This module only ranks legal communications or
 searches the resulting public event states.
 """
 
@@ -13,10 +13,10 @@ from dataclasses import dataclass, replace
 from time import perf_counter
 from typing import Literal
 
-from core.dag import BenchmarkDAG, topological_order
+from core.dag import DAG
 from core.execution.preemptive import (
     Action,
-    PreemptiveDAGModel,
+    PreeSingleModel,
     PreemptiveScheduleResult,
     ScheduleState,
     result_from_trace,
@@ -83,7 +83,7 @@ class _BudgetExceeded(RuntimeError):
         self.reason = reason
 
 
-def validate_complex_chain(dag: BenchmarkDAG) -> None:
+def validate_complex_chain(dag: DAG) -> None:
     """Validate the Stage 2 internal family contract.
 
     Stage 2 deliberately accepts raw general DAGs, including same-kind edges
@@ -102,14 +102,14 @@ def validate_complex_chain(dag: BenchmarkDAG) -> None:
         raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
 
 
-def schedule_longest_tail(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
+def schedule_longest_tail(dag: DAG) -> PreemptiveScheduleResult:
     """Schedule the largest exclusive residual downstream tail first."""
 
     return schedule_priority(dag, "longest_tail")
 
 
 def schedule_barrier_policy(
-    dag: BenchmarkDAG,
+    dag: DAG,
     mode: str = "tail_barrier",
     *,
     trigger: str | None = None,
@@ -125,7 +125,7 @@ def schedule_barrier_policy(
     """
 
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     while not model.is_finished(state):
@@ -153,7 +153,7 @@ def schedule_barrier_policy(
 
 
 def offline_best_of_lt_and_barrier(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     mode: str = "tail_barrier",
     trigger: str = "barrier_or_unlock",
@@ -187,7 +187,7 @@ def offline_best_of_lt_and_barrier(
 
 
 def schedule_barrier_margin_tiebreak(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     max_normalized_margin: float = 0.25,
 ) -> PreemptiveScheduleResult:
@@ -202,7 +202,7 @@ def schedule_barrier_margin_tiebreak(
     if max_normalized_margin < 0:
         raise ValueError("max_normalized_margin must be non-negative")
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     audits: list[str] = []
@@ -248,8 +248,7 @@ def schedule_barrier_margin_tiebreak(
         actions.append(action)
         state = model.step(state, action).after
     result = _result(model, actions)
-    return replace(
-        result,
+    return result.with_stats(
         planner_decisions=decisions,
         planner_triggered=triggered,
         planner_improvements=improvements,
@@ -257,7 +256,7 @@ def schedule_barrier_margin_tiebreak(
     )
 
 
-def schedule_barrier_prescreen(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
+def schedule_barrier_prescreen(dag: DAG) -> PreemptiveScheduleResult:
     """Run the currently safe direct-barrier prefilter before residual LT.
 
     Direct-only analysis cannot prove a candidate has no indirect barrier
@@ -266,7 +265,7 @@ def schedule_barrier_prescreen(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
     """
 
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     audits: list[str] = []
@@ -286,8 +285,7 @@ def schedule_barrier_prescreen(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
             action = Action.run(baseline)
         actions.append(action)
         state = model.step(state, action).after
-    return replace(
-        _result(model, actions),
+    return _result(model, actions).with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
         planner_decisions=len(audits),
         fallback_details=tuple(audits),
@@ -295,7 +293,7 @@ def schedule_barrier_prescreen(dag: BenchmarkDAG) -> PreemptiveScheduleResult:
 
 
 def schedule_selective_barrier_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     max_triggers: int = 8,
     time_limit_s: float | None = 2.0,
@@ -315,7 +313,7 @@ def schedule_selective_barrier_rollout(
     if time_limit_s is not None and time_limit_s < 0:
         raise ValueError("time_limit_s must be non-negative or None")
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     started = perf_counter()
@@ -366,8 +364,7 @@ def schedule_selective_barrier_rollout(
         actions.append(action)
         state = model.step(state, action).after
     result = _result(model, actions)
-    return replace(
-        result,
+    return result.with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
         evaluated_candidates=completion_calls,
         fallback_count=fallback_count,
@@ -380,7 +377,7 @@ def schedule_selective_barrier_rollout(
 
 
 def schedule_priority(
-    dag: BenchmarkDAG,
+    dag: DAG,
     priority: PriorityName = "longest_tail",
 ) -> PreemptiveScheduleResult:
     """Run a deterministic work-conserving Stage 2 priority policy.
@@ -399,7 +396,7 @@ def schedule_priority(
     }:
         return schedule_barrier_policy(dag, priority)
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     first_eligible: dict[str, int] = {}
@@ -427,7 +424,7 @@ def schedule_priority(
 
 
 def schedule_rollout(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     top_k: int | None = 2,
     depth: int = 1,
@@ -451,7 +448,7 @@ def schedule_rollout(
         raise ValueError("rollout depth must be at least one")
     if top_k is not None and top_k < 1:
         raise ValueError("rollout top_k must be positive or None")
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions: list[Action] = []
     stats = _SearchStats()
@@ -552,8 +549,7 @@ def schedule_rollout(
         actions.append(action)
         state = model.step(state, action).after
     result = _result(model, actions)
-    return replace(
-        result,
+    return result.with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
         deduplicated_states=stats.duplicates,
         peak_states=len(memo),
@@ -565,7 +561,7 @@ def schedule_rollout(
 
 
 def beam_search(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     width: int = 8,
     horizon: int | None = None,
@@ -585,7 +581,7 @@ def beam_search(
         raise ValueError("beam width must be positive")
     if horizon is not None and horizon < 1:
         raise ValueError("beam horizon must be positive or None")
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     initial = model.initial_state()
     incumbent_actions = _complete_actions(model, initial, "longest_tail")
     incumbent_finish = _apply_actions(model, initial, incumbent_actions).time
@@ -650,8 +646,7 @@ def beam_search(
         decision_depth += 1
 
     result = _result(model, incumbent_actions)
-    return replace(
-        result,
+    return result.with_stats(
         runtime_ms=(perf_counter() - started) * 1000,
         deduplicated_states=stats.duplicates,
         peak_states=stats.peak_states,
@@ -663,7 +658,7 @@ def beam_search(
 
 
 def exact_oracle(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     max_states: int = 500_000,
     time_limit_s: float | None = None,
@@ -687,7 +682,7 @@ def exact_oracle(
         )
     if max_states < 1:
         raise ValueError("max_states must be positive")
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     initial = model.initial_state()
     started = perf_counter()
     stats = _SearchStats()
@@ -765,8 +760,7 @@ def exact_oracle(
         _cost, actions = search(initial)
     except _BudgetExceeded as error:
         result = _result(model, incumbent_actions)
-        return replace(
-            result,
+        return result.with_stats(
             explored_states=stats.explored,
             generated_transitions=stats.generated,
             deduplicated_states=stats.duplicates,
@@ -781,8 +775,7 @@ def exact_oracle(
         )
 
     result = _result(model, actions)
-    return replace(
-        result,
+    return result.with_stats(
         explored_states=stats.explored,
         generated_transitions=stats.generated,
         deduplicated_states=stats.duplicates,
@@ -797,7 +790,7 @@ def exact_oracle(
 
 
 def exact_oracle_uncompressed(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     max_states: int = 500_000,
     time_limit_s: float | None = None,
@@ -819,7 +812,7 @@ def exact_oracle_uncompressed(
 
 
 def exact_completion_from_state_uncompressed(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     *,
     max_states: int = 100_000,
@@ -892,7 +885,7 @@ def exact_completion_from_state_uncompressed(
 
 
 def monte_carlo(
-    dag: BenchmarkDAG,
+    dag: DAG,
     *,
     samples: int = 64,
     seed: int = 0,
@@ -900,7 +893,7 @@ def monte_carlo(
     """Historical reproducible sampler, retained outside the active registry."""
 
     validate_complex_chain(dag)
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     rng = random.Random(seed)
     candidates: list[PreemptiveScheduleResult] = [schedule_longest_tail(dag)]
     for _ in range(samples):
@@ -934,7 +927,7 @@ def normalized_state_key(state: ScheduleState) -> StateKey:
 
 
 def remaining_lower_bound(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     *,
     mode: str = "combined",
@@ -961,7 +954,7 @@ def remaining_lower_bound(
 
 
 def residual_tail(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     roots: tuple[str, ...] | list[str] | None = None,
 ) -> dict[str, int]:
@@ -989,7 +982,7 @@ def residual_tail(
 
 
 def immediate_release_gain(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -1032,7 +1025,7 @@ def immediate_release_gain(
 
 
 def immediate_compute_delay(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -1077,7 +1070,7 @@ def immediate_compute_delay(
 
 
 def direct_last_blocker_gain(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
     tail: dict[str, int] | None = None,
@@ -1097,7 +1090,7 @@ def direct_last_blocker_gain(
 
 
 def unique_downstream_work(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -1113,7 +1106,7 @@ def unique_downstream_work(
 
 
 def downstream_communication_demand(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -1128,7 +1121,7 @@ def downstream_communication_demand(
 
 
 def barrier_urgency(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
     tail: dict[str, int] | None = None,
@@ -1145,7 +1138,7 @@ def barrier_urgency(
     tasks = model.task_map
     children = _children(model)
     distance: dict[str, int] = {task_id: 0}
-    for current in topological_order(model.dag):
+    for current in model.dag.topological_order():
         if current not in distance:
             continue
         for child in children[current]:
@@ -1161,7 +1154,7 @@ def barrier_urgency(
 
 
 def _priority_key(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
     priority: str,
@@ -1211,7 +1204,7 @@ def _priority_key(
 
 
 def _baseline_choice(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     priority: str,
 ) -> str:
@@ -1221,7 +1214,7 @@ def _baseline_choice(
 
 
 def _complete_actions(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     priority: str,
 ) -> tuple[Action, ...]:
@@ -1239,7 +1232,7 @@ def _complete_actions(
 
 
 def _rank_candidates(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     eligible: tuple[str, ...],
     tail: dict[str, int],
@@ -1311,7 +1304,7 @@ def _interleave(*rankings: list[str]) -> list[str]:
 
 
 def _advance_forced_idle(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
 ) -> tuple[ScheduleState, tuple[Action, ...]]:
     actions: list[Action] = []
@@ -1326,7 +1319,7 @@ def _advance_forced_idle(
 
 
 def _apply_actions(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     actions: tuple[Action, ...],
 ) -> ScheduleState:
@@ -1336,7 +1329,7 @@ def _apply_actions(
 
 
 def _own_remaining(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     state: ScheduleState,
     task_id: str,
 ) -> int:
@@ -1348,11 +1341,11 @@ def _own_remaining(
     return model.task_map[task_id].duration
 
 
-def _children(model: PreemptiveDAGModel) -> dict[str, list[str]]:
+def _children(model: PreeSingleModel) -> dict[str, list[str]]:
     return model.children
 
 
-def _descendants(model: PreemptiveDAGModel, task_id: str) -> set[str]:
+def _descendants(model: PreeSingleModel, task_id: str) -> set[str]:
     children = _children(model)
     result: set[str] = set()
     pending = list(children[task_id])
@@ -1366,7 +1359,7 @@ def _descendants(model: PreemptiveDAGModel, task_id: str) -> set[str]:
 
 
 def _result(
-    model: PreemptiveDAGModel,
+    model: PreeSingleModel,
     actions: tuple[Action, ...] | list[Action],
 ) -> PreemptiveScheduleResult:
     trace = model.run(actions)

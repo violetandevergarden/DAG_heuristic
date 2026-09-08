@@ -18,10 +18,9 @@ from typing import Any
 
 from benchmark import SchedulingSemantics, write_benchmark
 from benchmark_generate.convert import dag_to_benchmark, multi_resource_to_benchmark
-from core.dag import BenchmarkDAG, BenchTask
-from core.execution.multi_resource import MultiResourceAction, PreemptiveMultiResourceModel
-from core.execution.preemptive import Action, PreemptiveDAGModel
-from core.resource import MultiResourceInstance
+from core.dag import DAG, Task
+from core.execution.preemptive import MultiResourceAction, PreeMultiModel
+from core.execution.preemptive import Action, PreeSingleModel
 from llm_structured.barrier import action_features, build_context, feature_snapshot
 from muti_channel.preemptive.solver import schedule_set_policy
 from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
@@ -35,7 +34,7 @@ from single_channel.complex_chain.preemptive.solver import (
 @dataclass(frozen=True)
 class BarrierMotif:
     name: str
-    dag: BenchmarkDAG
+    dag: DAG
     resources: dict[str, frozenset[str]] | None = None
     description: str = ""
 
@@ -43,96 +42,73 @@ class BarrierMotif:
 def single_channel_motifs() -> tuple[BarrierMotif, ...]:
     """Return B0--B8 controlled single-channel motifs."""
 
-    def base(name: str, extra: tuple[BenchTask, ...], description: str) -> BarrierMotif:
+    def base(name: str, extra: tuple[Task, ...], description: str) -> BarrierMotif:
         tasks = (
-            BenchTask("release", "compute", 2),
-            BenchTask("R", "comm", 6),
-            BenchTask("N", "comm", 1, ("release",)),
+            Task("release", "compute", 2),
+            Task("R", "comm", 6),
+            Task("N", "comm", 1, ("release",)),
             *extra,
         )
-        return BarrierMotif(name, BenchmarkDAG(name, "adversarial", tasks, description), description=description)
+        return BarrierMotif(name, DAG(name, tasks, context=(('category', 'adversarial'),)), description=description)
 
     return (
         base("barrier_B0_no_unlock", (), "N has no downstream release or join."),
         base(
             "barrier_B1_unlock",
-            (BenchTask("unlock_compute", "compute", 5, ("N",)),),
+            (Task("unlock_compute", "compute", 5, ("N",)),),
             "N immediately releases overlapable compute.",
         ),
         base(
             "barrier_B2_local_short",
             (
-                BenchTask("done", "compute", 0),
-                BenchTask("local_join", "compute", 1, ("N", "done")),
+                Task("done", "compute", 0),
+                Task("local_join", "compute", 1, ("N", "done")),
             ),
             "N is last missing predecessor of a short local join.",
         ),
         base(
             "barrier_B3_local_long",
             (
-                BenchTask("done", "compute", 0),
-                BenchTask("local_join", "compute", 1, ("N", "done")),
-                BenchTask("local_tail", "compute", 8, ("local_join",)),
+                Task("done", "compute", 0),
+                Task("local_join", "compute", 1, ("N", "done")),
+                Task("local_tail", "compute", 8, ("local_join",)),
             ),
             "N is last missing predecessor of a long local tail.",
         ),
         base(
             "barrier_B4_global_join",
             (
-                BenchTask("done", "compute", 0),
-                BenchTask("global_join", "compute", 1, ("N", "done")),
-                BenchTask("R_after", "compute", 2, ("R",)),
-                BenchTask("global_tail", "compute", 10, ("global_join", "R_after")),
+                Task("done", "compute", 0),
+                Task("global_join", "compute", 1, ("N", "done")),
+                Task("R_after", "compute", 2, ("R",)),
+                Task("global_tail", "compute", 10, ("global_join", "R_after")),
             ),
             "N is the last missing predecessor of a join that feeds the only residual sink.",
         ),
         base(
             "barrier_B5_R_longer_tail",
             (
-                BenchTask("R_tail", "compute", 12, ("R",)),
-                BenchTask("unlock_compute", "compute", 1, ("N",)),
+                Task("R_tail", "compute", 12, ("R",)),
+                Task("unlock_compute", "compute", 1, ("N",)),
             ),
             "R has the longer residual critical tail; switching is a negative control.",
         ),
         base(
             "barrier_B6_same_static_tail_remaining_diff",
             (
-                BenchTask("N_tail", "compute", 4, ("N",)),
-                BenchTask("R_tail", "compute", 4, ("R",)),
+                Task("N_tail", "compute", 4, ("N",)),
+                Task("R_tail", "compute", 4, ("R",)),
             ),
             "Static downstream shape is similar while current remaining work differs.",
         ),
         BarrierMotif(
             "barrier_B7_same_labels_different_structure",
-            BenchmarkDAG(
-                "barrier_B7_same_labels_different_structure",
-                "adversarial",
-                (
-                    BenchTask("release", "compute", 2),
-                    BenchTask("R", "comm", 6, labels=(("collective_type", "allreduce"),)),
-                    BenchTask("N", "comm", 1, ("release",), labels=(("collective_type", "allreduce"),)),
-                    BenchTask("local_join", "compute", 1, ("N", "R")),
-                    BenchTask("other", "comm", 2, labels=(("collective_type", "allreduce"),)),
-                    BenchTask("other_tail", "compute", 9, ("other",)),
-                ),
-                "Same label hint, different residual downstream structure.",
-            ),
+            DAG('barrier_B7_same_labels_different_structure', (Task('release', 'compute', 2), Task('R', 'comm', 6, labels=(('collective_type', 'allreduce'),)), Task('N', 'comm', 1, ('release',), labels=(('collective_type', 'allreduce'),)), Task('local_join', 'compute', 1, ('N', 'R')), Task('other', 'comm', 2, labels=(('collective_type', 'allreduce'),)), Task('other_tail', 'compute', 9, ('other',))), context=(('category', 'adversarial'), ('description', 'Same label hint, different residual downstream structure.'))),
             description="Same labels must not force a fixed priority.",
         ),
         BarrierMotif(
             "barrier_B8_serializer_like",
-            BenchmarkDAG(
-                "barrier_B8_serializer_like",
-                "adversarial",
-                (
-                    BenchTask("release", "compute", 2),
-                    BenchTask("R", "comm", 6, role="serializer"),
-                    BenchTask("N", "comm", 1, ("release",), role="serializer"),
-                    BenchTask("serialized", "compute", 2, ("R", "N"), role="serializer"),
-                    BenchTask("sink", "compute", 5, ("serialized",)),
-                ),
-                "Serializer-shaped join is classified structurally without changing legality.",
-            ),
+            DAG('barrier_B8_serializer_like', (Task('release', 'compute', 2), Task('R', 'comm', 6, labels=(('task_role', 'serializer'),)), Task('N', 'comm', 1, ('release',), labels=(('task_role', 'serializer'),)), Task('serialized', 'compute', 2, ('R', 'N'), labels=(('task_role', 'serializer'),)), Task('sink', 'compute', 5, ('serialized',))), context=(('category', 'adversarial'), ('description', 'Serializer-shaped join is classified structurally without changing legality.'))),
             description="Serializer provenance is diagnostic only.",
         ),
     )
@@ -141,22 +117,16 @@ def single_channel_motifs() -> tuple[BarrierMotif, ...]:
 def multi_resource_motifs() -> tuple[BarrierMotif, ...]:
     """Return fixed-resource packing motifs with the same residual barrier core."""
 
-    dag = BenchmarkDAG(
-        "barrier_multi_packing",
-        "adversarial",
-        (
-            BenchTask("release", "compute", 3),
-            BenchTask("R", "comm", 5),
-            BenchTask("N", "comm", 1, ("release",)),
-            BenchTask("side", "comm", 6),
-            BenchTask("join_other", "compute", 0),
-            BenchTask("join", "compute", 1, ("N", "join_other")),
-            BenchTask("tail", "compute", 7, ("join", "R", "side")),
-        ),
-        "N is a barrier last-missing candidate while side can pack on a disjoint resource.",
-    )
+    dag = DAG('barrier_multi_packing', (Task('release', 'compute', 3), Task('R', 'comm', 5), Task('N', 'comm', 1, ('release',)), Task('side', 'comm', 6), Task('join_other', 'compute', 0), Task('join', 'compute', 1, ('N', 'join_other')), Task('tail', 'compute', 7, ('join', 'R', 'side'))), context=(('category', 'adversarial'), ('description', 'N is a barrier last-missing candidate while side can pack on a disjoint resource.')))
     resources = {"R": frozenset({"hot"}), "N": frozenset({"hot"}), "side": frozenset({"cool"})}
-    return (BarrierMotif("barrier_multi_packing", dag, resources, dag.description),)
+    return (
+        BarrierMotif(
+            "barrier_multi_packing",
+            dag,
+            resources,
+            dag.context_map().get("description", ""),
+        ),
+    )
 
 
 def _exact_from_state(model: Any, state: Any, memo: dict[tuple, tuple[int, tuple[Any, ...]]]) -> tuple[int, tuple[Any, ...]]:
@@ -246,7 +216,7 @@ def label_motif(motif: BarrierMotif) -> dict[str, Any]:
     """Produce bounded labels and policy observations for one motif."""
 
     if motif.resources is None:
-        model = PreemptiveDAGModel(motif.dag)
+        model = PreeSingleModel(motif.dag)
         initial = model.initial_state()
         scripted = model.step(initial, Action.run("R")).after
         context = build_context(model, scripted)
@@ -271,7 +241,7 @@ def label_motif(motif: BarrierMotif) -> dict[str, Any]:
             "policy_makespans": policy,
             "description": motif.description,
         }
-    model = PreemptiveMultiResourceModel(motif.dag, motif.resources)
+    model = PreeMultiModel(motif.dag, motif.resources)
     initial = model.initial_state()
     scripted = model.step(initial, MultiResourceAction(("R", "side")))
     context = build_context(model, scripted)
@@ -319,7 +289,7 @@ def write_motifs(root: Path) -> list[Path]:
             benchmark = dag_to_benchmark(motif.dag, "adversarial")
             target = root / "single_channel" / "complex_chain" / "preemptive" / "adversarial" / f"{motif.name}.json"
         else:
-            benchmark = multi_resource_to_benchmark(MultiResourceInstance(motif.dag, motif.resources), "adversarial")
+            benchmark = multi_resource_to_benchmark(motif.dag, "adversarial")
             target = root / "muti_channel" / "preemptive" / "adversarial" / f"{motif.name}.json"
         benchmark = replace(benchmark, semantics=semantics, schema_version="2.0")
         write_benchmark(benchmark, target)

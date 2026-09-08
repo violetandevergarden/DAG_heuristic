@@ -34,7 +34,7 @@ def generate_reference_results(
         try:
             if benchmark.semantics.is_preemptive:
                 if benchmark.scenario == "single_channel":
-                    from core.conversion import to_internal_dag
+                    from core.conversion import to_dag
 
                     if benchmark.family == "parallel_chain":
                         from single_channel.parallel_chain.preemptive.solver import exact_oracle
@@ -42,13 +42,13 @@ def generate_reference_results(
                         from single_channel.complex_chain.preemptive.solver import exact_oracle
 
                     result = exact_oracle(
-                        to_internal_dag(benchmark), max_states=100_000, time_limit_s=5.0
+                        to_dag(benchmark), max_states=100_000, time_limit_s=5.0
                     )
                 else:
-                    from core.conversion import to_multi_resource_instance
+                    from core.conversion import to_muti_resourse
                     from muti_channel.preemptive.solver import exact_oracle
 
-                    instance = to_multi_resource_instance(benchmark)
+                    instance = to_muti_resourse(benchmark)
                     result = exact_oracle(
                         instance.dag,
                         {

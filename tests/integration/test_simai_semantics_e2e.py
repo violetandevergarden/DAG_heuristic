@@ -1,4 +1,4 @@
-﻿"""End-to-end preemptive semantics checks on SimAI-exported benchmarks.
+"""End-to-end preemptive semantics checks on SimAI-exported benchmarks.
 
 Every test drives the public simulator on a benchmark that went through the
 real conversion chain and then replays it with the independent trace
@@ -20,10 +20,10 @@ from benchmark_generate.simai.preemptive_export import (
     build_workload,
     to_preemptive_benchmark,
 )
-from core.conversion import to_internal_dag, to_multi_resource_instance
-from core.dag import BenchmarkDAG
-from core.execution.preemptive import Action, PreemptiveDAGModel, result_from_trace
-from core.execution.multi_resource import PreemptiveMultiResourceModel
+from core.conversion import to_dag, to_muti_resourse
+from core.dag import DAG
+from core.execution.preemptive import Action, PreeSingleModel, result_from_trace
+from core.execution.preemptive import PreeMultiModel
 from core.trace.preemptive import assert_preemptive_trace
 from muti_channel.preemptive.trace import assert_multi_resource_trace
 
@@ -39,8 +39,8 @@ def _exported_1f1b(*, pp=2, ga=2, bandwidth_gbps=200.0) -> Benchmark:
     )
 
 
-def _run_single_channel(dag: BenchmarkDAG):
-    model = PreemptiveDAGModel(dag)
+def _run_single_channel(dag: DAG):
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     actions = []
     rounds = 0
@@ -60,12 +60,12 @@ def _run_single_channel(dag: BenchmarkDAG):
 
 
 def _run_multi_channel(benchmark: Benchmark):
-    instance = to_multi_resource_instance(benchmark)
+    instance = to_muti_resourse(benchmark)
     resources = {
         task_id: frozenset(str(resource) for resource in values)
         for task_id, values in instance.resources.items()
     }
-    model = PreemptiveMultiResourceModel(instance.dag, resources)
+    model = PreeMultiModel(instance.dag, resources)
     state = model.initial_state()
     actions = []
     while not model.finished(state):
@@ -85,7 +85,7 @@ def test_1_preemption_preserves_remaining_work() -> None:
     # A tiny bandwidth makes communications much longer than compute, so the
     # round-robin driver really pauses and resumes them.
     benchmark = _exported_1f1b(bandwidth_gbps=0.001)
-    dag = to_internal_dag(benchmark)
+    dag = to_dag(benchmark)
     model, trace = _run_single_channel(dag)
     result = result_from_trace(trace)
 
@@ -183,13 +183,13 @@ def test_3_two_resource_communication_acquires_atomically() -> None:
 
 def test_4_forced_idle_is_simulator_owned_and_wait_is_forbidden() -> None:
     benchmark = _exported_1f1b()
-    dag = to_internal_dag(benchmark)
+    dag = to_dag(benchmark)
 
     # Single channel: WAIT is only legal when no communication is eligible.
-    model = PreemptiveDAGModel(dag)
+    model = PreeSingleModel(dag)
     state = model.initial_state()
     if model.eligible_communications(state):
-        from core.execution.common import IllegalActionError
+        from core.execution.contracts import IllegalActionError
 
         try:
             model.step(state, Action.wait())
@@ -210,12 +210,12 @@ def test_4_forced_idle_is_simulator_owned_and_wait_is_forbidden() -> None:
         category="random",
         projection_relation="route_frozen_projection",
     )
-    instance = to_multi_resource_instance(multi)
+    instance = to_muti_resourse(multi)
     resources = {
         task_id: frozenset(str(resource) for resource in values)
         for task_id, values in instance.resources.items()
     }
-    model = PreemptiveMultiResourceModel(instance.dag, resources)
+    model = PreeMultiModel(instance.dag, resources)
     state = model.initial_state()
     if not model.eligible(state):
         advanced, idle = model.normalize_decision_state(state)
@@ -230,7 +230,7 @@ def test_4_forced_idle_is_simulator_owned_and_wait_is_forbidden() -> None:
 
 def test_5_same_time_events_are_processed_atomically() -> None:
     benchmark = _exported_1f1b(ga=2)
-    dag = to_internal_dag(benchmark)
+    dag = to_dag(benchmark)
     model, trace = _run_single_channel(dag)
 
     completions: dict[int, list[str]] = defaultdict(list)
@@ -250,4 +250,3 @@ def test_5_same_time_events_are_processed_atomically() -> None:
                 f"decision at t={time} interleaves before same-time completion "
                 f"of {task_id}"
             )
-

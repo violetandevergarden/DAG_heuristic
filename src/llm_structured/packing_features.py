@@ -21,7 +21,7 @@ class PackingFeatures:
 def cheap_packing_features(model, state) -> PackingFeatures:
     graph = build_conflict_graph(model, state)
     roles = {
-        model.task_map[item].role or "OTHER"
+        model.task_map[item].label_map().get("task_role", "") or "OTHER"
         for item in graph.vertices
     }
     resources = {

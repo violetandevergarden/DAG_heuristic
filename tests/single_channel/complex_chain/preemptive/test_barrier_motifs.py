@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from benchmark_generate.llm.preemptive.barrier_motifs import single_channel_motifs
-from core.execution.preemptive import Action, PreemptiveDAGModel
+from core.execution.preemptive import Action, PreeSingleModel
 from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.barrier import build_context, feature_snapshot
 from single_channel.complex_chain.preemptive.solver import (
@@ -17,7 +17,7 @@ from single_channel.complex_chain.preemptive.solver import (
 
 def test_controlled_barrier_motifs_have_scripted_competition_and_exact_labels() -> None:
     for motif in single_channel_motifs():
-        model = PreemptiveDAGModel(motif.dag)
+        model = PreeSingleModel(motif.dag)
         scripted = model.step(model.initial_state(), Action.run("R")).after
         assert {"R", "N"} <= set(model.eligible_communications(scripted))
         assert feature_snapshot(build_context(model, scripted), "N").task_id == "N"

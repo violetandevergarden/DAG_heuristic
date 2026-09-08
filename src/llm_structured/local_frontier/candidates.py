@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.execution.preemptive import PreemptiveDAGModel, ScheduleState
+from core.execution.preemptive import PreeSingleModel, ScheduleState
 from single_channel.complex_chain.preemptive import solver
 
 
@@ -15,7 +15,7 @@ class CandidatePair:
     normalized_tail_margin: float | None
 
 
-def candidate_pair(model: PreemptiveDAGModel, state: ScheduleState) -> CandidatePair:
+def candidate_pair(model: PreeSingleModel, state: ScheduleState) -> CandidatePair:
     eligible = model.eligible_communications(state)
     if not eligible:
         raise ValueError("candidate construction requires an eligible communication")

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from core.dag import BenchmarkDAG
+from core.dag import DAG
 from muti_channel.preemptive import solver
 
 ALGORITHM_NAMES = (
@@ -21,7 +21,7 @@ ALGORITHM_NAMES = (
 
 
 def solve(
-    dag: BenchmarkDAG,
+    dag: DAG,
     resources: dict[str, frozenset[str]],
     algorithm: str = "longest_tail_pack",
 ):
