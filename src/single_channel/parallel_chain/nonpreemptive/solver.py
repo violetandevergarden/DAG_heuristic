@@ -9,27 +9,15 @@ Use the public runner documented in the repository ``README.md``.
 
 from __future__ import annotations
 
-import argparse
-from collections import defaultdict
-from dataclasses import asdict, dataclass, replace
-from functools import lru_cache
-from itertools import product
-import json
-from pathlib import Path
 import random
-from statistics import mean
-import sys
+from dataclasses import dataclass, replace
 from time import perf_counter
 from typing import Literal
-
-
-ROOT = Path(__file__).resolve().parents[2]
-
 
 def chains_from_dag(dag):
     """Build the compact chain input from a validated internal DAG."""
 
-    from single_channel.parallel_chain.model import parse_parallel_chain
+    from single_channel.parallel_chain.structure import parse_parallel_chain
 
     instance = parse_parallel_chain(dag)
     tasks = dag.task_map()
@@ -57,13 +45,14 @@ def chains_from_dag(dag):
         chains.append(ParallelChain(tuple(comm), tuple(compute), initial_delay))
     return tuple(chains)
 
-from core.dag import DAGBuilder  # noqa: E402
-from core.execution.nonpreemptive import (  # noqa: E402
+from core.dag import DAGBuilder
+from core.execution.nonpreemptive import (
     Action as DAGAction,
+)
+from core.execution.nonpreemptive import (
     NonPreeSingleModel,
 )
-from core.trace.nonpreemptive import assert_nonpreemptive_trace  # noqa: E402
-
+from core.trace.nonpreemptive import assert_nonpreemptive_trace
 
 ChainState = tuple[tuple[int, int], ...]  # (next communication, compute cooldown)
 ActionKind = Literal["flow", "wait"]
@@ -151,50 +140,6 @@ def ready_chains(chains: tuple[ParallelChain, ...], state: ChainState) -> list[i
 
 def active_computes(state: ChainState) -> list[int]:
     return [index for index, (_operation, cooldown) in enumerate(state) if cooldown > 0]
-
-
-def legal_actions(
-    chains: tuple[ParallelChain, ...],
-    state: ChainState,
-    *,
-    optional_idle: bool,
-) -> tuple[ChainAction, ...]:
-    ready = ready_chains(chains, state)
-    flows = tuple(ChainAction.flow(index) for index in ready)
-    can_wait = bool(active_computes(state))
-    if optional_idle:
-        return (*flows, ChainAction.wait()) if can_wait else flows
-    if flows:
-        return flows
-    return (ChainAction.wait(),) if can_wait else ()
-
-
-def advance(
-    chains: tuple[ParallelChain, ...],
-    state: ChainState,
-    action: ChainAction,
-) -> tuple[ChainState, int]:
-    if action.kind == "wait":
-        active = active_computes(state)
-        if not active:
-            raise ValueError("WAIT requires an active compute")
-        duration = min(state[index][1] for index in active)
-        return tuple(
-            (operation, max(0, cooldown - duration))
-            for operation, cooldown in state
-        ), duration
-
-    if action.chain is None or action.chain not in ready_chains(chains, state):
-        raise ValueError(f"flow action is not ready: {action}")
-    selected = action.chain
-    operation = state[selected][0]
-    duration = chains[selected].comm[operation]
-    values = [
-        (item_operation, max(0, cooldown - duration))
-        for item_operation, cooldown in state
-    ]
-    values[selected] = (operation + 1, chains[selected].compute[operation])
-    return tuple(values), duration
 
 
 def residual_bounds(
@@ -302,70 +247,170 @@ def priority_action(
     raise RuntimeError("unfinished chain state has no legal action")
 
 
-def _simulate_actions(
+def _public_projection(
+    chains: tuple[ParallelChain, ...],
+    model: NonPreeSingleModel,
+    state,
+    flow_ids: dict[tuple[int, int], str],
+) -> ChainState:
+    """Project a public simulator state for ranking only.
+
+    This projection never advances time.  All state transitions in formal
+    schedulers remain owned by ``NonPreeSingleModel``.
+    """
+
+    runtimes = {task.task_id: runtime for task, runtime in zip(model.tasks, state.tasks, strict=True)}
+    values: list[tuple[int, int]] = []
+    for chain_index, chain in enumerate(chains):
+        completed = 0
+        release = runtimes.get(f"c{chain_index}_release")
+        cooldown = release.remaining if release is not None and release.status == "running" else 0
+        for operation in range(len(chain.comm)):
+            flow_id = flow_ids[chain_index, operation]
+            if runtimes[flow_id].status == "completed":
+                completed += 1
+            compute_id = f"c{chain_index}_compute{operation}"
+            compute = runtimes[compute_id]
+            if compute.status == "running":
+                cooldown = compute.remaining
+        values.append((completed, cooldown))
+    return tuple(values)
+
+
+def _public_action(
+    action: ChainAction,
+    chains: tuple[ParallelChain, ...],
+    model: NonPreeSingleModel,
+    state,
+    flow_ids: dict[tuple[int, int], str],
+) -> DAGAction:
+    if action.kind == "wait":
+        return DAGAction.wait()
+    if action.chain is None:
+        raise ValueError(f"flow action has no chain: {action}")
+    operation = _public_projection(chains, model, state, flow_ids)[action.chain][0]
+    return DAGAction.flow(flow_ids[action.chain, operation])
+
+
+def _chain_action_from_public(
+    chains: tuple[ParallelChain, ...],
+    model: NonPreeSingleModel,
+    state,
+    action: DAGAction,
+    flow_ids: dict[tuple[int, int], str],
+) -> ChainAction:
+    if action.kind == "wait":
+        return ChainAction.wait()
+    if action.task_id is None:
+        raise ValueError(f"flow action has no task: {action}")
+    for (chain, operation), task_id in flow_ids.items():
+        if task_id == action.task_id:
+            return ChainAction.flow(chain)
+    raise ValueError(f"unknown parallel-chain flow: {action.task_id}")
+
+
+def _public_schedule(
     chains: tuple[ParallelChain, ...],
     choose,
     *,
-    start_state: ChainState | None = None,
-    collect_metrics: bool = True,
+    allow_wait: bool,
+    fallback: bool = False,
 ) -> ChainSchedule:
+    """Run a chain policy through the public non-preemptive simulator."""
+
     started = perf_counter()
-    state = initial_state(chains) if start_state is None else start_state
+    dag, flow_ids = to_benchmark_dag(chains)
+    model = NonPreeSingleModel(dag)
+    state = model.initial_state()
     actions: list[ChainAction] = []
-    elapsed = 0
-    network_busy = 0
-    voluntary_idle = 0
-    forced_idle = 0
-    compute_active_time = 0
-    overlap_time = 0
-    while not is_finished(chains, state):
-        action = choose(state)
-        if action not in legal_actions(chains, state, optional_idle=True):
-            raise ValueError(f"scheduler returned illegal action: {action}")
-        cooldowns = [cooldown for _operation, cooldown in state]
-        had_ready = bool(ready_chains(chains, state))
-        successor, duration = advance(chains, state, action)
-        compute_active_time += sum(min(cooldown, duration) for cooldown in cooldowns)
-        if action.kind == "flow":
-            network_busy += duration
-            overlap_time += min(max(cooldowns, default=0), duration)
-        elif had_ready:
-            voluntary_idle += duration
+    network_busy = voluntary_idle = forced_idle = 0
+    compute_active_time = overlap_time = 0
+    while not model.is_finished(state):
+        projection = _public_projection(chains, model, state, flow_ids)
+        ready = model.ready_flows(state)
+        active = model.active_computes(state)
+        selected = choose(projection, ready, bool(active), model, state, flow_ids)
+        if selected.kind == "wait" and not allow_wait and ready:
+            selected = ChainAction.flow(select_flow("dynamic_tail", chains, projection, ready_chains(chains, projection)))
+        dag_action = _public_action(selected, chains, model, state, flow_ids)
+        transition = model.step(state, dag_action)
+        duration = transition.after.time - state.time
+        if selected.kind == "wait":
+            if ready:
+                voluntary_idle += duration
+            else:
+                forced_idle += duration
         else:
-            forced_idle += duration
-        actions.append(action)
-        elapsed += duration
-        state = successor
+            network_busy += duration
+        compute_intervals = [
+            interval for interval in transition.intervals if interval.kind == "compute"
+        ]
+        compute_active_time += sum(interval.end - interval.start for interval in compute_intervals)
+        if selected.kind == "flow" and any(
+            interval.start < transition.after.time and interval.end > transition.before.time
+            for interval in compute_intervals
+        ):
+            overlap_time += duration
+        actions.append(selected)
+        state = transition.after
+    dag_actions = []
+    replay_state = model.initial_state()
+    for action in actions:
+        dag_action = _public_action(action, chains, model, replay_state, flow_ids)
+        dag_actions.append(dag_action)
+        replay_state = model.step(replay_state, dag_action).after
+    trace = model.run(dag_actions)
+    assert_nonpreemptive_trace(dag, trace, mode="optional_idle" if allow_wait else "work_conserving")
     return ChainSchedule(
-        elapsed,
+        trace.makespan,
         tuple(actions),
         network_busy,
         voluntary_idle,
         forced_idle,
         compute_active_time,
-        elapsed * len(chains),
+        trace.makespan * len(chains),
         overlap_time,
-        (perf_counter() - started) * 1000 if collect_metrics else 0.0,
+        (perf_counter() - started) * 1000,
+        fallback,
     )
+
+
+def _public_completion_cost(
+    chains: tuple[ParallelChain, ...],
+    model: NonPreeSingleModel,
+    state,
+    action: ChainAction,
+    flow_ids: dict[tuple[int, int], str],
+    policy: str,
+) -> int:
+    """Complete a public state with a public-model priority policy."""
+
+    dag_action = _public_action(action, chains, model, state, flow_ids)
+    state = model.step(state, dag_action).after
+    while not model.is_finished(state):
+        projection = _public_projection(chains, model, state, flow_ids)
+        ready = model.ready_flows(state)
+        if ready:
+            compact_ready = ready_chains(chains, projection)
+            next_action = ChainAction.flow(select_flow(policy, chains, projection, compact_ready))
+        elif model.active_computes(state):
+            next_action = ChainAction.wait()
+        else:
+            raise RuntimeError("unfinished public state has no legal action")
+        state = model.step(
+            state, _public_action(next_action, chains, model, state, flow_ids)
+        ).after
+    return state.time
 
 
 def schedule_priority(
     chains: tuple[ParallelChain, ...], policy: str = "dynamic_tail"
 ) -> ChainSchedule:
-    return _simulate_actions(
-        chains, lambda state: priority_action(policy, chains, state)
-    )
-
-
-def _completion_cost(
-    chains: tuple[ParallelChain, ...], state: ChainState, policy: str
-) -> int:
-    return _simulate_actions(
+    return _public_schedule(
         chains,
-        lambda item: priority_action(policy, chains, item),
-        start_state=state,
-        collect_metrics=False,
-    ).makespan
+        lambda state, _ready, _active, _model, _public_state, _flow_ids: priority_action(policy, chains, state),
+        allow_wait=False,
+    )
 
 
 def schedule_rollout(
@@ -379,145 +424,41 @@ def schedule_rollout(
     started = perf_counter()
     fallback = False
 
-    def choose(state: ChainState) -> ChainAction:
+    def choose(
+        state: ChainState,
+        ready_ids: tuple[str, ...],
+        active: bool,
+        model: NonPreeSingleModel,
+        public_state,
+        flow_ids: dict[tuple[int, int], str],
+    ) -> ChainAction:
         nonlocal fallback
         base_action = priority_action(base_policy, chains, state)
         if perf_counter() - started > time_limit_s:
             fallback = True
             return base_action
         ready = ready_chains(chains, state)
-        ranked = sorted(
-            ready,
-            key=lambda item: (_flow_tail(chains, state, item), -item),
-            reverse=True,
-        )[:top_k]
+        ranked = sorted(ready, key=lambda item: (_flow_tail(chains, state, item), -item), reverse=True)[:top_k]
         candidates = [ChainAction.flow(index) for index in ranked]
         if base_action not in candidates:
             candidates.append(base_action)
-        if allow_wait and active_computes(state):
+        if allow_wait and active:
             candidates.append(ChainAction.wait())
-        scored = []
-        for action in dict.fromkeys(candidates):
-            successor, duration = advance(chains, state, action)
-            score = duration + _completion_cost(chains, successor, base_policy)
-            scored.append((score, action != base_action, action.kind == "wait", action))
+        scored = [
+            (
+                _public_completion_cost(
+                    chains, model, public_state, candidate, flow_ids, base_policy
+                ),
+                candidate.kind == "wait",
+                candidate.chain if candidate.chain is not None else -1,
+                candidate,
+            )
+            for candidate in dict.fromkeys(candidates)
+        ]
         return min(scored, key=lambda item: item[:3])[3]
 
-    result = _simulate_actions(chains, choose)
+    result = _public_schedule(chains, choose, allow_wait=allow_wait, fallback=fallback)
     return replace(result, fallback=fallback)
-
-
-def _canonicalizer(chains: tuple[ParallelChain, ...]):
-    groups: dict[ParallelChain, list[int]] = defaultdict(list)
-    for index, chain in enumerate(chains):
-        groups[chain].append(index)
-    repeated = tuple(tuple(items) for items in groups.values() if len(items) > 1)
-
-    def canonical(state: ChainState) -> ChainState:
-        values = list(state)
-        for indices in repeated:
-            ordered = sorted(values[index] for index in indices)
-            for index, value in zip(indices, ordered, strict=True):
-                values[index] = value
-        return tuple(values)
-
-    return canonical
-
-
-def exact_dp(
-    chains: tuple[ParallelChain, ...],
-    *,
-    optional_idle: bool,
-    max_states: int = 2_000_000,
-    time_limit_s: float = 30.0,
-    symmetry: bool = True,
-) -> ChainSearchResult:
-    started = perf_counter()
-    canonical = _canonicalizer(chains) if symmetry else (lambda state: state)
-    explored = 0
-
-    @lru_cache(maxsize=None)
-    def solve(raw_state: ChainState) -> int:
-        nonlocal explored
-        state = canonical(raw_state)
-        explored += 1
-        if explored > max_states:
-            raise RuntimeError(f"chain exact DP exceeded max_states={max_states}")
-        if perf_counter() - started > time_limit_s:
-            raise TimeoutError(f"chain exact DP exceeded time_limit_s={time_limit_s}")
-        if is_finished(chains, state):
-            return 0
-        actions = legal_actions(chains, state, optional_idle=optional_idle)
-        if not actions:
-            raise RuntimeError("unfinished chain state has no legal action")
-        return min(
-            duration + solve(canonical(successor))
-            for action in actions
-            for successor, duration in (advance(chains, state, action),)
-        )
-
-    optimum = solve(canonical(initial_state(chains)))
-    return ChainSearchResult(
-        optimum, (), explored, (perf_counter() - started) * 1000
-    )
-
-
-def _feasible_within(
-    chains: tuple[ParallelChain, ...],
-    horizon: int,
-    *,
-    optional_idle: bool,
-    max_states: int,
-) -> tuple[bool, int]:
-    canonical = _canonicalizer(chains)
-    explored = 0
-
-    @lru_cache(maxsize=None)
-    def feasible(raw_state: ChainState, budget: int) -> bool:
-        nonlocal explored
-        state = canonical(raw_state)
-        explored += 1
-        if explored > max_states:
-            raise RuntimeError("chain binary feasibility DP exceeded state budget")
-        if is_finished(chains, state):
-            return True
-        if budget < residual_bounds(chains, state)["combined"]:
-            return False
-        for action in legal_actions(chains, state, optional_idle=optional_idle):
-            successor, duration = advance(chains, state, action)
-            if duration <= budget and feasible(canonical(successor), budget - duration):
-                return True
-        return False
-
-    return feasible(canonical(initial_state(chains)), horizon), explored
-
-
-def binary_search_exact(
-    chains: tuple[ParallelChain, ...],
-    *,
-    optional_idle: bool,
-    max_states: int = 2_000_000,
-) -> ChainSearchResult:
-    started = perf_counter()
-    lower = residual_bounds(chains, initial_state(chains))["combined"]
-    upper = schedule_rollout(chains, top_k=2, allow_wait=optional_idle).makespan
-    explored = 0
-    while lower < upper:
-        middle = (lower + upper) // 2
-        feasible, states = _feasible_within(
-            chains,
-            middle,
-            optional_idle=optional_idle,
-            max_states=max_states,
-        )
-        explored += states
-        if feasible:
-            upper = middle
-        else:
-            lower = middle + 1
-    return ChainSearchResult(
-        lower, (), explored, (perf_counter() - started) * 1000
-    )
 
 
 def beam_search(
@@ -532,32 +473,43 @@ def beam_search(
     incumbent = schedule_priority(chains)
     best_time = incumbent.makespan
     best_actions = incumbent.actions
-    frontier: dict[ChainState, tuple[int, tuple[ChainAction, ...]]] = {
-        initial_state(chains): (0, ())
-    }
+    dag, flow_ids = to_benchmark_dag(chains)
+    model = NonPreeSingleModel(dag)
+    initial = model.initial_state()
+    frontier = {(initial,): (0, ())}
     explored = 0
     fallback = False
     while frontier:
-        successors: dict[ChainState, tuple[int, tuple[ChainAction, ...]]] = {}
-        for state, (elapsed, path) in frontier.items():
-            for action in legal_actions(chains, state, optional_idle=allow_wait):
-                successor, duration = advance(chains, state, action)
+        successors = {}
+        for (state,), (elapsed, path) in frontier.items():
+            legal = model.legal_actions(state)
+            if not allow_wait:
+                legal = tuple(action for action in legal if action.kind != "wait")
+            for dag_action in legal:
+                transition = model.step(state, dag_action)
+                successor = transition.after
+                duration = successor.time - state.time
                 new_elapsed = elapsed + duration
                 explored += 1
                 if explored > state_budget or perf_counter() - started > time_limit_s:
                     fallback = True
                     frontier = {}
                     break
-                if is_finished(chains, successor):
+                chain_action = _chain_action_from_public(
+                    chains, model, state, dag_action, flow_ids
+                )
+                if model.is_finished(successor):
                     if new_elapsed < best_time:
                         best_time = new_elapsed
-                        best_actions = (*path, action)
+                        best_actions = (*path, chain_action)
                     continue
-                if new_elapsed + residual_bounds(chains, successor)["combined"] >= best_time:
+                projection = _public_projection(chains, model, successor, flow_ids)
+                if new_elapsed + residual_bounds(chains, projection)["combined"] >= best_time:
                     continue
-                old = successors.get(successor)
+                key = (successor,)
+                old = successors.get(key)
                 if old is None or new_elapsed < old[0]:
-                    successors[successor] = (new_elapsed, (*path, action))
+                    successors[key] = (new_elapsed, (*path, chain_action))
             if not frontier:
                 break
         if not successors:
@@ -565,8 +517,11 @@ def beam_search(
         ranked = sorted(
             successors.items(),
             key=lambda item: (
-                item[1][0] + residual_bounds(chains, item[0])["combined"],
-                item[1][0] + _completion_cost(chains, item[0], "dynamic_tail"),
+                item[1][0]
+                + residual_bounds(
+                    chains, _public_projection(chains, model, item[0][0], flow_ids)
+                )["combined"],
+                item[1][0],
             ),
         )[:width]
         frontier = dict(ranked)
@@ -593,8 +548,25 @@ def monte_carlo_best(
     best_time = incumbent.makespan
     best_actions = incumbent.actions
     for _ in range(samples):
-        def choose(state: ChainState) -> ChainAction:
-            actions = list(legal_actions(chains, state, optional_idle=allow_wait))
+        def choose(
+            state: ChainState,
+            _ready_ids,
+            _active,
+            _model,
+            public_state,
+            flow_ids,
+        ) -> ChainAction:
+            public_actions = list(_model.legal_actions(public_state))
+            if not allow_wait and _ready_ids:
+                public_actions = [
+                    action for action in public_actions if action.kind != "wait"
+                ]
+            actions = [
+                _chain_action_from_public(
+                    chains, _model, public_state, action, flow_ids
+                )
+                for action in public_actions
+            ]
             waits = [action for action in actions if action.kind == "wait"]
             flows = [action for action in actions if action.kind == "flow"]
             if waits and flows and rng.random() < wait_probability:
@@ -611,7 +583,7 @@ def monte_carlo_best(
                 return rng.choice(flows)
             return waits[0]
 
-        candidate = _simulate_actions(chains, choose)
+        candidate = _public_schedule(chains, choose, allow_wait=allow_wait)
         if candidate.makespan < best_time:
             best_time = candidate.makespan
             best_actions = candidate.actions
@@ -656,16 +628,24 @@ def verify_schedule(
 ) -> None:
     dag, flow_ids = to_benchmark_dag(chains)
     model = NonPreeSingleModel(dag)
-    compact_state = initial_state(chains)
     dag_actions: list[DAGAction] = []
+    state = model.initial_state()
     for action in schedule.actions:
         if action.kind == "wait":
-            dag_actions.append(DAGAction.wait())
+            dag_action = DAGAction.wait()
         else:
             assert action.chain is not None
-            operation = compact_state[action.chain][0]
-            dag_actions.append(DAGAction.flow(flow_ids[action.chain, operation]))
-        compact_state, _duration = advance(chains, compact_state, action)
+            runtimes = {
+                task.task_id: runtime
+                for task, runtime in zip(model.tasks, state.tasks, strict=True)
+            }
+            operation = sum(
+                runtimes[flow_ids[action.chain, index]].status == "completed"
+                for index in range(len(chains[action.chain].comm))
+            )
+            dag_action = DAGAction.flow(flow_ids[action.chain, operation])
+        dag_actions.append(dag_action)
+        state = model.step(state, dag_action).after
     trace = model.run(dag_actions)
     if trace.makespan != schedule.makespan or not model.is_finished(trace.final_state):
         raise AssertionError(

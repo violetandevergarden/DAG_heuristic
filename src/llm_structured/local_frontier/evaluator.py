@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from time import perf_counter
 
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
+from core.oracle.preemptive import remaining_lower_bound
 from single_channel.complex_chain.preemptive import solver
 
 from .accounting import FrontierBudget
@@ -112,7 +113,7 @@ def evaluate_pair(
             decisions += 1
             events += len(transition.events)
         states.append(current)
-        lower = solver.remaining_lower_bound(model, current)
+        lower = remaining_lower_bound(model, current)
         proxy = current.time + lower
         complete = stop in {"local_region_complete", "dag_complete"}
         results.append(FrontierEvaluation(

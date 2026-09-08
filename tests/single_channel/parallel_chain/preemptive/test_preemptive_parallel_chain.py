@@ -16,10 +16,10 @@ from benchmark import (
 from benchmark.validator import BenchmarkValidationError
 from core.dag import DAG, Task as DAGTask
 from core.execution.preemptive import PreeSingleModel
+from core.oracle.preemptive import exact_oracle as generic_exact
 from core.trace.preemptive import assert_preemptive_trace
 from experiments.preemptive.stage1_parallel_chain import run_stage1
-from single_channel.complex_chain.preemptive.solver import exact_oracle as generic_exact
-from single_channel.parallel_chain.model import (
+from single_channel.parallel_chain.structure import (
     ParallelChain,
     parse_parallel_chain,
     to_benchmark_dag,

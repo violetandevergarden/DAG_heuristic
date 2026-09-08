@@ -9,26 +9,19 @@ from __future__ import annotations
 
 import random
 from collections.abc import Callable
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from time import perf_counter
 from typing import Literal
 
 from core.dag import DAG
 from core.execution.preemptive import (
     Action,
-    PreeSingleModel,
     PreemptiveScheduleResult,
+    PreeSingleModel,
     ScheduleState,
     result_from_trace,
 )
 from core.trace.preemptive import assert_preemptive_trace
-from llm_structured.barrier import (
-    build_context,
-    has_barrier_signal,
-    online_barrier_inputs,
-    priority_key,
-    safe_barrier_prescreen,
-)
 
 PriorityName = str
 StateKey = tuple[object, ...]
@@ -47,333 +40,16 @@ class _SearchStats:
     fallback_count: int = 0
 
 
-@dataclass(frozen=True)
-class ExactSuffixResult:
-    """Audit result for an arbitrary public simulator state."""
-
-    makespan: int
-    actions: tuple[Action, ...]
-    status: Literal["feasible", "optimal"]
-    termination_reason: str
-    explored_states: int
-    generated_transitions: int
-    runtime_ms: float
-
-
-@dataclass(frozen=True)
-class OfflineBarrierUpperBound:
-    """Two complete schedules selected after observing their makespans.
-
-    This is an offline comparison object, intentionally distinct from an
-    online scheduler result.  It is useful to bound the value of a candidate
-    policy but cannot be deployed as a decision policy.
-    """
-
-    online: bool
-    full_schedule_runs: int
-    baseline: PreemptiveScheduleResult
-    candidate: PreemptiveScheduleResult
-    selected_policy: str
-    runtime_ms: float
-
-
 class _BudgetExceeded(RuntimeError):
     def __init__(self, reason: str):
         super().__init__(reason)
         self.reason = reason
 
 
-def validate_complex_chain(dag: DAG) -> None:
-    """Validate the Stage 2 internal family contract.
-
-    Stage 2 deliberately accepts raw general DAGs, including same-kind edges
-    and multiple weak components.  Components are concurrent parts of one
-    makespan instance, not separate jobs.  No canonicalization or silent
-    chainification is performed.
-    """
-
-    errors = dag.validate()
-    if not dag.tasks:
-        errors.append("complex_chain requires at least one task")
-    for task in dag.tasks:
-        if task.kind == "comm" and task.duration <= 0:
-            errors.append(f"{task.task_id}: communication work must be positive")
-    if errors:
-        raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
-
-
 def schedule_longest_tail(dag: DAG) -> PreemptiveScheduleResult:
     """Schedule the largest exclusive residual downstream tail first."""
 
     return schedule_priority(dag, "longest_tail")
-
-
-def schedule_barrier_policy(
-    dag: DAG,
-    mode: str = "tail_barrier",
-    *,
-    trigger: str | None = None,
-) -> PreemptiveScheduleResult:
-    """Run an explicit barrier-score ablation on the public simulator.
-
-    ``mode`` is one of ``barrier_only``, ``unlock_only``, ``tail``,
-    ``tail_unlock``, ``tail_barrier`` or ``tail_unlock_barrier``.  The context
-    is built once per stable decision state and the simulator remains the sole
-    owner of legality and time advancement.  When ``trigger`` is set, the
-    barrier score is evaluated only for states with a residual barrier or
-    unlock signal; other states use the LT choice.
-    """
-
-    validate_complex_chain(dag)
-    model = PreeSingleModel(dag)
-    state = model.initial_state()
-    actions: list[Action] = []
-    while not model.is_finished(state):
-        eligible = model.eligible_communications(state)
-        if not eligible:
-            action = Action.wait()
-        else:
-            context = build_context(model, state, roots=eligible)
-            snapshots = {item: priority_key(context, item, mode) for item in eligible}
-            selected = min(eligible, key=lambda item: snapshots[item])
-            if trigger is not None:
-                if trigger not in {"barrier_only", "barrier_or_unlock"}:
-                    raise ValueError(f"unsupported barrier trigger: {trigger}")
-                triggered = (
-                    priority_key(context, selected, "barrier_only")[0] < 0
-                    if trigger == "barrier_only"
-                    else has_barrier_signal(context, selected)
-                )
-                if not triggered:
-                    selected = _baseline_choice(model, state, "longest_tail")
-            action = Action.run(selected)
-        actions.append(action)
-        state = model.step(state, action).after
-    return _result(model, actions)
-
-
-def offline_best_of_lt_and_barrier(
-    dag: DAG,
-    *,
-    mode: str = "tail_barrier",
-    trigger: str = "barrier_or_unlock",
-    max_rollouts: int | None = None,
-) -> OfflineBarrierUpperBound:
-    """Return the offline best of two full schedules, never an online result."""
-
-    if mode not in {"barrier_only", "tail_barrier", "tail_unlock_barrier"}:
-        raise ValueError(f"unsupported safeguarded barrier mode: {mode}")
-    if trigger not in {"barrier_only", "barrier_or_unlock"}:
-        raise ValueError(f"unsupported barrier trigger: {trigger}")
-    if max_rollouts is not None and max_rollouts <= 0:
-        raise ValueError("offline comparison always requires two complete schedules")
-
-    validate_complex_chain(dag)
-    started = perf_counter()
-    baseline = schedule_longest_tail(dag)
-    candidate_result = schedule_barrier_policy(dag, mode, trigger=trigger)
-    if candidate_result.makespan < baseline.makespan:
-        selected = "barrier_candidate"
-    else:
-        selected = "longest_tail"
-    return OfflineBarrierUpperBound(
-        online=False,
-        full_schedule_runs=2,
-        baseline=baseline,
-        candidate=candidate_result,
-        selected_policy=selected,
-        runtime_ms=(perf_counter() - started) * 1000,
-    )
-
-
-def schedule_barrier_margin_tiebreak(
-    dag: DAG,
-    *,
-    max_normalized_margin: float = 0.25,
-) -> PreemptiveScheduleResult:
-    """Online LT enhancement with a frozen, bounded barrier tie-break.
-
-    Longest Tail remains available at every state. A barrier challenger is
-    eligible only when its residual exclusive-tail distance from LT is within
-    ``max_normalized_margin``. The rule is lexicographic: direct last-missing
-    joins, then genuine newly-ready compute, then the stable task ID.
-    """
-
-    if max_normalized_margin < 0:
-        raise ValueError("max_normalized_margin must be non-negative")
-    validate_complex_chain(dag)
-    model = PreeSingleModel(dag)
-    state = model.initial_state()
-    actions: list[Action] = []
-    audits: list[str] = []
-    decisions = triggered = improvements = 0
-    while not model.is_finished(state):
-        eligible = model.eligible_communications(state)
-        if not eligible:
-            action = Action.wait()
-        else:
-            decisions += 1
-            baseline = _baseline_choice(model, state, "longest_tail")
-            context = build_context(model, state, roots=eligible)
-            snapshots = {item: online_barrier_inputs(context, item) for item in eligible}
-            baseline_tail = snapshots[baseline].exclusive_tail
-            eligible_challengers = [
-                item
-                for item in eligible
-                if (baseline_tail - snapshots[item].exclusive_tail) / max(baseline_tail, 1)
-                <= max_normalized_margin
-                and (snapshots[item].direct_last_missing_join_count > 0 or snapshots[item].newly_ready_compute_work > 0)
-            ]
-            selected = baseline
-            if eligible_challengers:
-                challenger = min(
-                    eligible_challengers,
-                    key=lambda item: (
-                        -snapshots[item].direct_last_missing_join_count,
-                        -snapshots[item].newly_ready_compute_work,
-                        -snapshots[item].downstream_join_tail,
-                        item,
-                    ),
-                )
-                margin = (baseline_tail - snapshots[challenger].exclusive_tail) / max(baseline_tail, 1)
-                triggered += challenger != baseline
-                selected = challenger
-                improvements += challenger != baseline
-                audits.append(
-                    f"baseline={baseline};selected={selected};margin={margin:.6f};"
-                    f"last_missing={snapshots[challenger].direct_last_missing_join_count};"
-                    f"new_ready={snapshots[challenger].newly_ready_compute_work}"
-                )
-            action = Action.run(selected)
-        actions.append(action)
-        state = model.step(state, action).after
-    result = _result(model, actions)
-    return result.with_stats(
-        planner_decisions=decisions,
-        planner_triggered=triggered,
-        planner_improvements=improvements,
-        fallback_details=tuple(audits),
-    )
-
-
-def schedule_barrier_prescreen(dag: DAG) -> PreemptiveScheduleResult:
-    """Run the currently safe direct-barrier prefilter before residual LT.
-
-    Direct-only analysis cannot prove a candidate has no indirect barrier
-    effect, so the filter deliberately retains every eligible candidate and
-    records that no rejection occurred.  The returned trace must equal LT.
-    """
-
-    validate_complex_chain(dag)
-    model = PreeSingleModel(dag)
-    state = model.initial_state()
-    actions: list[Action] = []
-    audits: list[str] = []
-    started = perf_counter()
-    while not model.is_finished(state):
-        eligible = model.eligible_communications(state)
-        if not eligible:
-            action = Action.wait()
-        else:
-            baseline = _baseline_choice(model, state, "longest_tail")
-            retained = safe_barrier_prescreen(
-                build_context(model, state, roots=eligible), eligible, baseline
-            )
-            if baseline not in retained or tuple(retained) != tuple(eligible):
-                raise AssertionError("direct-barrier prescreen may not silently alter LT")
-            audits.append(f"before={len(eligible)};after={len(retained)};rejected=0")
-            action = Action.run(baseline)
-        actions.append(action)
-        state = model.step(state, action).after
-    return _result(model, actions).with_stats(
-        runtime_ms=(perf_counter() - started) * 1000,
-        planner_decisions=len(audits),
-        fallback_details=tuple(audits),
-    )
-
-
-def schedule_selective_barrier_rollout(
-    dag: DAG,
-    *,
-    max_triggers: int = 8,
-    time_limit_s: float | None = 2.0,
-) -> PreemptiveScheduleResult:
-    """Enhance LT only at barrier states using a one-action rollout.
-
-    At a triggered state the planner compares the LT first action with the
-    strongest barrier/unlock candidate.  Each action is followed by the same
-    LT completion policy in the public simulator.  The candidate is committed
-    only on strict residual-cost improvement.  This is an online, state-level
-    safeguard; it does not run two complete candidate policies and select one
-    after observing their final makespans.
-    """
-
-    if max_triggers < 0:
-        raise ValueError("max_triggers must be non-negative")
-    if time_limit_s is not None and time_limit_s < 0:
-        raise ValueError("time_limit_s must be non-negative or None")
-    validate_complex_chain(dag)
-    model = PreeSingleModel(dag)
-    state = model.initial_state()
-    actions: list[Action] = []
-    started = perf_counter()
-    decisions = triggered = improvements = completion_calls = fallback_count = 0
-    fallback_reasons: list[str] = []
-
-    def completion_cost(after: ScheduleState) -> int:
-        nonlocal completion_calls
-        completion_calls += 1
-        suffix = _complete_actions(model, after, "longest_tail")
-        return _apply_actions(model, after, suffix).time
-
-    while not model.is_finished(state):
-        eligible = model.eligible_communications(state)
-        if not eligible:
-            action = Action.wait()
-        else:
-            decisions += 1
-            baseline_id = _baseline_choice(model, state, "longest_tail")
-            context = build_context(model, state, roots=eligible)
-            candidate_id = min(
-                eligible, key=lambda item: priority_key(context, item, "barrier_only")
-            )
-            has_signal = has_barrier_signal(context, candidate_id)
-            budget_ok = triggered < max_triggers and (
-                time_limit_s is None or perf_counter() - started < time_limit_s
-            )
-            selected = baseline_id
-            if candidate_id != baseline_id and has_signal and budget_ok:
-                triggered += 1
-                baseline_after = model.step(state, Action.run(baseline_id)).after
-                candidate_after = model.step(state, Action.run(candidate_id)).after
-                baseline_cost = completion_cost(baseline_after)
-                candidate_cost = completion_cost(candidate_after)
-                if candidate_cost < baseline_cost:
-                    selected = candidate_id
-                    improvements += 1
-            elif candidate_id != baseline_id and has_signal and not budget_ok:
-                fallback_count += 1
-                reason = (
-                    "selective_trigger_limit"
-                    if triggered >= max_triggers
-                    else "selective_time_limit"
-                )
-                if reason not in fallback_reasons:
-                    fallback_reasons.append(reason)
-            action = Action.run(selected)
-        actions.append(action)
-        state = model.step(state, action).after
-    result = _result(model, actions)
-    return result.with_stats(
-        runtime_ms=(perf_counter() - started) * 1000,
-        evaluated_candidates=completion_calls,
-        fallback_count=fallback_count,
-        fallback_reasons=tuple(fallback_reasons),
-        planner_decisions=decisions,
-        planner_triggered=triggered,
-        planner_improvements=improvements,
-        completion_calls=completion_calls,
-    )
 
 
 def schedule_priority(
@@ -387,14 +63,6 @@ def schedule_priority(
     memoryless functions of the current residual state.  Ties use task ID.
     """
 
-    if priority in {
-        "barrier_only",
-        "unlock_only",
-        "tail_unlock",
-        "tail_barrier",
-        "tail_unlock_barrier",
-    }:
-        return schedule_barrier_policy(dag, priority)
     validate_complex_chain(dag)
     model = PreeSingleModel(dag)
     state = model.initial_state()
@@ -474,7 +142,7 @@ def schedule_rollout(
         forced_elapsed = forced_state.time - current.time
         if model.is_finished(forced_state):
             return forced_elapsed
-        memo_key = (remaining_depth, normalized_state_key(forced_state))
+        memo_key = (remaining_depth, _normalized_state_key(forced_state))
         if use_memo:
             cached = memo.get(memo_key)
             if cached is not None:
@@ -623,7 +291,7 @@ def beam_search(
                 if predicted < incumbent_finish:
                     incumbent_finish = predicted
                     incumbent_actions = (*candidate_prefix, *suffix)
-                key = normalized_state_key(after)
+                key = _normalized_state_key(after)
                 old = children.get(key)
                 candidate = (after, candidate_prefix)
                 if old is None or after.time < old[0].time:
@@ -657,233 +325,6 @@ def beam_search(
     )
 
 
-def exact_oracle(
-    dag: DAG,
-    *,
-    max_states: int = 500_000,
-    time_limit_s: float | None = None,
-    normalized: bool = True,
-    bound_mode: str = "combined",
-    use_memo: bool = True,
-    use_incumbent: bool = True,
-) -> PreemptiveScheduleResult:
-    """Branch-and-bound Exact over public event transitions.
-
-    Completed enumeration returns ``status='optimal'``.  A state or time
-    budget returns the Longest-tail incumbent as ``status='feasible'`` with a
-    structured ``termination_reason``; callers must not treat it as ground
-    truth.  ``normalized=False`` selects the full audit key.
-    """
-
-    validate_complex_chain(dag)
-    if bound_mode not in {"none", "communication", "path", "combined"}:
-        raise ValueError(
-            "bound_mode must be one of: none, communication, path, combined"
-        )
-    if max_states < 1:
-        raise ValueError("max_states must be positive")
-    model = PreeSingleModel(dag)
-    initial = model.initial_state()
-    started = perf_counter()
-    stats = _SearchStats()
-    memo: dict[StateKey, tuple[int, tuple[Action, ...]]] = {}
-    key_fn: Callable[[ScheduleState], StateKey] = (
-        normalized_state_key if normalized else audit_state_key
-    )
-    # The reported certificate remains the strongest proven bound even when
-    # an ablation disables it for pruning.
-    root_lower_bound = remaining_lower_bound(model, initial, mode="combined")
-    incumbent_actions = _complete_actions(model, initial, "longest_tail")
-
-    def check_budget() -> None:
-        if stats.explored >= max_states:
-            raise _BudgetExceeded("state_limit")
-        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
-            raise _BudgetExceeded("time_limit")
-
-    def search(state: ScheduleState) -> tuple[int, tuple[Action, ...]]:
-        state_key = key_fn(state)
-        if use_memo:
-            cached = memo.get(state_key)
-            if cached is not None:
-                stats.duplicates += 1
-                return cached
-        check_budget()
-        stats.explored += 1
-        stats.peak_states = max(stats.peak_states, len(memo) + 1)
-        if model.is_finished(state):
-            result = (0, ())
-            if use_memo:
-                memo[state_key] = result
-            return result
-
-        completion = _complete_actions(model, state, "longest_tail")
-        incumbent_cost = (
-            _apply_actions(model, state, completion).time - state.time
-            if use_incumbent
-            else float("inf")
-        )
-        best: tuple[int, tuple[str, str], tuple[Action, ...]] | None = None
-        for action in model.legal_actions(state):
-            transition = model.step(state, action)
-            stats.generated += 1
-            elapsed = transition.after.time - state.time
-            child_bound = remaining_lower_bound(
-                model, transition.after, mode=bound_mode
-            )
-            # Equality is still explored so Exact preserves the stable
-            # lexicographically smallest optimal action trace used by existing
-            # downstream teachers.  Only a strict bound proves the branch
-            # cannot improve that deterministic optimum tuple.
-            if bound_mode != "none" and elapsed + child_bound > incumbent_cost:
-                stats.incumbent_prunes += 1
-                stats.lower_bound_prunes += 1
-                continue
-            child_cost, suffix = search(transition.after)
-            candidate = elapsed + child_cost
-            candidate_entry = (
-                candidate,
-                (action.kind, action.task_id or ""),
-                (action, *suffix),
-            )
-            if best is None or candidate_entry[:2] < best[:2]:
-                best = candidate_entry
-            incumbent_cost = min(incumbent_cost, candidate)
-        if best is None:
-            raise RuntimeError("unfinished state has no exact successor")
-        result = (best[0], best[2])
-        if use_memo:
-            memo[state_key] = result
-        return result
-
-    try:
-        _cost, actions = search(initial)
-    except _BudgetExceeded as error:
-        result = _result(model, incumbent_actions)
-        return result.with_stats(
-            explored_states=stats.explored,
-            generated_transitions=stats.generated,
-            deduplicated_states=stats.duplicates,
-            pruned_states=stats.lower_bound_prunes,
-            incumbent_prunes=stats.incumbent_prunes,
-            lower_bound_prunes=stats.lower_bound_prunes,
-            peak_states=stats.peak_states,
-            lower_bound=root_lower_bound,
-            runtime_ms=(perf_counter() - started) * 1000,
-            status="feasible",
-            termination_reason=error.reason,
-        )
-
-    result = _result(model, actions)
-    return result.with_stats(
-        explored_states=stats.explored,
-        generated_transitions=stats.generated,
-        deduplicated_states=stats.duplicates,
-        pruned_states=stats.lower_bound_prunes,
-        incumbent_prunes=stats.incumbent_prunes,
-        lower_bound_prunes=stats.lower_bound_prunes,
-        peak_states=stats.peak_states,
-        lower_bound=root_lower_bound,
-        runtime_ms=(perf_counter() - started) * 1000,
-        status="optimal",
-    )
-
-
-def exact_oracle_uncompressed(
-    dag: DAG,
-    *,
-    max_states: int = 500_000,
-    time_limit_s: float | None = None,
-    bound_mode: str = "combined",
-    use_memo: bool = True,
-    use_incumbent: bool = True,
-) -> PreemptiveScheduleResult:
-    """Audit Exact retaining absolute time and every runtime field in its key."""
-
-    return exact_oracle(
-        dag,
-        max_states=max_states,
-        time_limit_s=time_limit_s,
-        normalized=False,
-        bound_mode=bound_mode,
-        use_memo=use_memo,
-        use_incumbent=use_incumbent,
-    )
-
-
-def exact_completion_from_state_uncompressed(
-    model: PreeSingleModel,
-    state: ScheduleState,
-    *,
-    max_states: int = 100_000,
-    time_limit_s: float | None = 5.0,
-) -> ExactSuffixResult:
-    """Exact suffix from an arbitrary state, retaining the full audit key.
-
-    The result intentionally has no initial-state trace. It is used to label
-    legal first actions at small decision states and never substitutes for the
-    whole-DAG Exact oracle.
-    """
-
-    if max_states < 1:
-        raise ValueError("max_states must be positive")
-    started = perf_counter()
-    stats = _SearchStats()
-    baseline_actions = _complete_actions(model, state, "longest_tail")
-    baseline_end = _apply_actions(model, state, baseline_actions)
-    memo: dict[StateKey, tuple[int, tuple[Action, ...]]] = {}
-
-    def check_budget() -> None:
-        if stats.explored >= max_states:
-            raise _BudgetExceeded("state_limit")
-        if time_limit_s is not None and perf_counter() - started >= time_limit_s:
-            raise _BudgetExceeded("time_limit")
-
-    def search(current: ScheduleState) -> tuple[int, tuple[Action, ...]]:
-        key = audit_state_key(current)
-        cached = memo.get(key)
-        if cached is not None:
-            stats.duplicates += 1
-            return cached
-        check_budget()
-        stats.explored += 1
-        if model.is_finished(current):
-            memo[key] = (0, ())
-            return memo[key]
-        completion = _complete_actions(model, current, "longest_tail")
-        best_cost = _apply_actions(model, current, completion).time - current.time
-        best_actions = completion
-        for action in model.legal_actions(current):
-            check_budget()
-            after = model.step(current, action).after
-            stats.generated += 1
-            elapsed = after.time - current.time
-            if elapsed + remaining_lower_bound(model, after) > best_cost:
-                stats.lower_bound_prunes += 1
-                continue
-            suffix_cost, suffix = search(after)
-            candidate_cost = elapsed + suffix_cost
-            candidate_actions = (action, *suffix)
-            if (candidate_cost, _action_key(candidate_actions)) < (
-                best_cost, _action_key(best_actions)
-            ):
-                best_cost, best_actions = candidate_cost, candidate_actions
-        memo[key] = (best_cost, best_actions)
-        return memo[key]
-
-    try:
-        cost, actions = search(state)
-        return ExactSuffixResult(
-            state.time + cost, actions, "optimal", "complete_enumeration",
-            stats.explored, stats.generated, (perf_counter() - started) * 1000,
-        )
-    except _BudgetExceeded as error:
-        return ExactSuffixResult(
-            baseline_end.time, baseline_actions, "feasible", error.reason,
-            stats.explored, stats.generated, (perf_counter() - started) * 1000,
-        )
-
-
 def monte_carlo(
     dag: DAG,
     *,
@@ -914,43 +355,10 @@ def monte_carlo(
     return min(candidates, key=lambda result: (result.makespan, result.dispatches))
 
 
-def audit_state_key(state: ScheduleState) -> StateKey:
-    """Full event-state key used by the audit Exact."""
-
-    return (state.time, state.tasks, state.last_communication)
-
-
-def normalized_state_key(state: ScheduleState) -> StateKey:
-    """Future-equivalent Stage 2 key under zero-cost, no-external-time semantics."""
+def _normalized_state_key(state: ScheduleState) -> StateKey:
+    """Future-equivalent key used by generic rollout and beam search."""
 
     return tuple((runtime.status, runtime.remaining) for runtime in state.tasks)
-
-
-def remaining_lower_bound(
-    model: PreeSingleModel,
-    state: ScheduleState,
-    *,
-    mode: str = "combined",
-) -> int:
-    """Return a selectable safe residual lower bound for Exact ablation."""
-
-    if mode not in {"none", "communication", "path", "combined"}:
-        raise ValueError(f"unknown lower-bound mode: {mode}")
-
-    tasks = model.task_map
-    communication_work = sum(
-        _own_remaining(model, state, task_id)
-        for task_id in model.task_ids
-        if tasks[task_id].kind == "comm"
-    )
-    longest_path = max(residual_tail(model, state).values(), default=0)
-    if mode == "none":
-        return 0
-    if mode == "communication":
-        return communication_work
-    if mode == "path":
-        return longest_path
-    return max(communication_work, longest_path)
 
 
 def residual_tail(
@@ -1120,39 +528,6 @@ def downstream_communication_demand(
     )
 
 
-def barrier_urgency(
-    model: PreeSingleModel,
-    state: ScheduleState,
-    task_id: str,
-    tail: dict[str, int] | None = None,
-) -> int:
-    """Residual urgency of distinct reachable joins/barriers.
-
-    Each reachable multi-predecessor node contributes its residual tail once.
-    A direct last-blocker gets the same contribution, while a more distant
-    branch is discounted by its residual distance to the barrier.  This is a
-    deterministic structural feature, not a proven lower bound.
-    """
-
-    tails = tail if tail is not None else residual_tail(model, state, [task_id])
-    tasks = model.task_map
-    children = _children(model)
-    distance: dict[str, int] = {task_id: 0}
-    for current in model.dag.topological_order():
-        if current not in distance:
-            continue
-        for child in children[current]:
-            candidate = distance[current] + (
-                0 if current == task_id else _own_remaining(model, state, current)
-            )
-            distance[child] = max(distance.get(child, 0), candidate)
-    return sum(
-        max(0, tails[item] - distance[item])
-        for item in distance
-        if item != task_id and len(tasks[item].deps) > 1
-    )
-
-
 def _priority_key(
     model: PreeSingleModel,
     state: ScheduleState,
@@ -1182,21 +557,11 @@ def _priority_key(
             -exclusive_tail,
             task_id,
         )
-    if priority == "barrier_aware":
-        return (-barrier_urgency(model, state, task_id, tail), -exclusive_tail, task_id)
     if priority == "shared_downstream":
         return (-unique_downstream_work(model, state, task_id), -exclusive_tail, task_id)
     if priority == "downstream_demand":
         return (
             -downstream_communication_demand(model, state, task_id),
-            -exclusive_tail,
-            task_id,
-        )
-    if priority == "structure_aware":
-        return (
-            -barrier_urgency(model, state, task_id, tail),
-            -downstream_communication_demand(model, state, task_id),
-            -unique_downstream_work(model, state, task_id),
             -exclusive_tail,
             task_id,
         )
@@ -1246,10 +611,7 @@ def _rank_candidates(
         "longest_tail",
         "lrpt",
         "join",
-        "structure",
-        "barrier",
         "hybrid",
-        "hybrid_barrier",
     }:
         raise ValueError(f"unknown candidate mode: {mode}")
     baseline = min(
@@ -1270,25 +632,11 @@ def _rank_candidates(
         eligible,
         key=lambda item: _priority_key(model, state, item, "join_aware", tail),
     )
-    structure = sorted(
-        eligible,
-        key=lambda item: _priority_key(model, state, item, "structure_aware", tail),
-    )
-    barrier = []
-    if mode in {"barrier", "hybrid_barrier"}:
-        barrier_context = build_context(model, state, roots=eligible)
-        barrier = sorted(
-            eligible,
-            key=lambda item: priority_key(barrier_context, item, "tail_barrier"),
-        )
     ordered = {
         "longest_tail": longest,
         "lrpt": lrpt,
         "join": join,
-        "structure": structure,
-        "barrier": barrier,
-        "hybrid": _interleave(longest, join, structure, lrpt),
-        "hybrid_barrier": _interleave(longest, barrier, join, structure, lrpt),
+        "hybrid": _interleave(longest, join, lrpt),
     }[mode]
     selected = [baseline, *(item for item in ordered if item != baseline)]
     return selected if top_k is None else selected[:top_k]

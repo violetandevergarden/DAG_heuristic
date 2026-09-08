@@ -1,29 +1,79 @@
-  还剩两个小问题。
+不可抢占的 interface.py 目前只有两个 Protocol，几乎没有形成真正的
+  family 边界；算法名称、参数绑定和 solver 调用全堆在 src/registry.py 里，导致全局注册表过重。
 
-  1. 部分调用方没有传 mode
+  建议改成两层职责：
 
-  以下调用仍然只验证公共不可抢占语义，无法检查 work-conserving 是否违规：
+  - 各 family 的 interface.py
+      - 校验该 family 的输入。
+      - 保存该 family 的算法名称到实现的映射。
+      - 处理算法参数。
+      - 提供统一的 solve(...)。
+      - 输入应是内部 DAG、ParallelChain 或多资源实例，不直接处理 Benchmark。
 
-  - parallel_chain solver (src/single_channel/parallel_chain/nonpreemptive/solver.py:674)
-  - complex_chain solver (src/single_channel/complex_chain/nonpreemptive/solver.py:274)
-  - complex_chain test (tests/single_channel/complex_chain/nonpreemptive/test_complex_chain.py:32)
+  - registry.py
+      - 根据 benchmark 的语义、场景和 family 选择对应 interface。
+      - 完成 Benchmark -> DAG/多资源实例 的转换。
+      - 保存描述、是否 Exact、是否支持 WAIT、开发状态等全局元数据。
+      - 调用 interface.solve()，不再直接调用具体 solver。
 
-  如果这些入口明确知道运行模式，建议传入 mode。如果算法固定属于 optional-idle，也应显式写 "optional_idle"，避免以后误以
-  为已经验证了 work-conserving 约束。
+  例如 complex-chain 不可抢占可以形成：
 
-  2. 独立 replay 中有重复构造索引
+  def solve(
+      dag: DAG,
+      algorithm: str = "longest_tail",
+      *,
+      mode: Mode = "optional_idle",
+      **options: object,
+  ) -> Result:
+      validate_complex_chain(dag)
 
-  src/core/trace/nonpreemptive.py:295 的 _ready_flows() 和 src/core/trace/nonpreemptive.py:318 的 _advance_state() 会反
-  复构造：
+      algorithms = {
+          "longest_tail": ...,
+          "join_bonus": ...,
+          "rollout_flow2": ...,
+          "rollout_wait2": ...,
+          "depth2_wait2": ...,
+          "beam_wait8": ...,
+          "exact_optional": ...,
+      }
 
-  index = {task_id: position for position, task_id in enumerate(task_ids)}
+      ...
 
-  一次 trace 有很多 transition 时，会重复做 O(N) 工作。可以在 replay_nonpreemptive_trace() 开头创建一次 index，传给辅助
-  函数。不过 trace 验证不是求解热路径，这只是低优先级性能整理。
+  然后 registry.py 只保留类似：
 
-  本次已完成：
+  lambda benchmark: interface.solve(
+      to_dag(benchmark),
+      "longest_tail",
+      mode="optional_idle",
+  )
 
-  - parallel-chain、complex-chain 及对应测试的不可抢占 replay 校验均显式传入 `mode="optional_idle"`。
-  - `replay_nonpreemptive_trace()` 现在只在入口构造一次 task index，并传给 replay 辅助函数。
-  - 单/多资源模型统一使用 `NonPreeSingleModel`、`NonPreeMultiModel`、`PreeSingleModel` 和 `PreeMultiModel`；旧兼容别名已删除。
-  - `src/core/trace/common.py` 已更名为 `src/core/trace/contracts.py`，所有代码引用已迁移。
+  不过不建议直接照抄当前可抢占 interface 的所有细节，因为它也有两个问题：
+
+  - 算法字典在每次 solve() 时重新创建。
+  - options 依靠多个 if algorithm == ... 单独分派，算法多了以后仍会膨胀。
+
+  更稳妥的是在各 interface 中建立模块级的算法规格表，例如同时记录实现、允许参数、默认模式。这样算法映射只有一
+  份，registry.py 只补充面向 CLI 的描述信息。
+
+  还有两个边界需要保持：
+
+  1. 不可抢占必须明确区分 optional_idle 和 work_conserving，不能仅靠算法名称含有 wait 来推断完整语义。
+  2. Exact 实现仍然属于 core.oracle。interface 可以注册和调用 Exact，但不能把 Exact 实现搬回 family 目录。
+
+  建议这次同时整理以下三个不可抢占入口：
+
+  - single_channel/parallel_chain/nonpreemptive/interface.py
+  - single_channel/complex_chain/nonpreemptive/interface.py
+  - muti_channel/nonpreemptive/interface.py
+
+  然后让 registry.py 只承担顶层索引和 Benchmark 适配。整个修改不需要触碰 src/core，符合刚加入的模块边界约定。
+
+
+## 完成记录
+
+- 三个不可抢占 family interface 已提供统一的 `solve(...)` 入口和模块级算法规格表。
+- `optional_idle` 与 `work_conserving` 作为显式 `mode` 传入；Exact 仍调用
+  `core.oracle`，没有复制到 family 目录。
+- `registry.py` 现在只负责 Benchmark 转换、算法元数据和调用对应 interface，
+  不再直接调用不可抢占 solver。
+- 定向回归通过：95 passed。

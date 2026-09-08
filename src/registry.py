@@ -26,29 +26,29 @@ class Algorithm:
 
 
 def _parallel_registry() -> dict[str, Algorithm]:
-    from single_channel.parallel_chain.nonpreemptive import solver
+    from single_channel.parallel_chain.nonpreemptive import interface
 
-    convert = lambda benchmark: solver.chains_from_dag(to_dag(benchmark))
+    convert = to_dag
     return {
         "longest_tail": Algorithm(
             "longest_tail",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.schedule_priority(convert(b), "dynamic_tail"),
+            lambda b: interface.solve(convert(b), "longest_tail", mode="optional_idle"),
             "Dynamic residual longest-tail priority.",
         ),
         "rollout_flow2": Algorithm(
             "rollout_flow2",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, allow_wait=False),
+            lambda b: interface.solve(convert(b), "rollout2", mode="work_conserving"),
             "Two whole-flow rollout candidates.",
         ),
         "rollout_wait2": Algorithm(
             "rollout_wait2",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, allow_wait=True),
+            lambda b: interface.solve(convert(b), "rollout2", mode="optional_idle"),
             "Two whole-flow candidates plus WAIT.",
             supports_wait=True,
         ),
@@ -56,7 +56,7 @@ def _parallel_registry() -> dict[str, Algorithm]:
             "beam_wait8",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.beam_search(convert(b), width=8, allow_wait=True),
+            lambda b: interface.solve(convert(b), "beam8", mode="optional_idle"),
             "Beam width 8 with optional idle.",
             supports_wait=True,
         ),
@@ -64,7 +64,7 @@ def _parallel_registry() -> dict[str, Algorithm]:
             "beam_wait32",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.beam_search(convert(b), width=32, allow_wait=True),
+            lambda b: interface.solve(convert(b), "beam32", mode="optional_idle"),
             "Beam width 32 with optional idle.",
             supports_wait=True,
         ),
@@ -72,8 +72,8 @@ def _parallel_registry() -> dict[str, Algorithm]:
             "exact_optional",
             "single_channel",
             "parallel_chain",
-            lambda b: solver.exact_dp(convert(b), optional_idle=True),
-            "Exact small-instance DP.",
+            lambda b: interface.solve(convert(b), "exact", mode="optional_idle"),
+            "Exact small-instance oracle using the shared simulator.",
             exact=True,
             supports_wait=True,
         ),
@@ -81,8 +81,7 @@ def _parallel_registry() -> dict[str, Algorithm]:
 
 
 def _complex_registry() -> dict[str, Algorithm]:
-    from core.oracle import exact_oracle
-    from single_channel.complex_chain.nonpreemptive import solver
+    from single_channel.complex_chain.nonpreemptive import interface
 
     convert = to_dag
     return {
@@ -90,28 +89,28 @@ def _complex_registry() -> dict[str, Algorithm]:
             "longest_tail",
             "single_channel",
             "complex_chain",
-            lambda b: solver.schedule_priority(convert(b)),
+            lambda b: interface.solve(convert(b), "longest_tail", mode="optional_idle"),
             "Dynamic residual longest-tail priority.",
         ),
         "join_bonus": Algorithm(
             "join_bonus",
             "single_channel",
             "complex_chain",
-            lambda b: solver.schedule_priority(convert(b), "raw_join"),
+            lambda b: interface.solve(convert(b), "join_bonus", mode="optional_idle"),
             "Longest tail plus optimistic join bonus.",
         ),
         "rollout_flow2": Algorithm(
             "rollout_flow2",
             "single_channel",
             "complex_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, allow_wait=False),
+            lambda b: interface.solve(convert(b), "rollout_flow2", mode="work_conserving"),
             "Two whole-flow rollout candidates.",
         ),
         "rollout_wait2": Algorithm(
             "rollout_wait2",
             "single_channel",
             "complex_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, allow_wait=True),
+            lambda b: interface.solve(convert(b), "rollout_wait2", mode="optional_idle"),
             "Two whole-flow candidates plus WAIT.",
             supports_wait=True,
         ),
@@ -119,9 +118,7 @@ def _complex_registry() -> dict[str, Algorithm]:
             "depth2_wait2",
             "single_channel",
             "complex_chain",
-            lambda b: solver.schedule_rollout(
-                convert(b), top_k=2, allow_wait=True, candidate_mode="hybrid", depth=2
-            ),
+            lambda b: interface.solve(convert(b), "depth2_wait2", mode="optional_idle", candidate_mode="hybrid"),
             "Depth-2 hybrid rollout with WAIT.",
             supports_wait=True,
         ),
@@ -129,7 +126,7 @@ def _complex_registry() -> dict[str, Algorithm]:
             "beam_wait8",
             "single_channel",
             "complex_chain",
-            lambda b: solver.beam_search(convert(b), width=8),
+            lambda b: interface.solve(convert(b), "beam_wait8", mode="optional_idle"),
             "Beam width 8 with optional idle.",
             supports_wait=True,
         ),
@@ -137,7 +134,7 @@ def _complex_registry() -> dict[str, Algorithm]:
             "exact_optional",
             "single_channel",
             "complex_chain",
-            lambda b: exact_oracle(convert(b), mode="optional_idle"),
+            lambda b: interface.solve(convert(b), "exact_optional", mode="optional_idle"),
             "Exact small-instance oracle.",
             exact=True,
             supports_wait=True,
@@ -146,7 +143,7 @@ def _complex_registry() -> dict[str, Algorithm]:
 
 
 def _muti_registry() -> dict[str, Algorithm]:
-    from muti_channel.nonpreemptive import solver
+    from muti_channel.nonpreemptive import interface
 
     convert = to_muti_resourse
     return {
@@ -154,35 +151,35 @@ def _muti_registry() -> dict[str, Algorithm]:
             "longest_tail_pack",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.schedule_greedy(convert(b), "dynamic_tail"),
+            lambda b: interface.solve(convert(b), "longest_tail_pack", mode="optional_idle"),
             "Compatible packing in longest-tail order.",
         ),
         "resource_pack": Algorithm(
             "resource_pack",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.schedule_greedy(convert(b), "resource_tail"),
+            lambda b: interface.solve(convert(b), "resource_pack", mode="optional_idle"),
             "Residual resource-load tie breaking.",
         ),
         "bottleneck_pack": Algorithm(
             "bottleneck_pack",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.schedule_greedy(convert(b), "bottleneck_first"),
+            lambda b: interface.solve(convert(b), "bottleneck_pack", mode="optional_idle"),
             "Remaining bottleneck resource first.",
         ),
         "rollout_maximal2": Algorithm(
             "rollout_maximal2",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, optional_actions=False),
+            lambda b: interface.solve(convert(b), "rollout_maximal2", mode="work_conserving"),
             "Roll out maximal compatible sets.",
         ),
         "rollout_optional2": Algorithm(
             "rollout_optional2",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.schedule_rollout(convert(b), top_k=2, optional_actions=True),
+            lambda b: interface.solve(convert(b), "rollout_optional2", mode="optional_idle"),
             "Roll out optional compatible sets and WAIT.",
             supports_wait=True,
         ),
@@ -190,7 +187,7 @@ def _muti_registry() -> dict[str, Algorithm]:
             "exact_optional",
             "muti_channel",
             "complex_chain",
-            lambda b: solver.exact_oracle(convert(b), mode="optional_idle"),
+            lambda b: interface.solve(convert(b), "exact", mode="optional_idle"),
             "Exact small-instance resource oracle.",
             exact=True,
             supports_wait=True,
@@ -388,6 +385,8 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
             }
         )
     if benchmark.family == "complex_chain":
+        from core.oracle.preemptive import exact_oracle, exact_oracle_uncompressed
+        from llm_structured.integrated import integrated_v0, schedule_single
         from single_channel.complex_chain.preemptive import solver
     else:
         raise ValueError(f"unsupported preemptive family: {benchmark.family}")
@@ -455,10 +454,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "integrated_v0",
                 "single_channel",
                 benchmark.family,
-                lambda b: __import__(
-                    "single_channel.complex_chain.preemptive.interface",
-                    fromlist=["solve"],
-                ).solve(convert(b), "integrated_v0"),
+                lambda b: schedule_single(convert(b), integrated_v0("single")).schedule,
                 "Frozen Stage 4g baseline: online residual Longest Tail.",
             ),
             "join_aware": Algorithm(
@@ -516,7 +512,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "exact",
                 "single_channel",
                 benchmark.family,
-                lambda b: solver.exact_oracle(convert(b)),
+                lambda b: exact_oracle(convert(b)),
                 "Normalized branch-and-bound Exact for small general DAGs.",
                 exact=True,
             ),
@@ -524,7 +520,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                 "exact_uncompressed",
                 "single_channel",
                 benchmark.family,
-                lambda b: solver.exact_oracle_uncompressed(convert(b)),
+                lambda b: exact_oracle_uncompressed(convert(b)),
                 "Audit Exact retaining absolute event-state fields.",
                 exact=True,
             ),

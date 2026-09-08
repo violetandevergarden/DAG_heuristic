@@ -63,7 +63,7 @@ def current_cases(*, samples: int, seed: int) -> list[ExportedCase]:
         stage3_structural_adversarial_cases,
         tight_optional_wait_family,
     )
-    from single_channel.parallel_chain.model import ParallelChain
+    from single_channel.parallel_chain.structure import ParallelChain
 
     exported: list[ExportedCase] = []
     parallel_rng = random.Random(seed)

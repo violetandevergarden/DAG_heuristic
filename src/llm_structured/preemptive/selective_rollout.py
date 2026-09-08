@@ -13,6 +13,7 @@ from time import perf_counter
 
 from core.dag import DAG
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
+from core.oracle.preemptive import normalized_state_key
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, ChoiceSummary, EvaluationOutcome,
     RolloutBudget, Trigger, TriggerFeatures, choice_only,
@@ -36,7 +37,7 @@ def feature_cache_key(
     """Include the history input used by ``eligible_comm_delta``."""
 
     return (
-        solver.normalized_state_key(state), FEATURE_VERSION,
+        normalized_state_key(state), FEATURE_VERSION,
         tuple(sorted(previous_eligible)),
     )
 
@@ -47,7 +48,7 @@ def summarize_choice(model: PreeSingleModel, state: ScheduleState) -> ChoiceSumm
         kind = "no_choice"
     else:
         children = tuple(
-            solver.normalized_state_key(model.step(state, Action.run(item)).after)
+            normalized_state_key(model.step(state, Action.run(item)).after)
             for item in eligible
         )
         kind = "equivalent_choice" if len(set(children)) == 1 else "candidate_choice"

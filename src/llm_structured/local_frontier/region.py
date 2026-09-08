@@ -5,6 +5,8 @@ from __future__ import annotations
 from collections import deque
 from dataclasses import dataclass
 from hashlib import sha256
+
+from core.oracle.preemptive import normalized_state_key
 from time import perf_counter
 
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
@@ -29,7 +31,7 @@ class LocalRegion:
 
 
 def _fingerprint(state: ScheduleState) -> str:
-    return sha256(repr(solver.normalized_state_key(state)).encode()).hexdigest()[:16]
+    return sha256(repr(normalized_state_key(state)).encode()).hexdigest()[:16]
 
 
 def build_local_region(

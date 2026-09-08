@@ -2,17 +2,16 @@ from time import perf_counter
 
 from core.dag import Task, DAG
 from core.execution.preemptive import Action, PreeSingleModel
+from core.oracle.preemptive import exact_completion_from_state_uncompressed
 from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, RolloutBudget,
 )
-from single_channel.complex_chain.preemptive.selective_rollout import (
+from llm_structured.preemptive.selective_rollout import (
     cheap_features, evaluate_rollout, feature_cache_key, generate_candidates,
     schedule_selective_rollout, summarize_choice,
 )
-from single_channel.complex_chain.preemptive.solver import (
-    exact_completion_from_state_uncompressed, schedule_longest_tail,
-)
+from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
 
 def _dag():

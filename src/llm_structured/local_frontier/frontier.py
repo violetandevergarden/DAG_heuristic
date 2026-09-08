@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from core.execution.preemptive import ScheduleState
-from single_channel.complex_chain.preemptive import solver
+from core.oracle.preemptive import normalized_state_key
 
 
 def states_merged(left: ScheduleState, right: ScheduleState) -> bool:
     """True only for future-equivalent normalized public states."""
 
-    return solver.normalized_state_key(left) == solver.normalized_state_key(right)
+    return normalized_state_key(left) == normalized_state_key(right)
 
 
 def local_work_remaining(state: ScheduleState, indices: tuple[int, ...]) -> int:

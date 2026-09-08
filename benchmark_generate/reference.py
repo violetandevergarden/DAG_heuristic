@@ -39,7 +39,7 @@ def generate_reference_results(
                     if benchmark.family == "parallel_chain":
                         from single_channel.parallel_chain.preemptive.solver import exact_oracle
                     else:
-                        from single_channel.complex_chain.preemptive.solver import exact_oracle
+                        from core.oracle.preemptive import exact_oracle
 
                     result = exact_oracle(
                         to_dag(benchmark), max_states=100_000, time_limit_s=5.0

@@ -8,7 +8,7 @@ from dataclasses import replace
 from itertools import pairwise
 
 from core.dag import DAG, Task, DAGBuilder
-from single_channel.parallel_chain.model import ParallelChain, to_benchmark_dag
+from single_channel.parallel_chain.structure import ParallelChain, to_benchmark_dag
 
 
 def random_parallel_chains(

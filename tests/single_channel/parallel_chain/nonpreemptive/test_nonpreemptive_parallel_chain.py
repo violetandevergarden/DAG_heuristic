@@ -3,17 +3,25 @@
 import random
 
 from core.oracle import exact_oracle
+from single_channel.parallel_chain.nonpreemptive.compact_exact_reference import (
+    advance as compact_advance,
+    binary_search_exact,
+    exact_dp,
+    legal_actions as compact_legal_actions,
+)
 from single_channel.parallel_chain.nonpreemptive.solver import (
     ParallelChain,
-    binary_search_exact,
+    _chain_action_from_public,
+    _public_action,
+    _public_projection,
     beam_search,
-    exact_dp,
     monte_carlo_best,
     schedule_priority,
     schedule_rollout,
     to_benchmark_dag,
     verify_schedule,
 )
+from core.execution.nonpreemptive import NonPreeSingleModel
 from benchmark_generate.cases import (
     fixed_beam_counterexample,
     random_parallel_chains,
@@ -34,6 +42,58 @@ def test_compact_dp_matches_r1_dag_oracle_in_both_idle_modes() -> None:
             compact = exact_dp(chains, optional_idle=optional_idle)
             general = exact_oracle(dag, mode=mode)
             assert compact.makespan == general.makespan
+
+
+def test_compact_exact_transition_matches_public_model_at_every_reachable_state() -> None:
+    chains = (
+        ParallelChain((2, 1), (3, 2), initial_delay=1),
+        ParallelChain((1, 3), (2, 1)),
+    )
+    dag, flow_ids = to_benchmark_dag(chains)
+    model = NonPreeSingleModel(dag)
+
+    for optional_idle in (False, True):
+        stack = [model.initial_state()]
+        seen = set()
+        while stack:
+            public_state = stack.pop()
+            if public_state in seen:
+                continue
+            seen.add(public_state)
+            compact_state = _public_projection(
+                chains, model, public_state, flow_ids
+            )
+            compact_actions = set(
+                compact_legal_actions(
+                    chains, compact_state, optional_idle=optional_idle
+                )
+            )
+            public_actions = model.legal_actions(public_state)
+            if not optional_idle and model.ready_flows(public_state):
+                public_actions = tuple(
+                    action for action in public_actions if action.kind != "wait"
+                )
+            projected_actions = {
+                _chain_action_from_public(
+                    chains, model, public_state, action, flow_ids
+                )
+                for action in public_actions
+            }
+            assert compact_actions == projected_actions
+
+            for action in compact_actions:
+                compact_successor, compact_duration = compact_advance(
+                    chains, compact_state, action
+                )
+                transition = model.step(
+                    public_state,
+                    _public_action(action, chains, model, public_state, flow_ids),
+                )
+                assert transition.after.time - public_state.time == compact_duration
+                assert _public_projection(
+                    chains, model, transition.after, flow_ids
+                ) == compact_successor
+                stack.append(transition.after)
 
 
 def test_binary_feasibility_matches_direct_operation_dp() -> None:

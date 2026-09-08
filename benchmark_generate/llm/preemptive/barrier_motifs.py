@@ -21,12 +21,12 @@ from benchmark_generate.convert import dag_to_benchmark, multi_resource_to_bench
 from core.dag import DAG, Task
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from core.execution.preemptive import Action, PreeSingleModel
+from core.oracle.preemptive import exact_oracle
 from llm_structured.barrier import action_features, build_context, feature_snapshot
+from llm_structured.preemptive.barrier import schedule_barrier_policy
 from muti_channel.preemptive.solver import schedule_set_policy
 from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
 from single_channel.complex_chain.preemptive.solver import (
-    exact_oracle,
-    schedule_barrier_policy,
     schedule_longest_tail,
 )
 

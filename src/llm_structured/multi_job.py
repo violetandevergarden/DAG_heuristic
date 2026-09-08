@@ -22,7 +22,8 @@ from core.execution.preemptive import (
     result_from_trace,
 )
 from core.trace.preemptive import assert_preemptive_trace
-from single_channel.complex_chain.preemptive.solver import exact_oracle, residual_tail
+from core.oracle.preemptive import exact_oracle
+from single_channel.complex_chain.preemptive.solver import residual_tail
 from muti_channel.preemptive.solver import (
     MultiAction,
     MultiResult,

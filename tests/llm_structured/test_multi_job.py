@@ -14,7 +14,7 @@ from llm_structured.multi_job import (
     solo_optimal_jct,
     teacher_candidate_recall,
 )
-from single_channel.complex_chain.preemptive.solver import exact_oracle
+from core.oracle.preemptive import exact_oracle
 
 
 def _one_flow_job(name: str, duration: int, tail: int) -> DAG:

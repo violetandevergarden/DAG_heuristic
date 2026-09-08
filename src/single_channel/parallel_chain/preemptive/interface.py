@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from core.dag import DAG
 from core.execution.preemptive import PreemptiveScheduleResult
-from single_channel.parallel_chain.model import parse_parallel_chain
 from single_channel.parallel_chain.preemptive import solver
+from single_channel.parallel_chain.structure import parse_parallel_chain
 
 
 def validate_parallel_chain(dag: DAG) -> None:

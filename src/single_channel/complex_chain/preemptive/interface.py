@@ -4,13 +4,23 @@ from __future__ import annotations
 
 from core.dag import DAG
 from core.execution.preemptive import PreemptiveScheduleResult
+from core.oracle.preemptive import exact_oracle, exact_oracle_uncompressed
 from single_channel.complex_chain.preemptive import solver
 
 
 def validate_complex_chain(dag: DAG) -> None:
-    """Apply the raw-general-DAG Stage 2 family contract."""
+    """Validate the Stage 2 internal family contract.
 
-    solver.validate_complex_chain(dag)
+    Stage 2 deliberately accepts raw general DAGs, including same-kind edges
+    and multiple weak components.  Components are concurrent parts of one
+    makespan instance, not separate jobs.  No canonicalization or silent
+    chainification is performed.
+    """
+    errors = dag.validate()
+    if not dag.tasks:
+        errors.append("complex_chain requires at least one task")
+    if errors:
+        raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
 
 
 def solve(
@@ -27,60 +37,30 @@ def solve(
         "release_gain": lambda item: solver.schedule_priority(item, "release_gain"),
         "lrpt": lambda item: solver.schedule_priority(item, "lrpt"),
         "join_aware": lambda item: solver.schedule_priority(item, "join_aware"),
-        "barrier_aware": lambda item: solver.schedule_priority(item, "barrier_aware"),
         "shared_downstream": lambda item: solver.schedule_priority(
             item, "shared_downstream"
         ),
         "downstream_demand": lambda item: solver.schedule_priority(
             item, "downstream_demand"
         ),
-        "structure_aware": lambda item: solver.schedule_priority(item, "structure_aware"),
         "longest_tail": solver.schedule_longest_tail,
-        "integrated_v0": lambda item: __import__(
-            "llm_structured.integrated", fromlist=["schedule_single"]
-        ).schedule_single(
-            item,
-            __import__(
-                "llm_structured.integrated", fromlist=["integrated_v0"]
-            ).integrated_v0("single"),
-        ).schedule,
-        "barrier_prescreen": solver.schedule_barrier_prescreen,
-        "barrier_only": lambda item: solver.schedule_barrier_policy(
-            item, "barrier_only"
-        ),
-        "tail_barrier": lambda item: solver.schedule_barrier_policy(
-            item, "tail_barrier"
-        ),
-        "barrier_margin_tiebreak": solver.schedule_barrier_margin_tiebreak,
-        "barrier_selective_rollout": solver.schedule_selective_barrier_rollout,
-        "selective_rollout": lambda item: __import__(
-            "single_channel.complex_chain.preemptive.selective_rollout",
-            fromlist=["schedule_selective_rollout"],
-        ).schedule_selective_rollout(item),
         "rollout2": solver.schedule_rollout,
         "beam8": lambda item: solver.beam_search(item, width=8),
-        "exact": solver.exact_oracle,
-        "exact_uncompressed": solver.exact_oracle_uncompressed,
+        "exact": exact_oracle,
+        "exact_uncompressed": exact_oracle_uncompressed,
     }
     try:
         implementation = algorithms[algorithm]
     except KeyError as error:
         raise ValueError(f"unknown preemptive complex-chain algorithm: {algorithm}") from error
     if options:
-        if algorithm == "barrier_margin_tiebreak":
-            return solver.schedule_barrier_margin_tiebreak(dag, **options)  # type: ignore[arg-type]
-        if algorithm == "selective_rollout":
-            from single_channel.complex_chain.preemptive.selective_rollout import (
-                schedule_selective_rollout,
-            )
-            return schedule_selective_rollout(dag, **options)  # type: ignore[arg-type]
         if algorithm == "rollout2":
             return solver.schedule_rollout(dag, **options)  # type: ignore[arg-type]
         if algorithm == "beam8":
             return solver.beam_search(dag, width=8, **options)  # type: ignore[arg-type]
         if algorithm == "exact":
-            return solver.exact_oracle(dag, **options)  # type: ignore[arg-type]
+            return exact_oracle(dag, **options)  # type: ignore[arg-type]
         if algorithm == "exact_uncompressed":
-            return solver.exact_oracle_uncompressed(dag, **options)  # type: ignore[arg-type]
+            return exact_oracle_uncompressed(dag, **options)  # type: ignore[arg-type]
         raise ValueError(f"algorithm {algorithm} does not accept options")
     return implementation(dag)

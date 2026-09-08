@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from benchmark_generate.llm.preemptive.barrier_motifs import single_channel_motifs
 from core.execution.preemptive import Action, PreeSingleModel
+from core.oracle.preemptive import exact_oracle
 from core.trace.preemptive import assert_preemptive_trace
 from llm_structured.barrier import build_context, feature_snapshot
-from single_channel.complex_chain.preemptive.solver import (
-    exact_oracle,
+from llm_structured.preemptive.barrier import (
     offline_best_of_lt_and_barrier,
     schedule_barrier_margin_tiebreak,
     schedule_barrier_policy,
     schedule_barrier_prescreen,
-    schedule_longest_tail,
     schedule_selective_barrier_rollout,
 )
+from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
 
 def test_controlled_barrier_motifs_have_scripted_competition_and_exact_labels() -> None:

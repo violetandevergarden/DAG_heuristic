@@ -10,6 +10,7 @@ import pytest
 from benchmark import benchmark_from_dict, benchmark_to_dict
 from core.dag import DAG, Task
 from core.execution.preemptive import Action, ExecutionInterval, PreeSingleModel
+from core.oracle.preemptive import exact_oracle
 from core.trace.preemptive import assert_preemptive_trace
 from muti_channel.preemptive.solver import (
     MultiAction,
@@ -25,7 +26,6 @@ from muti_channel.preemptive.solver import (
     remaining_lower_bound as multi_remaining_lower_bound,
 )
 from muti_channel.preemptive.trace import assert_multi_resource_trace
-from single_channel.complex_chain.preemptive.solver import exact_oracle
 from single_channel.parallel_chain.preemptive.interface import validate_parallel_chain
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 

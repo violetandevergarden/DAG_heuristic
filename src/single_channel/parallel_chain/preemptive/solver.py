@@ -8,20 +8,19 @@ states produced by that public transition system.
 from __future__ import annotations
 
 import random
-from dataclasses import replace
 from functools import cache
 from time import perf_counter
 
 from core.dag import DAG
 from core.execution.preemptive import (
     Action,
-    PreeSingleModel,
     PreemptiveScheduleResult,
+    PreeSingleModel,
     ScheduleState,
     result_from_trace,
 )
 from core.trace.preemptive import assert_preemptive_trace
-from single_channel.parallel_chain.model import (
+from single_channel.parallel_chain.structure import (
     ParallelChainInstance,
     parse_parallel_chain,
 )

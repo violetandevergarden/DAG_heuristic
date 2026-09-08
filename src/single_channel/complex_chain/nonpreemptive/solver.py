@@ -8,17 +8,11 @@ complete counterfactual schedules evaluate them.
 
 from __future__ import annotations
 
-import argparse
-from collections import defaultdict
+from collections.abc import Iterable
 from dataclasses import dataclass, replace
-import json
 from pathlib import Path
-import random
-from statistics import mean
-import sys
 from time import perf_counter
-from typing import Iterable, Literal
-
+from typing import Literal
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,8 +24,6 @@ from core.execution.nonpreemptive import (
     ScheduleTrace,
 )
 from core.trace.nonpreemptive import assert_nonpreemptive_trace
-from core.oracle import exact_oracle
-
 
 CandidateMode = Literal["dynamic", "hybrid"]
 

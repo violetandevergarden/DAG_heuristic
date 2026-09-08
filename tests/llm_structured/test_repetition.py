@@ -7,7 +7,7 @@ from llm_structured.repetition import (
     schedule_coupling_aware,
     schedule_role_copy,
 )
-from single_channel.complex_chain.preemptive.solver import exact_oracle
+from core.oracle.preemptive import exact_oracle
 
 
 def test_independent_local_optimum_does_not_safely_copy() -> None:
