@@ -10,9 +10,10 @@ from dataclasses import asdict
 
 from benchmark import Benchmark
 from core.conversion import to_dag, to_muti_resourse
-from core.execution.nonpreemptive import Action, NonPreeSingleModel
-from muti_channel.nonpreemptive.solver import (
+from core.execution.nonpreemptive import (
+    Action,
     NonPreeMultiModel,
+    NonPreeSingleModel,
     ResourceAction,
 )
 

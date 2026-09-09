@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
 from benchmark import load_benchmark
+from benchmark_generate.io import sha256_file
 from registry import algorithms_for, solve
 
 
@@ -32,34 +32,10 @@ def generate_reference_results(
             # preemptive framework deliberately ships without an Oracle.
             continue
         try:
-            if benchmark.semantics.is_preemptive:
-                if benchmark.scenario == "single_channel":
-                    from core.conversion import to_dag
-
-                    if benchmark.family == "parallel_chain":
-                        from single_channel.parallel_chain.preemptive.solver import exact_oracle
-                    else:
-                        from core.oracle.pree_single import exact_oracle
-
-                    result = exact_oracle(
-                        to_dag(benchmark), max_states=100_000, time_limit_s=5.0
-                    )
-                else:
-                    from core.conversion import to_muti_resourse
-                    from core.oracle.pree_multi import exact_oracle
-
-                    instance = to_muti_resourse(benchmark)
-                    result = exact_oracle(
-                        instance.dag,
-                        {
-                            key: frozenset(str(value) for value in values)
-                            for key, values in instance.resources.items()
-                        },
-                        max_states=100_000,
-                        time_limit_s=5.0,
-                    )
-            else:
-                result = solve(benchmark, exact_name)
+            # Registry is the only reference-result dispatch point.  It owns
+            # the semantic conversion and the family-specific Oracle choice;
+            # generation must not import a historical solver implementation.
+            result = solve(benchmark, exact_name)
         except (RuntimeError, TimeoutError):
             # A timed-out result is not an optimum certificate.  Keep the
             # benchmark but deliberately omit its reference sidecar.
@@ -80,7 +56,7 @@ def generate_reference_results(
                 {
                     "schema_version": benchmark.schema_version,
                     "benchmark_id": benchmark.benchmark_id,
-                    "benchmark_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+                    "benchmark_sha256": sha256_file(source),
                     "oracle": exact_name,
                     "oracle_status": getattr(result, "status", "legacy_optimal"),
                     "oracle_runtime_ms": getattr(result, "runtime_ms", None),

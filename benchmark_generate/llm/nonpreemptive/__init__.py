@@ -1,5 +1,5 @@
 """Stage 4a generation and audit tools for non-preemptive LLM DAGs."""
-from .multi_job_cases import (
+from .multi_job_suite import (
     WORKFLOW_VERSION,
     assert_topology_pair,
     rebuild_manifest,

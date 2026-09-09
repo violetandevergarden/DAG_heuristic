@@ -22,13 +22,7 @@ from core.dag import DAG, Task
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from core.execution.preemptive import Action, PreeSingleModel
 from core.oracle.pree_single import exact_oracle
-from llm_structured.preemptive.barrier.analysis import action_features, build_context, feature_snapshot
-from llm_structured.preemptive.barrier.policy import schedule_barrier_policy
-from muti_channel.preemptive.solver import schedule_set_policy
 from core.oracle.pree_multi import exact_oracle as multi_exact_oracle
-from single_channel.complex_chain.preemptive.solver import (
-    schedule_longest_tail,
-)
 
 
 @dataclass(frozen=True)
@@ -214,6 +208,16 @@ def _first_action_costs(model: Any, state: Any) -> dict[str, int]:
 
 def label_motif(motif: BarrierMotif) -> dict[str, Any]:
     """Produce bounded labels and policy observations for one motif."""
+
+    # Labels are research reports, not generation prerequisites.  Keep these
+    # imports local so importing the motif generator cannot pull in heuristic
+    # implementations or create a generator -> experiment dependency.
+    from llm_structured.preemptive.barrier.analysis import (
+        action_features, build_context, feature_snapshot,
+    )
+    from llm_structured.preemptive.barrier.policy import schedule_barrier_policy
+    from muti_channel.preemptive.solver import schedule_set_policy
+    from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
     if motif.resources is None:
         model = PreeSingleModel(motif.dag)

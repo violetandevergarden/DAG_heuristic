@@ -2,23 +2,23 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import replace
 
 from benchmark import Benchmark, validate_benchmark
+from benchmark_generate.io import canonical_object_sha256
 
 
 def _benchmark_hash(benchmark: Benchmark) -> str:
     from benchmark import benchmark_to_dict
 
-    payload = json.dumps(
+    payload = json.loads(json.dumps(
         benchmark_to_dict(benchmark),
         ensure_ascii=False,
         sort_keys=True,
         separators=(",", ":"),
-    ).encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()
+    ))
+    return canonical_object_sha256(payload)
 
 
 def causal_closure_slice(

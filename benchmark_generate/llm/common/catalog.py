@@ -8,11 +8,11 @@ topology without constructing an uncontrolled source x topology x DP product.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-import hashlib
-import json
 from pathlib import Path
 import re
 from typing import Iterable
+
+from benchmark_generate.io import FileHashCache, sha256_file, write_jsonl_atomic
 
 
 _AICB_NAME = re.compile(
@@ -48,11 +48,9 @@ class WorkloadSource:
         return re.sub(r"[^a-z0-9]+", "", self.model.lower())
 
 
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def parse_aicb_source(path: Path, *, root: Path) -> WorkloadSource | None:
+def parse_aicb_source(
+    path: Path, *, root: Path, hash_cache: FileHashCache | None = None
+) -> WorkloadSource | None:
     match = _AICB_NAME.match(path.name)
     if match is None:
         return None
@@ -65,7 +63,7 @@ def parse_aicb_source(path: Path, *, root: Path) -> WorkloadSource | None:
     return WorkloadSource(
         path=path.relative_to(root).as_posix(),
         filename=path.name,
-        content_hash=_sha256(path),
+        content_hash=(hash_cache or FileHashCache()).get(path) if hash_cache else sha256_file(path),
         hardware=values["hardware"],
         model=values["model"],
         world_size=world_size,
@@ -82,11 +80,14 @@ def parse_aicb_source(path: Path, *, root: Path) -> WorkloadSource | None:
     )
 
 
-def scan_aicb_catalog(root: Path) -> tuple[list[WorkloadSource], list[dict[str, str]]]:
+def scan_aicb_catalog(
+    root: Path, *, hash_cache: FileHashCache | None = None
+) -> tuple[list[WorkloadSource], list[dict[str, str]]]:
     rows: list[WorkloadSource] = []
     quarantine: list[dict[str, str]] = []
+    hash_cache = hash_cache or FileHashCache()
     for path in sorted(root.glob("*.txt")):
-        source = parse_aicb_source(path, root=root)
+        source = parse_aicb_source(path, root=root, hash_cache=hash_cache)
         if source is None:
             quarantine.append({"path": path.name, "reason": "unrecognized_or_inconsistent_name"})
         else:
@@ -99,7 +100,6 @@ def write_source_catalog(
     sources: Iterable[WorkloadSource],
     quarantine: Iterable[dict[str, str]] = (),
 ) -> None:
-    catalog_path.parent.mkdir(parents=True, exist_ok=True)
     records = [
         {"status": "available", **asdict(source)}
         for source in sorted(sources, key=lambda item: item.filename)
@@ -108,11 +108,7 @@ def write_source_catalog(
         {"status": "quarantined", **entry}
         for entry in sorted(quarantine, key=lambda item: item["path"])
     )
-    catalog_path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in records),
-        encoding="utf-8",
-        newline="\n",
-    )
+    write_jsonl_atomic(catalog_path, records)
 
 
 def canonical_routed_specs(

@@ -4,12 +4,12 @@ import time
 from pathlib import Path
 
 from benchmark import Benchmark, Resource, SchedulingSemantics, Task, validate_benchmark
-from benchmark_generate.llm.nonpreemptive.contention import (
+from benchmark_generate.llm.nonpreemptive.contention_audit import (
     bounded_choice_search,
     contention_audit,
 )
-from benchmark_generate.llm.nonpreemptive.multi_job import compose_real_jobs
-from benchmark_generate.llm.nonpreemptive.selection import selected_specs
+from benchmark_generate.llm.common.multi_job import compose_real_jobs
+from benchmark_generate.llm.nonpreemptive.corpus_selection import selected_specs
 from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
 from benchmark_generate.simai.common_export import build_synthetic_input, build_workload
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark

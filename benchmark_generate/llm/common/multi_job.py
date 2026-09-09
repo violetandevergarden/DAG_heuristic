@@ -8,14 +8,10 @@ as a release compute node exactly like ``llm_structured.preemptive.multi_job.com
 
 from __future__ import annotations
 
-import hashlib
 from pathlib import Path
 
 from benchmark import Benchmark, Resource, Task, validate_benchmark
-
-
-def _sha256_file(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+from benchmark_generate.io import FileHashCache
 
 
 def compose_real_jobs(
@@ -23,12 +19,21 @@ def compose_real_jobs(
     *,
     benchmark_id: str,
     source_paths: list[Path],
+    source_hashes: list[str | None] | None = None,
 ) -> Benchmark:
     """Merge ``(job_id, benchmark, arrival)`` entries into one multi-job DAG."""
     if not jobs:
         raise ValueError("at least one job is required")
     if len(source_paths) not in {0, len(jobs)}:
         raise ValueError("source_paths must be empty or contain one path per job")
+    if source_hashes is not None and len(source_hashes) != len(jobs):
+        raise ValueError("source_hashes must contain one entry per job")
+    hash_cache = FileHashCache()
+
+    def source_hash(index: int) -> str | None:
+        if source_hashes is not None:
+            return source_hashes[index]
+        return hash_cache.get(source_paths[index]) if index < len(source_paths) else None
     scenario = jobs[0][1].scenario
     semantics = jobs[0][1].semantics
     categories = {job.scenario for _job_id, job, _arrival in jobs}
@@ -87,7 +92,7 @@ def compose_real_jobs(
             "arrival": int(arrival),
             "source_benchmark_id": benchmark.benchmark_id,
             "source_content_hash": (
-                _sha256_file(source_paths[index]) if index < len(source_paths) else None
+                source_hash(index)
             ),
         })
 
@@ -109,7 +114,7 @@ def compose_real_jobs(
                     "arrival": int(arrival),
                     "source_benchmark_id": benchmark.benchmark_id,
                     "source_content_hash": (
-                        _sha256_file(source_paths[index]) if index < len(source_paths) else None
+                        source_hash(index)
                     ),
                     "source": benchmark.metadata.get("provenance", {}).get("source"),
                 }

@@ -42,7 +42,7 @@ def main() -> None:
     if args.command == "llm":
         import sys
 
-        from benchmark_generate.llm_structure import main as llm_main
+        from benchmark_generate.llm.preemptive.corpus import main as llm_main
 
         llm_main(sys.argv[2:])
         return

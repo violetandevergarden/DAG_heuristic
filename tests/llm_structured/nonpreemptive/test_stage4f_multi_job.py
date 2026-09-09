@@ -15,9 +15,9 @@ from benchmark import (
     write_benchmark,
 )
 from benchmark_generate.export import build_index
-from benchmark_generate.llm.nonpreemptive.contention import contention_audit
-from benchmark_generate.llm.nonpreemptive.multi_job import compose_real_jobs
-from benchmark_generate.llm.nonpreemptive.multi_job_cases import (
+from benchmark_generate.llm.nonpreemptive.contention_audit import contention_audit
+from benchmark_generate.llm.common.multi_job import compose_real_jobs
+from benchmark_generate.llm.nonpreemptive.multi_job_suite import (
     assert_topology_pair,
     rebuild_manifest,
     static_cross_job_overlap,

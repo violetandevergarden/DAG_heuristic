@@ -2,17 +2,15 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
-from benchmark_generate.llm_structure import TOPOLOGIES
+from benchmark_generate.io import canonical_sha256
+from benchmark_generate.llm.common.config import TOPOLOGIES
 
 
 def canonical_hash(value) -> str:
-    return hashlib.sha256(
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
+    return canonical_sha256(value)
 
 
 def spec(source: dict, *, topology: str | None = None) -> dict:

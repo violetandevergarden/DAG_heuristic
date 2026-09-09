@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from benchmark_generate.llm.common.catalog import canonical_routed_specs, scan_aicb_catalog
-from benchmark_generate.llm_structure import AICB_ROOT, TOPOLOGY_CAPACITIES
+from benchmark_generate.llm.common.config import AICB_ROOT, TOPOLOGY_CAPACITIES
 
 
 def test_aicb_catalog_covers_all_parseable_real_inputs() -> None:

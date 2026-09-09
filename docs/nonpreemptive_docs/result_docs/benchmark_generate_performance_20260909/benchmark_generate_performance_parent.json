@@ -1,0 +1,183 @@
+{
+  "cases": [
+    "benchmark\\llm_structure\\nonpreemptive\\real_derived\\np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00.json",
+    "benchmark\\llm_structure\\nonpreemptive\\routed\\np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
+    "benchmark\\llm_structure\\nonpreemptive\\multi_job\\np_multi_job_heterogeneous_simultaneous.json"
+  ],
+  "comparison": "current optimized-path baseline only; no unsupported before/after speedup claimed",
+  "cpu": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+  "generated_at": "2026-09-09T13:01:09.716829+00:00",
+  "logical_cpu_count": 24,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.14.6",
+  "repeats": 3,
+  "runs": [
+    {
+      "case_count": 3,
+      "cases": [
+        {
+          "benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\real_derived\\np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00.json",
+          "sha256": "88f25dd22396407ba42d08bdd8d89da1b79f3d6cd335d6ee16258174f564a10c"
+        },
+        {
+          "benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\routed\\np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
+          "sha256": "0427a0a5664a654805cbd399f9d6280ebcfda45755152e275017f3cad259724c"
+        },
+        {
+          "benchmark_id": "np_multi_job_heterogeneous_simultaneous",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\multi_job\\np_multi_job_heterogeneous_simultaneous.json",
+          "sha256": "c943c58d04e3350701caa0a29fd8caa5605dce204c72087023b544262565c73f"
+        }
+      ],
+      "processes_spawned": 0,
+      "repeat": 0,
+      "stages": [
+        {
+          "peak_tracemalloc_bytes": 4493049,
+          "stage": "generate",
+          "wall_ms": 105.948
+        },
+        {
+          "peak_tracemalloc_bytes": 4665349,
+          "stage": "resume",
+          "wall_ms": 116.614
+        },
+        {
+          "peak_tracemalloc_bytes": 8095069,
+          "stage": "audit",
+          "wall_ms": 542.61
+        },
+        {
+          "peak_tracemalloc_bytes": 4524522,
+          "stage": "publish_index",
+          "wall_ms": 325.526
+        }
+      ]
+    },
+    {
+      "case_count": 3,
+      "cases": [
+        {
+          "benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\real_derived\\np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00.json",
+          "sha256": "88f25dd22396407ba42d08bdd8d89da1b79f3d6cd335d6ee16258174f564a10c"
+        },
+        {
+          "benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\routed\\np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
+          "sha256": "0427a0a5664a654805cbd399f9d6280ebcfda45755152e275017f3cad259724c"
+        },
+        {
+          "benchmark_id": "np_multi_job_heterogeneous_simultaneous",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\multi_job\\np_multi_job_heterogeneous_simultaneous.json",
+          "sha256": "c943c58d04e3350701caa0a29fd8caa5605dce204c72087023b544262565c73f"
+        }
+      ],
+      "processes_spawned": 0,
+      "repeat": 1,
+      "stages": [
+        {
+          "peak_tracemalloc_bytes": 4490921,
+          "stage": "generate",
+          "wall_ms": 140.13
+        },
+        {
+          "peak_tracemalloc_bytes": 4503185,
+          "stage": "resume",
+          "wall_ms": 120.368
+        },
+        {
+          "peak_tracemalloc_bytes": 7721925,
+          "stage": "audit",
+          "wall_ms": 577.365
+        },
+        {
+          "peak_tracemalloc_bytes": 4532624,
+          "stage": "publish_index",
+          "wall_ms": 375.622
+        }
+      ]
+    },
+    {
+      "case_count": 3,
+      "cases": [
+        {
+          "benchmark_id": "np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\real_derived\\np_gpt13b_ws2_tp2_pp1_ep1_gbs1_mbs1_decision_slice_00.json",
+          "sha256": "88f25dd22396407ba42d08bdd8d89da1b79f3d6cd335d6ee16258174f564a10c"
+        },
+        {
+          "benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\routed\\np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
+          "sha256": "0427a0a5664a654805cbd399f9d6280ebcfda45755152e275017f3cad259724c"
+        },
+        {
+          "benchmark_id": "np_multi_job_heterogeneous_simultaneous",
+          "path": "benchmark\\llm_structure\\nonpreemptive\\multi_job\\np_multi_job_heterogeneous_simultaneous.json",
+          "sha256": "c943c58d04e3350701caa0a29fd8caa5605dce204c72087023b544262565c73f"
+        }
+      ],
+      "processes_spawned": 0,
+      "repeat": 2,
+      "stages": [
+        {
+          "peak_tracemalloc_bytes": 4490921,
+          "stage": "generate",
+          "wall_ms": 119.562
+        },
+        {
+          "peak_tracemalloc_bytes": 4503185,
+          "stage": "resume",
+          "wall_ms": 110.886
+        },
+        {
+          "peak_tracemalloc_bytes": 8039381,
+          "stage": "audit",
+          "wall_ms": 531.014
+        },
+        {
+          "peak_tracemalloc_bytes": 4522980,
+          "stage": "publish_index",
+          "wall_ms": 325.884
+        }
+      ]
+    }
+  ],
+  "schema_version": "benchmark-generate-performance-v1",
+  "summary": {
+    "audit": {
+      "median_wall_ms": 542.61,
+      "samples_ms": [
+        542.61,
+        577.365,
+        531.014
+      ]
+    },
+    "generate": {
+      "median_wall_ms": 119.562,
+      "samples_ms": [
+        105.948,
+        140.13,
+        119.562
+      ]
+    },
+    "publish_index": {
+      "median_wall_ms": 325.884,
+      "samples_ms": [
+        325.526,
+        375.622,
+        325.884
+      ]
+    },
+    "resume": {
+      "median_wall_ms": 116.614,
+      "samples_ms": [
+        116.614,
+        120.368,
+        110.886
+      ]
+    }
+  }
+}

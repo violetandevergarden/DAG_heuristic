@@ -1,8 +1,8 @@
 """Transactional real-LLM corpus workflow.
 
-The older ``benchmark_generate.llm_structure`` entry point bundled generation,
-slow contention replay and index publication into one destructive command.  This
-module keeps those operations explicit:
+The old top-level entry point bundled generation, slow contention replay and
+index publication into one destructive command. This module keeps those
+operations explicit:
 
 ``generate`` -> write a versioned staging corpus and candidate manifest
 ``probe``    -> resume per-case competition reports
@@ -16,7 +16,6 @@ informative set until its probe status is recorded.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -29,6 +28,7 @@ from typing import Any
 
 from benchmark import load_benchmark, validate_benchmark
 from benchmark_generate.export import build_index
+from benchmark_generate.io import canonical_sha256, sha256_file
 
 CORPUS_MANIFEST_VERSION = "llm-corpus-v3"
 CONVERSION_STATUSES = {"not_run", "valid", "explained_delta", "mismatch", "invalid"}
@@ -59,11 +59,13 @@ STATUSES = {
 
 
 def _sha256_bytes(payload: bytes) -> str:
+    import hashlib
+
     return hashlib.sha256(payload).hexdigest()
 
 
 def _sha256_file(path: Path) -> str:
-    return _sha256_bytes(path.read_bytes())
+    return sha256_file(path)
 
 
 def _git_state(root: Path) -> dict[str, Any]:
@@ -98,8 +100,7 @@ def _git_state(root: Path) -> dict[str, Any]:
 
 
 def canonical_parameter_hash(parameters: dict[str, Any]) -> str:
-    encoded = json.dumps(parameters, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
-    return _sha256_bytes(encoded)
+    return canonical_sha256(parameters)
 
 
 def _stage4_layer(benchmark) -> str:
@@ -549,7 +550,8 @@ def generate(root: Path, *, run_id: str | None = None) -> Path:
 
     root = root.resolve()
     from benchmark_generate.llm.common.catalog import scan_aicb_catalog, write_source_catalog
-    from benchmark_generate.llm_structure import AICB_ROOT, build_corpus
+    from benchmark_generate.llm.common.config import AICB_ROOT
+    from benchmark_generate.llm.common.conversion import build_corpus
 
     llm_root = root / "llm_structure"
     run_id = run_id or datetime.now(UTC).strftime("run-%Y%m%dT%H%M%SZ")
@@ -620,7 +622,7 @@ def probe(
     root = root.resolve()
     competition_report = None
     if not fast:
-        from benchmark_generate.llm_structure import competition_report as _competition_report
+        from benchmark_generate.llm.preemptive.contention import competition_report as _competition_report
         competition_report = _competition_report
 
     active_llm_root = root / "llm_structure"

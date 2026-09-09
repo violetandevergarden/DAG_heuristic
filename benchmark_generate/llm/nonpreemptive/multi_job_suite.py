@@ -2,20 +2,20 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 from dataclasses import replace
 from pathlib import Path
 
 from benchmark import Benchmark, load_benchmark, write_benchmark
+from benchmark_generate.io import sha256_file, write_jsonl_atomic
 
-from .multi_job import compose_real_jobs
+from benchmark_generate.llm.common.multi_job import compose_real_jobs
 
 WORKFLOW_VERSION = "nonpreemptive-stage4f-multi-job-v1"
 
 
 def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return sha256_file(path)
 
 
 def read_specs(path: Path) -> list[dict]:
@@ -178,8 +178,4 @@ def rebuild_manifest(root: Path, specs_path: Path, staging: Path) -> list[dict]:
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
-        newline="\n",
-    )
+    write_jsonl_atomic(path, rows)

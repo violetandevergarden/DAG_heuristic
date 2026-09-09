@@ -2,21 +2,16 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import asdict
 from pathlib import Path
 
+from benchmark_generate.io import FileHashCache, sha256_file, write_jsonl_atomic
 from benchmark_generate.llm.common.catalog import scan_aicb_catalog
 from benchmark_generate.simai.common_export import AicbParser, TopologyLoader
 
 
-def _hash(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def source_catalog(root: Path) -> list[dict]:
-    sources, quarantine = scan_aicb_catalog(root)
+def source_catalog(root: Path, *, hash_cache: FileHashCache | None = None) -> list[dict]:
+    sources, quarantine = scan_aicb_catalog(root, hash_cache=hash_cache)
     rows: list[dict] = []
     for source in sources:
         path = root / source.path
@@ -47,14 +42,20 @@ def source_catalog(root: Path) -> list[dict]:
     return sorted(rows, key=lambda row: row["path"])
 
 
-def topology_catalog(topologies: dict, topology_root: Path) -> list[dict]:
+def topology_catalog(
+    topologies: dict, topology_root: Path, *, hash_cache: FileHashCache | None = None
+) -> list[dict]:
     rows = []
     for name, (filename, tier, bandwidth_gbps) in sorted(topologies.items()):
         path = topology_root / filename
         row = {
             "topology_id": name,
             "relative_path": path.relative_to(topology_root).as_posix(),
-            "content_hash": _hash(path) if path.is_file() else None,
+            "content_hash": (
+                (hash_cache or FileHashCache()).get(path)
+                if path.is_file() and hash_cache
+                else sha256_file(path) if path.is_file() else None
+            ),
             "status": "available" if path.is_file() else "missing",
             "source_class": "public_example"
             if tier == "experimental"
@@ -84,10 +85,5 @@ def topology_catalog(topologies: dict, topology_root: Path) -> list[dict]:
 
 
 def write_jsonl(path: Path, rows: list[dict]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
-        newline="\n",
-    )
-
+    """Compatibility wrapper; all writes now use the atomic common writer."""
+    write_jsonl_atomic(path, rows)

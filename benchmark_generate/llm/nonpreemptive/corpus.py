@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 import multiprocessing
 import os
 import queue
@@ -12,54 +10,35 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from benchmark import load_benchmark, write_benchmark
-from benchmark_generate.llm.nonpreemptive.catalog import (
-    source_catalog,
-    topology_catalog,
-    write_jsonl,
+from benchmark_generate.io import (
+    FileHashCache,
+    canonical_sha256,
+    read_jsonl,
+    sha256_file,
+    write_json_atomic,
+    write_jsonl_atomic,
 )
-from benchmark_generate.llm.nonpreemptive.contention import contention_audit
-from benchmark_generate.llm.nonpreemptive.multi_job import compose_real_jobs
-from benchmark_generate.llm.nonpreemptive.publication import publish
-from benchmark_generate.llm.nonpreemptive.selection import (
+from benchmark_generate.llm.nonpreemptive.catalog import source_catalog, topology_catalog
+from benchmark_generate.llm.nonpreemptive.contention_audit import contention_audit
+from benchmark_generate.llm.common.multi_job import compose_real_jobs
+from benchmark_generate.llm.nonpreemptive.corpus_publication import publish
+from benchmark_generate.llm.nonpreemptive.corpus_selection import (
     benchmark_id as _benchmark_id,
 )
-from benchmark_generate.llm.nonpreemptive.selection import (
+from benchmark_generate.llm.nonpreemptive.corpus_selection import (
     selected_specs as _selected_specs,
 )
 from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
-from benchmark_generate.llm_structure import (
+from benchmark_generate.llm.common.config import (
     AICB_ROOT,
     TOPO_ROOT,
     TOPOLOGIES,
-    export_case,
 )
+from benchmark_generate.llm.common.conversion import export_case
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark
 
 MANIFEST_VERSION = "llm-nonpreemptive-corpus-v1"
 PUBLICATION_RUN_VERSION = "stage4a-nonpreemptive-publication-v1"
-
-
-def _sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def _canonical_hash(value) -> str:
-    return hashlib.sha256(
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
-
-
-def _write_json(path: Path, value) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
-
-
-def _read_jsonl(path: Path) -> list[dict]:
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
 
 
 def _export_worker(spec: dict, benchmark_id: str, temporary: str, output) -> None:
@@ -116,7 +95,7 @@ def _tier(task_count: int) -> str:
 
 
 def _manifest_row(benchmark, relative: Path, run_id: str, spec: dict) -> dict:
-    parameter_hash = _canonical_hash(spec)
+    parameter_hash = canonical_sha256(spec)
     source = benchmark.metadata.get("provenance", {}).get("source", {})
     topology = benchmark.metadata.get("provenance", {}).get("topology", {})
     return {
@@ -160,15 +139,16 @@ def generate(
     run_id = run_id or datetime.now(UTC).strftime("np-run-%Y%m%dT%H%M%SZ")
     staging = llm_root / ".staging" / run_id
     resuming = staging.exists()
-    sources = source_catalog(AICB_ROOT)
-    topologies = topology_catalog(TOPOLOGIES, TOPO_ROOT)
-    write_jsonl(staging / "source_catalog.jsonl", sources)
-    write_jsonl(staging / "topology_catalog.jsonl", topologies)
+    hash_cache = FileHashCache()
+    sources = source_catalog(AICB_ROOT, hash_cache=hash_cache)
+    topologies = topology_catalog(TOPOLOGIES, TOPO_ROOT, hash_cache=hash_cache)
+    write_jsonl_atomic(staging / "source_catalog.jsonl", sources)
+    write_jsonl_atomic(staging / "topology_catalog.jsonl", topologies)
     specs = _selected_specs(sources)
     if max_base_cases is not None:
         specs = specs[:max_base_cases]
     rows: list[dict] = (
-        _read_jsonl(staging / "candidate_manifest.jsonl")
+        read_jsonl(staging / "candidate_manifest.jsonl")
         if resuming and (staging / "candidate_manifest.jsonl").is_file()
         else []
     )
@@ -190,7 +170,7 @@ def generate(
             base_cases.append(record)
 
     def checkpoint() -> None:
-        write_jsonl(
+        write_jsonl_atomic(
             staging / "candidate_manifest.jsonl", sorted(rows, key=lambda row: row["benchmark_id"])
         )
 
@@ -211,7 +191,7 @@ def generate(
                 time_limit_s=generation_time_limit_s,
             )
             row = _manifest_row(benchmark, relative, run_id, spec)
-            row["content_hash"] = _sha256(path)
+            row["content_hash"] = hash_cache.get(path)
             rows.append(row)
             base_cases.append((benchmark, path, spec))
 
@@ -246,7 +226,7 @@ def generate(
                 write_benchmark(sliced, slice_path)
                 slice_spec = {**spec, "slice": sliced.metadata["slice_relation"]}
                 slice_row = _manifest_row(sliced, slice_relative, run_id, slice_spec)
-                slice_row["content_hash"] = _sha256(slice_path)
+                slice_row["content_hash"] = hash_cache.get(slice_path)
                 rows.append(slice_row)
                 small_cases.append((sliced, slice_path, slice_spec))
                 if sum(row.get("size_tier") == "small" for row in rows) >= 26:
@@ -299,10 +279,10 @@ def generate(
                 "sources": [left[0].benchmark_id, right[0].benchmark_id],
             }
             row = _manifest_row(composed, relative, run_id, spec)
-            row["content_hash"] = _sha256(path)
+            row["content_hash"] = hash_cache.get(path)
             rows.append(row)
         checkpoint()
-    write_jsonl(
+    write_jsonl_atomic(
         staging / "run_metadata.jsonl",
         [
             {
@@ -316,6 +296,7 @@ def generate(
                 },
                 "case_count": sum(row.get("conversion_status") == "valid" for row in rows),
                 "generation_time_limit_s": generation_time_limit_s,
+                "audit_manifest_checkpoint_batch": 16,
             }
         ],
     )
@@ -333,46 +314,52 @@ def audit(
     root = root.resolve()
     manifest = manifest.resolve()
     staging = manifest.parent
-    rows = _read_jsonl(manifest)
+    rows = read_jsonl(manifest)
     processed = 0
     reports = staging / "artifacts" / "contention"
-    for row in rows:
-        if limit is not None and processed >= limit:
-            break
-        if (
-            row.get("conversion_status") != "valid"
-            or row.get("contention_evidence_level") != "not_run"
-        ):
-            continue
-        path = staging / row["path"]
-        report = contention_audit(
-            load_benchmark(path),
-            max_decisions=max_decisions,
-            enumeration_limit=enumeration_limit,
-        )
-        # JSONL keeps audit answers out of repository-wide ``*.json`` problem
-        # discovery while remaining machine-readable and hash-addressed.
-        report_path = reports / f"{row['benchmark_id']}.jsonl"
-        _write_json(report_path, report)
-        row["contention_evidence_level"] = report["evidence_level"]
-        row["contention_classification"] = (
-            "non_equivalent_choice_observed"
-            if report["non_equivalent_choice_observed"]
-            else "choice_observed"
-            if any(
-                report[key]
-                for key in (
-                    "ordering_choice_observed",
-                    "set_choice_observed",
-                    "wait_choice_observed",
-                )
+    try:
+        for row in rows:
+            if limit is not None and processed >= limit:
+                break
+            if (
+                row.get("conversion_status") != "valid"
+                or row.get("contention_evidence_level") != "not_run"
+            ):
+                continue
+            path = staging / row["path"]
+            report = contention_audit(
+                load_benchmark(path),
+                max_decisions=max_decisions,
+                enumeration_limit=enumeration_limit,
             )
-            else "no_choice_observed"
-        )
-        row["contention_report"] = report_path.relative_to(staging).as_posix()
-        row["contention_report_hash"] = _sha256(report_path)
-        processed += 1
-        write_jsonl(manifest, rows)
+            # JSONL keeps audit answers out of repository-wide ``*.json`` problem
+            # discovery while remaining machine-readable and hash-addressed.
+            report_path = reports / f"{row['benchmark_id']}.jsonl"
+            write_json_atomic(report_path, report)
+            row["contention_evidence_level"] = report["evidence_level"]
+            row["contention_classification"] = (
+                "non_equivalent_choice_observed"
+                if report["non_equivalent_choice_observed"]
+                else "choice_observed"
+                if any(
+                    report[key]
+                    for key in (
+                        "ordering_choice_observed",
+                        "set_choice_observed",
+                        "wait_choice_observed",
+                    )
+                )
+                else "no_choice_observed"
+            )
+            row["contention_report"] = report_path.relative_to(staging).as_posix()
+            row["contention_report_hash"] = sha256_file(report_path)
+            processed += 1
+            if processed % 16 == 0:
+                write_jsonl_atomic(manifest, rows)
+    finally:
+        # Persist the partial batch on interruption as well; at most 15 rows
+        # need to be replayed after recovery.
+        write_jsonl_atomic(manifest, rows)
     return manifest
 
 

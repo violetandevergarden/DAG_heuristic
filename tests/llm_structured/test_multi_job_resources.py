@@ -1,4 +1,4 @@
-from benchmark_generate.llm.preemptive.multi_job_workloads import multi_job_workloads
+from benchmark_generate.llm.preemptive.synthetic_multi_job import multi_job_workloads
 from llm_structured.preemptive.multi_job.solver import schedule_multi_resource_policy, solo_optimal_jct
 
 

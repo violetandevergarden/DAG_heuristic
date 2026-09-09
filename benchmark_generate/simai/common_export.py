@@ -7,7 +7,6 @@ conversion helper from silently selecting preemptive or non-preemptive rules.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import math
 import subprocess
@@ -19,6 +18,7 @@ from pathlib import Path
 # root.  Bootstrap must run before importing that package; importing it later
 # lets this repository's own source directory win namespace resolution.
 from benchmark_generate.simai.bootstrap import SIMAI_ROOT
+from benchmark_generate.io import canonical_sha256, sha256_file
 
 from src.static_analysis.passes.pipeline_task_serializers import (
     BidirectionalPipelineSerializer,
@@ -73,7 +73,7 @@ class ExportContract:
 
 
 def content_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return sha256_file(path)
 
 
 def git_commit(path: Path) -> str | None:
@@ -93,9 +93,7 @@ def git_commit(path: Path) -> str | None:
 
 
 def canonical_parameter_hash(parameters: dict) -> str:
-    return hashlib.sha256(
-        json.dumps(parameters, ensure_ascii=False, sort_keys=True).encode("utf-8")
-    ).hexdigest()
+    return canonical_sha256(parameters)
 
 
 @dataclass(frozen=True)

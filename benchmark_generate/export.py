@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
 import json
 import random
 from dataclasses import dataclass, replace
@@ -10,6 +9,7 @@ from pathlib import Path
 from typing import Literal
 
 from benchmark import Benchmark, SchedulingSemantics, load_benchmark, write_benchmark
+from benchmark_generate.io import sha256_file, write_jsonl_atomic
 from benchmark_generate.convert import (
     dag_to_benchmark,
     multi_resource_to_benchmark,
@@ -317,15 +317,11 @@ def build_index(root: Path) -> list[dict]:
                 "category": benchmark.category,
                 "semantics": semantics_name(benchmark),
                 "layout_version": LAYOUT_VERSION,
-                "sha256": hashlib.sha256(target.read_bytes()).hexdigest(),
+                "sha256": sha256_file(target),
             }
         )
     rows.sort(key=lambda row: (row["scenario"], row["family"], row["category"], row["id"]))
-    (benchmark_root / "index.jsonl").write_text(
-        "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows),
-        encoding="utf-8",
-        newline="\n",
-    )
+    write_jsonl_atomic(benchmark_root / "index.jsonl", rows)
     _refresh_path_manifest_hashes(benchmark_root)
     return rows
 
@@ -340,7 +336,7 @@ def _refresh_path_manifest_hashes(root: Path) -> None:
     for row in rows:
         target = root / row["new_path"]
         if target.is_file():
-            row["sha256"] = hashlib.sha256(target.read_bytes()).hexdigest()
+            row["sha256"] = sha256_file(target)
     manifest.write_text(
         "".join(
             json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"

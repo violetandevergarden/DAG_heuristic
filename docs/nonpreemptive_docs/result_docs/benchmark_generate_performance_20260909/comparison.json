@@ -1,0 +1,28 @@
+﻿{
+    "schema_version":  "benchmark-generate-performance-comparison-v1",
+    "current_report":  "benchmark_generate_performance.json",
+    "parent_report":  "benchmark_generate_performance_parent.json",
+    "stages":  {
+                   "generate":  {
+                                    "parent_median_wall_ms":  119.562,
+                                    "current_median_wall_ms":  114.854,
+                                    "delta_percent":  -3.94
+                                },
+                   "resume":  {
+                                  "parent_median_wall_ms":  116.614,
+                                  "current_median_wall_ms":  123.906,
+                                  "delta_percent":  6.25
+                              },
+                   "audit":  {
+                                 "parent_median_wall_ms":  542.61,
+                                 "current_median_wall_ms":  592.609,
+                                 "delta_percent":  9.21
+                             },
+                   "publish_index":  {
+                                         "parent_median_wall_ms":  325.884,
+                                         "current_median_wall_ms":  315.774,
+                                         "delta_percent":  -3.1
+                                     }
+               },
+    "note":  "Same frozen cases, three repeats, same machine. Parent is git HEAD; values are process-local harness measurements and are not a claim about full corpus throughput."
+}

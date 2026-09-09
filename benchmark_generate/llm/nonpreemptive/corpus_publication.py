@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import hashlib
-import json
 import os
 import shutil
 import time
@@ -11,15 +9,12 @@ from pathlib import Path
 
 from benchmark import load_benchmark, validate_benchmark
 from benchmark_generate.export import build_index
-from benchmark_generate.llm.nonpreemptive.catalog import write_jsonl
+from benchmark_generate.io import FileHashCache, read_jsonl, sha256_file, write_jsonl_atomic
+from benchmark_generate.manifest import validate_manifest
 
 
 def sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def read_jsonl(path: Path) -> list[dict]:
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+    return sha256_file(path)
 
 
 def validate_candidate(staging: Path) -> list[dict]:
@@ -32,6 +27,8 @@ def validate_candidate(staging: Path) -> list[dict]:
     run_ids = {row.get("publication_run_id") for row in rows}
     if len(run_ids) != 1 or None in run_ids:
         raise ValueError("candidate sidecars do not share one publication_run_id")
+    validate_manifest(rows)
+    cache = FileHashCache()
     for row in rows:
         benchmark_id, relative = row.get("benchmark_id"), row.get("path")
         if not benchmark_id or not relative or benchmark_id in ids or relative in paths:
@@ -43,10 +40,10 @@ def validate_candidate(staging: Path) -> list[dict]:
         validate_benchmark(benchmark)
         if benchmark.schema_version != "3.0" or benchmark.semantics.is_preemptive:
             raise ValueError(f"not a v3 non-preemptive benchmark: {relative}")
-        if sha256(path) != row.get("content_hash"):
+        if cache.get(path) != row.get("content_hash"):
             raise ValueError(f"benchmark hash mismatch: {relative}")
         report = row.get("contention_report")
-        if not report or sha256(staging / report) != row.get("contention_report_hash"):
+        if not report or cache.get(staging / report) != row.get("contention_report_hash"):
             raise ValueError(f"contention report missing or mismatched: {relative}")
     actual = {
         path.relative_to(staging).as_posix() for path in (staging / "nonpreemptive").rglob("*.json")
@@ -80,7 +77,7 @@ def publish(root: Path, *, staging: Path) -> tuple[Path, int]:
             ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl"), sidecars[1:4]
         ):
             shutil.copy2(staging / source, target)
-        write_jsonl(sidecars[0], [{**row, "publication_status": "published"} for row in rows])
+        write_jsonl_atomic(sidecars[0], [{**row, "publication_status": "published"} for row in rows])
         count = len(build_index(root))
     except Exception:
         if active.exists():
@@ -119,7 +116,7 @@ def publish_selected(
             raise ValueError(f"benchmark id mismatch: {source}")
         if benchmark.semantics.is_preemptive or benchmark.schema_version != "3.0":
             raise ValueError(f"not a v3 non-preemptive benchmark: {source}")
-        if sha256(source) != row["content_hash"]:
+        if sha256_file(source) != row["content_hash"]:
             raise ValueError(f"content hash mismatch: {source}")
         if row.get("baseline_status") != "completed_validated":
             raise ValueError(f"baseline gate is incomplete: {benchmark.benchmark_id}")
@@ -152,7 +149,7 @@ def publish_selected(
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(staging / relative, target)
             created.append(target)
-        write_jsonl(
+        write_jsonl_atomic(
             manifest,
             [
                 *existing,
@@ -191,11 +188,11 @@ def refresh_selected_records(root: Path, *, selection: Path) -> Path:
         if row["content_hash"] != update["content_hash"]:
             raise ValueError(f"cannot refresh changed content: {row['benchmark_id']}")
         target = root / "llm_structure" / update["path"]
-        if sha256(target) != update["content_hash"]:
+        if sha256_file(target) != update["content_hash"]:
             raise ValueError(f"published file hash mismatch: {row['benchmark_id']}")
         refreshed.append({**update, "publication_status": "published"})
         found.add(row["benchmark_id"])
     if found != set(updates):
         raise ValueError(f"selection includes unpublished ids: {sorted(set(updates) - found)}")
-    write_jsonl(manifest, refreshed)
+    write_jsonl_atomic(manifest, refreshed)
     return manifest

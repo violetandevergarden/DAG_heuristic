@@ -12,7 +12,7 @@ benchmark_generate/
 ├── cases.py                    # 随机、反例、LLM motif 和小拓扑 route 样例
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
-├── llm_structure.py            # 真实 AICB 语料 + 真实拓扑 -> benchmark/llm_structure
+├── llm/                         # LLM Stage 4 generation and corpus workflows
 ├── llm/
 │   ├── catalog.py             # AICB 源文件目录与确定性 case 选择
 │   ├── corpus.py              # 真实 LLM corpus generate/audit/publish 事务流
@@ -118,7 +118,7 @@ python -m benchmark_generate.llm.preemptive.corpus --mode probe --output benchma
 python -m benchmark_generate.llm.preemptive.corpus --mode publish --output benchmark
 ```
 
-`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe`（兼容保留的 CLI mode）执行 contention audit，并为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 audit 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。audit 报告保存在 `benchmark/llm_structure/.artifacts/contention_audit/`，不属于 benchmark 输入，也不会进入公共 index。
+`benchmark_generate.llm.preemptive.corpus` 和 `benchmark_generate.llm.nonpreemptive.corpus` 分别提供两种语义的正式工作流。`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe` 执行 contention audit，并为每个 case 写可恢复 checkpoint；`publish` 校验后更新 manifest 和公共 index。未完成 audit 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。
 
 ## 从 SimAI 生成真实 DAG
 
