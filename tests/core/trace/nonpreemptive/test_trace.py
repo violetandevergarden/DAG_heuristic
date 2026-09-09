@@ -4,7 +4,7 @@ import pytest
 
 from core.dag import DAG, Task
 from core.execution.nonpreemptive import Action, NonPreeSingleModel
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 
 
 def test_nonpreemptive_trace_has_one_interval_per_completed_task() -> None:

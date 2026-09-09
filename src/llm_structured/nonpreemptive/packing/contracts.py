@@ -6,7 +6,7 @@ from collections.abc import Hashable
 from dataclasses import dataclass, field
 from typing import Literal
 
-from muti_channel.nonpreemptive.solver import ResourceAction
+from core.execution.nonpreemptive import ResourceAction
 
 PackingMode = Literal["optional_idle", "work_conserving"]
 

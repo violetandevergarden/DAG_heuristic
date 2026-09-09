@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from muti_channel.nonpreemptive.solver import ResourceAction
+from core.execution.nonpreemptive import ResourceAction
 
 from .contracts import DecisionBudget, SetFeatures
 

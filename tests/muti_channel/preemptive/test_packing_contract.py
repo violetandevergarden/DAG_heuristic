@@ -2,13 +2,12 @@ import pytest
 
 from core.dag import DAG, Task
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
+from core.oracle.pree_multi import exact_completion_from_state_uncompressed, exact_oracle_uncompressed
 from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
-from muti_channel.preemptive.constructors import enumerate_bounded, greedy, multi_seed, one_exchange
+from muti_channel.preemptive.packing_constructors import enumerate_bounded, greedy, multi_seed, one_exchange
 from muti_channel.preemptive.packing import PackingBudget, build_conflict_graph, validate_maximal_action
-from muti_channel.preemptive.solver import (
-    exact_completion_from_state_uncompressed, exact_oracle_uncompressed,
-    schedule_bounded_packing, score_tasks,
-)
+from muti_channel.preemptive.search import schedule_bounded_packing
+from muti_channel.preemptive.solver import score_tasks
 
 
 def _case():

@@ -2,8 +2,8 @@ from time import perf_counter
 
 from core.dag import Task, DAG
 from core.execution.preemptive import Action, PreeSingleModel
-from core.oracle.preemptive import exact_completion_from_state_uncompressed
-from core.trace.preemptive import assert_preemptive_trace
+from core.oracle.pree_single import exact_completion_from_state_uncompressed
+from core.trace.pree_single import assert_preemptive_trace
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, RolloutBudget,
 )

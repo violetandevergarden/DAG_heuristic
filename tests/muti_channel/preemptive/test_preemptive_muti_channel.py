@@ -5,22 +5,21 @@ import pytest
 
 from benchmark import load_benchmark
 from core.dag import DAG, Task
+from core.oracle.pree_multi import exact_oracle, exact_oracle_uncompressed
+from core.oracle.pree_multi import uncompressed_state_key
+from muti_channel.preemptive.search import rollout_sets
 from muti_channel.preemptive.solver import (
     MultiAction,
     PreeMultiModel,
-    exact_oracle,
-    exact_oracle_uncompressed,
     greedy_fill_from_task_scores,
     remaining_lower_bound,
-    rollout_sets,
     schedule_pack,
     schedule_set_policy,
     score_sets,
     score_tasks,
     select_best_scored_set,
-    uncompressed_state_key,
 )
-from muti_channel.preemptive.trace import assert_multi_resource_trace
+from core.trace.pree_multi import assert_multi_resource_trace
 from registry import algorithms_for
 
 ROOT = Path(__file__).resolve().parents[3]

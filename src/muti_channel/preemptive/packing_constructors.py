@@ -9,6 +9,7 @@ from muti_channel.preemptive.packing import (
     DecisionBudget, PackingBudget, PackingResult, PackingStats, complete_maximal,
     iter_maximal_actions, validate_maximal_action,
 )
+from muti_channel.preemptive.solver import complete_pack
 
 
 def _result(model, state, baseline, candidates, constructor, ledger, *, seeds=0, exchanges=0, truncated=False):
@@ -18,7 +19,7 @@ def _result(model, state, baseline, candidates, constructor, ledger, *, seeds=0,
     reason = ledger.fallback_reason
     return PackingResult(
         baseline=baseline, candidates=candidates, selected=baseline,
-        constructor=constructor, selector="unselected", config_version="stage4c-packing-v2",
+        constructor=constructor, selector="unselected", config_version="fixed-resource-packing-v1",
         truncated=truncated, fallback_reason=reason,
         stats=PackingStats(candidate_count=len(candidates), generated_candidates=ledger.generated_candidates,
                            seed_count=seeds, exchange_count=exchanges, operations=ledger.operations,
@@ -33,20 +34,18 @@ def _prepare(model, state, scores, budget, ledger=None):
         raise ValueError("scores must cover exactly the eligible communications")
     ordered = tuple(sorted(eligible, key=scores.__getitem__))
     ledger = ledger or DecisionBudget(budget)
-    # Baseline remains available even when optional-constructor budget is zero.
-    baseline = complete_maximal(model, state, ordered)
-    return ordered, baseline, ledger
+    return ordered, complete_maximal(model, state, ordered), ledger
 
 
-def greedy(model: PreeMultiModel, state, scores: dict[str, tuple], ledger=None) -> PackingResult:
+def greedy(model, state, scores, ledger=None):
     ordered, baseline, ledger = _prepare(model, state, scores, PackingBudget(), ledger)
     ledger.operations = len(ordered)
     return _result(model, state, baseline, (), "greedy", ledger)
 
 
-def multi_seed(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def multi_seed(model, state, scores, budget=PackingBudget(), ledger=None):
     ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
-    candidates: list[MultiResourceAction] = []
+    candidates = []
     seeds = 0
     if budget.max_sets == 0:
         return _result(model, state, baseline, (), "multi_seed", ledger)
@@ -62,9 +61,9 @@ def multi_seed(model: PreeMultiModel, state, scores: dict[str, tuple], budget: P
     return _result(model, state, baseline, candidates, "multi_seed", ledger, seeds=seeds, truncated=ledger.fallback_reason is not None)
 
 
-def one_exchange(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def one_exchange(model, state, scores, budget=PackingBudget(), ledger=None):
     ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
-    candidates: list[MultiResourceAction] = []
+    candidates = []
     exchanges = 0
     if budget.max_sets == 0:
         return _result(model, state, baseline, (), "one_exchange", ledger)
@@ -86,9 +85,9 @@ def one_exchange(model: PreeMultiModel, state, scores: dict[str, tuple], budget:
     return _result(model, state, baseline, candidates, "one_exchange", ledger, exchanges=exchanges, truncated=ledger.fallback_reason is not None)
 
 
-def enumerate_bounded(model: PreeMultiModel, state, scores: dict[str, tuple], budget: PackingBudget = PackingBudget(), ledger=None) -> PackingResult:
+def enumerate_bounded(model, state, scores, budget=PackingBudget(), ledger=None):
     _ordered, baseline, ledger = _prepare(model, state, scores, budget, ledger)
-    candidates: list[MultiResourceAction] = []
+    candidates = []
     if budget.max_sets == 0:
         return _result(model, state, baseline, (), "enumeration", ledger)
     for action in iter_maximal_actions(model, state, ledger):
@@ -103,20 +102,19 @@ def enumerate_bounded(model: PreeMultiModel, state, scores: dict[str, tuple], bu
     return _result(model, state, baseline, candidates, "enumeration", ledger, truncated=ledger.fallback_reason is not None)
 
 
-def choose_by_depth1_longest_tail(model, state, result: PackingResult, ledger: DecisionBudget):
-    """Evaluate candidates one at a time, reserving each completion call first."""
-    from muti_channel.preemptive.solver import _complete_pack
-
+def choose_by_depth1_longest_tail(model, state, result, ledger):
     best = result.baseline
     best_value = None
     evaluated = 0
     for action in (result.baseline, *result.candidates):
         if not ledger.reserve_completion():
             break
-        value = _complete_pack(model, model.step(state, action))[0].time
+        value = complete_pack(model, model.step(state, action))[0].time
         evaluated += 1
         candidate = (value, action.communications)
         if best_value is None or candidate < (best_value, best.communications):
-            best_value = value
-            best = action
+            best_value, best = value, action
     return best, evaluated
+
+
+__all__ = ["choose_by_depth1_longest_tail", "enumerate_bounded", "greedy", "multi_seed", "one_exchange"]

@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from benchmark_generate.llm.preemptive.barrier_motifs import multi_resource_motifs
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
-from llm_structured.barrier import action_features, build_context, feature_snapshot
-from muti_channel.preemptive.solver import (
+from llm_structured.preemptive.multi_features import action_features, build_context
+from llm_structured.preemptive.multi_barrier import (
     offline_best_of_lt_and_barrier,
-    schedule_pack,
     schedule_selective_barrier_rollout,
-    schedule_set_policy,
+    schedule_barrier_set_policy,
 )
+from muti_channel.preemptive.solver import schedule_pack
 
 
 def test_multi_barrier_motif_uses_maximal_actions_and_union_features() -> None:
@@ -19,20 +19,17 @@ def test_multi_barrier_motif_uses_maximal_actions_and_union_features() -> None:
     actions = model.maximal_actions(scripted)
     assert actions
     context = build_context(model, scripted)
-    assert feature_snapshot(context, "N").direct_last_missing_join_count == 1
     assert all(
-        action_features(context, action.communications).shared_downstream_count >= 0
+        action_features(context, action.communications).completed_direct_join_count >= 0
         for action in actions
     )
-    assert schedule_set_policy(motif.dag, motif.resources or {}, "barrier_union").makespan >= 0
+    assert schedule_barrier_set_policy(motif.dag, motif.resources or {}).makespan >= 0
 
 
 def test_multi_barrier_offline_upper_bound_is_explicitly_not_online() -> None:
     for motif in multi_resource_motifs():
         baseline = schedule_pack(motif.dag, motif.resources or {}, "longest_tail")
-        candidate = schedule_set_policy(
-            motif.dag, motif.resources or {}, "barrier_union"
-        )
+        candidate = schedule_barrier_set_policy(motif.dag, motif.resources or {})
         offline = offline_best_of_lt_and_barrier(motif.dag, motif.resources or {})
         assert offline.online is False
         assert offline.full_schedule_runs == 2

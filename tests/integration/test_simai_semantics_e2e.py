@@ -24,8 +24,8 @@ from core.conversion import to_dag, to_muti_resourse
 from core.dag import DAG
 from core.execution.preemptive import Action, PreeSingleModel, result_from_trace
 from core.execution.preemptive import PreeMultiModel
-from core.trace.preemptive import assert_preemptive_trace
-from muti_channel.preemptive.trace import assert_multi_resource_trace
+from core.trace.pree_single import assert_preemptive_trace
+from core.trace.pree_multi import assert_multi_resource_trace
 
 
 def _exported_1f1b(*, pp=2, ga=2, bandwidth_gbps=200.0) -> Benchmark:

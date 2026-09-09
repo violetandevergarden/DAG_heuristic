@@ -14,7 +14,7 @@ from core.execution.preemptive import (
     ScheduleState,
     result_from_trace,
 )
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 
 StateKey = tuple[object, ...]
 

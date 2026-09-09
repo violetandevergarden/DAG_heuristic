@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import random
 
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 from core.oracle import exact_oracle
 from benchmark_generate.cases import combined_chain_probes, random_join_dag
 from single_channel.complex_chain.nonpreemptive.solver import (

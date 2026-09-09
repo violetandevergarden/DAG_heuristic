@@ -7,7 +7,7 @@ from core.execution.nonpreemptive import (
     Action,
     NonPreeSingleModel,
 )
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 
 
 def _overlap_dag() -> DAG:

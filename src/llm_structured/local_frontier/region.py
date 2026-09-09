@@ -6,7 +6,7 @@ from collections import deque
 from dataclasses import dataclass
 from hashlib import sha256
 
-from core.oracle.preemptive import normalized_state_key
+from core.oracle.pree_single import normalized_state_key
 from time import perf_counter
 
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState

@@ -1,11 +1,11 @@
 from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
 from core.execution.preemptive import PreeMultiModel
 from llm_structured.selective_rollout import RolloutBudget
-from muti_channel.preemptive.selective_rollout import (
+from llm_structured.preemptive.multi_selective_rollout import (
     generate_candidates, schedule_selective_rollout,
 )
 from muti_channel.preemptive.solver import schedule_pack
-from muti_channel.preemptive.trace import assert_multi_resource_trace
+from core.trace.pree_multi import assert_multi_resource_trace
 
 
 def _motif(name="star_wide_vs_pair"):

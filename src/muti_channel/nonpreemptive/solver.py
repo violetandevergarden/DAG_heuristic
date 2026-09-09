@@ -9,43 +9,22 @@ executor.
 
 from __future__ import annotations
 
-import sys
 from collections import defaultdict
-from collections.abc import Hashable, Iterable
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, replace
-from functools import cache
-from pathlib import Path
 from time import perf_counter
-from typing import Literal
 
+from core.dag import DAG
 from core.execution.nonpreemptive import (
     NonPreeMultiModel,
     OracleMode,
     Resource,
     ResourceAction,
     ResourceInterval,
-    ResourceRuntime,
     ResourceState,
-    ResourceTransition,
 )
-
-@dataclass(frozen=True)
-class ResourceSchedule:
-    makespan: int
-    actions: tuple[ResourceAction, ...]
-    intervals: tuple[ResourceInterval, ...]
-    runtime_ms: float
-    explored_states: int = 0
-    voluntary_waits: int = 0
-    voluntary_wait_time: int = 0
-    forced_waits: int = 0
-    forced_wait_time: int = 0
-    start_events: int = 0
-    flows_started: int = 0
-    candidate_actions: int = 0
-    conflict_events: int = 0
-    lower_bounds: dict[str, int] | None = None
-    fallback: bool = False
+from core.oracle.nonpree_multi import MultiResourceOracleResult as ResourceSchedule
+from core.oracle.nonpree_multi import exact_oracle as core_exact_oracle
 
 def residual_resource_loads(
     model: NonPreeMultiModel, state: ResourceState
@@ -59,6 +38,38 @@ def residual_resource_loads(
     return dict(loads)
 
 
+@dataclass(frozen=True)
+class ResourceDecisionContext:
+    ready: tuple[str, ...]
+    path: tuple[int, ...]
+    tail: tuple[int, ...]
+    loads: dict[Resource, int]
+
+
+def build_context(model: NonPreeMultiModel, state: ResourceState) -> ResourceDecisionContext:
+    path, tail = model.residual_features(state)
+    return ResourceDecisionContext(
+        ready=tuple(model.ready_flows(state)),
+        path=path,
+        tail=tail,
+        loads=residual_resource_loads(model, state),
+    )
+
+
+def context_for(
+    model: NonPreeMultiModel,
+    state: ResourceState,
+    cache: dict[ResourceState, ResourceDecisionContext] | None = None,
+) -> ResourceDecisionContext:
+    if cache is None:
+        return build_context(model, state)
+    context = cache.get(state)
+    if context is None:
+        context = build_context(model, state)
+        cache[state] = context
+    return context
+
+
 def lower_bounds(model: NonPreeMultiModel, state: ResourceState) -> dict[str, int]:
     path, _tail = model.residual_features(state)
     loads = residual_resource_loads(model, state)
@@ -68,25 +79,6 @@ def lower_bounds(model: NonPreeMultiModel, state: ResourceState) -> dict[str, in
     }
     result["combined"] = max(result.values())
     return result
-
-
-StateKey = tuple[tuple[str, int], ...]
-
-
-def _state_key(state: ResourceState) -> StateKey:
-    return tuple((runtime.status, runtime.remaining) for runtime in state.tasks)
-
-
-def _state_from_key(key: StateKey) -> ResourceState:
-    values = []
-    for status, remaining in key:
-        if status == "pending":
-            values.append(ResourceRuntime())
-        elif status == "running":
-            values.append(ResourceRuntime("running", remaining, 0, None))
-        else:
-            values.append(ResourceRuntime("completed", 0, 0, 0))
-    return ResourceState(0, tuple(values))
 
 
 def _replay(
@@ -128,75 +120,24 @@ def exact_oracle(
     max_states: int = 1_000_000,
     time_limit_s: float = 30.0,
 ) -> ResourceSchedule:
-    started = perf_counter()
-    model = NonPreeMultiModel(instance)
-    initial = model.initial_state()
-    choices: dict[StateKey, ResourceAction] = {}
-    explored = 0
-
-    @cache
-    def solve(key: StateKey) -> int:
-        nonlocal explored
-        explored += 1
-        if explored > max_states:
-            raise RuntimeError("non-preemptive multi-resource oracle state limit")
-        if perf_counter() - started > time_limit_s:
-            raise TimeoutError("non-preemptive multi-resource oracle time limit")
-        state = _state_from_key(key)
-        if model.is_finished(state):
-            return 0
-        actions = model.legal_actions(state, mode)
-        if not actions:
-            raise RuntimeError("unfinished multi-resource state has no action")
-        best = sys.maxsize
-        best_action = actions[0]
-        for action in actions:
-            transition = model.step(state, action)
-            delta = transition.after.time - transition.before.time
-            value = delta + solve(_state_key(transition.after))
-            tie = (action.kind == "wait", len(action.starts), action.starts)
-            best_tie = (
-                best_action.kind == "wait",
-                len(best_action.starts),
-                best_action.starts,
-            )
-            if (value, tie) < (best, best_tie):
-                best = value
-                best_action = action
-        choices[key] = best_action
-        return best
-
-    optimum = solve(_state_key(initial))
-    actions = []
-    state = initial
-    while not model.is_finished(state):
-        action = choices[_state_key(state)]
-        actions.append(action)
-        state = model.step(state, action).after
-    bounds = lower_bounds(model, initial)
-    result = _replay(
-        model,
-        actions,
-        runtime_ms=(perf_counter() - started) * 1000,
-        explored_states=explored,
-        candidate_actions=sum(
-            len(model.legal_actions(_state_from_key(key), mode)) for key in choices
-        ),
-        lower=bounds,
+    return core_exact_oracle(
+        instance,
+        mode=mode,
+        max_states=max_states,
+        time_limit_s=time_limit_s,
     )
-    if result.makespan != optimum or bounds["combined"] > optimum:
-        raise AssertionError("multi-resource exact replay/lower-bound mismatch")
-    return result
 
 
 def _ranked_ready(
     model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
+    context: ResourceDecisionContext | None = None,
 ) -> list[str]:
-    ready = list(model.ready_flows(state))
-    _path, tail = model.residual_features(state)
-    loads = residual_resource_loads(model, state)
+    context = context or context_for(model, state)
+    ready = list(context.ready)
+    tail = context.tail
+    loads = context.loads
 
     def bottleneck(task_id: str) -> int:
         index = model.index[task_id]
@@ -224,10 +165,12 @@ def greedy_action(
     model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
+    context_cache: dict[ResourceState, ResourceDecisionContext] | None = None,
 ) -> ResourceAction:
+    context = context_for(model, state, context_cache)
     selected = []
     occupied = set(model.occupied_resources(state))
-    for task_id in _ranked_ready(model, state, policy):
+    for task_id in _ranked_ready(model, state, policy, context):
         resources = model.resources[model.index[task_id]]
         if occupied & resources:
             continue
@@ -236,15 +179,16 @@ def greedy_action(
     return ResourceAction.start(selected) if selected else ResourceAction.wait()
 
 
-def _complete(
+def complete(
     model: NonPreeMultiModel,
     state: ResourceState,
     policy: str,
+    context_cache: dict[ResourceState, ResourceDecisionContext] | None = None,
 ) -> tuple[int, tuple[ResourceAction, ...]]:
     start = state.time
     actions = []
     while not model.is_finished(state):
-        action = greedy_action(model, state, policy)
+        action = greedy_action(model, state, policy, context_cache)
         actions.append(action)
         state = model.step(state, action).after
     return state.time - start, tuple(actions)
@@ -256,8 +200,85 @@ def schedule_greedy(
 ) -> ResourceSchedule:
     started = perf_counter()
     model = NonPreeMultiModel(instance)
-    _elapsed, actions = _complete(model, model.initial_state(), policy)
+    _elapsed, actions = complete(model, model.initial_state(), policy, {})
     return _replay(model, actions, runtime_ms=(perf_counter() - started) * 1000)
+
+
+def _iter_compatible_subsets(
+    model: NonPreeMultiModel,
+    state: ResourceState,
+    *,
+    maximal_only: bool,
+    operation_limit: int,
+) -> Iterator[tuple[str, ...]]:
+    """Yield legal start sets without materializing the complete powerset."""
+
+    ready = tuple(sorted(model.startable_flows(state)))
+    operations = 0
+    if maximal_only:
+        neighbors = {
+            item: {
+                other for other in ready
+                if other != item
+                and model.resources[model.index[item]].isdisjoint(
+                    model.resources[model.index[other]]
+                )
+            }
+            for item in ready
+        }
+
+        def maximal(
+            chosen: tuple[str, ...],
+            candidates: set[str],
+            excluded: set[str],
+        ) -> Iterator[tuple[str, ...]]:
+            nonlocal operations
+            if operations >= operation_limit:
+                return
+            operations += 1
+            if not candidates and not excluded:
+                if chosen:
+                    yield chosen
+                return
+            pivot_pool = candidates | excluded
+            pivot = max(
+                pivot_pool,
+                key=lambda item: (len(candidates & neighbors[item]), item),
+                default=None,
+            )
+            branch = candidates - (neighbors[pivot] if pivot is not None else set())
+            for item in sorted(branch):
+                yield from maximal(
+                    tuple(sorted((*chosen, item))),
+                    candidates & neighbors[item],
+                    excluded & neighbors[item],
+                )
+                candidates.remove(item)
+                excluded.add(item)
+
+        yield from maximal((), set(ready), set())
+        return
+
+    def subsets(
+        position: int,
+        chosen: tuple[str, ...],
+        used: frozenset[Resource],
+    ) -> Iterator[tuple[str, ...]]:
+        nonlocal operations
+        if operations >= operation_limit:
+            return
+        operations += 1
+        if position == len(ready):
+            if chosen:
+                yield chosen
+            return
+        yield from subsets(position + 1, chosen, used)
+        item = ready[position]
+        resources = model.resources[model.index[item]]
+        if used.isdisjoint(resources):
+            yield from subsets(position + 1, (*chosen, item), used | resources)
+
+    yield from subsets(0, (), model.occupied_resources(state))
 
 
 def _rollout_candidates(
@@ -266,26 +287,35 @@ def _rollout_candidates(
     *,
     top_k: int,
     optional_actions: bool,
+    context_cache: dict[ResourceState, ResourceDecisionContext] | None = None,
 ) -> tuple[ResourceAction, ...]:
-    subsets = model.start_subsets(state, maximal_only=not optional_actions)
-    _path, tail = model.residual_features(state)
-    ranked = sorted(
-        subsets,
-        key=lambda selected: (
-            sum(tail[model.index[item]] for item in selected),
-            -sum(model.remaining(state, model.index[item]) for item in selected),
-            selected,
-        ),
-        reverse=True,
-    )[:top_k]
+    context = context_for(model, state, context_cache)
+    tail = context.tail
+    ranked: list[tuple[str, ...]] = []
+    for selected in _iter_compatible_subsets(
+        model,
+        state,
+        maximal_only=not optional_actions,
+        operation_limit=max(64, top_k * 32),
+    ):
+        ranked.append(selected)
+        ranked.sort(
+            key=lambda item: (
+                sum(tail[model.index[value]] for value in item),
+                -sum(model.remaining(state, model.index[value]) for value in item),
+                item,
+            ),
+            reverse=True,
+        )
+        del ranked[top_k:]
     result = [ResourceAction.start(items) for items in ranked]
     for policy in ("dynamic_tail", "resource_tail", "bottleneck_first", "spt"):
-        action = greedy_action(model, state, policy)
+        action = greedy_action(model, state, policy, context_cache)
         if action.kind == "start" and action not in result:
             result.append(action)
-    if optional_actions and model._has_active_task(state):
+    if optional_actions and model.has_future_event(state):
         result.append(ResourceAction.wait())
-    if not result and model._has_active_task(state):
+    if not result and model.has_future_event(state):
         result.append(ResourceAction.wait())
     return tuple(dict.fromkeys(result))
 
@@ -301,11 +331,12 @@ def schedule_rollout(
     model = NonPreeMultiModel(instance)
     baseline = schedule_greedy(instance)
     state = model.initial_state()
+    context_cache: dict[ResourceState, ResourceDecisionContext] = {}
     actions = []
     candidate_actions = 0
     fallback = False
     while not model.is_finished(state):
-        base = greedy_action(model, state, "dynamic_tail")
+        base = greedy_action(model, state, "dynamic_tail", context_cache)
         if perf_counter() - started > time_limit_s:
             action = base
             fallback = True
@@ -315,6 +346,7 @@ def schedule_rollout(
                 state,
                 top_k=top_k,
                 optional_actions=optional_actions,
+                context_cache=context_cache,
             )
             if base not in candidates:
                 candidates = (*candidates, base)
@@ -323,7 +355,9 @@ def schedule_rollout(
             for action in candidates:
                 transition = model.step(state, action)
                 delta = transition.after.time - transition.before.time
-                value = delta + _complete(model, transition.after, "dynamic_tail")[0]
+                value = delta + complete(
+                    model, transition.after, "dynamic_tail", context_cache
+                )[0]
                 scored.append(
                     (
                         value,

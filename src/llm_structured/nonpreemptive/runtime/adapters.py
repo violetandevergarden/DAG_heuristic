@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from core.conversion import to_dag, to_muti_resourse
 from core.execution.nonpreemptive import Action, NonPreeSingleModel
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 from muti_channel.nonpreemptive.replay import replay_actions
-from muti_channel.nonpreemptive.solver import NonPreeMultiModel, ResourceAction
+from core.execution.nonpreemptive import NonPreeMultiModel, ResourceAction
 
 from .contracts import ActionSignature, DecisionContext, Mode, ReplaySummary
 from .features import single_residual_tail

@@ -7,7 +7,7 @@ from core.dag import (
     Task,
 )
 from benchmark_generate.cases import complex_adversarial_cases, llm_motif_cases
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 from core.oracle import (
     branch_and_bound_oracle,
     compare_oracles,

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from core.dag import DAG, Task
 from core.oracle import exact_oracle as nonpreemptive_exact
-from core.oracle.preemptive import exact_oracle as preemptive_exact
+from core.oracle.pree_single import exact_oracle as preemptive_exact
 
 
 def test_semantic_oracles_have_explicit_and_distinct_entry_points() -> None:

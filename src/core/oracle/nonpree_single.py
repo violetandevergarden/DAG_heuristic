@@ -27,7 +27,7 @@ from core.execution.nonpreemptive import (
     ScheduleState,
     ScheduleTrace,
 )
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 
 OracleMode = Literal["optional_idle", "work_conserving"]
 StateKey = tuple[tuple[str, int], ...]

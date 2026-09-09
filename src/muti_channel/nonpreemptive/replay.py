@@ -5,19 +5,34 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable
 
-from .solver import (
+from core.execution.nonpreemptive import (
     NonPreeMultiModel,
     ResourceAction,
     ResourceInterval,
-    ResourceSchedule,
 )
+from core.oracle.nonpree_multi import MultiResourceOracleResult as ResourceSchedule
+from core.trace.nonpree_multi import assert_nonpreemptive_multi_trace
 
 
 def assert_route_reservations(
     model: NonPreeMultiModel,
     intervals: Iterable[ResourceInterval],
+    *,
+    final_state=None,
 ) -> None:
-    communications = [interval for interval in intervals if interval.kind == "comm"]
+    values = tuple(intervals)
+    resource_map = {
+        task.task_id: frozenset(model.resources[index])
+        for index, task in enumerate(model.tasks)
+        if task.kind == "comm"
+    }
+    assert_nonpreemptive_multi_trace(
+        model.dag,
+        resource_map,
+        values,
+        final_state=final_state,
+    )
+    communications = [interval for interval in values if interval.kind == "comm"]
     intervals_by_task: dict[str, int] = defaultdict(int)
     for interval in communications:
         if interval.end <= interval.start:
@@ -62,7 +77,7 @@ def replay_actions(
                 for left in range(len(resources))
                 for right in range(left + 1, len(resources))
             )
-        had_compatible = bool(model.start_subsets(state, maximal_only=False))
+        had_compatible = bool(model.startable_flows(state))
         transition = model.step(state, action)
         duration = transition.after.time - transition.before.time
         if action.kind == "wait":
@@ -77,7 +92,7 @@ def replay_actions(
     if not model.is_finished(state):
         raise AssertionError("schedule did not finish")
     if validate:
-        assert_route_reservations(model, intervals)
+        assert_route_reservations(model, intervals, final_state=state)
     return ResourceSchedule(
         state.time,
         path,

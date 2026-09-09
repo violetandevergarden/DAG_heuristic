@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from core.execution.preemptive import ScheduleState
-from core.oracle.preemptive import normalized_state_key
+from core.oracle.pree_single import normalized_state_key
 
 
 def states_merged(left: ScheduleState, right: ScheduleState) -> bool:

@@ -52,7 +52,7 @@ from core.execution.nonpreemptive import (
 from core.execution.nonpreemptive import (
     NonPreeSingleModel,
 )
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 
 ChainState = tuple[tuple[int, int], ...]  # (next communication, compute cooldown)
 ActionKind = Literal["flow", "wait"]

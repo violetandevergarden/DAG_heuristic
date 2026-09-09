@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from core.dag import DAG
 from core.execution.preemptive import PreemptiveScheduleResult
-from core.oracle.preemptive import exact_oracle, exact_oracle_uncompressed
+from core.oracle.pree_single import exact_oracle, exact_oracle_uncompressed
 from single_channel.complex_chain.preemptive import solver
 
 
@@ -19,6 +19,8 @@ def validate_complex_chain(dag: DAG) -> None:
     errors = dag.validate()
     if not dag.tasks:
         errors.append("complex_chain requires at least one task")
+    if any(task.kind == "comm" and task.duration <= 0 for task in dag.tasks):
+        errors.append("communication work must be positive")
     if errors:
         raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
 

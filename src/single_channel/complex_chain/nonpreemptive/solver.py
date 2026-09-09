@@ -23,7 +23,7 @@ from core.execution.nonpreemptive import (
     ScheduleState,
     ScheduleTrace,
 )
-from core.trace.nonpreemptive import assert_nonpreemptive_trace
+from core.trace.nonpree_single import assert_nonpreemptive_trace
 
 CandidateMode = Literal["dynamic", "hybrid"]
 

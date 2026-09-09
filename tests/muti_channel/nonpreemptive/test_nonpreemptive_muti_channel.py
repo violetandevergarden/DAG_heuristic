@@ -13,6 +13,10 @@ from muti_channel.nonpreemptive.solver import (
 )
 from benchmark import load_benchmark
 from core.conversion import to_muti_resourse
+from core.oracle.nonpree_multi import (
+    exact_oracle as core_exact_oracle,
+    exact_oracle_uncompressed,
+)
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -56,6 +60,18 @@ def test_nonmaximal_start_and_wait_can_beat_every_maximal_start() -> None:
         NonPreeMultiModel(instance).initial_state(),
         maximal_only=True,
     )
+
+
+def test_compressed_and_uncompressed_exact_audit_match() -> None:
+    instance = multi_resource_motifs()[2]
+    compressed = core_exact_oracle(instance, mode="optional_idle")
+    uncompressed = exact_oracle_uncompressed(instance, mode="optional_idle")
+
+    assert compressed.status == uncompressed.status == "optimal"
+    assert compressed.makespan == uncompressed.makespan == 8
+    assert compressed.exact_stats is not None
+    assert uncompressed.exact_stats is not None
+    assert compressed.exact_stats.lower_bounds == uncompressed.exact_stats.lower_bounds
 
 
 def test_active_flow_keeps_route_reserved_at_intermediate_event() -> None:

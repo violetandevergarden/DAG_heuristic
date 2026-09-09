@@ -13,7 +13,7 @@ from time import perf_counter
 
 from core.dag import DAG
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
-from core.oracle.preemptive import normalized_state_key
+from core.oracle.pree_single import normalized_state_key
 from llm_structured.selective_rollout import (
     BudgetAccount, CandidateSummary, ChoiceSummary, EvaluationOutcome,
     RolloutBudget, Trigger, TriggerFeatures, choice_only,

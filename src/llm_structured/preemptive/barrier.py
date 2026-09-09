@@ -23,8 +23,8 @@ from single_channel.complex_chain.preemptive.solver import (
     _result,
     residual_tail,
     schedule_longest_tail,
-    validate_complex_chain,
 )
+from single_channel.complex_chain.preemptive.interface import validate_complex_chain
 
 
 def barrier_urgency(

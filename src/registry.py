@@ -198,7 +198,7 @@ def _muti_registry() -> dict[str, Algorithm]:
 def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
     if benchmark.scenario == "muti_channel":
         from muti_channel.preemptive import interface as multi_interface
-        from muti_channel.preemptive import solver as multi_solver
+        from llm_structured.preemptive import multi_interface as stage4_multi_interface
 
         def convert_multi(item: Benchmark):
             instance = to_muti_resourse(item)
@@ -235,7 +235,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "integrated_v0",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_interface.solve(*convert_multi(b), "integrated_v0"),
+                    lambda b: stage4_multi_interface.solve(*convert_multi(b), "integrated_v0"),
                     "Frozen Stage 4g baseline: residual-LT greedy maximal packing.",
                 ),
                 "resource_downstream_pack": Algorithm(
@@ -263,9 +263,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "exact",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.exact_oracle(
-                        *convert_multi(b), max_states=300_000, time_limit_s=5.0
-                    ),
+                    lambda b: multi_interface.solve(*convert_multi(b), "exact"),
                     "Budgeted normalized Exact; only status=optimal is a certificate.",
                     exact=True,
                 ),
@@ -273,9 +271,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
                     "exact_uncompressed",
                     "muti_channel",
                     benchmark.family,
-                    lambda b: multi_solver.exact_oracle_uncompressed(
-                        *convert_multi(b), max_states=100_000, time_limit_s=5.0
-                    ),
+                    lambda b: multi_interface.solve(*convert_multi(b), "exact_uncompressed"),
                     "Audit Exact retaining absolute event-state fields.",
                     exact=True,
                 ),
@@ -385,7 +381,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
             }
         )
     if benchmark.family == "complex_chain":
-        from core.oracle.preemptive import exact_oracle, exact_oracle_uncompressed
+        from core.oracle.pree_single import exact_oracle, exact_oracle_uncompressed
         from llm_structured.integrated import integrated_v0, schedule_single
         from single_channel.complex_chain.preemptive import solver
     else:

@@ -6,7 +6,8 @@ from collections import Counter
 from dataclasses import replace
 from time import perf_counter
 
-from muti_channel.nonpreemptive.solver import NonPreeMultiModel, _complete
+from core.execution.nonpreemptive import NonPreeMultiModel
+from muti_channel.nonpreemptive.solver import complete
 from muti_channel.nonpreemptive.replay import replay_actions
 
 from .constructors import baseline_action, construct_candidates
@@ -32,7 +33,7 @@ def choose_action(model, state, config: PackingConfig) -> PackingDecision:
             if perf_counter() - started > config.budget.decision_time_limit_s or not budget.reserve("completion_calls"):
                 break
             transition = model.step(state, candidate.action)
-            value = transition.after.time - state.time + _complete(model, transition.after, "dynamic_tail")[0]
+            value = transition.after.time - state.time + complete(model, transition.after, "dynamic_tail")[0]
             scored.append((value, candidate.action != baseline, candidate.signature, candidate.action))
         if scored and len(scored) == len(valid): selected = min(scored, key=lambda x: x[:-1])[-1]
         elif scored: budget.exhausted_reasons.add("incomplete_completion_evaluation")

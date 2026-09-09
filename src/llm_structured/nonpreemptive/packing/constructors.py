@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 
-from muti_channel.nonpreemptive.solver import (
+from core.execution.nonpreemptive import (
     NonPreeMultiModel,
     ResourceAction,
     ResourceState,

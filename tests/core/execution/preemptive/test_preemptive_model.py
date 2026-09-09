@@ -4,7 +4,7 @@ from benchmark import benchmark_from_dict, benchmark_to_dict
 from core.conversion import to_dag
 from core.dag import DAG, Task
 from core.execution.preemptive import Action, PreeSingleModel
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 from registry import algorithms_for, solve
 from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 

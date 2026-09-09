@@ -378,8 +378,8 @@ def competition_report(benchmark: Benchmark) -> dict:
         PreeSingleModel,
         ScheduleTrace,
     )
-    from core.trace.preemptive import assert_preemptive_trace
-    from muti_channel.preemptive.trace import assert_multi_resource_trace
+    from core.trace.pree_single import assert_preemptive_trace
+    from core.trace.pree_multi import assert_preemptive_multi_trace
 
     decisions = 0
     contended = 0
@@ -505,7 +505,7 @@ def competition_report(benchmark: Benchmark) -> dict:
             tuple(forced_idle),
             model.task_ids,
         )
-        assert_multi_resource_trace(instance.dag, resources, trace)
+        assert_preemptive_multi_trace(instance.dag, resources, trace)
         makespan = trace.makespan
 
     fraction = contended / decisions if decisions else 0.0

@@ -8,12 +8,12 @@ from benchmark import benchmark_from_dict
 from benchmark_generate.cases import stage2_structural_adversarial_cases
 from core.dag import DAG, Task
 from core.execution.preemptive import Action, PreeSingleModel
-from core.oracle.preemptive import (
+from core.oracle.pree_single import (
     exact_oracle,
     exact_oracle_uncompressed,
     remaining_lower_bound,
 )
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 from registry import algorithms_for
 from llm_structured.preemptive.barrier import barrier_urgency
 from single_channel.complex_chain.preemptive.interface import validate_complex_chain

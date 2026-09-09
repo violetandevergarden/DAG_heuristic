@@ -21,7 +21,7 @@ from core.execution.preemptive import (
     ScheduleState,
     result_from_trace,
 )
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 
 PriorityName = str
 StateKey = tuple[object, ...]
@@ -44,6 +44,18 @@ class _BudgetExceeded(RuntimeError):
     def __init__(self, reason: str):
         super().__init__(reason)
         self.reason = reason
+
+
+def validate_complex_chain(dag: DAG) -> None:
+    """Validate the raw general-DAG contract used by preemptive policies."""
+
+    errors = dag.validate()
+    if not dag.tasks:
+        errors.append("complex_chain requires at least one task")
+    if any(task.kind == "comm" and task.duration <= 0 for task in dag.tasks):
+        errors.append("communication work must be positive")
+    if errors:
+        raise ValueError(f"invalid complex_chain DAG {dag.name}: {errors}")
 
 
 def schedule_longest_tail(dag: DAG) -> PreemptiveScheduleResult:

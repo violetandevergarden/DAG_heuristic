@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict, deque
 
-from muti_channel.nonpreemptive.solver import NonPreeMultiModel, ResourceState
+from core.execution.nonpreemptive import NonPreeMultiModel, ResourceState
 
 from .contracts import ConflictGraphSnapshot, DecisionBudget
 

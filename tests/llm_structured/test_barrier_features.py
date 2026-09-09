@@ -8,6 +8,7 @@ from benchmark_generate.llm.preemptive.barrier_motifs import (
     single_channel_motifs,
 )
 from core.dag import DAG, Task
+from core.oracle.pree_multi import exact_oracle as multi_exact_oracle
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from core.execution.preemptive import Action, PreeSingleModel
 from llm_structured.barrier import (
@@ -17,9 +18,8 @@ from llm_structured.barrier import (
     safe_barrier_prescreen,
     score_snapshot,
 )
-from muti_channel.preemptive.solver import exact_oracle as multi_exact_oracle
-from muti_channel.preemptive.solver import score_sets
-from muti_channel.preemptive.trace import assert_multi_resource_trace
+from llm_structured.preemptive.multi_barrier import schedule_barrier_set_policy
+from core.trace.pree_multi import assert_multi_resource_trace
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 
 
@@ -83,8 +83,9 @@ def test_action_features_count_shared_downstream_once() -> None:
     assert features.newly_ready_compute_ids == ("left", "right")
     assert features.reachable_descendant_compute_work == 7
     assert features.shared_downstream_count == 1
-    scored = score_sets(model, state, (MultiResourceAction(("a", "b")),), "barrier_union")
-    assert scored
+    assert schedule_barrier_set_policy(
+        dag, {"a": frozenset({"r1"}), "b": frozenset({"r2"})}
+    ).makespan >= 0
 
 
 def test_newly_ready_does_not_count_reachable_compute_before_its_other_predecessor() -> None:

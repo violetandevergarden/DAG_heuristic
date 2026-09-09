@@ -19,7 +19,7 @@ from core.execution.preemptive import (
     ScheduleState,
     result_from_trace,
 )
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 from single_channel.parallel_chain.structure import (
     ParallelChainInstance,
     parse_parallel_chain,

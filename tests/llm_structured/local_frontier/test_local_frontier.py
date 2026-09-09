@@ -2,7 +2,7 @@ from dataclasses import replace
 
 from core.dag import DAG, Task
 from core.execution.preemptive import Action, PreeSingleModel
-from core.trace.preemptive import assert_preemptive_trace
+from core.trace.pree_single import assert_preemptive_trace
 from llm_structured.local_frontier import (
     LocalFrontierConfig,
     build_local_region,

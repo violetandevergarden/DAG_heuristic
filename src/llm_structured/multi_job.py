@@ -21,14 +21,14 @@ from core.execution.preemptive import (
     ScheduleState,
     result_from_trace,
 )
-from core.trace.preemptive import assert_preemptive_trace
-from core.oracle.preemptive import exact_oracle
+from core.trace.pree_single import assert_preemptive_trace
+from core.oracle.pree_single import exact_oracle
 from single_channel.complex_chain.preemptive.solver import residual_tail
 from muti_channel.preemptive.solver import (
     MultiAction,
-    MultiResult,
     PreeMultiModel,
 )
+from core.oracle.pree_multi import MultiOracleResult as MultiResult
 
 
 CandidateMode = Literal["tail", "semantic_diverse"]
@@ -725,9 +725,9 @@ def schedule_multi_resource_hierarchical(
         actions.append(action)
         state = model.step(state, action)
     trace = model.run(actions)
-    from muti_channel.preemptive.trace import assert_multi_resource_trace
+    from core.trace.pree_multi import assert_preemptive_multi_trace
 
-    assert_multi_resource_trace(model.dag, model.resources, trace)
+    assert_preemptive_multi_trace(model.dag, model.resources, trace)
     return MultiResult(
         state.time,
         tuple(actions),
@@ -833,8 +833,8 @@ def schedule_multi_resource_policy(
             last_service[owner] = state.time
         actions.append(action)
     trace = model.run(actions)
-    from muti_channel.preemptive.trace import assert_multi_resource_trace
-    assert_multi_resource_trace(model.dag, model.resources, trace)
+    from core.trace.pree_multi import assert_preemptive_multi_trace
+    assert_preemptive_multi_trace(model.dag, model.resources, trace)
     schedule = MultiResult(state.time, tuple(actions), len(actions), _count_multi_preemptions(model, actions), trace=trace)
     return evaluate_multi_resource_schedule(instance, schedule, solo_completion=solo_completion)
 

@@ -129,7 +129,7 @@ def should_wait(adapter, state, selected, tails, active=None, next_event=None) -
 
 
 def _multi_greedy(adapter, state, policy, first_seen, tails, policy_state):
-    from muti_channel.nonpreemptive.solver import ResourceAction
+    from core.execution.nonpreemptive import ResourceAction
 
     remaining = list(adapter.model.startable_flows(state))
     selected = []

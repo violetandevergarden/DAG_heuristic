@@ -7,7 +7,7 @@ from .barrier import (
     schedule_barrier_prescreen,
     schedule_selective_barrier_rollout,
 )
-from .selective_rollout import schedule_selective_rollout
+from .multi_selective_rollout import schedule_selective_rollout
 
 __all__ = [
     "offline_best_of_lt_and_barrier",

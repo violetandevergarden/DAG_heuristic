@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Literal, Protocol
 
 from core.dag import DAG
-from core.oracle.nonpreemptive import exact_oracle
+from core.oracle.nonpree_single import exact_oracle
 from single_channel.parallel_chain.nonpreemptive import solver
 from single_channel.parallel_chain.structure import parse_parallel_chain
 

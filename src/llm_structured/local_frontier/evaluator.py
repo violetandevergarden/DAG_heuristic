@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from time import perf_counter
 
 from core.execution.preemptive import Action, PreeSingleModel, ScheduleState
-from core.oracle.preemptive import remaining_lower_bound
+from core.oracle.pree_single import remaining_lower_bound
 from single_channel.complex_chain.preemptive import solver
 
 from .accounting import FrontierBudget
