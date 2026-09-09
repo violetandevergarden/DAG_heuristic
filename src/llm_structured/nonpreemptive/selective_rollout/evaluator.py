@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from time import perf_counter
 
-from llm_structured.nonpreemptive.runtime.completion import CompletionDeadlineExceeded
+from llm_structured.nonpreemptive.baseline.completion import CompletionDeadlineExceeded
 
-from .baseline import complete, longest_tail_action
+from ..baseline.completion import complete, longest_tail_action
 from .candidates import generate
 
 

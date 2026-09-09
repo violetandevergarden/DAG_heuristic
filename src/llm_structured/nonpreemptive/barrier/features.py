@@ -5,10 +5,11 @@ from __future__ import annotations
 from .contracts import ActionFeatures, BarrierBudget, BarrierConfig
 
 
-def action_features(adapter, graph, state, action, config: BarrierConfig, budget: BarrierBudget) -> ActionFeatures:
+def action_features(adapter, graph, state, action, config: BarrierConfig, budget: BarrierBudget, context=None) -> ActionFeatures:
     signature = adapter.signature(state, action)
     selected = signature.task_ids
-    tails = adapter.tail(state)
+    context = context or adapter.decision_context(state, config.mode)
+    tails = context.tails
     tail = max((tails[item] for item in selected), default=0)
     duration = adapter.duration(state, action)
     last_missing = set(); downstream_barriers = set(); descendants = set(); visits = 0; truncated = False
@@ -29,7 +30,11 @@ def action_features(adapter, graph, state, action, config: BarrierConfig, budget
     immediate = set()
     if budget.reserve("feature_transitions", config.max_feature_transitions):
         before = {_task_id(adapter, i) for i, rt in enumerate(state.tasks) if rt.status == "pending"}
-        after_state = adapter.step(state, action).after
+        transition = context.transition_cache.get(signature)
+        if transition is None:
+            transition = adapter.step(state, action)
+            context.transition_cache[signature] = transition
+        after_state = transition.after
         after = {_task_id(adapter, i) for i, rt in enumerate(after_state.tasks) if rt.status == "pending"}
         immediate = before - after - selected_set
     else:
@@ -37,13 +42,13 @@ def action_features(adapter, graph, state, action, config: BarrierConfig, budget
     resource_union = set(); excluded = set()
     if adapter.resource_model == "single_channel":
         resource_union.add("channel:0")
-        excluded.update(a.task_id for a in adapter.legal_actions(state, config.mode) if a.kind == "flow" and a.task_id not in selected_set)
+        excluded.update(a.task_id for a in context.legal_actions if a.kind == "flow" and a.task_id not in selected_set)
     else:
         for task_id in selected: resource_union.update(map(str, adapter.model.resources[adapter.model.index[task_id]]))
         for task_id in adapter.model.ready_flows(state):
             if task_id not in selected_set and resource_union & set(map(str, adapter.model.resources[adapter.model.index[task_id]])):
                 excluded.add(task_id)
-    member_descendant_count = sum(len(_reachable(graph.children, item)) for item in selected)
+    member_descendant_count = len(descendants)
     barrier_tail = max((tails.get(item, 0) for item in downstream_barriers), default=0)
     return ActionFeatures(signature, tail, duration, tuple(sorted(last_missing)), tuple(sorted(immediate)),
                           tuple(sorted(downstream_barriers)), barrier_tail, tuple(sorted(descendants)),

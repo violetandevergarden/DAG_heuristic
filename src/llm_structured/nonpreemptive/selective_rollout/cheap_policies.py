@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 
-def preferences(adapter, state, mode):
-    legal = tuple(adapter.legal_actions(state, mode))
+def preferences(adapter, state, mode, context=None):
+    context = context or adapter.decision_context(state, mode)
+    legal = context.legal_actions
     starts = tuple(action for action in legal if action.kind != "wait")
     if not starts:
         return {name: legal[0] for name in ("lt", "fifo", "fixed", "spt", "lpt")}
-    tails = adapter.tail(state)
+    tails = context.tails
     index = adapter.model.index
     if adapter.resource_model == "single_channel":
         mapping = {
@@ -27,6 +28,6 @@ def preferences(adapter, state, mode):
             "lpt": max(starts, key=lambda a: (adapter.duration(state, a), a.starts)),
             "hotspot": max(starts, key=lambda a: (adapter.resource_coverage(a), action_tail(a), len(a.starts), a.starts)),
         }
-    from .baseline import longest_tail_action
-    mapping["lt"] = longest_tail_action(adapter, state, mode)
+    from ..baseline.solver import longest_tail_action
+    mapping["lt"] = longest_tail_action(adapter, state, mode, context)
     return mapping

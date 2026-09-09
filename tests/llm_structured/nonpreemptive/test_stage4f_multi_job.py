@@ -22,7 +22,7 @@ from benchmark_generate.llm.nonpreemptive.multi_job_cases import (
     rebuild_manifest,
     static_cross_job_overlap,
 )
-from llm_structured.nonpreemptive.runtime import make_adapter, schedule_baseline
+from llm_structured.nonpreemptive.baseline import make_adapter, schedule_baseline
 
 SEMANTICS = SchedulingSemantics(
     preemption="none",

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
-from time import perf_counter
+
+from core.execution.nonpreemptive import NonPreeMultiModel, NonPreeSingleModel
+from core.oracle.nonpree_multi import exact_completion_from_state as exact_multi_completion
+from core.oracle.nonpree_single import exact_completion_from_state as exact_single_completion
 
 
 @dataclass(frozen=True)
@@ -17,28 +19,24 @@ class CostToGoResult:
 
 
 def cost_to_go(adapter, state, mode, *, max_states=100_000, time_limit_s=30.0) -> CostToGoResult:
-    """Solve a stable reachable state using only adapter legal_actions/step."""
+    """Solve a stable reachable state through the semantic core oracle."""
     if getattr(state, "time", None) is None:
         raise ValueError("state must be produced by a non-preemptive simulator")
-    started=perf_counter(); explored=0
-
-    @lru_cache(maxsize=None)
-    def solve(current):
-        nonlocal explored
-        explored += 1
-        if explored > max_states: raise RuntimeError("state_limit")
-        if perf_counter()-started > time_limit_s: raise TimeoutError("time_limit")
-        if adapter.is_finished(current): return 0
-        values=[]
-        for action in adapter.legal_actions(current,mode):
-            transition=adapter.step(current,action); values.append(transition.after.time-current.time+solve(transition.after))
-        if not values: raise RuntimeError("no_legal_action")
-        return min(values)
-    try:
-        optimum=solve(state); best=[]
-        for action in adapter.legal_actions(state,mode):
-            transition=adapter.step(state,action)
-            if transition.after.time-state.time+solve(transition.after)==optimum: best.append(action)
-        return CostToGoResult("optimal",optimum,tuple(best),explored)
-    except (RuntimeError,TimeoutError) as error:
-        return CostToGoResult("unknown",None,(),explored,str(error))
+    model = adapter.model
+    if isinstance(model, NonPreeSingleModel):
+        result = exact_single_completion(
+            model, state, mode=mode, max_states=max_states, time_limit_s=time_limit_s
+        )
+    elif isinstance(model, NonPreeMultiModel):
+        result = exact_multi_completion(
+            model, state, mode=mode, max_states=max_states, time_limit_s=time_limit_s
+        )
+    else:
+        raise TypeError("adapter model is not a non-preemptive core model")
+    return CostToGoResult(
+        result.status,
+        result.cost,
+        result.optimal_actions,
+        result.explored_states,
+        result.termination_reason,
+    )

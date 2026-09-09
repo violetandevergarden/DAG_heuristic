@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Literal
 
-from llm_structured.nonpreemptive.runtime.contracts import ActionSignature, Mode
+from llm_structured.nonpreemptive.baseline.contracts import ActionSignature, Mode
 
 QuantityMode = Literal["state_exact", "transition_exact", "structural_exact", "heuristic_estimate", "not_available"]
 Method = Literal["lt", "barrier_only", "last_missing_tie", "margin", "counterfactual"]

@@ -5,16 +5,17 @@ from __future__ import annotations
 from .cheap_policies import preferences
 
 
-def compute(adapter, state, candidates, ledger, config):
-    tails = adapter.tail(state)
-    policy_actions = preferences(adapter, state, config.mode)
+def compute(adapter, state, candidates, ledger, config, context=None):
+    context = context or adapter.decision_context(state, config.mode)
+    tails = context.tails
+    policy_actions = preferences(adapter, state, config.mode, context)
     policy_signatures = {
         name: adapter.signature(state, action) for name, action in policy_actions.items()
     }
     baseline = policy_actions["lt"]
     baseline_signature = policy_signatures["lt"]
     starts = tuple(
-        action for action in adapter.legal_actions(state, config.mode) if action.kind != "wait"
+        action for action in context.legal_actions if action.kind != "wait"
     )
     start_tails = []
     for action in starts:
@@ -35,7 +36,10 @@ def compute(adapter, state, candidates, ledger, config):
         signature = adapter.signature(state, action)
         if not ledger.reserve("feature_transitions", config.max_feature_transitions):
             continue
-        transition = adapter.step(state, action)
+        transition = context.transition_cache.get(signature)
+        if transition is None:
+            transition = adapter.step(state, action)
+            context.transition_cache[signature] = transition
         transitions[signature] = transition
         released = adapter.ready_flow_ids(transition.after) - before_ready
         competing = tuple(
@@ -63,7 +67,7 @@ def compute(adapter, state, candidates, ledger, config):
     next_event = adapter.next_event_distance(state)
     release_advantage = base_metric.get("release_tail", 0) - base_metric.get("current_tail", 0)
     wait_available = any(
-        action.kind == "wait" for action in adapter.legal_actions(state, config.mode)
+        action.kind == "wait" for action in context.legal_actions
     )
     resource_sets = [adapter.resources(action) for action in candidates if action.kind != "wait"]
     resource_spread = any(left != right for left in resource_sets for right in resource_sets)

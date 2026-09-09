@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from llm_structured.integrated import IntegratedConfig, integrated_r_exp, integrated_v0
+from llm_structured.preemptive.integrated import IntegratedConfig, integrated_r_exp, integrated_v0
 
 
 def test_config_rejects_non_diagnostic_barrier_and_single_packing() -> None:

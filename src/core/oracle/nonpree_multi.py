@@ -238,6 +238,63 @@ def exact_oracle(
     return result
 
 
+def exact_completion_from_state(
+    model: NonPreeMultiModel,
+    state: ResourceState,
+    *,
+    mode: OracleMode = "optional_idle",
+    max_states: int = 100_000,
+    time_limit_s: float = 30.0,
+):
+    """Solve the residual fixed-resource problem from a decision state."""
+    from core.oracle.nonpree_single import NonPreemptiveCompletionResult
+
+    if max_states < 1:
+        raise ValueError("max_states must be positive")
+    if time_limit_s <= 0:
+        raise ValueError("time_limit_s must be positive")
+    started = perf_counter()
+    explored = 0
+
+    @cache
+    def solve(key: OracleStateKey) -> int:
+        nonlocal explored
+        explored += 1
+        if explored > max_states:
+            raise RuntimeError("state_limit")
+        if perf_counter() - started > time_limit_s:
+            raise TimeoutError("time_limit")
+        current = _state_from_key(key, compressed=True)
+        if model.is_finished(current):
+            return 0
+        actions = model.legal_actions(current, mode)
+        if not actions:
+            raise RuntimeError("no_legal_action")
+        best: int | None = None
+        for action in actions:
+            transition = model.step(current, action)
+            value = transition.after.time - current.time + solve(_compressed_key(transition.after))
+            best = value if best is None else min(best, value)
+        assert best is not None
+        return best
+
+    try:
+        initial_key = _compressed_key(state)
+        optimum = solve(initial_key)
+        best = []
+        for action in model.legal_actions(state, mode):
+            transition = model.step(state, action)
+            if transition.after.time - state.time + solve(_compressed_key(transition.after)) == optimum:
+                best.append(action)
+        return NonPreemptiveCompletionResult(
+            "optimal", optimum, tuple(best), explored, None
+        )
+    except (RuntimeError, TimeoutError) as error:
+        return NonPreemptiveCompletionResult(
+            "unknown", None, (), explored, str(error)
+        )
+
+
 def exact_oracle_uncompressed(
     dag: DAG,
     *,

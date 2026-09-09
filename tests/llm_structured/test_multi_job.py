@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from core.dag import DAG, Task
-from llm_structured.multi_job import (
+from llm_structured.preemptive.multi_job.solver import (
     JobSpec,
     build_multi_resource_top1_counterexample,
     build_top1_counterexample,

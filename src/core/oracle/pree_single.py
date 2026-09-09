@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from time import perf_counter
-from typing import Literal
+from typing import Callable, Literal
 
 from core.dag import DAG
 from core.execution.preemptive import (
@@ -17,6 +18,89 @@ from core.execution.preemptive import (
 from core.trace.pree_single import assert_preemptive_trace
 
 StateKey = tuple[object, ...]
+
+
+def bounded_event_search(
+    model: PreeSingleModel,
+    action_provider: Callable[[ScheduleState], tuple[Action, ...]],
+    state_key: Callable[[ScheduleState], StateKey],
+    *,
+    max_states: int = 500_000,
+    time_limit_s: float | None = None,
+    transition_cost: Callable[[ScheduleState, Action, ScheduleState], float] | None = None,
+) -> PreemptiveScheduleResult:
+    """Run one bounded exact event search over a caller-defined action space.
+
+    The caller supplies only structure-specific candidate exposure and state
+    quotienting. State storage, memoization, budget handling, optimal suffix
+    extraction, and trace validation remain in the public core oracle.
+    """
+
+    started = perf_counter()
+    representatives: dict[StateKey, ScheduleState] = {}
+    explored = 0
+    generated_transitions = 0
+    cost = transition_cost or (lambda before, _action, after: after.time - before.time)
+
+    def remember(state: ScheduleState) -> StateKey:
+        key = state_key(state)
+        representatives.setdefault(key, state)
+        return key
+
+    @lru_cache(maxsize=None)
+    def value(key: StateKey) -> float:
+        nonlocal explored, generated_transitions
+        explored += 1
+        if explored > max_states:
+            raise RuntimeError("exact event search exceeded state limit")
+        if time_limit_s is not None and perf_counter() - started > time_limit_s:
+            raise TimeoutError("exact event search exceeded time limit")
+        state = representatives[key]
+        if model.is_finished(state):
+            return 0
+        actions = action_provider(state)
+        if not actions:
+            raise RuntimeError("unfinished state has no legal action")
+        best: float | None = None
+        for action in actions:
+            after = model.step(state, action).after
+            generated_transitions += 1
+            child = remember(after)
+            candidate = cost(state, action, after) + value(child)
+            best = candidate if best is None else min(best, candidate)
+        return best if best is not None else 0
+
+    state = model.initial_state()
+    root = remember(state)
+    value(root)
+    actions: list[Action] = []
+    while not model.is_finished(state):
+        candidates = []
+        for action in action_provider(state):
+            after = model.step(state, action).after
+            child = remember(after)
+            candidates.append((
+                cost(state, action, after) + value(child),
+                action.kind,
+                action.task_id or "",
+                action,
+                after,
+            ))
+        if not candidates:
+            raise RuntimeError("unfinished state has no legal action")
+        _score, _kind, _task_id, action, state = min(candidates)
+        actions.append(action)
+    trace = model.run(actions)
+    assert_preemptive_trace(model, trace)
+    return result_from_trace(trace).with_stats(
+        explored_states=explored,
+        generated_transitions=generated_transitions,
+        deduplicated_states=value.cache_info().hits,
+        memo_hits=value.cache_info().hits,
+        status="optimal",
+        termination_reason="complete_enumeration",
+        runtime_ms=(perf_counter() - started) * 1000,
+    )
 
 
 @dataclass(frozen=True)

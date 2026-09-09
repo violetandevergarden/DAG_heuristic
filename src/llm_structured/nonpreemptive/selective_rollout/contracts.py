@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Literal
 
-from llm_structured.nonpreemptive.runtime.contracts import ActionSignature, Mode
+from llm_structured.nonpreemptive.baseline.contracts import ActionSignature, Mode
 
 TriggerKind = Literal[
     "none", "full", "selective", "strict", "loose", "disagreement", "legacy", "random", "periodic"

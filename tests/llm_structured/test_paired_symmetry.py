@@ -7,7 +7,7 @@ from dataclasses import replace
 import pytest
 
 from core.dag import DAG
-from llm_structured.repetition import build_exchangeable_replicas, exact_oracle_paired
+from llm_structured.preemptive.repetition.solver import build_exchangeable_replicas, exact_oracle_paired
 
 
 def _cross_edge_dag(replicas: int) -> tuple[DAG, tuple[tuple[str, ...], ...]]:

@@ -2,22 +2,15 @@
 
 from __future__ import annotations
 
-from llm_structured.nonpreemptive.runtime.policies import baseline_action
+from llm_structured.nonpreemptive.baseline.solver import baseline_action
 
-from .baseline import longest_tail_action
-
-
-def _job_id(adapter, task_id):
-    task = adapter.model.tasks[adapter.model.index[task_id]]
-    labels = dict(getattr(task, "labels", ()))
-    if "job_id" in labels:
-        return labels["job_id"]
-    return task_id.split("::", 1)[0] if "::" in task_id else "job0"
+from ..baseline.solver import longest_tail_action
 
 
-def generate(adapter, state, mode, max_candidates, candidate_mode="full_cross_job"):
-    legal = tuple(adapter.legal_actions(state, mode))
-    base = longest_tail_action(adapter, state, mode)
+def generate(adapter, state, mode, max_candidates, candidate_mode="full_cross_job", context=None):
+    context = context or adapter.decision_context(state, mode)
+    legal = context.legal_actions
+    base = longest_tail_action(adapter, state, mode, context)
     if max_candidates == 0:
         return (base,), len(legal), True
     # The revised Stage 4d experiment excludes fixed-resource graphs, but the
@@ -52,15 +45,15 @@ def generate(adapter, state, mode, max_candidates, candidate_mode="full_cross_jo
         starts = [a for a in legal if a.kind != "wait"]
         if base.kind == "wait" or len(starts) < 2:
             return (base,), len(legal), len(legal) > 1
-        tails = adapter.tail(state)
+        tails = context.tails
         ranked = sorted(starts, key=lambda a: (-tails[a.task_id], a.task_id))
-        base_job = _job_id(adapter, base.task_id)
+        base_job = adapter.job_index.job_of(base.task_id)
         second = next((action for action in ranked if action != base), None)
         proposed = [base, second]
         if candidate_mode == "full_cross_job":
             for policy in ("shortest_remaining_job", "fifo", "job_aware_longest_tail"):
-                action = baseline_action(adapter, state, mode, policy)
-                if action.kind != "wait" and _job_id(adapter, action.task_id) != base_job:
+                action = baseline_action(adapter, state, mode, policy, context=context)
+                if action.kind != "wait" and adapter.job_index.job_of(action.task_id) != base_job:
                     proposed.append(action)
         ordered = proposed
     unique = []

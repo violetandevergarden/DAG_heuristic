@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from llm_structured.repetition import (
+from llm_structured.preemptive.repetition.solver import (
     build_exchangeable_replicas,
     build_pp_dp_repetition,
     exact_oracle_paired,

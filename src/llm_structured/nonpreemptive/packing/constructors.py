@@ -10,16 +10,17 @@ from core.execution.nonpreemptive import (
     ResourceState,
 )
 
-from .contracts import DecisionBudget, PackingCandidate, PackingConfig
+from .contracts import DecisionBudget, PackingCandidate, PackingConfig, PackingDecisionContext, build_decision_context
 from .graph import build_conflict_graph
 
 
-def _orders(model, state, random_seed: int):
-    vertices = list(model.startable_flows(state))
-    _path, tails = model.residual_features(state)
+def _orders(model, state, random_seed: int, context: PackingDecisionContext | None = None):
+    context = context or build_decision_context(model, state)
+    vertices = list(context.startable)
+    tails = context.tails
     duration = lambda item: model.remaining(state, model.index[item])
-    tail = lambda item: tails[model.index[item]]
-    loads = {resource: 0 for resources in model.resources for resource in resources}
+    tail = lambda item: tails[item]
+    loads = {resource: 0 for resource in context.all_resources}
     for index, task in enumerate(model.tasks):
         if task.kind == "comm" and state.tasks[index].status != "completed":
             for resource in model.resources[index]: loads[resource] += model.remaining(state, index)
@@ -51,14 +52,16 @@ def greedy_fill(model, state, order, budget: DecisionBudget, initial=()):
     return ResourceAction.start(selected) if selected else ResourceAction.wait()
 
 
-def baseline_action(model, state, policy="lt"):
+def baseline_action(model, state, policy="lt", context=None):
     budget = DecisionBudget(PackingConfig().budget)
-    return greedy_fill(model, state, _orders(model, state, 17)[policy], budget)
+    return greedy_fill(model, state, _orders(model, state, 17, context)[policy], budget)
 
 
 def construct_candidates(model: NonPreeMultiModel, state: ResourceState,
-                         config: PackingConfig, budget: DecisionBudget) -> tuple[PackingCandidate, ...]:
-    orders = _orders(model, state, config.random_seed)
+                         config: PackingConfig, budget: DecisionBudget,
+                         context: PackingDecisionContext | None = None) -> tuple[PackingCandidate, ...]:
+    context = context or build_decision_context(model, state)
+    orders = _orders(model, state, config.random_seed, context)
     candidates: dict[tuple[str, ...], PackingCandidate] = {}
     baseline = greedy_fill(model, state, orders["lt"], budget)
     candidates[baseline.starts] = PackingCandidate(baseline, "lt")

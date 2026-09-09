@@ -64,6 +64,17 @@ class NonPreemptiveOracleResult:
 
 
 @dataclass(frozen=True)
+class NonPreemptiveCompletionResult:
+    """Exact residual cost from a simulator-produced non-preemptive state."""
+
+    status: Literal["optimal", "unknown"]
+    cost: int | None
+    optimal_actions: tuple[Action, ...]
+    explored_states: int
+    termination_reason: str | None = None
+
+
+@dataclass(frozen=True)
 class OracleComparison:
     optional_idle: NonPreemptiveOracleResult
     work_conserving: NonPreemptiveOracleResult
@@ -453,6 +464,67 @@ def exact_oracle(
 
     optimum, actions = solve(initial)
     return solver.finalize(actions, explored, solve.cache_info().hits, started, optimum)
+
+
+def exact_completion_from_state(
+    model: NonPreeSingleModel,
+    state: ScheduleState,
+    *,
+    mode: OracleMode = "optional_idle",
+    max_states: int = 100_000,
+    time_limit_s: float = 30.0,
+) -> NonPreemptiveCompletionResult:
+    """Solve the residual problem from a simulator decision state."""
+    if max_states < 1:
+        raise ValueError("max_states must be positive")
+    if time_limit_s <= 0:
+        raise ValueError("time_limit_s must be positive")
+    if state.active_flow is not None:
+        raise ValueError("residual oracle requires a decision state")
+    started = perf_counter()
+    explored = 0
+    manager = OracleStateManager(model, mode)
+
+    @lru_cache(maxsize=None)
+    def solve(current_key: StateKey) -> int:
+        nonlocal explored
+        explored += 1
+        if explored > max_states:
+            raise RuntimeError("state_limit")
+        if perf_counter() - started > time_limit_s:
+            raise TimeoutError("time_limit")
+        current = manager.from_key(current_key)
+        if model.is_finished(current):
+            return 0
+        actions = manager.candidate_actions(current)
+        if not actions:
+            raise RuntimeError("no_legal_action")
+        best: int | None = None
+        for action in actions:
+            transition = model.step(current, action)
+            value = (
+                transition.after.time - current.time
+                + solve(manager.key(transition.after))
+            )
+            best = value if best is None else min(best, value)
+        assert best is not None
+        return best
+
+    try:
+        initial_key = manager.key(state)
+        optimum = solve(initial_key)
+        best: list[Action] = []
+        for action in manager.candidate_actions(state):
+            transition = model.step(state, action)
+            if transition.after.time - state.time + solve(manager.key(transition.after)) == optimum:
+                best.append(action)
+        return NonPreemptiveCompletionResult(
+            "optimal", optimum, tuple(best), explored, None
+        )
+    except (RuntimeError, TimeoutError) as error:
+        return NonPreemptiveCompletionResult(
+            "unknown", None, (), explored, str(error)
+        )
 
 
 def branch_and_bound_oracle(

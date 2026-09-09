@@ -1,7 +1,7 @@
 from benchmark_generate.llm.preemptive.packing_motifs import packing_motifs
 from core.execution.preemptive import PreeMultiModel
-from llm_structured.selective_rollout import RolloutBudget
-from llm_structured.preemptive.multi_selective_rollout import (
+from llm_structured.preemptive.selective_rollout.contracts import RolloutBudget
+from llm_structured.preemptive.selective_rollout.multi import (
     generate_candidates, schedule_selective_rollout,
 )
 from muti_channel.preemptive.solver import schedule_pack

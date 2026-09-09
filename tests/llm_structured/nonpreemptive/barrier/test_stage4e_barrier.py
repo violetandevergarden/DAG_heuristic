@@ -2,7 +2,7 @@ from benchmark.model import Benchmark, Resource, SchedulingSemantics, Task
 from llm_structured.nonpreemptive.barrier import BarrierConfig, BarrierGraph, schedule
 from llm_structured.nonpreemptive.barrier.contracts import BarrierBudget
 from llm_structured.nonpreemptive.barrier.features import action_features
-from llm_structured.nonpreemptive.selective_rollout.adapters import make_adapter
+from llm_structured.nonpreemptive.baseline.adapters import make_adapter
 
 
 def _single(names=("a", "b", "join")):

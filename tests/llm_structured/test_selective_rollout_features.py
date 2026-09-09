@@ -1,6 +1,6 @@
 from time import perf_counter
 
-from llm_structured.selective_rollout import (
+from llm_structured.preemptive.selective_rollout.contracts import (
     BudgetAccount, RolloutBudget, TriggerFeatures, choice_only,
     last_missing_and_small_margin, small_lt_margin,
 )

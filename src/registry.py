@@ -382,7 +382,7 @@ def _preemptive_registry(benchmark: Benchmark) -> dict[str, Algorithm]:
         )
     if benchmark.family == "complex_chain":
         from core.oracle.pree_single import exact_oracle, exact_oracle_uncompressed
-        from llm_structured.integrated import integrated_v0, schedule_single
+        from llm_structured.preemptive.integrated import integrated_v0, schedule_single
         from single_channel.complex_chain.preemptive import solver
     else:
         raise ValueError(f"unsupported preemptive family: {benchmark.family}")

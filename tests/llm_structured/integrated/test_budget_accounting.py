@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from llm_structured.integrated.accounting import SharedBudget
+from llm_structured.preemptive.integrated.accounting import SharedBudget
 
 
 def test_shared_budget_reserves_before_limit() -> None:

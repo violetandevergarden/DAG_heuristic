@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from benchmark_generate.llm.preemptive.barrier_motifs import multi_resource_motifs
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
-from llm_structured.preemptive.multi_features import action_features, build_context
-from llm_structured.preemptive.multi_barrier import (
+from llm_structured.preemptive.barrier.features import action_features, build_context
+from llm_structured.preemptive.barrier.multi import (
     offline_best_of_lt_and_barrier,
     schedule_selective_barrier_rollout,
     schedule_barrier_set_policy,

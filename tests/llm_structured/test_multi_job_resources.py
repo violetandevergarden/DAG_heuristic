@@ -1,5 +1,5 @@
 from benchmark_generate.llm.preemptive.multi_job_workloads import multi_job_workloads
-from llm_structured.multi_job import schedule_multi_resource_policy, solo_optimal_jct
+from llm_structured.preemptive.multi_job.solver import schedule_multi_resource_policy, solo_optimal_jct
 
 
 def test_j0_j6_workloads_are_distinct_jobs_and_all_policies_remain_maximal():

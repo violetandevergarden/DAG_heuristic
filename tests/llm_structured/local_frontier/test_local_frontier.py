@@ -3,14 +3,14 @@ from dataclasses import replace
 from core.dag import DAG, Task
 from core.execution.preemptive import Action, PreeSingleModel
 from core.trace.pree_single import assert_preemptive_trace
-from llm_structured.local_frontier import (
+from llm_structured.preemptive.local_frontier import (
     LocalFrontierConfig,
     build_local_region,
     candidate_pair,
     diagnostic_config,
     schedule_local_frontier,
 )
-from llm_structured.local_frontier.frontier import states_merged
+from llm_structured.preemptive.local_frontier.frontier import states_merged
 from single_channel.complex_chain.preemptive.solver import schedule_longest_tail
 
 

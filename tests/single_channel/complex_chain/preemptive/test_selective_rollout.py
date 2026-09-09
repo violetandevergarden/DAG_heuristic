@@ -4,10 +4,10 @@ from core.dag import Task, DAG
 from core.execution.preemptive import Action, PreeSingleModel
 from core.oracle.pree_single import exact_completion_from_state_uncompressed
 from core.trace.pree_single import assert_preemptive_trace
-from llm_structured.selective_rollout import (
+from llm_structured.preemptive.selective_rollout.contracts import (
     BudgetAccount, CandidateSummary, RolloutBudget,
 )
-from llm_structured.preemptive.selective_rollout import (
+from llm_structured.preemptive.selective_rollout.policy import (
     cheap_features, evaluate_rollout, feature_cache_key, generate_candidates,
     schedule_selective_rollout, summarize_choice,
 )

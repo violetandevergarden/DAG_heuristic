@@ -1,6 +1,6 @@
 from core.dag import DAG, Task
 from core.execution.preemptive import PreeMultiModel
-from llm_structured.packing_features import cheap_packing_features
+from llm_structured.preemptive.packing_features import cheap_packing_features
 
 
 def test_packing_features_report_conflict_and_llm_role_diversity():

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from llm_structured.multi_job import JobSpec, MultiJobInstance, build_parallel_chain_job, compose_jobs
+from llm_structured.preemptive.multi_job.solver import JobSpec, MultiJobInstance, build_parallel_chain_job, compose_jobs
 
 
 @dataclass(frozen=True)

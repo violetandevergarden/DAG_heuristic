@@ -6,13 +6,15 @@ from time import perf_counter
 import pytest
 
 from benchmark import load_benchmark
-from llm_structured.nonpreemptive.runtime.completion import (
+from core.oracle.nonpree_multi import exact_completion_from_state as core_multi_completion
+from core.oracle.nonpree_single import exact_completion_from_state as core_single_completion
+from llm_structured.nonpreemptive.baseline.completion import (
     CompletionDeadlineExceeded,
     complete,
 )
 from llm_structured.nonpreemptive.selective_rollout import RolloutConfig, schedule
-from llm_structured.nonpreemptive.selective_rollout.adapters import make_adapter
-from llm_structured.nonpreemptive.selective_rollout.baseline import longest_tail_action
+from llm_structured.nonpreemptive.baseline.adapters import make_adapter
+from llm_structured.nonpreemptive.baseline.solver import longest_tail_action
 from llm_structured.nonpreemptive.selective_rollout.candidates import generate
 from llm_structured.nonpreemptive.selective_rollout.cheap_policies import preferences
 from llm_structured.nonpreemptive.selective_rollout.contracts import ActionSignature
@@ -109,6 +111,26 @@ def test_cost_to_go_accepts_simulator_residual_state() -> None:
     suffix = cost_to_go(adapter, transition.after, "optional_idle")
     assert suffix.status == "optimal"
     assert transition.after.time - initial.time + suffix.cost == result.cost
+
+
+@pytest.mark.parametrize("mode", ["optional_idle", "work_conserving"])
+def test_single_cost_to_go_matches_core_residual_oracle(mode: str) -> None:
+    adapter = make_adapter(_single())
+    state = adapter.initial_state()
+    family = cost_to_go(adapter, state, mode, max_states=100_000)
+    core = core_single_completion(adapter.model, state, mode=mode, max_states=100_000)
+    assert (family.status, family.cost) == (core.status, core.cost)
+    assert tuple(family.optimal_actions) == tuple(core.optimal_actions)
+
+
+@pytest.mark.parametrize("mode", ["optional_idle", "work_conserving"])
+def test_multi_cost_to_go_matches_core_residual_oracle(mode: str) -> None:
+    adapter = make_adapter(_multi("nonmaximal_start_np.json"))
+    state = adapter.initial_state()
+    family = cost_to_go(adapter, state, mode, max_states=100_000)
+    core = core_multi_completion(adapter.model, state, mode=mode, max_states=100_000)
+    assert (family.status, family.cost) == (core.status, core.cost)
+    assert tuple(family.optimal_actions) == tuple(core.optimal_actions)
 
 
 def test_true_policy_disagreement_is_not_candidate_disagreement() -> None:

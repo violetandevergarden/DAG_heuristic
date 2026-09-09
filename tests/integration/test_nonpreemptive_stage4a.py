@@ -14,7 +14,7 @@ from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
 from benchmark_generate.simai.common_export import build_synthetic_input, build_workload
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark
 from experiments.llm_structure.nonpreemptive.process_budget import run_with_budget
-from experiments.llm_structure.nonpreemptive.runtime import replay
+from llm_structured.nonpreemptive.baseline import replay
 
 
 def _case(*, routed: bool = False):

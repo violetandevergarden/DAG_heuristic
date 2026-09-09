@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from core.dag import DAG
-from llm_structured.integrated import integrated_v0, schedule_multi
+from llm_structured.preemptive.integrated import integrated_v0, schedule_multi
 from muti_channel.preemptive import solver
-from .multi_barrier import schedule_selective_barrier_rollout
+from .barrier.multi import schedule_selective_barrier_rollout
 
 
 def solve(

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from benchmark import Benchmark, SchedulingSemantics, Task
 from core.dag import DAG
-from llm_structured.perturb import perturb_durations
-from llm_structured.signatures import classify_repetition_evidence
+from llm_structured.common.perturb import perturb_durations
+from llm_structured.common.signatures import classify_repetition_evidence
 
 
 def test_duration_perturbation_preserves_scale_and_zero_markers() -> None:

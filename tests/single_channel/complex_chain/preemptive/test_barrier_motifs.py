@@ -4,8 +4,8 @@ from benchmark_generate.llm.preemptive.barrier_motifs import single_channel_moti
 from core.execution.preemptive import Action, PreeSingleModel
 from core.oracle.pree_single import exact_oracle
 from core.trace.pree_single import assert_preemptive_trace
-from llm_structured.barrier import build_context, feature_snapshot
-from llm_structured.preemptive.barrier import (
+from llm_structured.preemptive.barrier.analysis import build_context, feature_snapshot
+from llm_structured.preemptive.barrier.policy import (
     offline_best_of_lt_and_barrier,
     schedule_barrier_margin_tiebreak,
     schedule_barrier_policy,

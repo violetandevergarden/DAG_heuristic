@@ -4,7 +4,7 @@ import pytest
 
 from benchmark import load_benchmark
 from core.conversion import to_dag, to_muti_resourse
-from llm_structured.integrated import (
+from llm_structured.preemptive.integrated import (
     IntegratedConfig,
     integrated_v0,
     schedule_multi,

@@ -3,7 +3,7 @@
 Each job keeps its own namespace (``{job_id}::`` prefix), its own DAG edges and
 its source provenance.  Jobs never gain cross-job precedence edges; they
 interact only through the shared fixed resource universe.  Arrival is encoded
-as a release compute node exactly like ``llm_structured.multi_job.compose_jobs``.
+as a release compute node exactly like ``llm_structured.preemptive.multi_job.compose_jobs``.
 """
 
 from __future__ import annotations

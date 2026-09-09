@@ -2,14 +2,14 @@ from pathlib import Path
 
 from benchmark import load_benchmark
 from experiments.llm_structure.nonpreemptive.foundation.runtime_diagnosis import run
-from llm_structured.nonpreemptive.runtime import replay
+from llm_structured.nonpreemptive.baseline import replay
 
 ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_stage4_compatibility_modules_reexport_the_only_baseline_implementation():
-    from llm_structured.nonpreemptive.runtime.policies import longest_tail_action as canonical
-    from llm_structured.nonpreemptive.selective_rollout.baseline import (
+    from llm_structured.nonpreemptive.baseline.solver import longest_tail_action as canonical
+    from llm_structured.nonpreemptive.baseline.solver import (
         longest_tail_action as rollout,
     )
 
@@ -100,8 +100,8 @@ def test_corpus_only_imports_publication_ownership():
 
 
 def test_decision_context_reuses_one_tail_for_all_policy_observations(monkeypatch):
-    from llm_structured.nonpreemptive.runtime import make_adapter
-    from llm_structured.nonpreemptive.runtime.policies import baseline_action
+    from llm_structured.nonpreemptive.baseline import make_adapter
+    from llm_structured.nonpreemptive.baseline.solver import baseline_action
 
     benchmark = load_benchmark(
         ROOT

@@ -11,14 +11,14 @@ from core.dag import DAG, Task
 from core.oracle.pree_multi import exact_oracle as multi_exact_oracle
 from core.execution.preemptive import MultiResourceAction, PreeMultiModel
 from core.execution.preemptive import Action, PreeSingleModel
-from llm_structured.barrier import (
+from llm_structured.preemptive.barrier.analysis import (
     action_features,
     build_context,
     feature_snapshot,
     safe_barrier_prescreen,
     score_snapshot,
 )
-from llm_structured.preemptive.multi_barrier import schedule_barrier_set_policy
+from llm_structured.preemptive.barrier.multi import schedule_barrier_set_policy
 from core.trace.pree_multi import assert_multi_resource_trace
 from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
 

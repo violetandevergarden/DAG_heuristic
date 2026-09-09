@@ -11,6 +11,30 @@ from core.execution.nonpreemptive import ResourceAction
 PackingMode = Literal["optional_idle", "work_conserving"]
 
 
+@dataclass
+class PackingDecisionContext:
+    """Per-state summaries shared by constructors and feature evaluators."""
+
+    tails: dict[str, int]
+    startable: tuple[str, ...]
+    occupied_resources: frozenset[Hashable]
+    all_resources: frozenset[Hashable]
+    transition_cache: dict[tuple[str, ...], object] = field(default_factory=dict)
+    cache_hits: int = 0
+    cache_misses: int = 0
+    cache_rejections: int = 0
+
+
+def build_decision_context(model, state) -> PackingDecisionContext:
+    _paths, tails = model.residual_features(state)
+    return PackingDecisionContext(
+        {task.task_id: tails[index] for index, task in enumerate(model.tasks)},
+        tuple(model.startable_flows(state)),
+        frozenset(model.occupied_resources(state)),
+        frozenset(resource for group in model.resources for resource in group),
+    )
+
+
 @dataclass(frozen=True)
 class PackingBudget:
     max_vertices_scored: int = 64
@@ -103,6 +127,9 @@ class PackingDecision:
     fallback: bool
     fallback_reasons: tuple[str, ...]
     completion_calls: int
+    cache_hits: int = 0
+    cache_misses: int = 0
+    cache_rejections: int = 0
 
 
 @dataclass(frozen=True)

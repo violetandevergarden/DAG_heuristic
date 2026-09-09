@@ -15,7 +15,7 @@ from core.oracle.pree_single import (
 )
 from core.trace.pree_single import assert_preemptive_trace
 from registry import algorithms_for
-from llm_structured.preemptive.barrier import barrier_urgency
+from llm_structured.preemptive.barrier.policy import barrier_urgency
 from single_channel.complex_chain.preemptive.interface import validate_complex_chain
 from single_channel.complex_chain.preemptive.solver import (
     beam_search,
