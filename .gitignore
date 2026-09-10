@@ -8,3 +8,9 @@ build/
 *.egg-info/
 experiments/
 docs/
+
+# Local-only oversized benchmark snapshots.
+/benchmark/llm_structure/preemptive/multi_iteration/mixtral8x7b_ws8_tp4_pp2_ep1_dp1_gbs2_mbs1_it4.json
+/benchmark/llm_structure/preemptive/fixed_multi_resource/dcn_dual_tor_64g/llama405b_sourcews32_effectivews64_tp16_pp2_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g.json
+/benchmark/llm_structure/preemptive/multi_iteration/mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs2_mbs1_it2.json
+/benchmark/llm_structure/preemptive/routed/dcn_dual_tor_64g/llama405b_sourcews32_effectivews64_tp16_pp2_ep1_dp2_gbs1_mbs1_route_dcn_dual_tor_64g.json
