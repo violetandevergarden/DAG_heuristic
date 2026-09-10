@@ -25,7 +25,7 @@ from single_channel.complex_chain.preemptive.solver import (
     schedule_rollout,
     unique_downstream_work,
 )
-from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
+from tests.support.oracles.tiny_oracle import tiny_tick_optimum
 
 
 def _first_communication(result) -> str:

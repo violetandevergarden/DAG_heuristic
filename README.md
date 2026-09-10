@@ -155,6 +155,15 @@ $env:PYTHONPATH="src;."
 python -m pytest -q
 ```
 
+该命令是默认回归，只运行轻量单元、集成和代表性样例；`full_corpus`、`oracle_full`
+与 `experiment_reproduction` 发布级标记默认排除。发布验收和冻结实验复核使用：
+
+```powershell
+python -m pytest -q -m "full_corpus or oracle_full"
+python -m pytest -q -m experiment_reproduction
+python -m pytest -q -o addopts=""
+```
+
 `tests/integration/` 会在找不到 SimAI 或 integration extra 时跳过；Loader、Oracle 和算法测试不需要 SimAI。需要集成依赖时安装 `.[dev,integration]`。
 
 ## SimAI 集成

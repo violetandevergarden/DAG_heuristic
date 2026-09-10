@@ -55,7 +55,7 @@ benchmark/
 
 ## 当前数据规模
 
-数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/test_benchmark_format.py` 与 `tests/test_semantics_layout.py` 断言锁定。统计日期为 2026-09-09；当前共 290 个问题。各语义 LLM 语料的细分数量由对应 `manifest.jsonl` 和审计命令生成，不在 README 中手工维护。
+数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/benchmark/test_loader_and_schema.py` 与 `tests/benchmark/test_layout.py` 断言锁定。统计日期为 2026-09-09；当前共 290 个问题。各语义 LLM 语料的细分数量由对应 `manifest.jsonl` 和审计命令生成，不在 README 中手工维护。
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
@@ -67,7 +67,7 @@ benchmark/
 | `muti_channel/preemptive` | 10 | 9 | 15 | 34 |
 | 总计 | 70 | 78 | 142 | 290 |
 
-其中 `benchmark/llm_structure/` 下的正式语料按语义分目录；`single_channel` 表示单通道，`fixed_multi_resource/<topology_tag>` 表示固定多资源，`multi_iteration`、`multi_job`、`decision_slices` 和 `examples` 分别表示独立的数据用途。执行 `python -m experiments.llm_structure.benchmark_layout_audit` 可从 index 和两个 manifest 生成当前统计。
+其中 `benchmark/llm_structure/` 下的正式语料按语义分目录；`single_channel` 表示单通道，`fixed_multi_resource/<topology_tag>` 表示固定多资源，`multi_iteration`、`multi_job`、`decision_slices` 和 `examples` 分别表示独立的数据用途。执行 `python -m experiments.llm_structure.shared.benchmark_layout_audit` 可从 index 和两个 manifest 生成当前统计。
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 

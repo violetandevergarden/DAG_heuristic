@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from benchmark import validate_benchmark
 from benchmark_generate.simai.preemptive_export import (
     MODES,
@@ -10,6 +12,8 @@ from benchmark_generate.simai.preemptive_export import (
     to_preemptive_benchmark,
 )
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark
+
+pytestmark = [pytest.mark.integration, pytest.mark.simai]
 
 
 def _assert_preemptive_contract(case) -> None:

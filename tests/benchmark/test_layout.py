@@ -5,7 +5,7 @@ from pathlib import Path
 
 from benchmark import load_benchmark
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def _problem_files() -> list[Path]:
@@ -36,7 +36,7 @@ def test_removed_compatibility_paths_do_not_reappear() -> None:
     )
     assert not [relative for relative in removed if (ROOT / relative).exists()]
     assert not list((ROOT / "tests/preemptive").glob("*.py"))
-    assert (ROOT / "experiments/preemptive/stage0_4.py").is_file()
+    assert (ROOT / "experiments/preemptive/stage0_3/stage0_4.py").is_file()
     assert (ROOT / "experiments/simai/repetition_study.py").is_file()
 
 

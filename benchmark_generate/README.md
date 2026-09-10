@@ -102,7 +102,7 @@ sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算
 3. 在 `export.py::current_cases` 中决定是否加入固定集合。
 4. 使用 `convert.py` 转成公开 `Benchmark`，不要让 JSON 包含 Python 专用对象。
 5. 写出后通过公共 Loader/Validator。
-6. 在 `tests/test_generators.py` 添加固定 seed 可复现测试。
+6. 在 `tests/benchmark_generate/test_cases.py` 添加固定 seed 可复现测试。
 7. 若属于算法反例，记录攻击对象和来源；若属于 random，仓库通常只保留约 10 个代表样例。
 
 `export_semantic_suite` 只写入调用者显式选择的 semantics；随后由 `build_index`
@@ -177,7 +177,7 @@ python -m benchmark_generate.simai.preemptive_export `
 
 ```powershell
 $env:PYTHONPATH="src;."
-python -m pytest tests/test_generators.py tests/test_benchmark_format.py -q
+python -m pytest tests/benchmark_generate/test_cases.py tests/benchmark/test_loader_and_schema.py -q
 python -m pytest tests/integration -q
 ```
 

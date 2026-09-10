@@ -13,6 +13,8 @@ from __future__ import annotations
 from collections import defaultdict
 from pathlib import Path
 
+import pytest
+
 from benchmark import Benchmark
 from benchmark_generate.simai.projection import project_resources
 from benchmark_generate.simai.preemptive_export import (
@@ -20,6 +22,8 @@ from benchmark_generate.simai.preemptive_export import (
     build_workload,
     to_preemptive_benchmark,
 )
+
+pytestmark = [pytest.mark.integration, pytest.mark.simai]
 from core.conversion import to_dag, to_muti_resourse
 from core.dag import DAG
 from core.execution.preemptive import Action, PreeSingleModel, result_from_trace

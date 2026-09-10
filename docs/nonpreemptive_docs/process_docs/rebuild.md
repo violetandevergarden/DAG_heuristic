@@ -1,6 +1,6 @@
 # `experiments/` 与 `tests/` 精简整理计划
 
-> 状态：待执行
+> 状态：已完成（2026-09-10）
 >
 > 范围：删除确定冗余的实验与测试资产，调整目录和命名，减少默认完整测试时间。
 >
@@ -305,8 +305,18 @@ python -m pytest -q -m "full_corpus or oracle_full"
 # 冻结实验复核
 python -m pytest -q -m experiment_reproduction
 
-# 所有测试
-python -m pytest -q -m ""
+# 所有已收集测试（包括发布级和冻结实验）
+python -m pytest -q -o addopts=""
 ```
 
-最终 README 必须明确每条命令覆盖什么，不能只报告默认回归通过而遗漏发布级验证。
+最终 README 已明确每条命令覆盖范围，不能只报告默认回归通过而遗漏发布级验证。
+
+## 10. 本轮完成记录
+
+- `experiments/llm_structure/` 已按 `preemptive/`、`nonpreemptive/`、`shared/` 分层；两条语义下的 Stage 4a--4h/f 入口按阶段归位；可抢占 Stage 0--3 入口归入 `experiments/preemptive/stage0_3/`，超出当前正式计划的入口归入 `legacy/`。
+- 不可抢占 foundation 的基础检查、批量 runner、manifest 已分开；纯兼容 `runtime.py` 已删除。活动导入、默认路径和 README 已同步，未在新目录重建兼容层。
+- 根目录测试已归入 `architecture/`、`benchmark/`、`benchmark_generate/`；独立 tiny Oracle 归入 `tests/support/oracles/`，并补齐必要包边界。
+- `tests/llm_structured/` 根目录已清空测试文件：通用审计放入 `common/`，可抢占结构测试放入 `preemptive/`，并保留 `nonpreemptive/`、`integrated/`、`local_frontier/` 五类职责边界。
+- `full_corpus`、`oracle_full`、`experiment_reproduction` 标记和默认排除配置保留；默认回归不再重复完整语料扫描、Exact 重算和冻结矩阵。
+- 验收结果：默认回归 `283 passed, 2 deselected`（41.10s）；发布级 `1 passed, 284 deselected`（23.83s）；冻结实验复核 `1 passed, 284 deselected`（46.72s）。全量命令使用 `python -m pytest -q -o addopts=""`，避免 PowerShell 将空的 `-m ""` 解析为缺少参数。
+- 已清理 `experiments/` 与 `tests/` 下的 `__pycache__`、`.pyc`；未修改 benchmark 内容、算法、执行语义或 `src/core`。

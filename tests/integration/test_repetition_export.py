@@ -1,5 +1,7 @@
 """Optional SimAI-backed repetition and Zero Bubble integration checks."""
 
+import pytest
+
 from benchmark_generate.simai.preemptive_export import (
     build_synthetic_input,
     build_workload,
@@ -7,6 +9,8 @@ from benchmark_generate.simai.preemptive_export import (
 )
 from experiments.simai.repetition import scan_repetition
 from experiments.simai.repetition_study import _raw_b_to_w_edges
+
+pytestmark = [pytest.mark.integration, pytest.mark.simai]
 
 
 def test_scanner_separates_repetition_from_exchangeability() -> None:

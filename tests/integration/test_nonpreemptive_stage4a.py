@@ -3,6 +3,8 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
+import pytest
+
 from benchmark import Benchmark, Resource, SchedulingSemantics, Task, validate_benchmark
 from benchmark_generate.llm.nonpreemptive.contention_audit import (
     bounded_choice_search,
@@ -13,7 +15,9 @@ from benchmark_generate.llm.nonpreemptive.corpus_selection import selected_specs
 from benchmark_generate.llm.nonpreemptive.slice import causal_closure_slice
 from benchmark_generate.simai.common_export import build_synthetic_input, build_workload
 from benchmark_generate.simai.nonpreemptive_export import to_nonpreemptive_benchmark
-from experiments.llm_structure.nonpreemptive.process_budget import run_with_budget
+
+pytestmark = [pytest.mark.integration, pytest.mark.simai]
+from experiments.llm_structure.nonpreemptive.foundation.process_budget import run_with_budget
 from llm_structured.nonpreemptive.baseline import replay
 
 

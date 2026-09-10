@@ -26,9 +26,10 @@ where = ["src"]
 include = ["benchmark*", "core*", "single_channel*", "muti_channel*", "llm_structured*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", ".", ".."]
+pythonpath = ["src", ".", "tests", ".."]
 testpaths = ["tests"]
 markers = [
+    "integration: cross-module tests using optional integration fixtures",
     "simai: requires the optional SimAI integration checkout",
     "full_corpus: publish-level validation that scans the complete benchmark corpus",
     "oracle_full: publish-level Exact/reference recomputation",

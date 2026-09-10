@@ -18,7 +18,7 @@ from core.dag import DAG, Task as DAGTask
 from core.execution.preemptive import PreeSingleModel
 from core.oracle.pree_single import exact_oracle as generic_exact
 from core.trace.pree_single import assert_preemptive_trace
-from experiments.preemptive.stage1_parallel_chain import run_stage1
+from experiments.preemptive.stage0_3.stage1_parallel_chain import run_stage1
 from single_channel.parallel_chain.structure import (
     ParallelChain,
     parse_parallel_chain,
@@ -34,7 +34,7 @@ from single_channel.parallel_chain.preemptive.solver import (
     schedule_priority,
     schedule_rollout,
 )
-from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
+from tests.support.oracles.tiny_oracle import tiny_tick_optimum
 
 
 def _first_run(result) -> str:

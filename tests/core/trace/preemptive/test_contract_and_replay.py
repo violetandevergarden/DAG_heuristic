@@ -22,7 +22,7 @@ from muti_channel.preemptive.solver import (
 )
 from core.trace.pree_multi import assert_multi_resource_trace
 from single_channel.parallel_chain.preemptive.interface import validate_parallel_chain
-from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
+from tests.support.oracles.tiny_oracle import tiny_tick_optimum
 
 
 def _release_dag() -> DAG:

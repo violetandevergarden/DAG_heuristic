@@ -20,7 +20,7 @@ from llm_structured.preemptive.barrier.analysis import (
 )
 from llm_structured.preemptive.barrier.multi import schedule_barrier_set_policy
 from core.trace.pree_multi import assert_multi_resource_trace
-from tests.oracles.preemptive.tiny_oracle import tiny_tick_optimum
+from tests.support.oracles.tiny_oracle import tiny_tick_optimum
 
 
 def _join_dag() -> DAG:
