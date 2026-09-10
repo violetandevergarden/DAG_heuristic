@@ -1,0 +1,143 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage2_nested_barrier",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "Two nested joins require investment across more than one communication decision.",
+    "designed_for": "communication_resume",
+    "generator": "complex_chain",
+    "parameters": {
+      "attack_target": "finite_depth_rollout"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": "preemptive_only",
+    "stage2_group": "structural_adversarial"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "root",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "root"
+      ],
+      "duration": 2,
+      "id": "a",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "root"
+      ],
+      "duration": 1,
+      "id": "b",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "a"
+      ],
+      "duration": 2,
+      "id": "a_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "b"
+      ],
+      "duration": 2,
+      "id": "b_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "a_flow",
+        "b_flow"
+      ],
+      "duration": 3,
+      "id": "inner_barrier",
+      "kind": "compute",
+      "metadata": {
+        "role": "barrier"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "c_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "inner_barrier",
+        "c_flow"
+      ],
+      "duration": 2,
+      "id": "outer_barrier",
+      "kind": "compute",
+      "metadata": {
+        "role": "barrier"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "outer_barrier"
+      ],
+      "duration": 1,
+      "id": "final_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "final_flow"
+      ],
+      "duration": 2,
+      "id": "sink",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

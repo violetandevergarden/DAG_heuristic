@@ -1,0 +1,110 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage3_maximal_not_maximum",
+  "metadata": {
+    "description": "Both a singleton and a two-flow set are inclusion-maximal legal actions.",
+    "generator": "stage3_structural_adversarial_cases",
+    "parameters": {
+      "attack_target": "maximal_not_maximum_cardinality",
+      "mechanism": "legal_maximal_sets_have_different_sizes",
+      "semantic_scope": "fixed_resource_preemptive"
+    },
+    "semantic_scope": "fixed_resource_preemptive"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:r0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "blocker",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r0",
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "a",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "b",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "blocker"
+      ],
+      "duration": 7,
+      "id": "blocker_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "a"
+      ],
+      "duration": 3,
+      "id": "a_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b"
+      ],
+      "duration": 3,
+      "id": "b_tail",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

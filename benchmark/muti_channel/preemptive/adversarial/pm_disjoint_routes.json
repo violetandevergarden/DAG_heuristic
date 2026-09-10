@@ -1,0 +1,80 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_disjoint_routes",
+  "metadata": {
+    "description": "disjoint overlap",
+    "generator": "muti_channel",
+    "lifted_from": "disjoint_routes_np",
+    "parameters": {},
+    "preemptive_generator_seed": 260819,
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:r0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "left",
+      "kind": "communication",
+      "resources": [
+        "resource:r0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "right",
+      "kind": "communication",
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "left"
+      ],
+      "duration": 3,
+      "id": "left_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "right"
+      ],
+      "duration": 3,
+      "id": "right_tail",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

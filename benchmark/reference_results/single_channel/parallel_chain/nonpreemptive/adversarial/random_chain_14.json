@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "random_chain_14",
+  "benchmark_sha256": "60c48372f6cf4c10654e8444b8491f1e63fe59637c849788f1d026b4077d5007",
+  "optimal_makespan": 21,
+  "oracle": "exact_optional",
+  "schema_version": "1.0"
+}

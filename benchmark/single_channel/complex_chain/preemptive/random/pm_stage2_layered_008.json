@@ -1,0 +1,236 @@
+{
+  "category": "random",
+  "family": "complex_chain",
+  "id": "pm_stage2_layered_008",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "Parameterized raw layered DAG with fork, join and shared downstream structure.",
+    "designed_for": "communication_resume",
+    "generator": "stage2_layered_general",
+    "parameters": {
+      "edge_probability": "0.3",
+      "layers": "6",
+      "max_width": "3",
+      "min_width": "2",
+      "skip_edge_probability": "0.2"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": 260820,
+    "semantic_scope": "preemptive_only",
+    "stage2_group": "general_random"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "l0_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "l0_n1",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l0_n0"
+      ],
+      "duration": 1,
+      "id": "l1_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l0_n0"
+      ],
+      "duration": 3,
+      "id": "l1_n1",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l1_n0",
+        "l1_n1"
+      ],
+      "duration": 2,
+      "id": "l2_n0",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l1_n0",
+        "l1_n1"
+      ],
+      "duration": 1,
+      "id": "l2_n1",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l1_n1",
+        "l2_n1"
+      ],
+      "duration": 2,
+      "id": "l3_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l2_n0",
+        "l2_n1"
+      ],
+      "duration": 2,
+      "id": "l3_n1",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l2_n0",
+        "l3_n0",
+        "l3_n1"
+      ],
+      "duration": 3,
+      "id": "l4_n0",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l2_n0",
+        "l3_n0",
+        "l3_n1"
+      ],
+      "duration": 4,
+      "id": "l4_n1",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l3_n1"
+      ],
+      "duration": 1,
+      "id": "l4_n2",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l4_n0",
+        "l4_n1"
+      ],
+      "duration": 5,
+      "id": "l5_n0",
+      "kind": "compute",
+      "metadata": {
+        "role": "layered_compute"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "l4_n2"
+      ],
+      "duration": 3,
+      "id": "l5_n1",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "l4_n1"
+      ],
+      "duration": 4,
+      "id": "l5_n2",
+      "kind": "communication",
+      "metadata": {
+        "role": "layered_comm"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    }
+  ],
+  "time_unit": "tick"
+}

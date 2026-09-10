@@ -6,14 +6,21 @@
 
 ```text
 benchmark_generate/
-├── __main__.py                 # `python -m benchmark_generate` 入口
-├── export.py                   # 组织并写出当前固定数据集
+├── __main__.py                 # `python -m benchmark_generate` 入口（all/random/reference/llm）
+├── export.py                   # 统一导出两种 semantics 并生成索引
+├── layout.py                   # 两种语义共享的规范路径构造
 ├── cases.py                    # 随机、反例、LLM motif 和小拓扑 route 样例
 ├── convert.py                  # 内部 DAG/链/资源实例转成公开 Benchmark
 ├── reference.py                # 调用 Exact Oracle 生成最优值 sidecar
+├── llm/                         # LLM Stage 4 generation and corpus workflows
+├── llm/
+│   ├── catalog.py             # AICB 源文件目录与确定性 case 选择
+│   ├── corpus.py              # 真实 LLM corpus generate/audit/publish 事务流
+│   └── barrier_motifs.py      # barrier 参数化小图与 teacher label
 └── simai/
     ├── bootstrap.py            # 查找可选 SimAI checkout
-    └── export.py               # AICB/pipeline workload 转标准 benchmark
+    ├── export.py               # AICB/pipeline workload 转标准 benchmark
+    └── projection.py           # 导出后资源重标记与示例 workload 1:1 投影
 ```
 
 顶层生成代码不依赖 SimAI。只有 `simai/` 可以导入外部模拟器。
@@ -25,6 +32,18 @@ benchmark_generate/
 ```powershell
 $env:PYTHONPATH="src;."
 python -m benchmark_generate all --samples 10 --seed 260819 --output benchmark
+```
+
+`all` 同时生成 preemptive 与 nonpreemptive 两套数据。可用
+`--semantics preemptive` 或 `--semantics nonpreemptive` 只生成一种语义；
+两种语义都通过 `export.py::export_semantic_suite` 导出，并通过 `layout.py`
+构造 `family/semantics/category` 路径，不再设置 preemptive 专用 exporter。
+
+只生成一种语义时仍使用统一命令，例如：
+
+```powershell
+python -m benchmark_generate all --semantics preemptive --output benchmark
+python -m benchmark_generate all --semantics nonpreemptive --output benchmark
 ```
 
 该命令会生成：
@@ -48,16 +67,24 @@ python -m benchmark_generate random --samples 30 --seed 1234 --output my_benchma
 
 ```powershell
 python -m benchmark_generate reference --output benchmark
+python -m benchmark_generate reference --category random --output benchmark
+python -m benchmark_generate reference --category real --output benchmark
 ```
 
-该命令遍历 `category=adversarial` 的问题，调用对应场景的 `exact_optional`，在 `benchmark/reference_results/` 写出：
+默认命令遍历 `category=adversarial` 的问题；`--category` 可以显式选择
+`random`、`real` 或 `all`。v1 调用 `exact_optional`，v2 调用
+work-conserving `exact`，在 `benchmark/reference_results/` 写出：
 
 - `benchmark_id`；
 - 原问题文件 SHA-256；
 - Oracle 名称；
 - `optimal_makespan`。
 
-Exact Oracle 对大图可能产生指数级开销。只有规模可控、可以在测试中重复求解的小图才应生成 reference；不要给大型真实 DAG 或超时结果标记“精确最优”。
+Exact Oracle 对大图可能产生指数级开销。只有规模可控、可以在测试中重复
+求解的小图才应生成 reference；不要给大型真实 DAG 或超时结果标记“精确最优”。
+Stage 1 当前还为 9 个可解 random 和 5 个 structured/real-projection 样例保存
+sidecar；`pm_fixed_beam_counterexample` 和 `pm_random_chain_6` 在固定预算内超时，
+因此没有 sidecar。
 
 ## 固定 seed 与历史反例
 
@@ -75,10 +102,25 @@ Exact Oracle 对大图可能产生指数级开销。只有规模可控、可以�
 3. 在 `export.py::current_cases` 中决定是否加入固定集合。
 4. 使用 `convert.py` 转成公开 `Benchmark`，不要让 JSON 包含 Python 专用对象。
 5. 写出后通过公共 Loader/Validator。
-6. 在 `tests/test_generators.py` 添加固定 seed 可复现测试。
+6. 在 `tests/benchmark_generate/test_cases.py` 添加固定 seed 可复现测试。
 7. 若属于算法反例，记录攻击对象和来源；若属于 random，仓库通常只保留约 10 个代表样例。
 
-`export_suite` 会更新它负责生成的文件和索引，也会把输出目录中其它合法 JSON 纳入索引；它不会自动判断旧文件是否应该删除。改变固定集合后必须检查是否存在过期文件。
+`export_semantic_suite` 只写入调用者显式选择的 semantics；随后由 `build_index`
+把输出目录中的合法问题纳入索引。生成器不会自动判断旧文件是否应该删除，改变固定集合后必须检查是否存在过期文件。
+
+## 真实 LLM corpus 事务工作流
+
+真实 LLM 语料不再使用“先删除正式目录、再生成和回放”的单一命令。请使用：
+
+```powershell
+python -m benchmark_generate.llm.preemptive.corpus --mode generate --output benchmark
+python -m benchmark_generate.llm.preemptive.corpus --mode probe --output benchmark --fast
+python -m benchmark_generate.llm.preemptive.corpus --mode publish --output benchmark
+```
+
+`benchmark_generate.llm.preemptive.corpus` 和 `benchmark_generate.llm.nonpreemptive.corpus` 分别提供两种语义的正式工作流。`generate` 写入 `benchmark/llm_structure/.staging/<run-id>/`；`probe` 执行 contention audit，并为每个 case 写可恢复 checkpoint；`publish` 校验后更新 `llm_structure/<semantics>/manifest.jsonl`、对应 `provenance/` 和公共 index。未完成 audit 的 case 可以留在 candidate manifest，但不能被解释为 canonical informative case。
+
+两个正式 manifest 的每条记录都有 `collection`：`canonical` 用于正式回归，`scale` 用于规模或多 iteration，`example` 用于示例投影。默认测试只加载索引和代表性小文件；完整 corpus、Exact 重算和冻结实验复现分别使用 `full_corpus`、`oracle_full`、`experiment_reproduction` 标记显式运行。
 
 ## 从 SimAI 生成真实 DAG
 
@@ -94,12 +136,12 @@ SimAI 查找顺序为：
 git submodule update --init --recursive
 ```
 
-`simai/export.py` 会先调用指定 pipeline builder，再用对应 serializer 把 GPU compute 顺序加入 effective DAG。communication 时长按 `ceil(size_bytes / bandwidth)` 转成整数微秒。
+`simai/common_export.py` 只负责解析、建图、固定路由和时长换算；`preemptive_export.py` 与 `nonpreemptive_export.py` 分别写入各自的 Schema 和调度语义。communication 时长按 `ceil(size_bytes / bandwidth)` 转成整数微秒。
 
 导出单通道 benchmark：
 
 ```powershell
-python -m benchmark_generate.simai.export `
+python -m benchmark_generate.simai.preemptive_export `
   --aicb path/to/workload.txt `
   --mode zero_bubble `
   --id zb_example `
@@ -109,7 +151,7 @@ python -m benchmark_generate.simai.export `
 增加 `--topology` 后，导出器会通过 SimAI 的 BFS 路由把每条 flow 转成固定 directed-link 和 NIC resource set，并生成 `muti_channel` benchmark：
 
 ```powershell
-python -m benchmark_generate.simai.export `
+python -m benchmark_generate.simai.preemptive_export `
   --aicb path/to/workload.txt `
   --mode 1f1b `
   --topology path/to/topology.json `
@@ -135,7 +177,7 @@ python -m benchmark_generate.simai.export `
 
 ```powershell
 $env:PYTHONPATH="src;."
-python -m pytest tests/test_generators.py tests/test_benchmark_format.py -q
+python -m pytest tests/benchmark_generate/test_cases.py tests/benchmark/test_loader_and_schema.py -q
 python -m pytest tests/integration -q
 ```
 

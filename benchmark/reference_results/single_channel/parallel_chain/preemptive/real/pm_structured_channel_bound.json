@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_structured_channel_bound",
+  "benchmark_sha256": "ab44d3558ba9c027bde4cb13b035a50808416379369938614ab14578408ecc86",
+  "optimal_makespan": 30,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

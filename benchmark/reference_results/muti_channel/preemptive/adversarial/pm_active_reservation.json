@@ -1,0 +1,20 @@
+{
+  "benchmark_id": "pm_active_reservation",
+  "benchmark_sha256": "1641369e881498374a49df629517e506097523fb990001ccde5ebece07005b73",
+  "optimal_makespan": 5,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_compatible_sets_generated": 5,
+  "oracle_explored_states": 5,
+  "oracle_generated_transitions": 5,
+  "oracle_lower_bound": 5,
+  "oracle_peak_memory_bytes": null,
+  "oracle_peak_states": 5,
+  "oracle_runtime_ms": 0.813600025139749,
+  "oracle_status": "optimal",
+  "oracle_termination_reason": "complete_enumeration",
+  "schema_version": "2.0"
+}

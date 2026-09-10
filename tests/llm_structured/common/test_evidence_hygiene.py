@@ -1,0 +1,37 @@
+"""Evidence hygiene for reusable LLM-structure analysis."""
+
+from __future__ import annotations
+
+from benchmark import Benchmark, SchedulingSemantics, Task
+from core.dag import DAG
+from llm_structured.common.perturb import perturb_durations
+from llm_structured.common.signatures import classify_repetition_evidence
+
+
+def test_duration_perturbation_preserves_scale_and_zero_markers() -> None:
+    dag = DAG('jitter', (Task('compute', 'compute', 10), Task('marker', 'compute', 0)), context=(('category', 'synthetic'),))
+    perturbed = perturb_durations(dag, 0.0, seed=7)
+    assert [task.duration for task in perturbed.tasks] == [10, 0]
+
+
+def test_feature_label_difference_blocks_labelled_twin_certificate() -> None:
+    benchmark = Benchmark(
+        "label_guard",
+        "single_channel",
+        "complex_chain",
+        "real",
+        (
+            Task("a", "compute", 1, metadata={"phase": "forward", "task_role": "F"}),
+            Task("b", "compute", 1, metadata={"phase": "backward", "task_role": "B"}),
+        ),
+        (),
+        semantics=SchedulingSemantics(
+            preemption="communication_resume",
+            decision_epoch="task_event",
+            optional_idle=False,
+            resource_model="exclusive_fixed_set",
+        ),
+        schema_version="2.0",
+    )
+    evidence = classify_repetition_evidence(benchmark)
+    assert evidence.highest_certified_level == "descriptive_motif"

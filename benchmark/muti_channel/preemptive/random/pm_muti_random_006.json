@@ -1,0 +1,311 @@
+{
+  "category": "random",
+  "family": "complex_chain",
+  "id": "pm_muti_random_006",
+  "metadata": {
+    "description": "Random small DAG with branch releases, second flows and a final join.",
+    "generator": "muti_channel",
+    "lifted_from": "muti_random_006",
+    "parameters": {
+      "branches": "5"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": 260821
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:dp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'dp-fabric'"
+      }
+    },
+    {
+      "id": "resource:nic-0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'nic-0'"
+      }
+    },
+    {
+      "id": "resource:nic-1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'nic-1'"
+      }
+    },
+    {
+      "id": "resource:nic-2",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'nic-2'"
+      }
+    },
+    {
+      "id": "resource:pp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'pp-fabric'"
+      }
+    },
+    {
+      "id": "resource:shared-uplink",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'shared-uplink'"
+      }
+    },
+    {
+      "id": "resource:tp-fabric",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'tp-fabric'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "r0",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r0"
+      ],
+      "duration": 4,
+      "id": "c0_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "resource:nic-1",
+        "resource:shared-uplink",
+        "resource:tp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_0"
+      ],
+      "duration": 2,
+      "id": "x0_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "backbone"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "x0_0"
+      ],
+      "duration": 1,
+      "id": "c0_1",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "resource:dp-fabric",
+        "resource:nic-0",
+        "resource:shared-uplink"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "r1",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r1"
+      ],
+      "duration": 3,
+      "id": "c1_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "resource:nic-1",
+        "resource:tp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_0"
+      ],
+      "duration": 2,
+      "id": "x1_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 0,
+      "id": "r2",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r2"
+      ],
+      "duration": 2,
+      "id": "c2_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "dp"
+      },
+      "resources": [
+        "resource:dp-fabric",
+        "resource:nic-1"
+      ]
+    },
+    {
+      "dependencies": [
+        "c2_0"
+      ],
+      "duration": 2,
+      "id": "x2_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "r3",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r3"
+      ],
+      "duration": 1,
+      "id": "c3_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp"
+      },
+      "resources": [
+        "resource:nic-2",
+        "resource:pp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c3_0"
+      ],
+      "duration": 1,
+      "id": "x3_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "r4",
+      "kind": "compute",
+      "metadata": {
+        "role": "release"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "r4"
+      ],
+      "duration": 4,
+      "id": "c4_0",
+      "kind": "communication",
+      "metadata": {
+        "role": "tp"
+      },
+      "resources": [
+        "resource:nic-2",
+        "resource:tp-fabric"
+      ]
+    },
+    {
+      "dependencies": [
+        "c4_0"
+      ],
+      "duration": 4,
+      "id": "x4_0",
+      "kind": "compute",
+      "metadata": {
+        "role": "side"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c0_1",
+        "x1_0"
+      ],
+      "duration": 1,
+      "id": "nested_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "join"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "nested_join",
+        "x2_0",
+        "x3_0",
+        "x4_0"
+      ],
+      "duration": 3,
+      "id": "optimizer_join",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

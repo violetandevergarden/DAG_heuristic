@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "tight_optional_wait_m20",
+  "benchmark_sha256": "d22a96327ad09423224434ea95face22c9c69d269217037cbf02a9dec9e6f819",
+  "optimal_makespan": 22,
+  "oracle": "exact_optional",
+  "schema_version": "1.0"
+}

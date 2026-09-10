@@ -5,30 +5,75 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from benchmark_generate.export import export_suite
+from benchmark_generate.export import build_index, export_semantic_suite
 from benchmark_generate.reference import generate_reference_results
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("all", "random", "reference"))
+    parser.add_argument("command", choices=("all", "random", "reference", "llm"))
     parser.add_argument("--output", type=Path, default=Path("benchmark"))
     parser.add_argument("--samples", type=int, default=10)
     parser.add_argument("--seed", type=int, default=260819)
+    parser.add_argument(
+        "--category",
+        choices=("adversarial", "random", "real", "all"),
+        default="adversarial",
+        help="reference command category selection",
+    )
+    parser.add_argument(
+        "--semantics",
+        choices=("all", "preemptive", "nonpreemptive"),
+        default="all",
+    )
+    parser.add_argument(
+        "--prefix",
+        type=Path,
+        help="reference command path prefix relative to --output",
+    )
+    parser.add_argument(
+        "--skip-reference",
+        action="store_true",
+        help="llm command: skip exact reference generation",
+    )
     args = parser.parse_args()
     if args.samples < 0:
         parser.error("--samples must be non-negative")
+    if args.command == "llm":
+        import sys
+
+        from benchmark_generate.llm.preemptive.corpus import main as llm_main
+
+        llm_main(sys.argv[2:])
+        return
     if args.command == "reference":
-        written = generate_reference_results(args.output)
-        print(f"generated {len(written)} exact reference files under {args.output / 'reference_results'}")
+        written = generate_reference_results(
+            args.output,
+            category=None if args.category == "all" else args.category,
+            relative_prefix=args.prefix,
+        )
+        print(
+            f"generated {len(written)} exact reference files under {args.output / 'reference_results'}"
+        )
         return
     categories = {"random"} if args.command == "random" else None
-    rows = export_suite(
-        args.output,
-        samples=args.samples,
-        seed=args.seed,
-        categories=categories,
-    )
+    if args.semantics in {"all", "nonpreemptive"}:
+        export_semantic_suite(
+            args.output,
+            semantics="nonpreemptive",
+            samples=args.samples,
+            seed=args.seed,
+            categories=categories,
+        )
+    if args.semantics in {"all", "preemptive"}:
+        export_semantic_suite(
+            args.output,
+            semantics="preemptive",
+            samples=args.samples,
+            seed=args.seed,
+            categories=categories,
+        )
+    rows = build_index(args.output)
     if args.command == "random":
         # The complete index is retained so references remain self-describing;
         # callers can select category=random without invoking algorithm code.

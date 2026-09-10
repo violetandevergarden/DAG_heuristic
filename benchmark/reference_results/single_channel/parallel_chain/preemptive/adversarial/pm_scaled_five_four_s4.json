@@ -1,0 +1,7 @@
+{
+  "benchmark_id": "pm_scaled_five_four_s4",
+  "benchmark_sha256": "48a029f6ea19b30a7eb8c8d8abe7ed8d6083e69fc920df465ef76c267367c8cd",
+  "optimal_makespan": 33,
+  "oracle": "exact",
+  "schema_version": "2.0"
+}

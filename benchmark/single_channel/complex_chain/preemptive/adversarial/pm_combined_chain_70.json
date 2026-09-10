@@ -1,0 +1,149 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_combined_chain_70",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "Compact-chain replay DAG.",
+    "generator": "complex_chain",
+    "lifted_from": "combined_chain_70",
+    "parameters": {},
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "c0_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c0_flow0"
+      ],
+      "duration": 3,
+      "id": "c0_compute0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "c1_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow0"
+      ],
+      "duration": 5,
+      "id": "c1_compute0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c1_compute0"
+      ],
+      "duration": 1,
+      "id": "c1_flow1",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow1"
+      ],
+      "duration": 3,
+      "id": "c1_compute1",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "c1_compute1"
+      ],
+      "duration": 2,
+      "id": "c1_flow2",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c1_flow2"
+      ],
+      "duration": 3,
+      "id": "c1_compute2",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "c2_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c2_flow0"
+      ],
+      "duration": 2,
+      "id": "c2_compute0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "c3_flow0",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "c3_flow0"
+      ],
+      "duration": 3,
+      "id": "c3_compute0",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

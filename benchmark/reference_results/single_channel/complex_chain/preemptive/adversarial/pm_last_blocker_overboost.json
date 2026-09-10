@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_last_blocker_overboost",
+  "benchmark_sha256": "1e9dfa568ce05ce302fab30db5e2a6cd399458727f3ce5fbfeb9ba54a2e2a1cc",
+  "optimal_makespan": 20,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 29,
+  "oracle_runtime_ms": 20.773899974301457,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

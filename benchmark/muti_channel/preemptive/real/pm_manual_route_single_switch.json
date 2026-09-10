@@ -1,0 +1,227 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "pm_manual_route_single_switch",
+  "metadata": {
+    "description": "Small route instance produced through TopologyLoader-compatible BFS.",
+    "generator": "manual_route_cases",
+    "parameters": {},
+    "preemption_granularity": "each communication node is one resumable logical transfer",
+    "projection_equivalence": "structure-preserving synthetic topology snapshot; not a measured runtime trace",
+    "route_freezing": "TopologyLoader-compatible BFS path to directed-link and endpoint NIC resource sets",
+    "topology_source": "transparent fixed manual topology fixture"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "link:0->8",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(0, 8)"
+      }
+    },
+    {
+      "id": "link:2->8",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(2, 8)"
+      }
+    },
+    {
+      "id": "link:4->8",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(4, 8)"
+      }
+    },
+    {
+      "id": "link:6->8",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(6, 8)"
+      }
+    },
+    {
+      "id": "link:8->1",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(8, 1)"
+      }
+    },
+    {
+      "id": "link:8->3",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(8, 3)"
+      }
+    },
+    {
+      "id": "link:8->5",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(8, 5)"
+      }
+    },
+    {
+      "id": "link:8->7",
+      "kind": "directed_link",
+      "metadata": {
+        "source_repr": "(8, 7)"
+      }
+    },
+    {
+      "id": "nic_rx:1",
+      "kind": "nic_rx",
+      "metadata": {
+        "source_repr": "('nic_rx', 1)"
+      }
+    },
+    {
+      "id": "nic_rx:3",
+      "kind": "nic_rx",
+      "metadata": {
+        "source_repr": "('nic_rx', 3)"
+      }
+    },
+    {
+      "id": "nic_rx:5",
+      "kind": "nic_rx",
+      "metadata": {
+        "source_repr": "('nic_rx', 5)"
+      }
+    },
+    {
+      "id": "nic_rx:7",
+      "kind": "nic_rx",
+      "metadata": {
+        "source_repr": "('nic_rx', 7)"
+      }
+    },
+    {
+      "id": "nic_tx:0",
+      "kind": "nic_tx",
+      "metadata": {
+        "source_repr": "('nic_tx', 0)"
+      }
+    },
+    {
+      "id": "nic_tx:2",
+      "kind": "nic_tx",
+      "metadata": {
+        "source_repr": "('nic_tx', 2)"
+      }
+    },
+    {
+      "id": "nic_tx:4",
+      "kind": "nic_tx",
+      "metadata": {
+        "source_repr": "('nic_tx', 4)"
+      }
+    },
+    {
+      "id": "nic_tx:6",
+      "kind": "nic_tx",
+      "metadata": {
+        "source_repr": "('nic_tx', 6)"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "f1",
+      "kind": "communication",
+      "resources": [
+        "link:0->8",
+        "link:8->1",
+        "nic_rx:1",
+        "nic_tx:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f1"
+      ],
+      "duration": 5,
+      "id": "tail1",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 3,
+      "id": "f2",
+      "kind": "communication",
+      "resources": [
+        "link:2->8",
+        "link:8->3",
+        "nic_rx:3",
+        "nic_tx:2"
+      ]
+    },
+    {
+      "dependencies": [
+        "f2"
+      ],
+      "duration": 4,
+      "id": "tail2",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f3",
+      "kind": "communication",
+      "resources": [
+        "link:4->8",
+        "link:8->5",
+        "nic_rx:5",
+        "nic_tx:4"
+      ]
+    },
+    {
+      "dependencies": [
+        "f3"
+      ],
+      "duration": 3,
+      "id": "tail3",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "f4",
+      "kind": "communication",
+      "resources": [
+        "link:6->8",
+        "link:8->7",
+        "nic_rx:7",
+        "nic_tx:6"
+      ]
+    },
+    {
+      "dependencies": [
+        "f4"
+      ],
+      "duration": 2,
+      "id": "tail4",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_w_dp_optimizer_join",
+  "benchmark_sha256": "413b39eec7419ab13bd5e0a7f7718aed508ad9195676a436f0a0c49940142fd5",
+  "optimal_makespan": 9,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 14,
+  "oracle_runtime_ms": 5.828400026075542,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

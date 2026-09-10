@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_deferred_w_competition",
+  "benchmark_sha256": "0063fbe28a15700f5668b2fc9b4374a714798550fb7f2bcaf8e614ebd21d4993",
+  "optimal_makespan": 9,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 10,
+  "oracle_runtime_ms": 3.681299975141883,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

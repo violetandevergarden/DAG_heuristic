@@ -1,0 +1,14 @@
+{
+  "benchmark_id": "pm_stage2_nested_barrier",
+  "benchmark_sha256": "ef9ef3cfd32c3da459e3f64e225be0189243480c7bc4653d56edd921ab1151df",
+  "optimal_makespan": 14,
+  "oracle": "exact",
+  "oracle_budget": {
+    "max_states": 100000,
+    "time_limit_s": 5.0
+  },
+  "oracle_explored_states": 21,
+  "oracle_runtime_ms": 9.89549997029826,
+  "oracle_status": "optimal",
+  "schema_version": "2.0"
+}

@@ -5,13 +5,14 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dag-heuristic"
 version = "0.1.0"
-description = "Language-independent DAG scheduling benchmarks and non-preemptive heuristics"
+description = "Communication scheduling for LLM training DAGs"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.9"]
+integration = ["jsonschema>=4"]
 
 [project.scripts]
 dag-schedule = "cli:main"
@@ -22,12 +23,19 @@ py-modules = ["cli", "registry"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["benchmark*", "core*", "single_channel*", "muti_channel*"]
+include = ["benchmark*", "core*", "single_channel*", "muti_channel*", "llm_structured*"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", ".", ".."]
+pythonpath = ["src", ".", "tests", ".."]
 testpaths = ["tests"]
-markers = ["simai: requires the optional SimAI integration checkout"]
+markers = [
+    "integration: cross-module tests using optional integration fixtures",
+    "simai: requires the optional SimAI integration checkout",
+    "full_corpus: publish-level validation that scans the complete benchmark corpus",
+    "oracle_full: publish-level Exact/reference recomputation",
+    "experiment_reproduction: frozen experiment matrix reproduction",
+]
+addopts = "-m 'not full_corpus and not oracle_full and not experiment_reproduction'"
 
 [tool.ruff]
 target-version = "py311"

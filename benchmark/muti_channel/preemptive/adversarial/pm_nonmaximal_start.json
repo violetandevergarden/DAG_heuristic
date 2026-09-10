@@ -1,0 +1,89 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_nonmaximal_start",
+  "metadata": {
+    "description": "Non-maximal start protects a future critical flow.",
+    "generator": "muti_channel",
+    "lifted_from": "nonmaximal_start_np",
+    "parameters": {},
+    "preemptive_generator_seed": 260819,
+    "seed": null
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:r0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "release_c",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 4,
+      "id": "a",
+      "kind": "communication",
+      "resources": [
+        "resource:r0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 5,
+      "id": "b",
+      "kind": "communication",
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "release_c"
+      ],
+      "duration": 1,
+      "id": "c",
+      "kind": "communication",
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "c"
+      ],
+      "duration": 6,
+      "id": "c_tail",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

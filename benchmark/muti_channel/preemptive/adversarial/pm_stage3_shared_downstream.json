@@ -1,0 +1,122 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage3_shared_downstream",
+  "metadata": {
+    "description": "Two compatible branches share a downstream barrier that must be counted once per set.",
+    "generator": "stage3_structural_adversarial_cases",
+    "parameters": {
+      "attack_target": "shared_downstream_set_double_count",
+      "mechanism": "compatible_roots_share_one_reachable_barrier",
+      "semantic_scope": "fixed_resource_preemptive"
+    },
+    "semantic_scope": "fixed_resource_preemptive"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "resource:r0",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r0'"
+      }
+    },
+    {
+      "id": "resource:r1",
+      "kind": "exclusive",
+      "metadata": {
+        "source_repr": "'r1'"
+      }
+    }
+  ],
+  "scenario": "muti_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "left",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r0"
+      ]
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "right",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "left"
+      ],
+      "duration": 2,
+      "id": "left_compute",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "right"
+      ],
+      "duration": 2,
+      "id": "right_compute",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "left_compute",
+        "right_compute"
+      ],
+      "duration": 5,
+      "id": "shared_barrier",
+      "kind": "compute",
+      "metadata": {
+        "role": "barrier"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "shared_barrier"
+      ],
+      "duration": 2,
+      "id": "final",
+      "kind": "communication",
+      "resources": [
+        "resource:r0",
+        "resource:r1"
+      ]
+    },
+    {
+      "dependencies": [
+        "final"
+      ],
+      "duration": 2,
+      "id": "sink",
+      "kind": "compute",
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

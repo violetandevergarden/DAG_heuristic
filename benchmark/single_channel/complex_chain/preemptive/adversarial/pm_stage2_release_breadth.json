@@ -1,0 +1,110 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_stage2_release_breadth",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "A short fork communication releases two computes while a longer-tail path competes.",
+    "designed_for": "communication_resume",
+    "generator": "complex_chain",
+    "parameters": {
+      "attack_target": "immediate_release_vs_tail"
+    },
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": "preemptive_only",
+    "stage2_group": "structural_adversarial"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "release",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "release"
+      ],
+      "duration": 5,
+      "id": "left",
+      "kind": "compute",
+      "metadata": {
+        "role": "fork_branch"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "release"
+      ],
+      "duration": 5,
+      "id": "right",
+      "kind": "compute",
+      "metadata": {
+        "role": "fork_branch"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "blocker",
+      "kind": "communication",
+      "metadata": {
+        "role": "attack_decision"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "blocker"
+      ],
+      "duration": 6,
+      "id": "blocker_tail",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "left",
+        "right",
+        "blocker_tail"
+      ],
+      "duration": 1,
+      "id": "barrier",
+      "kind": "compute",
+      "metadata": {
+        "role": "barrier"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

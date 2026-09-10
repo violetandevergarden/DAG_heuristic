@@ -1,0 +1,100 @@
+{
+  "category": "adversarial",
+  "family": "complex_chain",
+  "id": "pm_fork_multi_unlock",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "One small flow releases several compute branches before a final join.",
+    "generator": "complex_chain",
+    "lifted_from": "fork_multi_unlock",
+    "parameters": {},
+    "preemptive_generator_seed": 260819,
+    "seed": null,
+    "semantic_scope": null,
+    "stage2_group": "legacy"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "fork_flow",
+      "kind": "communication",
+      "metadata": {
+        "role": "fork"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 3,
+      "id": "branch0",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 4,
+      "id": "branch1",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "fork_flow"
+      ],
+      "duration": 5,
+      "id": "branch2",
+      "kind": "compute",
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 6,
+      "id": "large_side_flow",
+      "kind": "communication",
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "branch0",
+        "branch1",
+        "branch2",
+        "large_side_flow"
+      ],
+      "duration": 1,
+      "id": "join",
+      "kind": "compute",
+      "metadata": {
+        "role": "join"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}

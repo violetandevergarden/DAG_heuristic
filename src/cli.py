@@ -33,6 +33,7 @@ def main() -> None:
         raise TypeError("algorithm result must expose integer makespan")
     report = {
         "benchmark_id": benchmark.benchmark_id,
+        "semantics": benchmark.semantics.preemption,
         "algorithm": args.algorithm,
         "makespan": makespan,
         "runtime_ms": (perf_counter() - started) * 1000,

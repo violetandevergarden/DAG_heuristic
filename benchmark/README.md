@@ -2,7 +2,7 @@
 
 `benchmark/` 保存可由 Python、C++ 或其它语言直接读取的调度问题。每个 JSON 都是完整、自包含的 DAG；使用数据不需要安装本仓库的算法，也不需要 SimAI。
 
-本 README 同时是数据集说明和 v1 格式规范。机器可读的基础约束见 `schema/dag-benchmark-v1.schema.json`。
+本 README 同时是数据集说明和格式规范。v1 描述不可抢占模型，v2 描述通信可暂停恢复模型；机器可读约束分别见 `schema/dag-benchmark-v1.schema.json` 和 `schema/dag-benchmark-v2.schema.json`。
 
 ## 目录结构
 
@@ -10,20 +10,12 @@
 benchmark/
 ├── index.jsonl
 ├── schema/
-│   └── dag-benchmark-v1.schema.json
+│   ├── dag-benchmark-v1.schema.json
+│   └── dag-benchmark-v2.schema.json
 ├── single_channel/
-│   ├── parallel_chain/
-│   │   ├── random/
-│   │   ├── adversarial/
-│   │   └── real/
-│   └── complex_chain/
-│       ├── random/
-│       ├── adversarial/
-│       └── real/
-├── muti_channel/
-│   ├── random/
-│   ├── adversarial/
-│   └── real/
+│   ├── parallel_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+│   └── complex_chain/{preemptive,nonpreemptive}/{random,adversarial,real}/
+├── muti_channel/{preemptive,nonpreemptive}/{random,adversarial,real}/
 └── reference_results/
     ├── single_channel/
     │   ├── parallel_chain/adversarial/
@@ -45,7 +37,13 @@ benchmark/
 
 ### `muti_channel`
 
-一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；一条通信开始后持续占用全部所需资源直到完成。
+一般 DAG 中的 communication 可以占用一个或多个固定排他资源，例如 link、NIC 或共享上行链路。资源集合不相交的通信可以并行；v1 通信开始后持续占用资源直到完成，v2 每个暂停/恢复服务区间都同时获取和释放完整固定资源集合。
+
+### `preemptive` / `nonpreemptive` 语义分支
+
+规范布局在每个 family 下并列放置 `preemptive` 与 `nonpreemptive`。前者是 active v2，后者是 maintenance v1；路径分支与 JSON semantics 必须一致。
+
+每个 family 下都有显式的 `preemptive` 与 `nonpreemptive` 分支。前者是当前 active v2 通信暂停/恢复语义，后者是 maintenance v1 不可抢占语义；路径与 JSON semantics 必须一致。
 
 ## 数据分类
 
@@ -57,14 +55,19 @@ benchmark/
 
 ## 当前数据规模
 
-当前共有 75 个问题：
+数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/benchmark/test_loader_and_schema.py` 与 `tests/benchmark/test_layout.py` 断言锁定。统计日期为 2026-09-09；当前共 290 个问题。各语义 LLM 语料的细分数量由对应 `manifest.jsonl` 和审计命令生成，不在 README 中手工维护。
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
-| `single_channel/parallel_chain` | 10 | 13 | 2 | 25 |
-| `single_channel/complex_chain` | 10 | 16 | 7 | 33 |
-| `muti_channel` | 10 | 4 | 3 | 17 |
-| 总计 | 30 | 33 | 12 | 75 |
+| `single_channel/parallel_chain/nonpreemptive` | 10 | 13 | 2 | 25 |
+| `single_channel/complex_chain/nonpreemptive` | 10 | 16 | 7 | 33 |
+| `muti_channel/nonpreemptive` | 10 | 4 | 3 | 17 |
+| `single_channel/parallel_chain/preemptive` | 10 | 14 | 5 | 29 |
+| `single_channel/complex_chain/preemptive` | 20 | 22 | 35 | 77 |
+| `muti_channel/preemptive` | 10 | 9 | 15 | 34 |
+| 总计 | 70 | 78 | 142 | 290 |
+
+其中 `benchmark/llm_structure/` 下的正式语料按语义分目录；`single_channel` 表示单通道，`fixed_multi_resource/<topology_tag>` 表示固定多资源，`multi_iteration`、`multi_job`、`decision_slices` 和 `examples` 分别表示独立的数据用途。执行 `python -m experiments.llm_structure.shared.benchmark_layout_audit` 可从 index 和两个 manifest 生成当前统计。
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 
@@ -176,6 +179,8 @@ v1 不允许未知顶层字段。增加可选 metadata 不需要提高 major ver
 
 ## 调度语义
 
+### v1：不可抢占
+
 - compute 和 communication 都不可抢占，开始后必须连续执行到完成。
 - `dependencies` 是 finish-to-start 依赖。
 - ready compute 自动开始；有限 GPU 串行关系应已经表示为 DAG 边。
@@ -186,6 +191,32 @@ v1 不允许未知顶层字段。增加可选 metadata 不需要提高 major ver
 - v1 使用整数时间；compute 可以为零，communication 必须大于零。
 
 这里研究的是任务开始顺序，不是可抢占带宽分片，也不是连续带宽比例分配。
+
+### v2：通信暂停与恢复
+
+v2 保持同一 DAG、finish-to-start 依赖、自动启动 compute 和固定资源集合，但只允许 communication 暂停：
+
+- compute 一旦开始仍连续运行到完成；
+- communication 被调度后运行到自身完成或下一个 compute 完成事件；
+- 在事件处可继续原通信，或暂停后切换到另一个 eligible 通信；存在 eligible 时禁止主动 WAIT；
+- 暂停立即释放 channel，恢复时沿原固定资源集合继续剩余工作；
+- 当前 `preemption_cost=0`、`minimum_quantum=0`，不模拟迁移、重路由或按比例共享带宽；
+- 多资源实现选择 inclusion-maximal、固定资源集合互不相交的通信集合并行推进；暂停会同时释放该通信的全部资源；
+- 没有 eligible communication 时由模拟器 forced idle 到下一个 compute/job 事件，不产生 scheduler 动作。
+
+```json
+"semantics": {
+  "preemption": "communication_resume",
+  "decision_epoch": "task_event",
+  "optional_idle": false,
+  "compute_model": "unbounded_parallel",
+  "resource_model": "exclusive_fixed_set",
+  "preemption_cost": 0,
+  "minimum_quantum": 0
+}
+```
+
+`task_event` 在当前实现中指 communication 完成或 compute 完成形成的离散决策点。`optional_idle=false` 表示 scheduler 不可主动等待，并不禁止依赖造成的 forced idle。Python loader 可读取早期错误写成 `true` 的 v2 快照，但会立即规范化为 `false`；重新写出时只产生规范格式。一次通信可以对应多个执行区间，但这些区间长度之和必须等于其 `duration`。多资源版本同样按事件推进，不允许重路由或只保留部分资源。
 
 ## 使用数据
 
@@ -199,7 +230,7 @@ $env:PYTHONPATH="src;."
 from benchmark import load_benchmark
 
 case = load_benchmark(
-    "benchmark/single_channel/complex_chain/adversarial/random_join_30.json"
+    "benchmark/single_channel/complex_chain/nonpreemptive/adversarial/random_join_30.json"
 )
 print(case.benchmark_id, len(case.tasks))
 ```
@@ -209,18 +240,20 @@ C++ 或其它语言可以直接按照本 README 和 JSON Schema 实现 Loader，
 运行仓库算法：
 
 ```powershell
-python src/cli.py benchmark/muti_channel/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
+python src/cli.py benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_start_np.json --algorithm rollout_optional2
 ```
 
 ## `index.jsonl`
 
-索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category` 和问题文件 SHA-256。
+布局 v2 索引显式包含 `semantics` 和 `layout_version`。历史路径迁移表已退出正式 benchmark 根目录，逐文件映射由 Git 历史保存。
+
+索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category`、`semantics`、`layout_version` 和问题文件 SHA-256。`benchmark/llm_structure/<semantics>/manifest.jsonl` 另外用 `collection` 区分 `canonical`（正式回归）、`scale`（规模或多 iteration）和 `example`（示例投影），并记录对应语义 corpus 的来源、竞争证据和发布状态；`experiments/**/manifests/*.jsonl` 只记录某次实验的输入选择，三者不互相替代。
 
 使用者可以读取索引遍历数据集，不必自己扫描目录。问题文件变化后必须更新索引，避免缓存或实验结果继续引用旧内容。
 
 ## 精确参考结果
 
-`reference_results/` 镜像问题文件相对路径，只保存答案，不重复保存 DAG。当前 33 个 adversarial 小图都有 reference：
+`reference_results/` 镜像问题文件相对路径，只保存答案，不重复保存 DAG。当前有 66 个 reference：33 个 v1 adversarial 与 33 个 v2 adversarial；其余 1 个 v2 adversarial `pm_fixed_beam_counterexample` 在固定预算内超时：
 
 ```json
 {
@@ -247,7 +280,7 @@ python -m benchmark_generate reference --output benchmark
 手工添加 JSON 时：
 
 1. 选择正确的场景和 category。
-2. 遵循本 README 中的 v1 格式，明确时间单位、依赖和资源。
+2. 按目标语义选择 v1 或 v2，明确时间单位、依赖和资源。
 3. 用 Python Loader 验证文件。
 4. 更新 `index.jsonl`。
 5. adversarial 小图应重算 reference；random 和大型 real 图通常不生成 exact 标签。
@@ -265,7 +298,7 @@ python -m benchmark_generate reference --output benchmark
 
 ## 格式兼容性
 
-- v1 reader 必须拒绝未知 major version，不能静默猜测新格式语义。
+- reader 必须拒绝未知 major version，不能静默猜测新格式语义。
 - JSON 文件统一使用 UTF-8；仓库生成器使用稳定 key 排序和 LF 换行。
 - ID 比较区分大小写。
 - JSON Schema 负责字段类型和枚举等机器可读约束；DAG 无环、依赖存在以及 parallel-chain 结构仍需 Loader 做语义检查。

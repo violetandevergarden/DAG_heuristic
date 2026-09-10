@@ -1,0 +1,204 @@
+{
+  "category": "real",
+  "family": "complex_chain",
+  "id": "pm_zb_bw_fork",
+  "metadata": {
+    "canonical_form": "raw_general_dag",
+    "description": "B and W fork from grad-output readiness.",
+    "generator": "complex_chain",
+    "lifted_from": "zb_bw_fork",
+    "parameters": {
+      "microbatches": "3"
+    },
+    "preemption_granularity": "each communication node is one resumable logical transfer",
+    "preemptive_generator_seed": 260819,
+    "projection_equivalence": "structure-preserving synthetic motif; not a measured runtime trace",
+    "seed": null,
+    "semantic_scope": null,
+    "single_channel_projection": "all logical transfers share one unit-capacity channel",
+    "stage2_group": "structured"
+  },
+  "objective": "makespan",
+  "resources": [
+    {
+      "id": "channel:0",
+      "kind": "channel"
+    }
+  ],
+  "scenario": "single_channel",
+  "schema_version": "2.0",
+  "semantics": {
+    "compute_model": "unbounded_parallel",
+    "decision_epoch": "task_event",
+    "minimum_quantum": 0,
+    "optional_idle": false,
+    "preemption": "communication_resume",
+    "preemption_cost": 0,
+    "resource_model": "exclusive_fixed_set"
+  },
+  "tasks": [
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f2",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 1,
+      "id": "grad2",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp_grad"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f2",
+        "grad2"
+      ],
+      "duration": 3,
+      "id": "b2",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f2",
+        "grad2"
+      ],
+      "duration": 2,
+      "id": "w2",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f1",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b2"
+      ],
+      "duration": 1,
+      "id": "grad1",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp_grad"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f1",
+        "grad1"
+      ],
+      "duration": 3,
+      "id": "b1",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f1",
+        "grad1"
+      ],
+      "duration": 2,
+      "id": "w1",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [],
+      "duration": 2,
+      "id": "f0",
+      "kind": "compute",
+      "metadata": {
+        "role": "f"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "b1"
+      ],
+      "duration": 1,
+      "id": "grad0",
+      "kind": "communication",
+      "metadata": {
+        "role": "pp_grad"
+      },
+      "resources": [
+        "channel:0"
+      ]
+    },
+    {
+      "dependencies": [
+        "f0",
+        "grad0"
+      ],
+      "duration": 3,
+      "id": "b0",
+      "kind": "compute",
+      "metadata": {
+        "role": "b"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "f0",
+        "grad0"
+      ],
+      "duration": 2,
+      "id": "w0",
+      "kind": "compute",
+      "metadata": {
+        "role": "w"
+      },
+      "resources": []
+    },
+    {
+      "dependencies": [
+        "w2",
+        "w1",
+        "w0"
+      ],
+      "duration": 1,
+      "id": "optimizer",
+      "kind": "compute",
+      "metadata": {
+        "role": "optimizer"
+      },
+      "resources": []
+    }
+  ],
+  "time_unit": "tick"
+}
