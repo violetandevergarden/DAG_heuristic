@@ -121,7 +121,7 @@ def test_publish_rolls_back_after_index_failure(monkeypatch: pytest.MonkeyPatch)
     active.mkdir(parents=True)
     marker = active / "active-marker.txt"
     marker.write_text("old-corpus", encoding="utf-8")
-    (llm_root / "manifest.jsonl").write_text("old-manifest\n", encoding="utf-8")
+    (llm_root / "preemptive" / "manifest.jsonl").write_text("old-manifest\n", encoding="utf-8")
     (root / "index.jsonl").write_text("old-index\n", encoding="utf-8")
 
     staging = llm_root / ".staging" / "run-test"
@@ -131,7 +131,7 @@ def test_publish_rolls_back_after_index_failure(monkeypatch: pytest.MonkeyPatch)
     write_benchmark(benchmark, candidate)
     row = {
         "benchmark_id": benchmark.benchmark_id,
-        "path": "preemptive/case.json",
+        "path": "case.json",
         "benchmark_content_hash": hashlib.sha256(candidate.read_bytes()).hexdigest(),
         "status": "generated",
     }
@@ -143,7 +143,7 @@ def test_publish_rolls_back_after_index_failure(monkeypatch: pytest.MonkeyPatch)
     with pytest.raises(RuntimeError, match="injected index failure"):
         publish(root, staging=staging, replace_active=True)
     assert marker.read_text(encoding="utf-8") == "old-corpus"
-    assert (llm_root / "manifest.jsonl").read_text(encoding="utf-8") == "old-manifest\n"
+    assert (llm_root / "preemptive" / "manifest.jsonl").read_text(encoding="utf-8") == "old-manifest\n"
     assert (root / "index.jsonl").read_text(encoding="utf-8") == "old-index\n"
     shutil.rmtree(root.parent, ignore_errors=True)
     active = root / "llm_structure" / "preemptive"
@@ -158,7 +158,7 @@ def test_publish_rolls_back_after_index_failure(monkeypatch: pytest.MonkeyPatch)
     write_benchmark(benchmark, candidate)
     row = {
         "benchmark_id": benchmark.benchmark_id,
-        "path": "preemptive/case.json",
+        "path": "case.json",
         "benchmark_content_hash": "0" * 64,
         "status": "generated",
     }

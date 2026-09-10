@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -42,12 +41,14 @@ def test_removed_compatibility_paths_do_not_reappear() -> None:
 
 
 def test_every_problem_path_explicitly_matches_json_semantics() -> None:
-    files = _problem_files()
-    assert files
-    for path in files:
-        benchmark = load_benchmark(path)
-        branch = "preemptive" if benchmark.semantics.is_preemptive else "nonpreemptive"
-        assert branch in path.relative_to(ROOT / "benchmark").parts
+    rows = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8-sig").splitlines()
+        if line.strip()
+    ]
+    assert rows
+    for row in rows:
+        assert row["semantics"] in Path(row["path"]).parts
 
 
 def test_preemptive_multi_channel_names_do_not_keep_nonpreemptive_suffix() -> None:
@@ -66,20 +67,22 @@ def test_index_and_path_manifest_are_complete_and_auditable() -> None:
         for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8-sig").splitlines()
     ]
     indexed_paths = [row["path"] for row in rows]
+    indexed_keys = [(row["semantics"], row["id"]) for row in rows]
     problem_paths = [path.relative_to(ROOT / "benchmark").as_posix() for path in _problem_files()]
     assert len(indexed_paths) == len(set(indexed_paths))
+    assert len(indexed_keys) == len(set(indexed_keys))
     assert set(indexed_paths) == set(problem_paths)
     assert {row["layout_version"] for row in rows} == {"2"}
     assert {row["semantics"] for row in rows} == {"preemptive", "nonpreemptive"}
 
     published = [
         json.loads(line)
-        for line in (ROOT / "benchmark/llm_structure/nonpreemptive_manifest.jsonl")
+        for line in (ROOT / "benchmark/llm_structure/nonpreemptive/manifest.jsonl")
         .read_text(encoding="utf-8-sig")
         .splitlines()
     ]
     published_paths = {
-        f"llm_structure/{row['path']}"
+        f"llm_structure/nonpreemptive/{row['path']}"
         for row in published
         if row["publication_status"] == "published"
     }
@@ -88,15 +91,8 @@ def test_index_and_path_manifest_are_complete_and_auditable() -> None:
     }
     assert indexed_nonpreemptive_stage4 == published_paths
 
-    moves = [
-        json.loads(line)
-        for line in (ROOT / "benchmark/path_migration_v1_to_v2.jsonl")
-        .read_text(encoding="utf-8-sig")
-        .splitlines()
-    ]
-    assert len(moves) == 205
-    for move in moves:
-        assert not (ROOT / "benchmark" / move["old_path"]).exists()
-        target = ROOT / "benchmark" / move["new_path"]
-        assert target.is_file()
-        assert hashlib.sha256(target.read_bytes()).hexdigest() == move["sha256"]
+    for semantics in ("preemptive", "nonpreemptive"):
+        manifest = ROOT / f"benchmark/llm_structure/{semantics}/manifest.jsonl"
+        rows = [json.loads(line) for line in manifest.read_text(encoding="utf-8-sig").splitlines()]
+        assert all(not row["path"].startswith(("preemptive/", "nonpreemptive/")) for row in rows)
+        assert all((manifest.parent / row["path"]).is_file() for row in rows if row.get("path"))

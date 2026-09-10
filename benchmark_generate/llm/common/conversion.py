@@ -545,7 +545,7 @@ def build_corpus(
             _try_add(cases, target, skipped, spec, on_case, on_error)
         for benchmark in example_cases().values():
             cases.append(benchmark)
-            relative = Path("simai_examples") / f"{benchmark.benchmark_id}.json"
+            relative = Path("examples") / f"{benchmark.benchmark_id}.json"
             target[benchmark.benchmark_id] = relative
             if on_case is not None:
                 on_case(benchmark, relative)
@@ -577,11 +577,11 @@ def _try_add(
     actual_id = benchmark.benchmark_id
     cases.append(benchmark)
     if spec.get("topology"):
-        relative = Path("routed") / spec["topology"] / f"{actual_id}.json"
+        relative = Path("fixed_multi_resource") / spec["topology"] / f"{actual_id}.json"
     elif spec.get("iterations", 1) > 1:
         relative = Path("multi_iteration") / f"{actual_id}.json"
     else:
-        relative = Path("unified") / f"{actual_id}.json"
+        relative = Path("single_channel") / f"{actual_id}.json"
     target[actual_id] = relative
     if on_case is not None:
         on_case(benchmark, relative)

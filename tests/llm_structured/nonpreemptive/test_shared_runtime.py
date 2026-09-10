@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from benchmark import load_benchmark
 from experiments.llm_structure.nonpreemptive.foundation.runtime_diagnosis import run
 from llm_structured.nonpreemptive.baseline import replay
@@ -16,6 +18,7 @@ def test_stage4_compatibility_modules_reexport_the_only_baseline_implementation(
     assert rollout is canonical
 
 
+@pytest.mark.experiment_reproduction
 def test_thirty_real_small_graphs_match_frozen_result_makespan_and_trace_hash():
     import json
 

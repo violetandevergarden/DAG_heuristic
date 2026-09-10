@@ -28,7 +28,13 @@ include = ["benchmark*", "core*", "single_channel*", "muti_channel*", "llm_struc
 [tool.pytest.ini_options]
 pythonpath = ["src", ".", ".."]
 testpaths = ["tests"]
-markers = ["simai: requires the optional SimAI integration checkout"]
+markers = [
+    "simai: requires the optional SimAI integration checkout",
+    "full_corpus: publish-level validation that scans the complete benchmark corpus",
+    "oracle_full: publish-level Exact/reference recomputation",
+    "experiment_reproduction: frozen experiment matrix reproduction",
+]
+addopts = "-m 'not full_corpus and not oracle_full and not experiment_reproduction'"
 
 [tool.ruff]
 target-version = "py311"

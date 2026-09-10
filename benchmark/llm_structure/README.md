@@ -1,7 +1,6 @@
 # LLM 结构化 benchmark 语料（真实 AICB + 固定拓扑投影）
 
-本目录冻结由真实 LLM 训练 workload 生成的预抢占 DAG benchmark。全部文件为
-schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定排他资源集合）。
+本目录冻结由真实 LLM 训练 workload 生成的可抢占与不可抢占 DAG benchmark。两种语义各自独立，具体字段和研究边界以对应 manifest 与 Stage 4 文档为准。
 共同语义与全局边界见 `docs/plan_docs/stage4_LLM_search.md`。
 
 ## 来源
@@ -19,20 +18,27 @@ schema-v2 语义（`communication_resume`、task-event、无主动 WAIT、固定
 - DP 重写：Mixtral AICB 网格原生 `dp = all_gpus/(tp*pp) = 1`。带 `_dpN` 后缀的
   benchmark 通过重写 astra-sim header 的 `all_gpus` 字段（world size = tp*pp*dp）
   把同一份真实逐层数据投射到更大世界规模；重写操作记录在 provenance/transform_log。
-- `simai_examples/`：SimAI 自带示例 workload 的 1:1 投影（标注为 example，非生产 trace）。
+- `examples/`：SimAI 自带示例 workload 的 1:1 投影（标注为 example，非生产 trace）。
 
 ## 布局
 
 ```text
 llm_structure/
 ├── README.md
-├── manifest.jsonl                # v3：转换/竞争证据/发布状态分离
 ├── preemptive/
-│   ├── unified/                  # 单通道统一瓶颈变体
-│   ├── routed/<topology_tag>/    # 路由冻结多资源变体（含生产/实验拓扑分级）
+│   ├── manifest.jsonl
+│   ├── provenance/{source_catalog,topology_catalog,run_metadata}.jsonl
+│   ├── single_channel/           # 单通道变体
+│   ├── fixed_multi_resource/<topology_tag>/
+│   ├── examples/
 │   ├── multi_iteration/          # 多 iteration 单 job 变体
-│   └── simai_examples/
-└── nonpreemptive/                # 留空占位
+└── nonpreemptive/
+    ├── manifest.jsonl
+    ├── provenance/{source_catalog,topology_catalog,run_metadata}.jsonl
+    ├── single_channel/
+    ├── fixed_multi_resource/
+    ├── decision_slices/
+    └── multi_job/
 ```
 
 文件命名：`mixtral8x7b_ws16_tp8_pp2_ep1_dp1_gbs8_mbs2.json`（可选
@@ -86,5 +92,5 @@ python -m benchmark_generate.llm.corpus --mode probe --output benchmark --fast
 python -m benchmark_generate.llm.corpus --mode publish --output benchmark
 ```
 
-事务入口在 `benchmark_generate/llm/corpus.py`；转换逻辑在 `benchmark_generate/llm_structure.py`。
+事务入口在 `benchmark_generate.llm.preemptive.corpus` 和 `benchmark_generate.llm.nonpreemptive.corpus`；共享转换代码位于 `benchmark_generate/llm/common/`。
 不要手工编辑本目录 JSON；要改就改生成器后重新冻结。

@@ -12,7 +12,7 @@
         "job_id": "job0",
         "source_benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g_stage4f_parent_slice_314",
         "source_content_hash": "9e25ea279ed76d51c868320d158449c440789528c211498163fe84b6fff5468a",
-        "source_path": "benchmark/llm_structure/.staging/np-stage4f-candidates-20260903/parents/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g_stage4f_parent_slice_314_0427a0a5664a.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/fixed_multi_resource/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
         "weight": 1.0
       },
       {
@@ -22,7 +22,7 @@
         "job_id": "job1",
         "source_benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g_stage4f_parent_slice_360",
         "source_content_hash": "fe90e06e2dd108389f0981356b6b9e6610cc7592bf771304600f83bc3008ed2c",
-        "source_path": "benchmark/llm_structure/.staging/np-stage4f-candidates-20260903/parents/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g_stage4f_parent_slice_360_0427a0a5664a.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/fixed_multi_resource/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_cassini_24g.json",
         "weight": 1.0
       }
     ],

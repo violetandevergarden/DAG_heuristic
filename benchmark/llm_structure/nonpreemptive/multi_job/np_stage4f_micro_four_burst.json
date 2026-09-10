@@ -12,7 +12,7 @@
         "job_id": "job0",
         "source_benchmark_id": "np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20",
         "source_content_hash": "810859716a3d01beeec4dd8d0207dcf281470442d88b5b372e496a70d2f4a5f7",
-        "source_path": "benchmark/llm_structure/nonpreemptive/real_derived/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/decision_slices/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
         "weight": 1.0
       },
       {
@@ -22,7 +22,7 @@
         "job_id": "job1",
         "source_benchmark_id": "np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20",
         "source_content_hash": "810859716a3d01beeec4dd8d0207dcf281470442d88b5b372e496a70d2f4a5f7",
-        "source_path": "benchmark/llm_structure/nonpreemptive/real_derived/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/decision_slices/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
         "weight": 1.0
       },
       {
@@ -32,7 +32,7 @@
         "job_id": "job2",
         "source_benchmark_id": "np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20",
         "source_content_hash": "810859716a3d01beeec4dd8d0207dcf281470442d88b5b372e496a70d2f4a5f7",
-        "source_path": "benchmark/llm_structure/nonpreemptive/real_derived/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/decision_slices/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
         "weight": 1.0
       },
       {
@@ -42,7 +42,7 @@
         "job_id": "job3",
         "source_benchmark_id": "np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20",
         "source_content_hash": "810859716a3d01beeec4dd8d0207dcf281470442d88b5b372e496a70d2f4a5f7",
-        "source_path": "benchmark/llm_structure/nonpreemptive/real_derived/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/decision_slices/np_mixtral8x7b_ws4_tp2_pp2_ep1_gbs1_mbs1_decision_slice_20.json",
         "weight": 1.0
       }
     ],

@@ -12,7 +12,7 @@
         "job_id": "job0",
         "source_benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g_stage4f_parent_slice_314",
         "source_content_hash": "1b589c0ca44f1b8e89db6d70c14382606a7916be92abd484b150194a71d973b1",
-        "source_path": "benchmark/llm_structure/.staging/np-stage4f-candidates-20260903/parents/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g_stage4f_parent_slice_314_2261454d7293.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/fixed_multi_resource/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g.json",
         "weight": 1.0
       },
       {
@@ -22,7 +22,7 @@
         "job_id": "job1",
         "source_benchmark_id": "np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g_stage4f_parent_slice_360",
         "source_content_hash": "3f58dfa6f28c1f3d86656703203e0709d9695c4baa16c4d49b99a04f2dff53e2",
-        "source_path": "benchmark/llm_structure/.staging/np-stage4f-candidates-20260903/parents/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g_stage4f_parent_slice_360_2261454d7293.json",
+        "source_path": "benchmark/llm_structure/nonpreemptive/fixed_multi_resource/np_mixtral8x7b_ws2_tp2_pp1_ep1_gbs1_mbs1_route_alibaba_hpn_16g.json",
         "weight": 1.0
       }
     ],

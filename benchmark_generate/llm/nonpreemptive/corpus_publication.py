@@ -11,6 +11,12 @@ from benchmark import load_benchmark, validate_benchmark
 from benchmark_generate.export import build_index
 from benchmark_generate.io import FileHashCache, read_jsonl, sha256_file, write_jsonl_atomic
 from benchmark_generate.manifest import validate_manifest
+from benchmark_generate.llm.common.layout import (
+    corpus_root,
+    manifest_path,
+    normalize_corpus_relative,
+    provenance_path,
+)
 
 
 def sha256(path: Path) -> str:
@@ -35,7 +41,7 @@ def validate_candidate(staging: Path) -> list[dict]:
             raise ValueError("candidate contains empty or duplicate id/path")
         ids.add(benchmark_id)
         paths.add(relative)
-        path = staging / relative
+        path = staging / "nonpreemptive" / relative
         benchmark = load_benchmark(path)
         validate_benchmark(benchmark)
         if benchmark.schema_version != "3.0" or benchmark.semantics.is_preemptive:
@@ -46,7 +52,7 @@ def validate_candidate(staging: Path) -> list[dict]:
         if not report or cache.get(staging / report) != row.get("contention_report_hash"):
             raise ValueError(f"contention report missing or mismatched: {relative}")
     actual = {
-        path.relative_to(staging).as_posix() for path in (staging / "nonpreemptive").rglob("*.json")
+        path.relative_to(staging / "nonpreemptive").as_posix() for path in (staging / "nonpreemptive").rglob("*.json")
     }
     if actual != {row["path"] for row in rows}:
         raise ValueError("candidate manifest/file mismatch")
@@ -56,16 +62,15 @@ def validate_candidate(staging: Path) -> list[dict]:
 def publish(root: Path, *, staging: Path) -> tuple[Path, int]:
     root, staging = root.resolve(), staging.resolve()
     rows = validate_candidate(staging)
-    llm_root = root / "llm_structure"
-    active = llm_root / "nonpreemptive"
+    active = corpus_root(root, "nonpreemptive")
     backup_root = root.parent / ".artifacts" / "nonpreemptive_publication_backup"
     backup_root.mkdir(parents=True, exist_ok=True)
     backup = backup_root / f"snapshot-{int(time.time())}"
     sidecars = [
-        llm_root / "nonpreemptive_manifest.jsonl",
-        llm_root / "nonpreemptive_source_catalog.jsonl",
-        llm_root / "nonpreemptive_topology_catalog.jsonl",
-        llm_root / "nonpreemptive_run_metadata.jsonl",
+        manifest_path(root, "nonpreemptive"),
+        provenance_path(root, "nonpreemptive", "source_catalog.jsonl"),
+        provenance_path(root, "nonpreemptive", "topology_catalog.jsonl"),
+        provenance_path(root, "nonpreemptive", "run_metadata.jsonl"),
         root / "index.jsonl",
     ]
     saved = {path: path.read_bytes() if path.exists() else None for path in sidecars}
@@ -76,6 +81,7 @@ def publish(root: Path, *, staging: Path) -> tuple[Path, int]:
         for source, target in zip(
             ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl"), sidecars[1:4]
         ):
+            target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(staging / source, target)
         write_jsonl_atomic(sidecars[0], [{**row, "publication_status": "published"} for row in rows])
         count = len(build_index(root))
@@ -109,7 +115,8 @@ def publish_selected(
     if len(ids) != len(rows):
         raise ValueError("Stage 4f selection contains duplicate benchmark ids")
     for row in rows:
-        source = staging / row["path"]
+        row["path"] = normalize_corpus_relative(row["path"], "nonpreemptive").as_posix()
+        source = staging / "nonpreemptive" / row["path"]
         benchmark = load_benchmark(source)
         validate_benchmark(benchmark)
         if benchmark.benchmark_id != row["benchmark_id"]:
@@ -127,8 +134,7 @@ def publish_selected(
         }:
             raise ValueError(f"invalid admission class: {benchmark.benchmark_id}")
 
-    llm_root = root / "llm_structure"
-    manifest = llm_root / "nonpreemptive_manifest.jsonl"
+    manifest = manifest_path(root, "nonpreemptive")
     index = root / "index.jsonl"
     old_manifest = manifest.read_bytes() if manifest.exists() else None
     old_index = index.read_bytes() if index.exists() else None
@@ -140,14 +146,14 @@ def publish_selected(
     created = []
     try:
         for row in rows:
-            relative = Path(row["path"])
-            if relative.parts[0] != "nonpreemptive":
-                raise ValueError(f"selection path escapes nonpreemptive tree: {relative}")
-            target = llm_root / relative
+            relative = normalize_corpus_relative(row["path"], "nonpreemptive")
+            row["path"] = relative.as_posix()
+            target = corpus_root(root, "nonpreemptive") / relative
             if target.exists():
                 raise ValueError(f"publication target already exists: {target}")
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(staging / relative, target)
+            source = staging / "nonpreemptive" / relative
+            shutil.copy2(source, target)
             created.append(target)
         write_jsonl_atomic(
             manifest,
@@ -175,7 +181,7 @@ def publish_selected(
 def refresh_selected_records(root: Path, *, selection: Path) -> Path:
     """Refresh sidecar metadata only when published ids and hashes are unchanged."""
     root, selection = root.resolve(), selection.resolve()
-    manifest = root / "llm_structure" / "nonpreemptive_manifest.jsonl"
+    manifest = manifest_path(root, "nonpreemptive")
     existing = read_jsonl(manifest)
     updates = {row["benchmark_id"]: row for row in read_jsonl(selection)}
     found = set()
@@ -187,7 +193,7 @@ def refresh_selected_records(root: Path, *, selection: Path) -> Path:
             continue
         if row["content_hash"] != update["content_hash"]:
             raise ValueError(f"cannot refresh changed content: {row['benchmark_id']}")
-        target = root / "llm_structure" / update["path"]
+        target = corpus_root(root, "nonpreemptive") / update["path"]
         if sha256_file(target) != update["content_hash"]:
             raise ValueError(f"published file hash mismatch: {row['benchmark_id']}")
         refreshed.append({**update, "publication_status": "published"})

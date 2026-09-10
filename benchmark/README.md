@@ -55,7 +55,7 @@ benchmark/
 
 ## 当前数据规模
 
-数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/test_benchmark_format.py` 与 `tests/test_semantics_layout.py` 断言锁定。当前共 215 个问题（v1 nonpreemptive 75 个，v2 preemptive 140 个，其中 `benchmark/llm_structure/` 真实 LLM 语料 44 个）：
+数字以 `benchmark/index.jsonl`（由 `benchmark_generate.export.build_index` 机器生成）为准，并被 `tests/test_benchmark_format.py` 与 `tests/test_semantics_layout.py` 断言锁定。统计日期为 2026-09-09；当前共 290 个问题。各语义 LLM 语料的细分数量由对应 `manifest.jsonl` 和审计命令生成，不在 README 中手工维护。
 
 | 场景 | random | adversarial | real | 合计 |
 |---|---:|---:|---:|---:|
@@ -65,9 +65,9 @@ benchmark/
 | `single_channel/parallel_chain/preemptive` | 10 | 14 | 5 | 29 |
 | `single_channel/complex_chain/preemptive` | 20 | 22 | 35 | 77 |
 | `muti_channel/preemptive` | 10 | 9 | 15 | 34 |
-| 总计 | 70 | 78 | 67 | 215 |
+| 总计 | 70 | 78 | 142 | 290 |
 
-其中 `benchmark/llm_structure/preemptive/` 的分布（细分见 `metadata.provenance.source.kind` 与目录，说明见 `benchmark/llm_structure/README.md`）：统一瓶颈 unified 28、路由冻结 routed 11、多 iteration multi_iteration 3、SimAI 示例投影 simai_examples 2。
+其中 `benchmark/llm_structure/` 下的正式语料按语义分目录；`single_channel` 表示单通道，`fixed_multi_resource/<topology_tag>` 表示固定多资源，`multi_iteration`、`multi_job`、`decision_slices` 和 `examples` 分别表示独立的数据用途。执行 `python -m experiments.llm_structure.benchmark_layout_audit` 可从 index 和两个 manifest 生成当前统计。
 
 能够从历史实验精确恢复的代表性反例已经固化，包括：
 
@@ -245,9 +245,9 @@ python src/cli.py benchmark/muti_channel/nonpreemptive/adversarial/nonmaximal_st
 
 ## `index.jsonl`
 
-布局 v2 索引显式包含 `semantics` 和 `layout_version`；逐文件旧路径、新路径及迁移前哈希见 `path_migration_v1_to_v2.jsonl`。
+布局 v2 索引显式包含 `semantics` 和 `layout_version`。历史路径迁移表已退出正式 benchmark 根目录，逐文件映射由 Git 历史保存。
 
-索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category`、`semantics`、`layout_version` 和问题文件 SHA-256。布局 v1 到 v2 的逐文件旧路径、新路径与迁移前哈希记录在 `path_migration_v1_to_v2.jsonl`。
+索引每行是一个 JSON object，包含 benchmark `id`、相对路径 `path`、`scenario`、`family`、`category`、`semantics`、`layout_version` 和问题文件 SHA-256。`benchmark/llm_structure/<semantics>/manifest.jsonl` 另外用 `collection` 区分 `canonical`（正式回归）、`scale`（规模或多 iteration）和 `example`（示例投影），并记录对应语义 corpus 的来源、竞争证据和发布状态；`experiments/**/manifests/*.jsonl` 只记录某次实验的输入选择，三者不互相替代。
 
 使用者可以读取索引遍历数据集，不必自己扫描目录。问题文件变化后必须更新索引，避免缓存或实验结果继续引用旧内容。
 

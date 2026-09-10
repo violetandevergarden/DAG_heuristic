@@ -310,41 +310,21 @@ def build_index(root: Path) -> list[dict]:
         benchmark = load_benchmark(target)
         rows.append(
             {
-                "id": benchmark.benchmark_id,
+                "id": f"{semantics_name(benchmark)}:{benchmark.family}:{benchmark.benchmark_id}",
+                "benchmark_id": benchmark.benchmark_id,
                 "path": relative,
                 "scenario": benchmark.scenario,
                 "family": benchmark.family,
                 "category": benchmark.category,
                 "semantics": semantics_name(benchmark),
+                "schema_version": benchmark.schema_version,
                 "layout_version": LAYOUT_VERSION,
                 "sha256": sha256_file(target),
             }
         )
     rows.sort(key=lambda row: (row["scenario"], row["family"], row["category"], row["id"]))
     write_jsonl_atomic(benchmark_root / "index.jsonl", rows)
-    _refresh_path_manifest_hashes(benchmark_root)
     return rows
-
-
-def _refresh_path_manifest_hashes(root: Path) -> None:
-    """Keep historical move targets auditable after an in-place v2 correction."""
-
-    manifest = root / "path_migration_v1_to_v2.jsonl"
-    if not manifest.exists():
-        return
-    rows = [json.loads(line) for line in manifest.read_text(encoding="utf-8-sig").splitlines()]
-    for row in rows:
-        target = root / row["new_path"]
-        if target.is_file():
-            row["sha256"] = sha256_file(target)
-    manifest.write_text(
-        "".join(
-            json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
-            for row in rows
-        ),
-        encoding="utf-8",
-        newline="\n",
-    )
 
 
 def _case(benchmark: Benchmark, scenario: str, family: str, category: str) -> ExportedCase:

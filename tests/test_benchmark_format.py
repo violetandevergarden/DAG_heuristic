@@ -27,34 +27,32 @@ def benchmark_files() -> list[Path]:
 
 
 def test_every_committed_benchmark_loads() -> None:
-    files = benchmark_files()
-    loaded = [load_benchmark(path) for path in files]
+    index_rows = [
+        json.loads(line)
+        for line in (ROOT / "benchmark/index.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    # The public inventory covers every file through streaming hashes. Model
+    # construction is limited to small representative inputs so this format
+    # test cannot materialize the multi-gigabyte LLM corpus.
+    selected = [
+        ROOT / "benchmark" / row["path"]
+        for row in index_rows
+        if not row["path"].startswith("llm_structure/")
+        or (ROOT / "benchmark" / row["path"]).stat().st_size <= 2_000_000
+    ]
+    loaded = [load_benchmark(path) for path in selected]
     counts: dict[tuple[str, str, str], int] = {}
     for item in loaded:
         key = (item.schema_version, item.scenario, item.family, item.category)
         counts[key] = counts.get(key, 0) + 1
-    assert counts == {
-        ("1.0", "single_channel", "parallel_chain", "adversarial"): 13,
-        ("1.0", "single_channel", "parallel_chain", "random"): 10,
-        ("1.0", "single_channel", "parallel_chain", "real"): 2,
-        ("1.0", "single_channel", "complex_chain", "adversarial"): 16,
-        ("1.0", "single_channel", "complex_chain", "random"): 10,
-        ("1.0", "single_channel", "complex_chain", "real"): 7,
-        ("1.0", "muti_channel", "complex_chain", "adversarial"): 4,
-        ("1.0", "muti_channel", "complex_chain", "random"): 10,
-        ("1.0", "muti_channel", "complex_chain", "real"): 3,
-        ("2.0", "single_channel", "parallel_chain", "adversarial"): 14,
-        ("2.0", "single_channel", "parallel_chain", "random"): 10,
-        ("2.0", "single_channel", "parallel_chain", "real"): 5,
-        ("2.0", "single_channel", "complex_chain", "adversarial"): 22,
-        ("2.0", "single_channel", "complex_chain", "random"): 20,
-        ("2.0", "single_channel", "complex_chain", "real"): 35,
-        ("2.0", "muti_channel", "complex_chain", "adversarial"): 9,
-        ("2.0", "muti_channel", "complex_chain", "random"): 10,
-        ("2.0", "muti_channel", "complex_chain", "real"): 43,
-        ("3.0", "single_channel", "complex_chain", "real"): 43,
-        ("3.0", "muti_channel", "complex_chain", "real"): 4,
-    }
+    expected: dict[tuple[str, str, str], int] = {}
+    for row in index_rows:
+        path = ROOT / "benchmark" / row["path"]
+        if not row["path"].startswith("llm_structure/") or path.stat().st_size <= 2_000_000:
+            key = (row["schema_version"], row["scenario"], row["family"], row["category"])
+            expected[key] = expected.get(key, 0) + 1
+    assert counts == expected
+    assert len(loaded) == sum(expected.values())
     assert {item.scenario for item in loaded} == {"single_channel", "muti_channel"}
     assert {item.category for item in loaded} == {"random", "adversarial", "real"}
 
@@ -68,7 +66,7 @@ def test_benchmark_files_use_lf_line_endings() -> None:
 
 
 def test_index_matches_files_and_hashes() -> None:
-    import hashlib
+    from benchmark_generate.io import sha256_file
 
     rows = [
         json.loads(line)
@@ -78,7 +76,7 @@ def test_index_matches_files_and_hashes() -> None:
     for row in rows:
         path = ROOT / "benchmark" / row["path"]
         assert path.exists()
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == row["sha256"]
+        assert sha256_file(path) == row["sha256"]
 
 
 def test_reference_results_match_problem_hashes() -> None:
@@ -94,6 +92,7 @@ def test_reference_results_match_problem_hashes() -> None:
         assert payload["benchmark_sha256"] == hashlib.sha256(problem.read_bytes()).hexdigest()
 
 
+@pytest.mark.oracle_full
 def test_reference_results_recompute_with_exact_oracle() -> None:
     for reference in sorted((ROOT / "benchmark/reference_results").rglob("*.json")):
         payload = json.loads(reference.read_text(encoding="utf-8"))

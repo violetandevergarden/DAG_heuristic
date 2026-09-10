@@ -175,4 +175,4 @@ def test_manifest_rebuild_is_deterministic_and_index_skips_staging(tmp_path) -> 
     write_benchmark(_parent("public"), benchmark_root / "public.json")
     write_benchmark(_parent("hidden"), benchmark_root / ".staging/run/hidden.json")
     rows = build_index(benchmark_root)
-    assert {row["id"] for row in rows} == {"public"}
+    assert {row["id"] for row in rows} == {"nonpreemptive:complex_chain:public"}

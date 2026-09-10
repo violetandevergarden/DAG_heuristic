@@ -29,6 +29,13 @@ from typing import Any
 from benchmark import load_benchmark, validate_benchmark
 from benchmark_generate.export import build_index
 from benchmark_generate.io import canonical_sha256, sha256_file
+from benchmark_generate.llm.common.layout import (
+    collection_for_path,
+    corpus_root,
+    llm_root as benchmark_llm_root,
+    manifest_path,
+    provenance_path,
+)
 
 CORPUS_MANIFEST_VERSION = "llm-corpus-v3"
 CONVERSION_STATUSES = {"not_run", "valid", "explained_delta", "mismatch", "invalid"}
@@ -136,7 +143,9 @@ def _row_for(
     source = provenance.get("source", {})
     topology = provenance.get("topology", {})
     parameters = generation_parameters or provenance.get("parameters", {})
-    base = root / "llm_structure"
+    base = corpus_root(root, "preemptive")
+    if not base.exists():
+        base = benchmark_llm_root(root)
     if not base.exists():
         base = root
     rel = path.relative_to(base).as_posix()
@@ -153,20 +162,20 @@ def _row_for(
     inferred_effective_ws = provenance.get("effective_world_size", metadata.get("effective_world_size"))
     if inferred_effective_ws is None and inferred_tp and inferred_pp and inferred_effective_dp:
         inferred_effective_ws = int(inferred_tp) * int(inferred_pp) * int(inferred_effective_dp)
-    is_routed = "routed" in path_parts
+    is_routed = "fixed_multi_resource" in path_parts
     topology_tier = topology.get("tier")
     if topology_tier is None and is_routed:
-        topology_tier = "production" if path_parts[path_parts.index("routed") + 1] in {
+        topology_tier = "production" if path_parts[path_parts.index("fixed_multi_resource") + 1] in {
             "alibaba_hpn_16g", "spectrum_x_16g", "dcn_dual_tor_64g"
         } else "experimental"
     inferred_layer = metadata.get("stage4_layer")
     if inferred_layer is None:
-        inferred_layer = "structured_projection" if "multi_iteration" in path_parts else "control" if "simai_examples" in path_parts else "real_derived" if source.get("name") else "compatibility"
-    inferred_origin = provenance.get("workload_origin", metadata.get("workload_origin")) or ("real_aicb" if source.get("name") else "simai_example" if "simai_examples" in path_parts else "synthetic")
+        inferred_layer = "structured_projection" if "multi_iteration" in path_parts else "control" if "examples" in path_parts else "real_derived" if source.get("name") else "compatibility"
+    inferred_origin = provenance.get("workload_origin", metadata.get("workload_origin")) or ("real_aicb" if source.get("name") else "simai_example" if "examples" in path_parts else "synthetic")
     inferred_topology_origin = provenance.get("topology_origin", metadata.get("topology_origin")) or (topology_tier or "unified_relaxation")
     inferred_topology_name = topology.get("name")
     if inferred_topology_name is None and is_routed:
-        inferred_topology_name = path_parts[path_parts.index("routed") + 1]
+        inferred_topology_name = path_parts[path_parts.index("fixed_multi_resource") + 1]
     inferred_suite = _suite(benchmark)
     if inferred_suite == "control":
         inferred_suite = "R-S" if topology_tier == "experimental" else "R-P" if topology_tier == "production" else "R-C" if source.get("name") else "control"
@@ -174,6 +183,7 @@ def _row_for(
         "schema_version": CORPUS_MANIFEST_VERSION,
         "benchmark_id": benchmark.benchmark_id,
         "path": rel,
+        "collection": collection_for_path("preemptive", rel, len(benchmark.tasks)),
         "suite": inferred_suite,
         "stage4_layer": inferred_layer,
         "conversion_status": "valid",
@@ -275,6 +285,10 @@ def _migrate_manifest_row(row: dict[str, Any], *, published: bool = False) -> di
     probe = migrated.get("probe") or {}
     migrated.pop("status", None)
     migrated["schema_version"] = CORPUS_MANIFEST_VERSION
+    migrated.setdefault(
+        "collection",
+        collection_for_path("preemptive", migrated.get("path", ""), int(migrated.get("task_count", 0))),
+    )
     migrated.setdefault("conversion_status", "invalid" if legacy in {"failed", "invalid"} else "valid")
     evidence = migrated.get("contention_evidence_level")
     if evidence is None or (
@@ -553,9 +567,9 @@ def generate(root: Path, *, run_id: str | None = None) -> Path:
     from benchmark_generate.llm.common.config import AICB_ROOT
     from benchmark_generate.llm.common.conversion import build_corpus
 
-    llm_root = root / "llm_structure"
+    benchmark_root = benchmark_llm_root(root)
     run_id = run_id or datetime.now(UTC).strftime("run-%Y%m%dT%H%M%SZ")
-    staging = llm_root / ".staging" / run_id
+    staging = benchmark_root / ".staging" / run_id
     if staging.exists():
         raise FileExistsError(f"staging run already exists: {staging}")
     sources, quarantine = scan_aicb_catalog(AICB_ROOT)
@@ -625,10 +639,8 @@ def probe(
         from benchmark_generate.llm.preemptive.contention import competition_report as _competition_report
         competition_report = _competition_report
 
-    active_llm_root = root / "llm_structure"
-    manifest = (manifest or _manifest_path(active_llm_root)).resolve()
-    # A candidate manifest is rooted at its staging run; the active manifest
-    # remains rooted at benchmark/llm_structure.
+    active_llm_root = corpus_root(root, "preemptive")
+    manifest = (manifest or manifest_path(root, "preemptive")).resolve()
     llm_root = manifest.parent if manifest.name == "candidate_manifest.jsonl" else active_llm_root
     rows = _read_jsonl(manifest)
     # Contention-audit checkpoints are not benchmark inputs. Keep them
@@ -718,8 +730,8 @@ def publish(
     """Publish a validated candidate, or reconcile the current active corpus."""
 
     root = root.resolve()
-    llm_root = root / "llm_structure"
-    active = llm_root / "preemptive"
+    benchmark_root = benchmark_llm_root(root)
+    active = corpus_root(root, "preemptive")
     if staging is not None:
         staging = staging.resolve()
         candidate = staging / "preemptive"
@@ -728,10 +740,19 @@ def publish(
         source_manifest = staging / "candidate_manifest.jsonl"
         rows = [_migrate_manifest_row(row) for row in _read_jsonl(source_manifest)
                 if row.get("publication_status") != "excluded" and row.get("conversion_status") != "invalid"]
+        for row in rows:
+            relative = Path(row["path"])
+            if relative.parts and relative.parts[0] == "preemptive":
+                row["path"] = Path(*relative.parts[1:]).as_posix()
         candidate_files = {
-            path.relative_to(staging).as_posix() for path in candidate.rglob("*.json")
+            path.relative_to(candidate).as_posix() for path in candidate.rglob("*.json")
         }
-        manifest_files = {row["path"] for row in rows}
+        manifest_files = {
+            Path(row["path"]).relative_to("preemptive").as_posix()
+            if Path(row["path"]).parts and Path(row["path"]).parts[0] == "preemptive"
+            else row["path"]
+            for row in rows
+        }
         if candidate_files != manifest_files:
             missing = sorted(candidate_files - manifest_files)
             extra = sorted(manifest_files - candidate_files)
@@ -742,6 +763,8 @@ def publish(
             relative = row.get("path")
             if not relative:
                 continue
+            if Path(relative).parts and Path(relative).parts[0] == "preemptive":
+                relative = Path(*Path(relative).parts[1:]).as_posix()
             benchmark_id = row.get("benchmark_id")
             if not benchmark_id:
                 raise ValueError("candidate manifest contains empty benchmark_id")
@@ -749,11 +772,11 @@ def publish(
                 raise ValueError("candidate manifest contains duplicate benchmark_id or path")
             seen_ids.add(benchmark_id)
             seen_paths.add(relative)
-            path = (staging / relative).resolve()
+            path = (candidate / relative).resolve()
             try:
-                path.relative_to(staging)
+                path.relative_to(candidate)
             except ValueError as error:
-                raise ValueError(f"candidate path escapes staging: {relative}") from error
+                raise ValueError(f"candidate path escapes corpus: {relative}") from error
             if not path.is_file():
                 raise ValueError(f"candidate benchmark missing: {relative}")
             benchmark = load_benchmark(path)
@@ -766,7 +789,7 @@ def publish(
         sidecar_backups: dict[Path, bytes | None] = {}
         sidecar_names = ("source_catalog.jsonl", "topology_catalog.jsonl", "run_metadata.jsonl", "manifest.jsonl")
         for name in sidecar_names:
-            target = llm_root / name
+            target = provenance_path(root, "preemptive", name)
             sidecar_backups[target] = target.read_bytes() if target.exists() else None
         index_path = root / "index.jsonl"
         sidecar_backups[index_path] = index_path.read_bytes() if index_path.exists() else None
@@ -782,10 +805,11 @@ def publish(
                 source = staging / name
                 if not source.is_file():
                     raise ValueError(f"candidate sidecar missing: {name}")
-                shutil.copy2(source, llm_root / name)
+                provenance_path(root, "preemptive", name).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, provenance_path(root, "preemptive", name))
             rows = [{**row, "publication_status": "published"} for row in rows]
             rows.sort(key=lambda row: row.get("benchmark_id", ""))
-            _write_jsonl(_manifest_path(llm_root), rows)
+            _write_jsonl(manifest_path(root, "preemptive"), rows)
             index_rows = build_index(root)
         except Exception:
             if active.exists():
@@ -799,9 +823,9 @@ def publish(
                     target.parent.mkdir(parents=True, exist_ok=True)
                     target.write_bytes(content)
             raise
-        return _manifest_path(llm_root), len(index_rows)
+        return manifest_path(root, "preemptive"), len(index_rows)
     else:
-        previous = {row.get("benchmark_id"): row for row in _read_jsonl(_manifest_path(llm_root))}
+        previous = {row.get("benchmark_id"): row for row in _read_jsonl(manifest_path(root, "preemptive"))}
         rows = []
         for path in sorted(active.rglob("*.json")):
             benchmark = load_benchmark(path)
@@ -820,12 +844,12 @@ def publish(
             rows.append(row)
     rows = [_migrate_manifest_row(row, published=True) for row in rows]
     rows.sort(key=lambda row: row.get("benchmark_id", ""))
-    _write_jsonl(_manifest_path(llm_root), rows)
+    _write_jsonl(manifest_path(root, "preemptive"), rows)
     index_rows = build_index(root)
     # Keep the active pointer in the JSONL manifest itself.  A standalone
     # ``*.json`` file under ``benchmark/`` would be mistaken for a benchmark by
     # the repository-wide format/index tests.
-    return _manifest_path(llm_root), len(index_rows)
+    return manifest_path(root, "preemptive"), len(index_rows)
 
 
 def main(argv: list[str] | None = None) -> None:

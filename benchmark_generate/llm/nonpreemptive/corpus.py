@@ -18,6 +18,14 @@ from benchmark_generate.io import (
     write_json_atomic,
     write_jsonl_atomic,
 )
+from benchmark_generate.llm.common.layout import (
+    collection_for_path,
+    corpus_root,
+    llm_root as benchmark_llm_root,
+    manifest_path,
+    normalize_corpus_relative,
+    provenance_path,
+)
 from benchmark_generate.llm.nonpreemptive.catalog import source_catalog, topology_catalog
 from benchmark_generate.llm.nonpreemptive.contention_audit import contention_audit
 from benchmark_generate.llm.common.multi_job import compose_real_jobs
@@ -102,7 +110,8 @@ def _manifest_row(benchmark, relative: Path, run_id: str, spec: dict) -> dict:
         "manifest_version": MANIFEST_VERSION,
         "publication_run_id": run_id,
         "benchmark_id": benchmark.benchmark_id,
-        "path": (Path("nonpreemptive") / relative).as_posix(),
+        "path": relative.as_posix(),
+        "collection": collection_for_path("nonpreemptive", relative, len(benchmark.tasks)),
         "conversion_status": "valid",
         "contention_classification": "unknown",
         "contention_evidence_level": "not_run",
@@ -135,9 +144,9 @@ def generate(
     generation_time_limit_s: float = 60.0,
 ) -> Path:
     root = root.resolve()
-    llm_root = root / "llm_structure"
+    benchmark_root = benchmark_llm_root(root)
     run_id = run_id or datetime.now(UTC).strftime("np-run-%Y%m%dT%H%M%SZ")
-    staging = llm_root / ".staging" / run_id
+    staging = benchmark_root / ".staging" / run_id
     resuming = staging.exists()
     hash_cache = FileHashCache()
     sources = source_catalog(AICB_ROOT, hash_cache=hash_cache)
@@ -166,7 +175,7 @@ def generate(
         record = (benchmark, path, row.get("spec", {}))
         if row.get("size_tier") == "small":
             small_cases.append(record)
-        elif "real_derived" not in Path(row["path"]).parts:
+        elif "decision_slices" not in Path(row["path"]).parts:
             base_cases.append(record)
 
     def checkpoint() -> None:
@@ -180,7 +189,7 @@ def generate(
             continue
         try:
             relative = (
-                Path("routed" if spec.get("topology") else "single_channel")
+                Path("fixed_multi_resource" if spec.get("topology") else "single_channel")
                 / f"{benchmark_id}.json"
             )
             path = output / relative
@@ -221,7 +230,7 @@ def generate(
                     )
                 except ValueError:
                     continue
-                slice_relative = Path("real_derived") / f"{sliced.benchmark_id}.json"
+                slice_relative = Path("decision_slices") / f"{sliced.benchmark_id}.json"
                 slice_path = output / slice_relative
                 write_benchmark(sliced, slice_path)
                 slice_spec = {**spec, "slice": sliced.metadata["slice_relation"]}
@@ -326,7 +335,9 @@ def audit(
                 or row.get("contention_evidence_level") != "not_run"
             ):
                 continue
-            path = staging / row["path"]
+            path = staging / "nonpreemptive" / normalize_corpus_relative(
+                row["path"], "nonpreemptive"
+            )
             report = contention_audit(
                 load_benchmark(path),
                 max_decisions=max_decisions,
