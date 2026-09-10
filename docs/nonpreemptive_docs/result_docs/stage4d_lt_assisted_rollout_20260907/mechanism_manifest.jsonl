@@ -1,2 +1,0 @@
-{"benchmark_id":"np_stage4f_micro_eight_burst","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_micro_eight_burst.json","split":"design_exposed","source_group":"mixtral_micro"}
-{"benchmark_id":"np_stage4f_micro_four_burst","path":"benchmark/llm_structure/nonpreemptive/multi_job/np_stage4f_micro_four_burst.json","split":"design_exposed","source_group":"mixtral_micro"}
